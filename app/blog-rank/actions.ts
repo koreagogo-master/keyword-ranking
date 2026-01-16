@@ -15,9 +15,12 @@ interface RankResult {
   };
 }
 
-export async function checkNaverRank(keyword: string, targetNickname: string): Promise<RankResult> {
-  // 개발자님 요청: "눈에 안 보이는 데이터 삭제" -> 너비(Width) 필터링 적용
-  console.log(`\n========== [Final Filter: 좁은 카드(가짜 순위) 제거] ==========`);
+// ==================================================================
+// 1. [블로그 탭] 순위 확인 (기존 코드 유지)
+// ==================================================================
+export async function checkNaverBlogRank(keyword: string, targetNickname: string): Promise<RankResult> {
+  console.log(`\n========== [블로그 탭(Blog Tab) 순위 체크] ==========`);
+  console.log(`검색 키워드: ${keyword}`);
 
   let browser;
   try {
@@ -27,7 +30,198 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
     });
 
     const page = await browser.newPage();
-    // 모바일 뷰포트 (아이폰 12 Pro 기준: 390px)
+    await page.setViewport({ width: 390, height: 844 });
+    
+    await page.setUserAgent(
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1'
+    );
+
+    const searchUrl = `https://m.search.naver.com/search.naver?ssc=tab.m_blog.all&where=m_blog&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(keyword)}`;
+    
+    await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: 60000 });
+
+    for (let i = 0; i < 5; i++) { 
+      await page.evaluate(() => window.scrollBy(0, 800));
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+
+    const crawledData = await page.evaluate((targetNick) => {
+      const normalize = (text: string | null) => text ? text.replace(/\s+/g, '').toLowerCase().trim() : '';
+      const targetNormal = normalize(targetNick);
+      
+      const dateRegex = /(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}|\d+(?:시간|분|일|주|개월|년)\s*전|어제|방금\s*전)/;
+
+      const TRASH_KEYWORDS = [
+          '설정시작', '설정끝', '년(Year)', '월(Month)', '일(Day)', '직접입력', '옵션', '펼치기', '접기', 
+          '초기화', '기간', '전체', '정렬', '관련도순', '최신순', '지식iN', '도움말', '자동완성', 
+          '로그인', '함께 보면 좋은', '관련 출처', '지식백과', '추천 콘텐츠', '비슷한 글', '인기글', 
+          'Naver', 'naver', 'NAVER', '네이버', '블로그', '카페', 'Blog', '더보기', 'Keep', '통계', '이미지', '동영상'
+      ];
+
+      const allElements = Array.from(document.querySelectorAll('a, span, strong, div, p, h3, h4'));
+      const items: any[] = [];
+
+      for (const el of allElements) {
+          const text = el.textContent?.trim() || '';
+          if (text.length < 1) continue;
+          if (text === '네이버' || text === 'NAVER' || text === '블로그') continue;
+
+          const rect = el.getBoundingClientRect();
+          if (rect.width < 1 || rect.height < 1) continue; 
+          
+          const style = window.getComputedStyle(el);
+          
+          let href = '';
+          const anchor = el.tagName === 'A' ? el : el.closest('a');
+          if (anchor && (anchor as HTMLAnchorElement).href) {
+             href = (anchor as HTMLAnchorElement).href;
+          }
+
+          items.push({
+              text: text,
+              y: rect.top,
+              x: rect.left,
+              fontSize: parseFloat(style.fontSize),
+              isBold: style.fontWeight === 'bold' || parseInt(style.fontWeight) >= 600,
+              href: href,
+              isDate: dateRegex.test(text) && text.length < 30
+          });
+      }
+
+      items.sort((a, b) => a.y - b.y);
+
+      const dateItems = items.filter(i => i.isDate);
+      const uniqueDates: any[] = [];
+      if (dateItems.length > 0) {
+        uniqueDates.push(dateItems[0]);
+        for (let i = 1; i < dateItems.length; i++) {
+            if (dateItems[i].y - dateItems[i-1].y > 10) { 
+                uniqueDates.push(dateItems[i]);
+            }
+        }
+      }
+
+      const rankList: any[] = [];
+      let currentRank = 0;
+
+      for (const dateItem of uniqueDates) {
+          currentRank++;
+
+          const dateMatch = dateItem.text.match(dateRegex);
+          const cleanDate = dateMatch ? dateMatch[0] : dateItem.text;
+
+          let title = '';
+          let url = '';
+          let maxScore = -9999;
+          
+          const titleCandidates = items.filter(i => 
+              i.y > dateItem.y + 2 &&     
+              i.y < dateItem.y + 120 &&   
+              !i.isDate
+          );
+
+          for (const t of titleCandidates) {
+              if (TRASH_KEYWORDS.some(k => t.text.includes(k))) continue;
+              
+              let score = t.fontSize * 10;
+              if (t.isBold) score += 30;
+              if (t.text.length < 2) score -= 50; 
+
+              if (score > maxScore) {
+                  maxScore = score;
+                  title = t.text;
+                  if (t.href) url = t.href;
+              }
+          }
+
+          if (!url) {
+              const link = titleCandidates.find(t => t.href && t.href.startsWith('http'));
+              if (link) url = link.href;
+          }
+
+          let author = '(알수없음)';
+          const nickCandidates = items.filter(i => 
+              Math.abs(i.y - dateItem.y) < 15 &&  
+              !i.isDate && 
+              i.x < dateItem.x 
+          );
+          
+          for (const n of nickCandidates) {
+              let clean = n.text.replace(/Keep|통계/g, '').trim();
+              clean = clean.replace(/^\.+|\.+$/g, '');
+              if (clean.length > 1) {
+                  author = clean;
+                  break;
+              }
+          }
+
+          rankList.push({
+              rank: currentRank,
+              title: title || '제목 없음',
+              author: author,
+              date: cleanDate,
+              url: url
+          });
+
+          if (currentRank >= 30) break; 
+      }
+
+      const foundItem = rankList.find(r => normalize(r.author).includes(targetNormal));
+      const top7 = rankList.slice(0, 7);
+
+      return {
+          found: foundItem ? {
+              totalRank: foundItem.rank,
+              title: foundItem.title,
+              author: foundItem.author,
+              date: foundItem.date,
+              url: foundItem.url,
+              section: '블로그탭'
+          } : null,
+          topList: top7
+      };
+    }, targetNickname);
+
+    if (crawledData.topList && crawledData.topList.length > 0) {
+        console.log(`\n------------------------------------------------`);
+        console.log(`🔎 [블로그탭 상위 7위 리스트]`);
+        crawledData.topList.forEach((item: any) => {
+            console.log(`[${item.rank}위] ${item.title}`);
+        });
+        console.log(`------------------------------------------------\n`);
+    } else {
+        console.log('\n⚠️ 상위 랭킹 리스트를 찾지 못했습니다.\n');
+    }
+
+    if (crawledData.found) {
+      return { success: true, message: `성공! ${crawledData.found.totalRank}위`, data: crawledData.found };
+    } else {
+      return { success: false, message: '순위 밖' };
+    }
+
+  } catch (error) {
+    console.error('Error:', error);
+    return { success: false, message: 'Error' };
+  } finally {
+    if (browser) await browser.close();
+  }
+}
+
+// ==================================================================
+// 2. [통합검색] 순위 확인 (수정: 그룹핑 유지 + 전체 목록에서 제목 찾기)
+// ==================================================================
+export async function checkNaverRank(keyword: string, targetNickname: string): Promise<RankResult> {
+  console.log(`\n========== [통합검색: 그룹핑 유지 + Global 제목 탐색] ==========`);
+  console.log(`검색 키워드: ${keyword}`);
+
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      headless: true, 
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    });
+
+    const page = await browser.newPage();
     await page.setViewport({ width: 390, height: 844 });
     
     await page.setUserAgent(
@@ -38,7 +232,7 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
     await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: 60000 });
 
     console.log('⬇️ 스크롤 다운 중...');
-    for (let i = 0; i < 10; i++) {
+    for (let i = 0; i < 8; i++) {
       await page.evaluate(() => window.scrollBy(0, 800));
       await new Promise(resolve => setTimeout(resolve, 300));
     }
@@ -50,12 +244,11 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
       const dateRegex = /(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}|\d+(?:시간|분|일|주|개월|년)\s*전|어제|방금\s*전)/;
       const urlRegex = /([a-zA-Z0-9-]+\.(com|co\.kr|net)|www\.)/;
 
-      // 1. 차단선(Cut-off) 로직 유지
       const stopKeywords = ['함께 보면 좋은', '함께 볼만한', '추천 콘텐츠', '비슷한 글', '다른 글'];
       let cutOffY = 999999; 
 
-      const allElements = document.querySelectorAll('h2, h3, h4, span, div, strong');
-      for (const el of allElements) {
+      const allTags = document.querySelectorAll('h2, h3, h4, span, div, strong');
+      for (const el of allTags) {
           const text = el.textContent?.trim() || '';
           if (stopKeywords.some(k => text.includes(k))) {
               const rect = el.getBoundingClientRect();
@@ -70,12 +263,8 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
           '직접입력', '옵션', '펼치기', '접기', '초기화', 
           '19901991', '20002001', '기간', '전체', '정렬', '관련도순', 
           '최신순', '이미지', '동영상', '쇼핑', '뉴스', '지식iN', 
-          '지도', '도움말', '자동완성', '로그인',
-          '함께 보면 좋은', '관련 출처', '지식백과', '추천 콘텐츠', '비슷한 글', '인기글',
-          'Naver', 'naver', 'NAVER', '네이버', '블로그', '카페', 'Blog', '더보기'
+          '지도', '도움말', '자동완성', '로그인', '더보기'
       ];
-      
-      const SECTION_HEADERS = ['인기글', '스마트블록', 'VIEW', '블로그', '카페', '지식백과', '함께 보면 좋은'];
 
       const elements = Array.from(document.querySelectorAll('a, span, strong, div.title, p, h3, h4, li, div'));
       
@@ -86,21 +275,13 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
           const text = el.textContent?.trim() || '';
           if (text.length < 2) continue;
           if (processedElements.has(el)) continue;
-          if (el.children.length > 2 && text.length > 100) continue; 
           
           if (TRASH_KEYWORDS.some(k => text.includes(k))) continue;
           if (text.toLowerCase() === 'naver' || text === '네이버') continue;
 
           const rect = el.getBoundingClientRect();
           if (rect.width < 1 || rect.height < 1) continue;
-
-          // [핵심 수정] 너비(Width) 필터 적용
-          // 화면 너비(390px) 기준으로, 메인 글은 보통 340px 이상 차지합니다.
-          // 추천 카드나 썸네일 옆 텍스트는 폭이 좁습니다.
-          // 안전하게 280px 미만인 요소는 "메인 순위 글이 아니다"라고 판단하고 버립니다.
-          if (rect.width < 280) continue;
-
-          // 차단선 아래 무시
+          if (rect.width < 280) continue; // 좁은 카드 필터링
           if (rect.top >= cutOffY) continue;
 
           const style = window.getComputedStyle(el);
@@ -120,6 +301,7 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
           processedElements.add(el);
       }
 
+      // 2. 그룹화 (기존 로직 100% 유지)
       candidates.sort((a, b) => a.y - b.y);
 
       const groups: any[] = [];
@@ -150,6 +332,7 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
       let realRank = 0;
       let found = null;
 
+      // 3. 순위 루프 (수정된 부분: 그룹 밖(전체 리스트)에서 제목 찾기)
       for (const group of groups) {
           realRank++;
           
@@ -157,36 +340,47 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
           let author = '(알수없음)';
           let dateStr = '(날짜없음)';
           let maxScore = -9999;
-          let maxFontSize = 0;
 
-          group.items.forEach((i: any) => {
-              if (i.fontSize > maxFontSize) maxFontSize = i.fontSize;
-          });
-
-          for (const item of group.items) {
-              const dMatch = item.text.match(dateRegex);
+          // (1) 날짜(앵커) 찾기 - 그룹 내부에서
+          const dateItem = group.items.find((i: any) => i.hasDate);
+          
+          if (dateItem) {
+              const dMatch = dateItem.text.match(dateRegex);
               if (dMatch) {
                   dateStr = dMatch[0];
-                  const cleanText = item.text.replace(dMatch[0], '').trim();
+                  // 날짜 옆 닉네임 분리
+                  const cleanText = dateItem.text.replace(dMatch[0], '').trim();
                   const potentialAuthor = cleanText.replace(/^[.|·\s]+|[.|·\s]+$/g, '');
                   if (potentialAuthor.length > 1 && potentialAuthor.length < 50) {
                       author = potentialAuthor;
                   }
               }
+          }
 
-              let score = item.fontSize * 10;
-              if (item.isBold) score += 20;
-              if (item.text.includes('|')) score -= 50;
-              if (dMatch) score -= 100;
-              if (SECTION_HEADERS.includes(item.text)) score = -9999;
+          // (2) 제목 추출 (핵심 수정!)
+          // 그룹(group.items)에 국한되지 않고, 전체 목록(candidates)에서 찾습니다.
+          // 이유: 날짜와 제목이 서로 다른 그룹으로 쪼개졌을 가능성 차단
+          
+          let titleCandidates: any[] = [];
+          
+          if (dateItem) {
+              // candidates(전체)에서 날짜 바로 아래에 있는 것들을 싹 긁어옵니다.
+              titleCandidates = candidates.filter((c: any) => 
+                  c.y > dateItem.y &&             // 날짜보다 아래
+                  c.y < dateItem.y + 120 &&       // 120px 이내 (여유있게)
+                  !c.hasDate                      // 날짜 제외
+              );
+          }
+
+          for (const item of titleCandidates) {
+              // 점수 계산 (폰트 크기 우선)
+              let score = item.fontSize * 10; 
+              if (item.isBold) score += 20;   
               
-              if (group.items.some((i:any) => i.text.includes('함께 보면 좋은'))) {
-                  score = -99999;
-              }
-
-              if (item.fontSize < maxFontSize - 1) score -= 50;
-              const relativeY = item.y - group.baseY;
-              score -= relativeY * 0.5; 
+              // 소제목 특징 감점 (| 문자, 너무 긴 텍스트)
+              if (item.text.includes('|')) score -= 100; 
+              if (item.text.length > 80) score -= 20; 
+              if (item.text.includes('함께 보면 좋은')) score = -9999;
 
               if (score > maxScore) {
                   maxScore = score;
@@ -194,21 +388,25 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
               }
           }
 
-          if (author === '(알수없음)') {
-              const candidates = group.items.filter((i:any) => 
-                  !i.text.match(dateRegex) && i.text !== title && i.fontSize < maxFontSize && !i.text.includes('|')
+          // (3) 작성자 보완 (그룹 내에서 못 찾았다면 전체에서 찾기)
+          if (author === '(알수없음)' && dateItem) {
+              const cands = candidates.filter(i => 
+                  Math.abs(i.y - dateItem.y) < 20 && 
+                  !i.hasDate && 
+                  i.text !== title && 
+                  !i.text.includes('|') &&
+                  i.text.length < 20
               );
-              if (candidates.length > 0) author = candidates[0].text;
+              if (cands.length > 0) author = cands[0].text;
           }
 
           const fullText = group.items.map((i:any) => i.text).join(' ');
           
-          if (TRASH_KEYWORDS.some(k => fullText.includes(k))) continue;
-
-          if (normalize(fullText).includes(targetNormal)) {
+          // 타겟 확인 (닉네임이 일치하거나, 작성자가 일치하면)
+          if (normalize(fullText).includes(targetNormal) || normalize(author).includes(targetNormal)) {
                found = { 
                   totalRank: realRank, 
-                  title: title, 
+                  title: title || '제목 없음', 
                   author: author, 
                   date: dateStr,
                   url: '', 

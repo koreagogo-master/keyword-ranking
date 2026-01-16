@@ -1,0 +1,21 @@
+# .gitignore 파일 내용 (이 줄은 #이 있어서 컴퓨터가 무시합니다)
+
+# 1. 가상환경 폴더 (가장 중요!)
+venv/
+env/
+.venv/
+
+# 2. 파이썬 캐시 (필요 없음)
+__pycache__/
+*.pyc
+
+# 3. 깃 설정 폴더
+.git/
+.gitignore
+
+# 4. 기타 잡동사니
+.DS_Store
+*.zip
+*.csv
+*.xlsx
+*.txt

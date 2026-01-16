@@ -18,7 +18,7 @@ export default function Home() {
             href="/blog-rank"
             className="block w-full text-center py-4 rounded-lg font-bold bg-blue-600 hover:bg-blue-500 transition-all text-white shadow-md"
           >
-            Blog Rank (Type A)
+            통합 Rank (Type A)
           </Link>
 
           {/* 메뉴 2 - Blog Rank (Type B) */}
@@ -26,15 +26,15 @@ export default function Home() {
             href="/blog-rank-b"
             className="block w-full text-center py-4 rounded-lg font-bold bg-blue-600 hover:bg-blue-500 transition-all text-white shadow-md"
           >
-            Blog Rank (Type B)
+            블로그 Rank (Type B)
           </Link>
 
           {/* 메뉴 3 - 통합 검색 (보라색 포인트) */}
           <Link
-            href="/blog-rank-combined"
+            href="/kin-rank"
             className="block w-full text-center py-4 rounded-lg font-bold bg-purple-600 hover:bg-purple-500 transition-all text-white shadow-md"
           >
-            Combined Rank (Type A + B)
+            지식인 Rank (Type C)
           </Link>
         </div>
         

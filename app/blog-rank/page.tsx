@@ -75,7 +75,7 @@ export default function BlogRankPage() {
       <div className="max-w-7xl mx-auto mt-10">
         
         <h1 className="text-3xl font-bold mb-8 text-left text-blue-400">
-          📊 네이버 모바일 순위 확인
+          📊 네이버 모바일 통합 검색 순위 확인
         </h1>
         
         <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg mb-8">
