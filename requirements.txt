@@ -1,0 +1,6 @@
+Flask
+gunicorn
+selenium
+webdriver-manager
+requests
+beautifulsoup4

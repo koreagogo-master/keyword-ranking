@@ -1,35 +1,26 @@
-# 1. Node.js 20 버전 (Next.js 15 필수)
-FROM node:20-slim
+# 1. 파이썬 3.9 버전을 기반으로 시작 (Node.js 아님!)
+FROM python:3.9-slim
 
-# 2. Puppeteer(크롬) 필수 설치
-RUN apt-get update \
-    && apt-get install -y wget gnupg \
+# 2. 구글 크롬 브라우저 설치 (키워드 검색용 필수)
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    unzip \
     && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
     && apt-get update \
-    && apt-get install -y google-chrome-stable fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-kacst fonts-freefont-ttf libxss1 \
-      --no-install-recommends \
+    && apt-get install -y google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
 
-# 3. 작업 폴더
+# 3. 작업 폴더 설정
 WORKDIR /app
 
-# 4. 파일 복사 및 설치
-COPY package.json ./
-# Puppeteer 다운로드 방지
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
-RUN npm install
-
-# 5. 소스 복사 및 빌드
+# 4. 내 컴퓨터의 파일들을 서버로 복사
 COPY . .
-RUN npm run build
 
-# 6. 실행 설정 (여기가 제일 중요합니다!)
-ENV NODE_ENV=production
-ENV PORT=8080
-# [핵심] 0.0.0.0 설정이 파일 안에 있어야 확실하게 적용됩니다.
-ENV HOSTNAME="0.0.0.0"
+# 5. 필요한 라이브러리 설치 (requirements.txt)
+RUN pip install --no-cache-dir -r requirements.txt
 
-# 7. 실행 (standalone 모드)
-CMD ["node", ".next/standalone/server.js"]
+# 6. 프로그램 실행 (app.py 실행)
+# 주의: gunicorn을 사용하여 안정적으로 실행합니다.
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
