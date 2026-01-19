@@ -1,5 +1,5 @@
 # 1. Node.js 18 버전 사용
-FROM node:18-slim
+FROM node:20-slim
 
 # 2. 필수 도구 및 크롬 설치
 RUN apt-get update && apt-get install -y \
