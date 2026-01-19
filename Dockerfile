@@ -34,3 +34,4 @@ ENV HOSTNAME "0.0.0.0"
 # 7. 서버 실행 명령 변경
 # npm start 대신 npx next start를 사용하여 포트를 강제로 지정합니다.
 CMD ["npx", "next", "start", "-p", "8080"]
+# 강제 배포 시도 1
