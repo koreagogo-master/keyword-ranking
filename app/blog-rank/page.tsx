@@ -2,6 +2,9 @@
 
 import { useState } from 'react';
 import { checkNaverRank } from './actions';
+// 1. 여기서 탭 컴포넌트를 가져옵니다.
+// (만약 @/ 경로 에러가 난다면 ../../components/RankTabs 로 바꿔보세요)
+import RankTabs from '@/components/RankTabs'; 
 
 interface SearchResult {
   keyword: string;
@@ -41,7 +44,6 @@ export default function BlogRankPage() {
         const newResult: SearchResult = {
           keyword: currentKeyword,
           success: data.success,
-          // '위' 글자 제거, 숫자만 표시
           rank: data.success ? data.data?.totalRank || 0 : 'X',
           date: data.success ? data.data?.date || '-' : '-',
           title: data.success ? data.data?.title || '' : '순위 내 없음',
@@ -74,45 +76,50 @@ export default function BlogRankPage() {
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-7xl mx-auto mt-10">
         
+        {/* 2. 제목 위에 탭을 배치했습니다. */}
+        <RankTabs />
+        
         <h1 className="text-3xl font-bold mb-8 text-left text-blue-400">
-          📊 네이버 모바일 통합 검색 순위 확인
+          N 모바일 통검 순위 확인
         </h1>
         
         <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg mb-8">
-          <div className="flex flex-col gap-6">
-            <div className="flex gap-4 items-end">
-              <div className="w-1/3">
-                <label className="block text-sm font-medium mb-2 text-gray-300">
-                  블로그 닉네임
-                </label>
-                <input 
-                  type="text"
-                  value={targetNickname}
-                  onChange={(e) => setTargetNickname(e.target.value)}
-                  placeholder="예: 연세베스트치과"
-                  className="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500 text-white"
-                />
-              </div>
-
-              <div className="w-2/3">
-                <label className="block text-sm font-medium mb-2 text-gray-300">
-                  키워드 (쉼표로 구분)
-                </label>
-                <input 
-                  type="text"
-                  value={keywordInput}
-                  onChange={(e) => setKeywordInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="예: 부천교정, 부천치과"
-                  className="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500 text-white"
-                />
-              </div>
+          <div className="flex gap-4 items-end">
+            
+            {/* 1. 블로그 닉네임 */}
+            <div className="w-1/4 min-w-[200px]">
+              <label className="block text-sm font-medium mb-2 text-gray-300">
+                블로그 닉네임 (닉네임 일치가 아닌 포함)
+              </label>
+              <input 
+                type="text"
+                value={targetNickname}
+                onChange={(e) => setTargetNickname(e.target.value)}
+                placeholder="예: 연세베스트치과"
+                className="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500 text-white"
+              />
             </div>
 
+            {/* 2. 키워드 */}
+            <div className="flex-1">
+              <label className="block text-sm font-medium mb-2 text-gray-300">
+                키워드 (20개 이내, 쉼표로 구분, 띄어쓰기 없음)
+              </label>
+              <input 
+                type="text"
+                value={keywordInput}
+                onChange={(e) => setKeywordInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="예: 부천교정, 부천치과"
+                className="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500 text-white"
+              />
+            </div>
+
+            {/* 3. 버튼 */}
             <button 
               onClick={handleCheck}
               disabled={loading}
-              className={`w-full py-3 rounded font-bold transition-all
+              className={`w-auto px-6 py-3 rounded font-bold transition-all whitespace-nowrap
                 ${loading ? 'bg-gray-600' : 'bg-blue-600 hover:bg-blue-500'}`}
             >
               {loading ? `분석 중... ${progress}` : '순위 확인하기'}
@@ -122,13 +129,19 @@ export default function BlogRankPage() {
 
         {results.length > 0 && (
           <div className="animate-fade-in-up">
-            <h2 className="text-xl font-bold mb-4 text-gray-200">검색 결과 ({results.length}건)</h2>
+            {/* 결과 제목 */}
+            <h2 className="text-xl font-bold mb-4 text-gray-200">
+              검색 결과 ({results.length}건) 
+              <span className="text-blue-400 ml-2 font-medium">
+                 / 닉네임 ({targetNickname})
+              </span>
+            </h2>
             
             <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-gray-700 text-gray-300 text-xs uppercase">
                   <tr>
-                    <th className="p-3 border-b border-gray-600 w-48">닉네임</th>
+                    {/* 닉네임 컬럼 삭제됨 */}
                     <th className="p-3 border-b border-gray-600 w-48">키워드</th>
                     <th className="p-3 border-b border-gray-600 w-16 text-center">순위</th>
                     <th className="p-3 border-b border-gray-600 w-24 text-center">작성일</th>
@@ -138,10 +151,7 @@ export default function BlogRankPage() {
                 <tbody className="divide-y divide-gray-700">
                   {results.map((res, index) => (
                     <tr key={index} className="hover:bg-gray-700/50 transition-colors">
-                      <td className="p-3 text-sm text-gray-400 truncate max-w-[12rem]">
-                        {targetNickname}
-                      </td>
-
+                      {/* 닉네임 데이터 삭제됨 */}
                       <td className="p-3 font-light text-white truncate max-w-[12rem]">
                         {res.keyword}
                       </td>

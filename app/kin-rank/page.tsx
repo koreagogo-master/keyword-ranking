@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { checkNaverKinRank } from './actions';
+// 1. 탭 컴포넌트 추가
+import RankTabs from '@/components/RankTabs';
 
 interface SearchResult {
   keyword: string;
@@ -18,6 +20,7 @@ interface InputRow {
 }
 
 export default function KinRankPage() {
+  // 기존 5줄 입력 방식 복구
   const [inputs, setInputs] = useState<InputRow[]>([
     { keyword: '', targetTitle: '' },
     { keyword: '', targetTitle: '' },
@@ -100,12 +103,16 @@ export default function KinRankPage() {
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-7xl mx-auto mt-10">
         
+        {/* 2. 상단 탭 배치 (유일한 추가 사항) */}
+        <RankTabs />
+        
         <h1 className="text-3xl font-bold mb-8 text-left text-green-500">
-          🎓 지식iN 순위 & 통검 노출 & 날짜 확인
+          N 지식인 통검노출, 순위, 날짜 확인
         </h1>
         
         <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg mb-8">
           <div className="flex flex-col gap-4">
+            {/* 기존 5줄 입력 UI 복구 */}
             {inputs.map((row, index) => (
               <div key={index} className="flex gap-4 items-start">
                 <div className="w-1/3">
@@ -157,7 +164,6 @@ export default function KinRankPage() {
                     <th className="p-3 border-b border-gray-600 w-32 text-center">키워드</th>
                     <th className="p-3 border-b border-gray-600 w-24 text-center">통검 노출</th>
                     <th className="p-3 border-b border-gray-600 w-24 text-center">탭 순위</th>
-                    {/* [신규] 날짜 컬럼 추가 */}
                     <th className="p-3 border-b border-gray-600 w-32 text-center">작성일</th>
                     <th className="p-3 border-b border-gray-600 w-auto text-left">제목</th>
                   </tr>
@@ -185,7 +191,7 @@ export default function KinRankPage() {
                         )}
                       </td>
 
-                      {/* [신규] 날짜 데이터 표시 */}
+                      {/* 날짜 데이터 표시 */}
                       <td className="p-3 text-center text-sm text-gray-400">
                         {res.date}
                       </td>
