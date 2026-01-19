@@ -1,15 +1,16 @@
-# 1. 파이썬 3.9 버전을 기반으로 시작 (Node.js 아님!)
+# 1. 파이썬 3.9 버전을 기반으로 시작
 FROM python:3.9-slim
 
-# 2. 구글 크롬 브라우저 설치 (키워드 검색용 필수)
+# 2. 필수 도구 설치 및 구글 크롬 설치 (최신 방식)
+# apt-key 대신 설치 파일(.deb)을 직접 다운로드하여 설치합니다.
 RUN apt-get update && apt-get install -y \
     wget \
-    gnupg \
     unzip \
-    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
-    && sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list' \
-    && apt-get update \
-    && apt-get install -y google-chrome-stable \
+    curl \
+    gnupg \
+    && wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+    && apt-get install -y ./google-chrome-stable_current_amd64.deb \
+    && rm google-chrome-stable_current_amd64.deb \
     && rm -rf /var/lib/apt/lists/*
 
 # 3. 작업 폴더 설정
@@ -22,5 +23,4 @@ COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 6. 프로그램 실행 (app.py 실행)
-# 주의: gunicorn을 사용하여 안정적으로 실행합니다.
 CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app

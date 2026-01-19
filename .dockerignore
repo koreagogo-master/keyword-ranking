@@ -1,21 +1,30 @@
-# .gitignore 파일 내용 (이 줄은 #이 있어서 컴퓨터가 무시합니다)
+# 1. 파이썬 3.9 버전을 기반으로 시작
+FROM python:3.9-slim
 
-# 1. 가상환경 폴더 (가장 중요!)
-venv/
-env/
-.venv/
+# 2. 필수 도구 설치 (wget, gnupg 등)
+RUN apt-get update && apt-get install -y \
+    wget \
+    gnupg \
+    unzip \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
 
-# 2. 파이썬 캐시 (필요 없음)
-__pycache__/
-*.pyc
+# 3. 구글 크롬 브라우저 설치 (최신 방식: apt-key 대신 gpg 키링 사용)
+RUN apt-get update && apt-get install -y wget gnupg \
+    && wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google-chrome.list \
+    && apt-get update \
+    && apt-get install -y google-chrome-stable \
+    && rm -rf /var/lib/apt/lists/*
 
-# 3. 깃 설정 폴더
-.git/
-.gitignore
+# 4. 작업 폴더 설정
+WORKDIR /app
 
-# 4. 기타 잡동사니
-.DS_Store
-*.zip
-*.csv
-*.xlsx
-*.txt
+# 5. 내 컴퓨터의 파일들을 서버로 복사
+COPY . .
+
+# 6. 필요한 라이브러리 설치
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 7. 프로그램 실행
+CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 --timeout 0 app:app
