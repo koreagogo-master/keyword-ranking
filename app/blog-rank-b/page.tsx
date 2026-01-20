@@ -14,12 +14,55 @@ interface SearchResultRow {
   isSuccess: boolean;
 }
 
+// 작성자별 색상 지정 (입력된 닉네임 순서대로 적용)
+const AUTHOR_COLORS = [
+  'text-blue-400',
+  'text-green-400',
+  'text-yellow-400',
+  'text-pink-400',
+  'text-purple-400',
+  'text-orange-400',
+  'text-cyan-400',
+  'text-red-400',
+];
+
 export default function BlogRankPage() {
   const [targetNickname, setTargetNickname] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState('');
   const [results, setResults] = useState<SearchResultRow[]>([]);
+
+  // 입력된 닉네임 목록 파싱 (범례 및 색상 매칭용)
+  const nicknames = targetNickname.split(',').map(s => s.trim()).filter(Boolean);
+
+  // [수정된 부분] 작성자 이름에 따른 색상 클래스 반환 함수 (정확도 개선)
+  const getAuthorColorClass = (authorName: string) => {
+    if (!authorName || authorName === '-') return 'text-gray-500';
+    
+    let bestMatchIndex = -1;
+    let maxMatchLength = 0;
+
+    // 등록된 닉네임들을 하나씩 대조해봅니다.
+    nicknames.forEach((nick, idx) => {
+      // 결과의 작성자명(authorName)이 우리가 입력한 닉네임(nick)을 포함하고 있다면
+      if (authorName.includes(nick)) {
+        // 그 중에서도 "가장 긴 닉네임"을 선택합니다. 
+        // (예: '연세베스트치과' vs '연세베스트치과입니다' -> 더 긴 쪽을 우선시하여 색상 오류 방지)
+        if (nick.length > maxMatchLength) {
+          maxMatchLength = nick.length;
+          bestMatchIndex = idx;
+        }
+      }
+    });
+
+    // 매칭된 것이 있다면 해당 순서의 색상을 반환
+    if (bestMatchIndex !== -1) {
+      return AUTHOR_COLORS[bestMatchIndex % AUTHOR_COLORS.length];
+    }
+
+    return 'text-gray-400'; // 매칭 안되면 기본 회색
+  };
 
   const handleCheck = async () => {
     if (!targetNickname || !keywordInput) {
@@ -57,7 +100,7 @@ export default function BlogRankPage() {
             rank: 'X',
             date: '-',
             title: '순위 내 없음',
-            author: '-',
+            author: '-', 
             isSuccess: false
           }]);
         }
@@ -83,6 +126,9 @@ export default function BlogRankPage() {
     if (e.key === 'Enter') handleCheck();
   };
 
+  // 키워드별 그룹화 (중복 키워드 제거)
+  const uniqueKeywords = Array.from(new Set(results.map(r => r.keyword)));
+
   return (
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="max-w-7xl mx-auto mt-10">
@@ -107,9 +153,19 @@ export default function BlogRankPage() {
                 placeholder="예: 연세베스트치과, 연세베스트치과입니다"
                 className="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500 text-white h-[50px]"
               />
-              <p className="text-xs text-gray-400 mt-2 ml-1">
-                * 닉네임을 여러 개 입력하면 모두 찾습니다.
-              </p>
+              {/* 범례 (Legend) */}
+              {nicknames.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2 animate-fade-in">
+                  {nicknames.map((nick, idx) => (
+                    <span 
+                      key={idx} 
+                      className={`text-xs font-bold px-2 py-1 rounded bg-gray-900 border border-gray-600 ${AUTHOR_COLORS[idx % AUTHOR_COLORS.length]}`}
+                    >
+                      {nick}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex-1">
@@ -150,42 +206,63 @@ export default function BlogRankPage() {
                 <thead className="bg-gray-700 text-gray-300 text-xs uppercase">
                   <tr>
                     <th className="p-3 border-b border-gray-600 w-32">키워드</th>
-                    <th className="p-3 border-b border-gray-600 w-16 text-center">순위</th>
-                    {/* [수정됨] 작성자 칸 넓힘 (w-32 -> w-[200px]) */}
-                    <th className="p-3 border-b border-gray-600 w-[200px] text-center">작성자</th>
-                    <th className="p-3 border-b border-gray-600 w-24 text-center">작성일</th>
-                    <th className="p-3 border-b border-gray-600 w-auto">제목</th>
+                    <th className="p-3 border-b border-gray-600 w-40 text-center">순위</th>
+                    <th className="p-3 border-b border-gray-600 w-auto">제목 (날짜)</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-700">
-                  {results.map((res, index) => (
-                    <tr key={index} className="hover:bg-gray-700/50 transition-colors">
-                      <td className="p-3 font-light text-white truncate">
-                        {res.keyword}
-                      </td>
-                      
-                      <td className="p-3 text-center">
-                        {res.isSuccess ? (
-                          <span className="text-base font-bold text-green-400">{res.rank}</span>
-                        ) : (
-                          <span className="text-xs text-red-400">{res.rank}</span>
-                        )}
-                      </td>
+                  {uniqueKeywords.map((keyword, kIdx) => {
+                    // 현재 키워드에 해당하는 결과만 필터링
+                    const items = results.filter(r => r.keyword === keyword);
+                    
+                    return (
+                      <tr key={kIdx} className="hover:bg-gray-700/50 transition-colors">
+                        
+                        {/* 1. 키워드 (상단 정렬) */}
+                        <td className="p-3 font-light text-white truncate align-top pt-4">
+                          {keyword}
+                        </td>
+                        
+                        {/* 2. 순위 (닉네임별 색상 적용 + 슬래시 구분) */}
+                        <td className="p-3 text-center align-top pt-4">
+                          <div className="flex flex-wrap justify-center gap-1">
+                            {items.map((item, iIdx) => (
+                              <span key={iIdx} className="flex items-center">
+                                {/* 순위에 색상 적용: 수정된 getAuthorColorClass 사용 */}
+                                <span className={`text-base font-bold ${getAuthorColorClass(item.author)}`}>
+                                  {item.rank}
+                                </span>
+                                {/* 구분자 */}
+                                {iIdx < items.length - 1 && (
+                                  <span className="text-gray-500 mx-1">/</span>
+                                )}
+                              </span>
+                            ))}
+                          </div>
+                        </td>
 
-                      {/* [수정됨] 작성자 칸 데이터 표시 너비 조정 */}
-                      <td className="p-3 text-center text-gray-300 text-sm truncate max-w-[200px]">
-                         {res.author}
-                      </td>
-                      
-                      <td className="p-3 text-center text-gray-400 text-sm">
-                        {res.date}
-                      </td>
-                      
-                      <td className="p-3 text-sm text-gray-300 truncate max-w-[300px]" title={res.title}>
-                        {res.title}
-                      </td>
-                    </tr>
-                  ))}
+                        {/* 3. 제목 + (날짜) */}
+                        <td className="p-3 text-sm text-gray-300 align-top pt-4">
+                          <div className="flex flex-col gap-3">
+                            {items.map((item, iIdx) => (
+                              <div key={iIdx} className="w-full">
+                                <span className={`whitespace-normal break-keep leading-relaxed ${item.isSuccess ? 'text-gray-200' : 'text-gray-500'}`}>
+                                  {item.title}
+                                </span>
+                                {/* 날짜: 제목 뒤에 괄호로 붙임 */}
+                                {item.date !== '-' && (
+                                  <span className="text-gray-500 text-xs ml-2">
+                                    ({item.date})
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </td>
+
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
