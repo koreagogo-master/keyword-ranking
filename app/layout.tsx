@@ -15,8 +15,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Keyword Ranking Tools",
-  description: "Keyword Ranking Analysis Tool",
+  // 브라우저 탭에 보일 제목
+  title: "TMG 랭킹 - 블로그 & 지식인 순위 분석", 
+  
+  // 검색엔진이나 카톡 공유 시 보일 설명
+  description: "블로그와 지식인 노출 순위를 실시간으로 조회하고 분석하는 마케팅 도구입니다.",
 };
 
 export default function RootLayout({
