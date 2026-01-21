@@ -73,7 +73,7 @@ export default function BlogRankPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-8">
+    <div className="min-h-[calc(100vh-4rem)] bg-gray-900 text-white p-8">
       <div className="max-w-7xl mx-auto mt-10">
         
         {/* 2. 제목 위에 탭을 배치했습니다. */}

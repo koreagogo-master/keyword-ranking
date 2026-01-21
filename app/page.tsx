@@ -11,11 +11,10 @@ export default function Home() {
   // 이메일 로그인용 state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [isSignUp, setIsSignUp] = useState(false); // 회원가입 모드인지 여부
+  const [isSignUp, setIsSignUp] = useState(false);
 
   const supabase = createClient();
 
-  // 1. 초기 로그인 확인
   useEffect(() => {
     const checkUser = async () => {
       try {
@@ -30,9 +29,8 @@ export default function Home() {
     checkUser();
   }, []);
 
-  // 2. 이메일 로그인 처리 함수
   const handleEmailLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); // 새로고침 방지
+    e.preventDefault();
     
     if (!email || !password) {
       alert("이메일과 비밀번호를 입력해주세요.");
@@ -41,16 +39,14 @@ export default function Home() {
 
     try {
       if (isSignUp) {
-        // [회원가입]
         const { error } = await supabase.auth.signUp({
           email,
           password,
         });
         if (error) throw error;
         alert("회원가입 성공! (이메일 확인이 필요할 수 있습니다)\n이제 로그인해주세요.");
-        setIsSignUp(false); // 로그인 모드로 전환
+        setIsSignUp(false);
       } else {
-        // [로그인]
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
@@ -59,7 +55,6 @@ export default function Home() {
         
         setUser(data.user);
         alert("로그인 되었습니다!");
-        // 로그인 성공 시 페이지 새로고침하여 상태 확실히 반영
         window.location.reload(); 
       }
     } catch (error: any) {
@@ -74,14 +69,15 @@ export default function Home() {
     window.location.reload();
   };
 
-  if (loading) return <div className="min-h-screen bg-gray-900" />;
+  if (loading) return <div className="min-h-[calc(100vh-4rem)] bg-gray-900" />;
 
   return (
-    <main className="min-h-screen relative bg-gray-900 text-white overflow-hidden">
+    // 👇 [핵심 수정] min-h-screen -> min-h-[calc(100vh-4rem)] 으로 변경 (헤더 높이만큼 뺌)
+    <main className="min-h-[calc(100vh-4rem)] relative bg-gray-900 text-white overflow-hidden">
       
-      {/* 메인 콘텐츠 (비로그인 시 흐림 처리) */}
+      {/* 메인 콘텐츠 */}
       <div className={`
-          flex flex-col items-center justify-center min-h-screen p-6 transition-all duration-500
+          flex flex-col items-center justify-center min-h-[calc(100vh-4rem)] p-6 transition-all duration-500
           ${!user ? 'blur-md opacity-40 pointer-events-none select-none' : 'blur-0 opacity-100'}
         `}
       >
@@ -113,7 +109,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 로그인 팝업 (비로그인 시 등장) */}
+      {/* 로그인 팝업 */}
       {!user && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-all duration-500">
           <div className="bg-gray-800 p-8 rounded-2xl shadow-2xl border border-gray-600 w-full max-w-sm">

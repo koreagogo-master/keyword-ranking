@@ -41,10 +41,12 @@ export default function CombinedRankPage() {
       setProgress(`${i + 1} / ${keywords.length} 진행 중... (${currentKeyword})`);
 
       try {
+        // --- [Type A] 데이터 처리 ---
         const dataA = await checkRankA(currentKeyword, targetNickname);
         setResultsA(prev => [...prev, {
           keyword: currentKeyword,
           success: dataA.success,
+          // Type A는 totalRank를 사용한다고 가정
           rank: dataA.success ? dataA.data?.totalRank || 0 : 'X',
           date: dataA.success ? dataA.data?.date || '-' : '-',
           title: dataA.success ? dataA.data?.title || '' : '순위 없음',
@@ -52,15 +54,23 @@ export default function CombinedRankPage() {
           url: dataA.success ? dataA.data?.url : '',
         }]);
 
+        // --- [Type B] 데이터 처리 (수정됨) ---
         const dataB = await checkRankB(currentKeyword, targetNickname);
+        
+        // [핵심 수정] Type B는 결과가 리스트(배열)로 오므로 첫 번째([0])를 꺼내야 함
+        const firstItemB = (dataB.success && dataB.data && dataB.data.length > 0) 
+          ? dataB.data[0] 
+          : null;
+
         setResultsB(prev => [...prev, {
           keyword: currentKeyword,
           success: dataB.success,
-          rank: dataB.success ? dataB.data?.totalRank || 0 : 'X',
-          date: dataB.success ? dataB.data?.date || '-' : '-',
-          title: dataB.success ? dataB.data?.title || '' : '순위 없음',
-          author: dataB.success ? dataB.data?.author || '-' : '-',
-          url: dataB.success ? dataB.data?.url : '',
+          // totalRank 대신 rank 사용, dataB.data 대신 firstItemB 사용
+          rank: firstItemB ? firstItemB.rank : 'X',
+          date: firstItemB ? firstItemB.date : '-',
+          title: firstItemB ? firstItemB.title : '순위 없음',
+          author: firstItemB ? firstItemB.author : '-',
+          url: firstItemB ? firstItemB.url : '',
         }]);
 
       } catch (error) {
@@ -83,44 +93,30 @@ export default function CombinedRankPage() {
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-700 text-gray-300">
             <tr>
-              {/* 1. 닉네임 (가장 앞으로 이동) */}
               <th className="p-3 w-32 text-center">닉네임</th>
-              {/* 2. 키워드 */}
               <th className="p-3 w-40">키워드</th>
-              {/* 3. 순위 */}
               <th className="p-3 w-16 text-center">순위</th>
-              {/* 4. 작성일 */}
               <th className="p-3 w-24 text-center">작성일</th>
-              {/* 5. 제목 */}
               <th className="p-3">제목 (클릭)</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-700">
             {data.map((res, idx) => (
               <tr key={idx} className="hover:bg-gray-700/50">
-                {/* 1. 닉네임 데이터 */}
                 <td className="p-3 text-center text-gray-300 truncate max-w-[150px]" title={res.author}>
                   {res.author}
                 </td>
-                
-                {/* 2. 키워드 데이터 */}
                 <td className="p-3 font-medium text-white break-words">
                   {res.keyword}
                 </td>
-                
-                {/* 3. 순위 데이터 */}
                 <td className="p-3 text-center">
                   <span className={`font-bold text-lg ${res.success ? 'text-green-400' : 'text-red-400'}`}>
                     {res.rank}
                   </span>
                 </td>
-                
-                {/* 4. 작성일 데이터 */}
                 <td className="p-3 text-center text-gray-400 text-xs whitespace-nowrap">
                   {res.date}
                 </td>
-                
-                {/* 5. 제목 데이터 */}
                 <td className="p-3 text-gray-300 truncate max-w-[300px]" title={res.title}>
                   {res.url ? (
                     <a 
@@ -144,7 +140,8 @@ export default function CombinedRankPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-4">
+    // min-h-screen 수정 포함됨 (스크롤바 방지)
+    <div className="min-h-[calc(100vh-4rem)] bg-gray-900 text-white p-4">
       <div className="w-[95%] mx-auto mt-5">
         <h1 className="text-3xl font-bold mb-8 text-center text-purple-400">
           🚀 통합 순위 확인 (Type A + B)
