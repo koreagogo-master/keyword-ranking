@@ -1,15 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // [복구] 다시 독립형 모드 활성화 (이게 가장 가볍고 빠릅니다)
-  output: "standalone",
+  // 👇 로그인 중복 실행 방지 (필수)
+  reactStrictMode: false,
   
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // 👇 에러가 나는 부분은 일단 삭제합니다. (로컬 개발에 지장 없음)
+  // eslint: { ignoreDuringBuilds: true }, 
+  // typescript: { ignoreBuildErrors: true },
 };
 
 export default nextConfig;
