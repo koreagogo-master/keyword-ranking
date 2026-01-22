@@ -4,6 +4,15 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import puppeteer from 'puppeteer';
 
+// ==============================================================================
+// [프록시 설정 완료] 회원님이 주신 정보가 적용되었습니다.
+// ==============================================================================
+const PROXY_HOST = 'proxy.smartproxy.net'; 
+const PROXY_PORT = '3120';
+const PROXY_USER = 'smart-tmgad01_area-KR';
+const PROXY_PASS = 'bsh103501';
+// ==============================================================================
+
 interface RankItem {
   rank: number;
   title: string;
@@ -22,7 +31,7 @@ interface RankResult {
 
 export async function checkNaverBlogRank(keyword: string, targetNicknames: string): Promise<RankResult> {
   
-  // [보안 검사] 로그인 및 등급 확인
+  // [보안 검사: 로그인 및 등급 확인]
   try {
     const cookieStore = await cookies();
     const supabase = createServerClient(
@@ -45,68 +54,58 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
       return { success: false, message: '무료 등급 사용 불가. 유료 등급으로 전환해주세요.' };
     }
   } catch (err) {
-    return { success: false, message: '권한 확인 중 오류 발생' };
+    console.error('Auth Check Error:', err);
+    return { success: false, message: '권한 확인 중 오류가 발생했습니다.' };
   }
 
-  // 검색어 정제
   const cleanString = (str: string) => str.replace(/[^가-힣a-zA-Z0-9]/g, '').toLowerCase();
   const targets = targetNicknames.split(',').map(n => cleanString(n)).filter(n => n.length > 0);
   
   let browser;
   try {
-    // [1] 고급 변장술: 브라우저 실행 옵션 강화
+    // [프록시를 적용하여 브라우저 실행]
     browser = await puppeteer.launch({
       headless: true,
       args: [
         '--no-sandbox', 
         '--disable-setuid-sandbox',
-        '--disable-blink-features=AutomationControlled', // "나 자동화 아니에요"라고 숨기기
-        '--window-size=390,844',
-        '--lang=ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7' // 한국어 설정 강제
+        // 프록시 서버 경유 설정
+        `--proxy-server=http://${PROXY_HOST}:${PROXY_PORT}`, 
+        '--disable-blink-features=AutomationControlled' 
       ],
     });
 
     const page = await browser.newPage();
-    await page.setViewport({ width: 390, height: 844 });
     
-    // [2] 아이폰으로 완벽 위장 (최신 버전 UserAgent)
+    // [프록시 로그인]
+    await page.authenticate({ 
+      username: PROXY_USER, 
+      password: PROXY_PASS 
+    });
+
+    await page.setViewport({ width: 390, height: 844 });
     await page.setUserAgent(
       'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1'
     );
 
-    // [3] 사람 같은 헤더 정보 추가 (매우 중요)
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'ko-KR,ko;q=0.9',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-      'Referer': 'https://m.naver.com/', // "네이버 메인에서 타고 들어왔어요"라고 거짓말하기
-      'Sec-Fetch-Dest': 'document',
-      'Sec-Fetch-Mode': 'navigate',
-      'Sec-Fetch-Site': 'same-origin',
-      'Upgrade-Insecure-Requests': '1'
-    });
-
     const searchUrl = `https://m.search.naver.com/search.naver?ssc=tab.m_blog.all&where=m_blog&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(keyword)}`;
     
-    // [4] 접속
+    // 접속 (타임아웃 60초)
     await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: 60000 });
 
-    // [5] 불규칙한 대기 시간 (사람 흉내)
-    const randomDelay = (min: number, max: number) => new Promise(resolve => setTimeout(resolve, Math.floor(Math.random() * (max - min + 1) + min)));
-    
-    // CCTV 촬영 (디버깅용)
-    await randomDelay(1000, 2000); 
+    // [CCTV] 확인용 스크린샷 찍기 (디버깅용)
+    await new Promise(resolve => setTimeout(resolve, 1500));
     const screenshotBase64 = await page.screenshot({ encoding: 'base64' });
 
-    // 스크롤 다운 (불규칙하게)
+    // 스크롤 다운 (데이터 로딩)
     for (let i = 0; i < 5; i++) { 
       await page.evaluate(() => window.scrollBy(0, 800));
-      await randomDelay(300, 800); // 0.3초 ~ 0.8초 랜덤 대기
+      await new Promise(resolve => setTimeout(resolve, 300));
     }
-
     await page.evaluate(() => window.scrollTo(0, 0));
-    await randomDelay(500, 1000);
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    // [데이터 추출 로직] (기존과 동일하지만 안전하게 포함)
+    // [데이터 추출 로직]
     const foundItems = await page.evaluate((targets) => {
       const cleanStringInBrowser = (str: string | null) => str ? str.replace(/[^가-힣a-zA-Z0-9]/g, '').toLowerCase() : '';
       const dateRegex = /(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}|\d+(?:시간|분|일|주|개월|년)\s*전|어제|방금\s*전)/;
@@ -141,7 +140,6 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
               isDate: isDate
           });
       }
-
       items.sort((a, b) => a.y - b.y);
 
       const dateItems = items.filter(i => i.isDate);
@@ -162,7 +160,6 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
           const cleanDate = dateMatch ? dateMatch[0] : dateItem.text;
 
           const titleCandidates = items.filter(i => i.y > dateItem.y - 100 && i.y < dateItem.y + 120 && !i.isDate);
-
           let title = '';
           let url = '';
           let maxScore = -9999;
@@ -189,11 +186,9 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
                   if (targets.some((t: string) => normalizedClean === t)) { author = clean; break; }
               }
           }
-          
           author = author || '(알수없음)';
           const normalizedAuthor = cleanStringInBrowser(author);
-
-          // [정확히 일치(===)]
+          
           if (targets.some((t: string) => normalizedAuthor === t)) {
             myRankings.push({
               rank: currentRank,
@@ -210,14 +205,23 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
     }, targets);
 
     if (foundItems.length > 0) {
-      return { success: true, message: `총 ${foundItems.length}건 발견`, data: foundItems, screenshot: screenshotBase64 };
+      return { 
+        success: true, 
+        message: `총 ${foundItems.length}건 발견 (프록시 성공)`, 
+        data: foundItems,
+        screenshot: screenshotBase64 // 성공 시에도 사진 함께 반환
+      };
     } else {
-      return { success: false, message: '순위 밖 (차단 여부 확인 필요)', screenshot: screenshotBase64 };
+      return { 
+        success: false, 
+        message: '순위 밖 (프록시는 작동함)', 
+        screenshot: screenshotBase64 
+      };
     }
 
   } catch (error) {
     console.error('Error:', error);
-    return { success: false, message: 'Error' };
+    return { success: false, message: 'Proxy Error (설정 확인 필요)' };
   } finally {
     if (browser) await browser.close();
   }
