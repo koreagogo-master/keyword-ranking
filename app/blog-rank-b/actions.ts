@@ -1,5 +1,7 @@
 'use server';
 
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 import puppeteer from 'puppeteer';
 
 interface RankItem {
@@ -8,6 +10,7 @@ interface RankItem {
   author: string;
   date: string;
   url: string;
+  section?: string;
 }
 
 interface RankResult {
@@ -17,12 +20,63 @@ interface RankResult {
 }
 
 export async function checkNaverBlogRank(keyword: string, targetNicknames: string): Promise<RankResult> {
+  
+  // ============================================================
+  // [보안 검사] 로그인 여부 및 등급 확인
+  // ============================================================
+  try {
+    const cookieStore = await cookies();
+
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+            }
+          },
+        },
+      }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return { success: false, message: '로그인이 필요한 서비스입니다.' };
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('grade')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile || profile.grade === 'free') {
+      return { 
+        success: false, 
+        message: '무료 등급은 사용할 수 없습니다. 유료 등급(Basic 이상)으로 업그레이드 해주세요.' 
+      };
+    }
+  } catch (err) {
+    console.error('Auth Check Error:', err);
+    return { success: false, message: '권한 확인 중 오류가 발생했습니다.' };
+  }
+  // ============================================================
+
   // 특수문자 제거 함수
   const cleanString = (str: string) => str.replace(/[^가-힣a-zA-Z0-9]/g, '').toLowerCase();
   
   const targets = targetNicknames.split(',').map(n => cleanString(n)).filter(n => n.length > 0);
   
-  console.log(`\n========== [DEBUG: 폰트 크기 필터 추가] ==========`);
+  console.log(`\n========== [DEBUG: 정확한 일치 검색] ==========`);
   console.log(`검색 키워드: ${keyword}`);
   console.log(`찾을 닉네임(정제됨): ${targets.join(', ')}`);
 
@@ -44,13 +98,11 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
     
     await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: 60000 });
 
-    // 스크롤 다운
     for (let i = 0; i < 5; i++) { 
       await page.evaluate(() => window.scrollBy(0, 800));
       await new Promise(resolve => setTimeout(resolve, 300));
     }
 
-    // 스크롤 초기화
     await page.evaluate(() => window.scrollTo(0, 0));
     await new Promise(resolve => setTimeout(resolve, 500));
 
@@ -86,8 +138,8 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
              href = (anchor as HTMLAnchorElement).href;
           }
 
-          // [안전장치] 타겟 닉네임이 포함된 텍스트는 날짜로 분류 금지
           const normalizedText = cleanStringInBrowser(text);
+          // 날짜 판단 로직: 여기서도 포함 여부를 확인하지만, 이는 날짜 오인식을 막기 위함이므로 유지
           const containsTarget = targets.some((t: string) => normalizedText.includes(t));
           const isDate = !containsTarget && dateRegex.test(text) && text.length < 30;
 
@@ -104,7 +156,6 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
 
       items.sort((a, b) => a.y - b.y);
 
-      // 날짜 그룹핑
       const dateItems = items.filter(i => i.isDate);
       const uniqueDates: any[] = [];
       if (dateItems.length > 0) {
@@ -125,7 +176,6 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
           const dateMatch = dateItem.text.match(dateRegex);
           const cleanDate = dateMatch ? dateMatch[0] : dateItem.text;
 
-          // 제목 찾기
           const titleCandidates = items.filter(i => 
               i.y > dateItem.y - 100 &&     
               i.y < dateItem.y + 120 &&   
@@ -155,11 +205,10 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
               if (link) url = link.href;
           }
 
-          // [작성자 찾기 핵심 수정]
           const nickCandidates = items.filter(i => 
-              Math.abs(i.y - dateItem.y) < 50 &&  // 같은 줄(높이)
-              !i.isDate &&                        // 날짜 아님
-              i.fontSize < 16                     // [NEW] 폰트 크기가 16px 미만이어야 함 (제목 오인식 방지)
+              Math.abs(i.y - dateItem.y) < 50 &&  
+              !i.isDate &&                        
+              i.fontSize < 16                     
           );
           
           let bestMatchAuthor = '';
@@ -172,14 +221,14 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
               clean = clean.replace(/^\.+|\.+$/g, '');
 
               if (clean.length > 1) {
-                  // 제목과 똑같은 텍스트라면 제외 (한번 더 안전장치)
                   if (title && clean === title) continue;
 
                   if (!firstFoundAuthor) firstFoundAuthor = clean;
 
-                  // 특수문자 제거 후 비교
                   const normalizedClean = cleanStringInBrowser(clean);
-                  const isTarget = targets.some((t: string) => normalizedClean.includes(t));
+                  
+                  // [수정된 부분] 정확히 일치하는지 확인 (===)
+                  const isTarget = targets.some((t: string) => normalizedClean === t);
 
                   if (isTarget) {
                       bestMatchAuthor = clean; 
@@ -190,9 +239,10 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
 
           let author = bestMatchAuthor || firstFoundAuthor || '(알수없음)';
 
-          // 최종 검증
           const normalizedAuthor = cleanStringInBrowser(author);
-          const isMyPost = targets.some((t: string) => normalizedAuthor.includes(t));
+          
+          // [수정된 부분] 최종 검증에서도 정확히 일치하는지 확인 (===)
+          const isMyPost = targets.some((t: string) => normalizedAuthor === t);
 
           if (isMyPost) {
             myRankings.push({
