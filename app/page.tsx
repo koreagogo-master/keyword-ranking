@@ -146,7 +146,7 @@ export default function Home() {
                 onClick={() => setIsSignUp(!isSignUp)}
                 className="text-sm text-gray-400 hover:text-white underline"
               >
-                {isSignUp ? "이미 계정이 있으신가요? 로그인" : "계정이 없으신가요? 회원가입"}
+                {isSignUp ? "이미 계정이 있으신가요? 로그인" : "계정이 없으신가요? 이메일로 회원가입"}
               </button>
             </div>
           </div>
