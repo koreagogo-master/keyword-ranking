@@ -1,6 +1,7 @@
 'use server';
 
-import puppeteer from 'puppeteer';
+// [변경 1] 우리가 만든 공통 프록시 도구 가져오기
+import { launchProxyBrowser, setupPage } from '@/app/lib/puppeteerHelper';
 
 interface RankResult {
   success: boolean;
@@ -16,7 +17,7 @@ interface RankResult {
 }
 
 // ==================================================================
-// 1. [블로그 탭] 순위 확인 (기존 코드 유지)
+// 1. [블로그 탭] 순위 확인 (기존 로직 유지 + 프록시 적용)
 // ==================================================================
 export async function checkNaverBlogRank(keyword: string, targetNickname: string): Promise<RankResult> {
   console.log(`\n========== [블로그 탭(Blog Tab) 순위 체크] ==========`);
@@ -24,17 +25,15 @@ export async function checkNaverBlogRank(keyword: string, targetNickname: string
 
   let browser;
   try {
-    browser = await puppeteer.launch({
-      headless: true, 
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    // [변경 2] 공통 도구로 브라우저 실행
+    browser = await launchProxyBrowser();
 
     const page = await browser.newPage();
-    await page.setViewport({ width: 390, height: 844 });
-    
-    await page.setUserAgent(
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1'
-    );
+
+    // [변경 3] 페이지 설정 적용 (인증 + 모바일 위장)
+    await setupPage(page);
+
+    // (기존 viewport, userAgent 설정 코드는 setupPage에 포함되어 삭제함)
 
     const searchUrl = `https://m.search.naver.com/search.naver?ssc=tab.m_blog.all&where=m_blog&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(keyword)}`;
     
@@ -45,6 +44,7 @@ export async function checkNaverBlogRank(keyword: string, targetNickname: string
       await new Promise(resolve => setTimeout(resolve, 300));
     }
 
+    // --- 아래부터는 기존 분석 로직 그대로 유지 ---
     const crawledData = await page.evaluate((targetNick) => {
       const normalize = (text: string | null) => text ? text.replace(/\s+/g, '').toLowerCase().trim() : '';
       const targetNormal = normalize(targetNick);
@@ -208,7 +208,7 @@ export async function checkNaverBlogRank(keyword: string, targetNickname: string
 }
 
 // ==================================================================
-// 2. [통합검색] 순위 확인 (수정: 그룹핑 유지 + 전체 목록에서 제목 찾기)
+// 2. [통합검색] 순위 확인 (기존 로직 유지 + 프록시 적용)
 // ==================================================================
 export async function checkNaverRank(keyword: string, targetNickname: string): Promise<RankResult> {
   console.log(`\n========== [통합검색: 그룹핑 유지 + Global 제목 탐색] ==========`);
@@ -216,17 +216,15 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
 
   let browser;
   try {
-    browser = await puppeteer.launch({
-      headless: true, 
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    // [변경 4] 공통 도구로 브라우저 실행
+    browser = await launchProxyBrowser();
 
     const page = await browser.newPage();
-    await page.setViewport({ width: 390, height: 844 });
     
-    await page.setUserAgent(
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1'
-    );
+    // [변경 5] 페이지 설정 적용 (인증 + 모바일 위장)
+    await setupPage(page);
+
+    // (기존 viewport, userAgent 설정 코드는 setupPage에 포함되어 삭제함)
 
     const searchUrl = `https://m.search.naver.com/search.naver?where=m&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(keyword)}`;
     await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: 60000 });
@@ -237,6 +235,7 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
       await new Promise(resolve => setTimeout(resolve, 300));
     }
 
+    // --- 아래부터는 기존 분석 로직 그대로 유지 ---
     const { foundData } = await page.evaluate((targetNick) => {
       const normalize = (text: string | null) => text ? text.replace(/\s+/g, '').toLowerCase().trim() : '';
       const targetNormal = normalize(targetNick);
@@ -301,7 +300,7 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
           processedElements.add(el);
       }
 
-      // 2. 그룹화 (기존 로직 100% 유지)
+      // 2. 그룹화
       candidates.sort((a, b) => a.y - b.y);
 
       const groups: any[] = [];
@@ -332,7 +331,7 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
       let realRank = 0;
       let found = null;
 
-      // 3. 순위 루프 (수정된 부분: 그룹 밖(전체 리스트)에서 제목 찾기)
+      // 3. 순위 루프
       for (const group of groups) {
           realRank++;
           
@@ -341,14 +340,12 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
           let dateStr = '(날짜없음)';
           let maxScore = -9999;
 
-          // (1) 날짜(앵커) 찾기 - 그룹 내부에서
           const dateItem = group.items.find((i: any) => i.hasDate);
           
           if (dateItem) {
               const dMatch = dateItem.text.match(dateRegex);
               if (dMatch) {
                   dateStr = dMatch[0];
-                  // 날짜 옆 닉네임 분리
                   const cleanText = dateItem.text.replace(dMatch[0], '').trim();
                   const potentialAuthor = cleanText.replace(/^[.|·\s]+|[.|·\s]+$/g, '');
                   if (potentialAuthor.length > 1 && potentialAuthor.length < 50) {
@@ -357,27 +354,20 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
               }
           }
 
-          // (2) 제목 추출 (핵심 수정!)
-          // 그룹(group.items)에 국한되지 않고, 전체 목록(candidates)에서 찾습니다.
-          // 이유: 날짜와 제목이 서로 다른 그룹으로 쪼개졌을 가능성 차단
-          
           let titleCandidates: any[] = [];
           
           if (dateItem) {
-              // candidates(전체)에서 날짜 바로 아래에 있는 것들을 싹 긁어옵니다.
               titleCandidates = candidates.filter((c: any) => 
-                  c.y > dateItem.y &&             // 날짜보다 아래
-                  c.y < dateItem.y + 120 &&       // 120px 이내 (여유있게)
-                  !c.hasDate                      // 날짜 제외
+                  c.y > dateItem.y &&             
+                  c.y < dateItem.y + 120 &&       
+                  !c.hasDate                      
               );
           }
 
           for (const item of titleCandidates) {
-              // 점수 계산 (폰트 크기 우선)
               let score = item.fontSize * 10; 
               if (item.isBold) score += 20;   
               
-              // 소제목 특징 감점 (| 문자, 너무 긴 텍스트)
               if (item.text.includes('|')) score -= 100; 
               if (item.text.length > 80) score -= 20; 
               if (item.text.includes('함께 보면 좋은')) score = -9999;
@@ -388,7 +378,6 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
               }
           }
 
-          // (3) 작성자 보완 (그룹 내에서 못 찾았다면 전체에서 찾기)
           if (author === '(알수없음)' && dateItem) {
               const cands = candidates.filter(i => 
                   Math.abs(i.y - dateItem.y) < 20 && 
@@ -402,7 +391,6 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
 
           const fullText = group.items.map((i:any) => i.text).join(' ');
           
-          // 타겟 확인 (닉네임이 일치하거나, 작성자가 일치하면)
           if (normalize(fullText).includes(targetNormal) || normalize(author).includes(targetNormal)) {
                found = { 
                   totalRank: realRank, 

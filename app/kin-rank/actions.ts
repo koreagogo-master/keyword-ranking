@@ -1,6 +1,7 @@
 'use server';
 
-import puppeteer from 'puppeteer';
+// [변경 1] 우리가 만든 공통 프록시 도구 가져오기
+import { launchProxyBrowser, setupPage } from '@/app/lib/puppeteerHelper';
 
 interface RankResult {
   success: boolean;
@@ -18,10 +19,8 @@ interface RankResult {
 export async function checkNaverKinRank(keyword: string, targetTitleSnippet: string): Promise<RankResult> {
   let browser;
   try {
-    browser = await puppeteer.launch({
-      headless: true, 
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    // [변경 2] 복잡한 설정 없이 공통 함수로 브라우저 실행
+    browser = await launchProxyBrowser();
 
     const [mainResult, tabResult] = await Promise.all([
       checkMainExposure(browser, keyword),           
@@ -52,11 +51,14 @@ export async function checkNaverKinRank(keyword: string, targetTitleSnippet: str
 // [로봇 1] 통합검색 노출 확인
 async function checkMainExposure(browser: any, keyword: string): Promise<boolean> {
   const page = await browser.newPage();
+  
+  // [변경 3] 페이지 설정 적용 (인증 + 모바일 위장)
+  await setupPage(page);
+
   const targetUrl = `https://m.search.naver.com/search.naver?sm=mtb_hty.top&ssc=tab.m.all&query=${encodeURIComponent(keyword)}`;
 
   try {
-    await page.setViewport({ width: 390, height: 844 });
-    await page.setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1');
+    // 기존의 setViewport, setUserAgent는 setupPage 안에 있으므로 생략
     await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 30000 });
 
     const hasKinSection = await page.evaluate(() => {
@@ -72,19 +74,23 @@ async function checkMainExposure(browser: any, keyword: string): Promise<boolean
   }
 }
 
-// [로봇 2] 지식iN 탭 순위 + 날짜 확인 (상대 날짜 로직 추가됨)
+// [로봇 2] 지식iN 탭 순위 + 날짜 확인
 async function checkTabRank(browser: any, keyword: string, targetTitleSnippet: string) {
   const page = await browser.newPage();
+
+  // [변경 4] 페이지 설정 적용 (인증 + 모바일 위장)
+  await setupPage(page);
+
   const targetUrl = `https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_kin&ssc=tab.m_kin.all&query=${encodeURIComponent(keyword)}`;
 
   try {
-    await page.setViewport({ width: 390, height: 844 });
-    await page.setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1');
+    // 기존의 setViewport, setUserAgent는 setupPage 안에 있으므로 생략
     await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 30000 });
     
     await page.evaluate(() => window.scrollTo(0, 0));
     await new Promise(resolve => setTimeout(resolve, 800));
 
+    // --- 아래부터는 기존 분석 로직(파란색 글씨, 날짜 계산) 그대로 유지 ---
     const extractedData = await page.evaluate(() => {
       const allElements = document.querySelectorAll('*');
       const titles = [];
@@ -126,14 +132,10 @@ async function checkTabRank(browser: any, keyword: string, targetTitleSnippet: s
             }
         }
 
-        // 2. [날짜] 찾기 (로직 확장됨)
-        // 조건: 11~15px + 파란색 아님
+        // 2. [날짜] 찾기
         const isDateSize = fontSize >= 11 && fontSize <= 15;
         
         if (isDateSize && !isRealBlue) {
-            // [수정 포인트] 날짜 패턴 확장
-            // 1. 절대 날짜: 2024.09.04.
-            // 2. 상대 날짜: 2주 전, 3일 전, 1시간 전, 30분 전
             const absoluteDate = /\d{4}\.\d{2}\.\d{2}/.test(text);
             const relativeDate = /\d+(분|시간|일|주|달|개월|년)\s*전/.test(text);
 
