@@ -2,13 +2,8 @@
 
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import puppeteer from 'puppeteer';
-
-// 프록시 설정
-const PROXY_HOST = 'proxy.smartproxy.net';
-const PROXY_PORT = '3120';
-const PROXY_USER = 'smart-tmgad01_area-KR';
-const PROXY_PASS = 'bsh103501';
+// [중요] 방금 만든 공통 도구를 가져옵니다.
+import { launchProxyBrowser, setupPage } from '@/app/lib/puppeteerHelper';
 
 interface RankItem {
   rank: number;
@@ -28,6 +23,7 @@ interface RankResult {
 
 export async function checkNaverBlogRank(keyword: string, targetNicknames: string): Promise<RankResult> {
   try {
+    // 1. 사용자 인증 (Supabase)
     const cookieStore = await cookies();
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -42,52 +38,14 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false, message: '로그인이 필요한 서비스입니다.' };
     
-    // [수정 1] 환경 구분 (로컬 vs 배포)
-    const isProduction = process.env.NODE_ENV === 'production';
+    // 2. 브라우저 실행 (공통 도구 사용)
+    const browser = await launchProxyBrowser();
 
-    // [수정 2] 실행 경로 설정
-    // 배포 환경(production)일 때만 환경변수나 리눅스 경로를 사용하고,
-    // 로컬일 때는 null을 주어 Puppeteer가 알아서 설치된 크롬을 찾게 합니다.
-    const executablePath = isProduction 
-      ? (process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable')
-      : null;
-
-    console.log(`🚀 브라우저 실행 시도 (환경: ${isProduction ? '배포(Server)' : '로컬(Local)'}, 경로: ${executablePath || '자동 탐지'})`);
-
-    // [수정 3] 실행 옵션(args) 분기 처리
-    // --single-process 옵션은 윈도우 로컬에서 에러(Protocol error)를 자주 일으킵니다.
-    // 따라서 기본 옵션과 배포용 옵션을 나눕니다.
-    const launchArgs = [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--no-first-run',
-        '--no-zygote',
-        `--proxy-server=http://${PROXY_HOST}:${PROXY_PORT}`,
-        '--disable-blink-features=AutomationControlled'
-    ];
-
-    // 배포 환경(Docker/Cloud Run)에서만 필요한 옵션 추가
-    // if (isProduction) {
-    //    launchArgs.push('--single-process'); 
-    //}
-
-    const browser = await puppeteer.launch({
-      headless: true, // 최신 버전에서는 "new" 권장이나 true도 작동함
-      executablePath: executablePath as any, // 타입 에러 방지
-      args: launchArgs,
-      timeout: 30000 
-    });
-
+    // 3. 페이지 생성 및 설정 (공통 도구 사용 - 프록시 인증/모바일 설정 등)
     const page = await browser.newPage();
-    await page.authenticate({ username: PROXY_USER, password: PROXY_PASS });
+    await setupPage(page);
 
-    // 모바일 위장
-    await page.setViewport({ width: 390, height: 844 });
-    await page.setUserAgent('Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1');
-
-    // 네이버 접속
+    // 4. 네이버 접속
     const searchUrl = `https://m.search.naver.com/search.naver?ssc=tab.m_blog.all&where=m_blog&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(keyword)}`;
     
     try {
@@ -99,13 +57,13 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
 
     const screenshotBase64 = await page.screenshot({ encoding: 'base64' });
 
-    // 스크롤
+    // 5. 스크롤 (데이터 로딩)
     for (let i = 0; i < 3; i++) { 
       await page.evaluate(() => window.scrollBy(0, 800));
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    // 데이터 분석 (기존 로직 유지)
+    // 6. 데이터 분석 로직 (기존 로직 유지)
     const cleanString = (str: string) => str.replace(/[^가-힣a-zA-Z0-9]/g, '').toLowerCase();
     const targets = targetNicknames.split(',').map(n => cleanString(n)).filter(n => n.length > 0);
 

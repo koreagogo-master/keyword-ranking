@@ -36,19 +36,15 @@ export default function BlogRankPage() {
   // 입력된 닉네임 목록 파싱 (범례 및 색상 매칭용)
   const nicknames = targetNickname.split(',').map(s => s.trim()).filter(Boolean);
 
-  // [수정된 부분] 작성자 이름에 따른 색상 클래스 반환 함수 (정확도 개선)
+  // 작성자 이름에 따른 색상 클래스 반환 함수
   const getAuthorColorClass = (authorName: string) => {
     if (!authorName || authorName === '-') return 'text-gray-500';
     
     let bestMatchIndex = -1;
     let maxMatchLength = 0;
 
-    // 등록된 닉네임들을 하나씩 대조해봅니다.
     nicknames.forEach((nick, idx) => {
-      // 결과의 작성자명(authorName)이 우리가 입력한 닉네임(nick)을 포함하고 있다면
       if (authorName.includes(nick)) {
-        // 그 중에서도 "가장 긴 닉네임"을 선택합니다. 
-        // (예: '연세베스트치과' vs '연세베스트치과입니다' -> 더 긴 쪽을 우선시하여 색상 오류 방지)
         if (nick.length > maxMatchLength) {
           maxMatchLength = nick.length;
           bestMatchIndex = idx;
@@ -56,12 +52,11 @@ export default function BlogRankPage() {
       }
     });
 
-    // 매칭된 것이 있다면 해당 순서의 색상을 반환
     if (bestMatchIndex !== -1) {
       return AUTHOR_COLORS[bestMatchIndex % AUTHOR_COLORS.length];
     }
 
-    return 'text-gray-400'; // 매칭 안되면 기본 회색
+    return 'text-gray-400';
   };
 
   const handleCheck = async () => {
@@ -126,7 +121,6 @@ export default function BlogRankPage() {
     if (e.key === 'Enter') handleCheck();
   };
 
-  // 키워드별 그룹화 (중복 키워드 제거)
   const uniqueKeywords = Array.from(new Set(results.map(r => r.keyword)));
 
   return (
@@ -153,7 +147,6 @@ export default function BlogRankPage() {
                 placeholder="예: 연세베스트치과, 연세베스트치과입니다"
                 className="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-blue-500 text-white h-[50px]"
               />
-              {/* 범례 (Legend) */}
               {nicknames.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2 animate-fade-in">
                   {nicknames.map((nick, idx) => (
@@ -212,27 +205,21 @@ export default function BlogRankPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-700">
                   {uniqueKeywords.map((keyword, kIdx) => {
-                    // 현재 키워드에 해당하는 결과만 필터링
                     const items = results.filter(r => r.keyword === keyword);
                     
                     return (
                       <tr key={kIdx} className="hover:bg-gray-700/50 transition-colors">
-                        
-                        {/* 1. 키워드 (상단 정렬) */}
                         <td className="p-3 font-light text-white truncate align-top pt-4">
                           {keyword}
                         </td>
                         
-                        {/* 2. 순위 (닉네임별 색상 적용 + 슬래시 구분) */}
                         <td className="p-3 text-center align-top pt-4">
                           <div className="flex flex-wrap justify-center gap-1">
                             {items.map((item, iIdx) => (
                               <span key={iIdx} className="flex items-center">
-                                {/* 순위에 색상 적용: 수정된 getAuthorColorClass 사용 */}
                                 <span className={`text-base font-bold ${getAuthorColorClass(item.author)}`}>
                                   {item.rank}
                                 </span>
-                                {/* 구분자 */}
                                 {iIdx < items.length - 1 && (
                                   <span className="text-gray-500 mx-1">/</span>
                                 )}
@@ -241,7 +228,6 @@ export default function BlogRankPage() {
                           </div>
                         </td>
 
-                        {/* 3. 제목 + (날짜) */}
                         <td className="p-3 text-sm text-gray-300 align-top pt-4">
                           <div className="flex flex-col gap-3">
                             {items.map((item, iIdx) => (
@@ -249,7 +235,6 @@ export default function BlogRankPage() {
                                 <span className={`whitespace-normal break-keep leading-relaxed ${item.isSuccess ? 'text-gray-200' : 'text-gray-500'}`}>
                                   {item.title}
                                 </span>
-                                {/* 날짜: 제목 뒤에 괄호로 붙임 */}
                                 {item.date !== '-' && (
                                   <span className="text-gray-500 text-xs ml-2">
                                     ({item.date})
@@ -259,7 +244,6 @@ export default function BlogRankPage() {
                             ))}
                           </div>
                         </td>
-
                       </tr>
                     );
                   })}
