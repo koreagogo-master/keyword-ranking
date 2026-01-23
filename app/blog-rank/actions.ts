@@ -1,5 +1,7 @@
 'use server';
 
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
 // [변경 1] 우리가 만든 공통 프록시 도구 가져오기
 import { launchProxyBrowser, setupPage } from '@/app/lib/puppeteerHelper';
 
@@ -17,23 +19,33 @@ interface RankResult {
 }
 
 // ==================================================================
-// 1. [블로그 탭] 순위 확인 (기존 로직 유지 + 프록시 적용)
+// 1. [블로그 탭] 순위 확인 (로그인 체크 + 프록시)
 // ==================================================================
 export async function checkNaverBlogRank(keyword: string, targetNickname: string): Promise<RankResult> {
+  // [보안 1] 로그인 체크 시작
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet) { try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); } catch {} },
+      },
+    }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, message: '로그인이 필요한 서비스입니다.' };
+  // [보안 1] 로그인 체크 끝
+
   console.log(`\n========== [블로그 탭(Blog Tab) 순위 체크] ==========`);
   console.log(`검색 키워드: ${keyword}`);
 
   let browser;
   try {
-    // [변경 2] 공통 도구로 브라우저 실행
     browser = await launchProxyBrowser();
-
     const page = await browser.newPage();
-
-    // [변경 3] 페이지 설정 적용 (인증 + 모바일 위장)
     await setupPage(page);
-
-    // (기존 viewport, userAgent 설정 코드는 setupPage에 포함되어 삭제함)
 
     const searchUrl = `https://m.search.naver.com/search.naver?ssc=tab.m_blog.all&where=m_blog&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(keyword)}`;
     
@@ -44,7 +56,6 @@ export async function checkNaverBlogRank(keyword: string, targetNickname: string
       await new Promise(resolve => setTimeout(resolve, 300));
     }
 
-    // --- 아래부터는 기존 분석 로직 그대로 유지 ---
     const crawledData = await page.evaluate((targetNick) => {
       const normalize = (text: string | null) => text ? text.replace(/\s+/g, '').toLowerCase().trim() : '';
       const targetNormal = normalize(targetNick);
@@ -208,23 +219,33 @@ export async function checkNaverBlogRank(keyword: string, targetNickname: string
 }
 
 // ==================================================================
-// 2. [통합검색] 순위 확인 (기존 로직 유지 + 프록시 적용)
+// 2. [통합검색] 순위 확인 (로그인 체크 + 프록시)
 // ==================================================================
 export async function checkNaverRank(keyword: string, targetNickname: string): Promise<RankResult> {
+  // [보안 2] 로그인 체크 시작
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet) { try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); } catch {} },
+      },
+    }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, message: '로그인이 필요한 서비스입니다.' };
+  // [보안 2] 로그인 체크 끝
+
   console.log(`\n========== [통합검색: 그룹핑 유지 + Global 제목 탐색] ==========`);
   console.log(`검색 키워드: ${keyword}`);
 
   let browser;
   try {
-    // [변경 4] 공통 도구로 브라우저 실행
     browser = await launchProxyBrowser();
-
     const page = await browser.newPage();
-    
-    // [변경 5] 페이지 설정 적용 (인증 + 모바일 위장)
     await setupPage(page);
-
-    // (기존 viewport, userAgent 설정 코드는 setupPage에 포함되어 삭제함)
 
     const searchUrl = `https://m.search.naver.com/search.naver?where=m&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(keyword)}`;
     await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: 60000 });
@@ -235,7 +256,6 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
       await new Promise(resolve => setTimeout(resolve, 300));
     }
 
-    // --- 아래부터는 기존 분석 로직 그대로 유지 ---
     const { foundData } = await page.evaluate((targetNick) => {
       const normalize = (text: string | null) => text ? text.replace(/\s+/g, '').toLowerCase().trim() : '';
       const targetNormal = normalize(targetNick);

@@ -1,6 +1,10 @@
 'use server';
 
-// [변경 1] 우리가 만든 공통 프록시 도구 가져오기
+// [추가됨] 로그인 체크를 위한 필수 도구들
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+
+// 우리가 만든 공통 프록시 도구
 import { launchProxyBrowser, setupPage } from '@/app/lib/puppeteerHelper';
 
 interface RankResult {
@@ -17,9 +21,39 @@ interface RankResult {
 }
 
 export async function checkNaverKinRank(keyword: string, targetTitleSnippet: string): Promise<RankResult> {
+  // ============================================================
+  // [보안] 로그인 체크 로직 (문지기) 시작
+  // ============================================================
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet) { 
+          try { 
+            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); 
+          } catch {} 
+        },
+      },
+    }
+  );
+  
+  // 사용자 정보 가져오기
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  // 로그인을 안 했으면 여기서 바로 돌려보냄
+  if (!user) {
+    return { success: false, message: '로그인이 필요한 서비스입니다.' };
+  }
+  // ============================================================
+  // [보안] 로그인 체크 끝 (통과한 사람만 아래 코드 실행)
+  // ============================================================
+
   let browser;
   try {
-    // [변경 2] 복잡한 설정 없이 공통 함수로 브라우저 실행
+    // 공통 함수로 브라우저 실행
     browser = await launchProxyBrowser();
 
     const [mainResult, tabResult] = await Promise.all([
@@ -52,13 +86,12 @@ export async function checkNaverKinRank(keyword: string, targetTitleSnippet: str
 async function checkMainExposure(browser: any, keyword: string): Promise<boolean> {
   const page = await browser.newPage();
   
-  // [변경 3] 페이지 설정 적용 (인증 + 모바일 위장)
+  // 페이지 설정 적용 (인증 + 모바일 위장)
   await setupPage(page);
 
   const targetUrl = `https://m.search.naver.com/search.naver?sm=mtb_hty.top&ssc=tab.m.all&query=${encodeURIComponent(keyword)}`;
 
   try {
-    // 기존의 setViewport, setUserAgent는 setupPage 안에 있으므로 생략
     await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 30000 });
 
     const hasKinSection = await page.evaluate(() => {
@@ -78,13 +111,12 @@ async function checkMainExposure(browser: any, keyword: string): Promise<boolean
 async function checkTabRank(browser: any, keyword: string, targetTitleSnippet: string) {
   const page = await browser.newPage();
 
-  // [변경 4] 페이지 설정 적용 (인증 + 모바일 위장)
+  // 페이지 설정 적용 (인증 + 모바일 위장)
   await setupPage(page);
 
   const targetUrl = `https://m.search.naver.com/search.naver?sm=mtb_hty.top&where=m_kin&ssc=tab.m_kin.all&query=${encodeURIComponent(keyword)}`;
 
   try {
-    // 기존의 setViewport, setUserAgent는 setupPage 안에 있으므로 생략
     await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 30000 });
     
     await page.evaluate(() => window.scrollTo(0, 0));
