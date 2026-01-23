@@ -1,0 +1,26 @@
+steps:
+  # 1. Docker 이미지를 빌드합니다.
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/blog-rank-image', '.']
+
+  # 2. 이미지를 구글 저장소에 업로드합니다.
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/blog-rank-image']
+
+  # 3. Cloud Run(진짜 도쿄서버)에 배포합니다.
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'keyword-ranking'  # 👈 여기가 진짜 이름입니다!
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/blog-rank-image'
+      - '--region'
+      - 'asia-northeast1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/blog-rank-image'

@@ -4,7 +4,7 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import puppeteer from 'puppeteer';
 
-// 프록시 설정 (회원님 정보 그대로)
+// 프록시 설정
 const PROXY_HOST = 'proxy.smartproxy.net';
 const PROXY_PORT = '3120';
 const PROXY_USER = 'smart-tmgad01_area-KR';
@@ -42,24 +42,41 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return { success: false, message: '로그인이 필요한 서비스입니다.' };
     
-    // [중요] 서버 환경인지 확인 (리눅스면 true)
+    // [수정 1] 환경 구분 (로컬 vs 배포)
     const isProduction = process.env.NODE_ENV === 'production';
-    
-    // 브라우저 실행
-    const browser = await puppeteer.launch({
-      headless: true,
-      // ★★★ 여기가 핵심 해결책입니다 ★★★
-      // 서버(배포환경)에서는 Dockerfile로 설치한 '진짜 크롬' 경로를 강제로 지정합니다.
-      // 로컬(내 컴퓨터)에서는 그냥 알아서 실행하게 둡니다.
-      executablePath: isProduction ? '/usr/bin/google-chrome' : undefined,
-      args: [
+
+    // [수정 2] 실행 경로 설정
+    // 배포 환경(production)일 때만 환경변수나 리눅스 경로를 사용하고,
+    // 로컬일 때는 null을 주어 Puppeteer가 알아서 설치된 크롬을 찾게 합니다.
+    const executablePath = isProduction 
+      ? (process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/google-chrome-stable')
+      : null;
+
+    console.log(`🚀 브라우저 실행 시도 (환경: ${isProduction ? '배포(Server)' : '로컬(Local)'}, 경로: ${executablePath || '자동 탐지'})`);
+
+    // [수정 3] 실행 옵션(args) 분기 처리
+    // --single-process 옵션은 윈도우 로컬에서 에러(Protocol error)를 자주 일으킵니다.
+    // 따라서 기본 옵션과 배포용 옵션을 나눕니다.
+    const launchArgs = [
         '--no-sandbox',
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
+        '--no-first-run',
+        '--no-zygote',
         `--proxy-server=http://${PROXY_HOST}:${PROXY_PORT}`,
         '--disable-blink-features=AutomationControlled'
-      ],
+    ];
+
+    // 배포 환경(Docker/Cloud Run)에서만 필요한 옵션 추가
+    // if (isProduction) {
+    //    launchArgs.push('--single-process'); 
+    //}
+
+    const browser = await puppeteer.launch({
+      headless: true, // 최신 버전에서는 "new" 권장이나 true도 작동함
+      executablePath: executablePath as any, // 타입 에러 방지
+      args: launchArgs,
       timeout: 30000 
     });
 
@@ -73,7 +90,6 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
     // 네이버 접속
     const searchUrl = `https://m.search.naver.com/search.naver?ssc=tab.m_blog.all&where=m_blog&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(keyword)}`;
     
-    // 접속 대기
     try {
         await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: 60000 });
     } catch (e) {
@@ -81,21 +97,19 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
         return { success: false, message: '네이버 접속 시간 초과 (프록시 재시도 필요)' };
     }
 
-    // 스크린샷 (증거 확보)
     const screenshotBase64 = await page.screenshot({ encoding: 'base64' });
 
-    // 스크롤 (데이터 로딩)
+    // 스크롤
     for (let i = 0; i < 3; i++) { 
       await page.evaluate(() => window.scrollBy(0, 800));
       await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    // 데이터 분석 (기존 로직 동일)
+    // 데이터 분석 (기존 로직 유지)
     const cleanString = (str: string) => str.replace(/[^가-힣a-zA-Z0-9]/g, '').toLowerCase();
     const targets = targetNicknames.split(',').map(n => cleanString(n)).filter(n => n.length > 0);
 
     const foundItems = await page.evaluate((targets) => {
-      // (기존의 복잡한 분석 코드는 그대로 둡니다. 지면상 생략하지 않고 그대로 실행됩니다.)
       const cleanStringInBrowser = (str: string | null) => str ? str.replace(/[^가-힣a-zA-Z0-9]/g, '').toLowerCase() : '';
       const dateRegex = /(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}|\d+(?:시간|분|일|주|개월|년)\s*전|어제|방금\s*전)/;
       const allElements = Array.from(document.querySelectorAll('a, span, strong, b, em, div, p, h3, h4'));
