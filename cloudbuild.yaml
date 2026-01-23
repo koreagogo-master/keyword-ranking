@@ -13,7 +13,7 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'keyword-ranking'  # 👈 여기가 진짜 이름입니다!
+      - 'keyword-ranking'
       - '--image'
       - 'gcr.io/$PROJECT_ID/blog-rank-image'
       - '--region'
@@ -24,3 +24,7 @@ steps:
 
 images:
   - 'gcr.io/$PROJECT_ID/blog-rank-image'
+
+# ▼▼▼ 이 부분이 로그 에러를 해결하는 핵심 코드입니다 ▼▼▼
+options:
+  logging: CLOUD_LOGGING_ONLY
