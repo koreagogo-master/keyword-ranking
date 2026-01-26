@@ -1,24 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
-// 👇 1. 헤더 부품 불러오기
 import Header from "@/components/Header";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// 1. 나눔바른고딕 설정 (파일명: NanumBarunGothic.ttf)
+const nanumBarunGothic = localFont({
+  src: "../public/fonts/NanumBarunGothic.ttf", 
+  variable: "--font-nanum-barun",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+// 2. 나눔스퀘어 설정 (파일명: NanumSquareR.otf)
+// 이미지 목록에 있는 'NanumSquareR.otf'로 이름을 맞췄습니다.
+const nanumSquare = localFont({
+  src: "../public/fonts/NanumSquareR.otf", 
+  variable: "--font-nanum-square",
 });
 
 export const metadata: Metadata = {
-  // 브라우저 탭에 보일 제목
   title: "TMG 랭킹 - 블로그 & 지식인 순위 분석", 
-  
-  // 검색엔진이나 카톡 공유 시 보일 설명
   description: "블로그와 지식인 노출 순위를 실시간으로 조회하고 분석하는 마케팅 도구입니다.",
 };
 
@@ -28,14 +27,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="ko">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${nanumBarunGothic.variable} ${nanumSquare.variable} antialiased`}
       >
-        {/* 👇 2. 헤더를 본문 위에 고정 장착 */}
         <Header />
         
-        {/* 👇 3. 헤더 높이(16)만큼 내용을 아래로 밀어주고, 배경색(다크모드)을 깔아줍니다 */}
+        {/* 기존 다크모드 배경(bg-gray-900) 유지 */}
         <div className="pt-16 min-h-screen bg-gray-900 text-white">
           {children}
         </div>
