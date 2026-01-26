@@ -8,14 +8,15 @@ import { useRouter } from "next/navigation";
 export default function Header() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // 모달 상태 추가
+  const [isModalOpen, setIsModalOpen] = useState(false); // 기존 메뉴 팝업 상태
   const supabase = createClient();
-  const router = useRouter();
 
+  // 로그인 사용자 및 프로필 정보 가져오기
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+
       if (user) {
         const { data } = await supabase
           .from('profiles')
@@ -31,37 +32,37 @@ export default function Header() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     alert("로그아웃 되었습니다.");
-    window.location.href = "/";
+    window.location.href = "/"; // 메인으로 이동
   };
 
   return (
     <>
       <header className="w-full h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 fixed top-0 left-0 z-50 shadow-sm">
         <div className="flex items-center gap-6">
-          {/* 1. 로고 (주황색 테마 적용) */}
+          {/* 로고: 클릭 시 메인으로 */}
           <Link href="/" className="text-2xl font-black text-[#ff8533] tracking-tighter italic">
             TMG AD
           </Link>
 
-          {/* 2. 기존 메뉴 모달 트리거 (로그인 시에만 노출 추천) */}
+          {/* 기존 메뉴 모달 버튼: 공간 확보를 위해 버튼 하나로 통합 */}
           {user && (
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="text-xs font-bold bg-orange-50 text-[#ff8533] px-3 py-1.5 rounded-full border border-orange-100 hover:bg-orange-100 transition-colors"
+              className="text-xs font-bold bg-orange-50 text-[#ff8533] px-3 py-1.5 rounded-full border border-orange-100 hover:bg-orange-100 transition-all"
             >
               [기존 메뉴 A,B,C]
             </button>
           )}
         </div>
 
-        {/* 3. 우측 메뉴 (화이트 테마 & 주황색 버튼) */}
+        {/* 우측 사용자 메뉴 */}
         <div className="flex items-center gap-4 text-sm font-medium">
           {user ? (
             <>
               <div className="text-right hidden sm:block mr-2">
                 <p className="text-gray-900 font-bold leading-none">{user.email.split('@')[0]}</p>
                 <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">
-                  GRADE: <span className="text-[#ff8533]">{profile?.grade || 'Standard'}</span>
+                  GRADE: <span className="text-[#ff8533]">{profile?.grade?.toUpperCase() || 'STANDARD'}</span>
                 </p>
               </div>
 
@@ -87,10 +88,10 @@ export default function Header() {
         </div>
       </header>
 
-      {/* 4. 기존 메뉴 모달 팝업 */}
+      {/* 기존 메뉴 팝업 (모달) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm px-4" onClick={() => setIsModalOpen(false)}>
-          <div className="bg-white p-8 rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-sm transform transition-all" onClick={e => e.stopPropagation()}>
+          <div className="bg-white p-8 rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-sm" onClick={e => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-black text-gray-900">기존 도구 (Legacy)</h2>
               <button onClick={() => setIsModalOpen(false)} className="text-gray-400 hover:text-gray-600">
@@ -101,21 +102,18 @@ export default function Header() {
             <div className="grid gap-3">
               <Link href="/blog-rank" target="_blank" className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-orange-50 hover:text-[#ff8533] transition-all font-bold group">
                 <span>통합 분석 (Type A)</span>
-                <span className="text-xs bg-white px-2 py-1 rounded border border-gray-100 group-hover:border-orange-200">OPEN</span>
+                <span className="text-[10px] bg-white px-2 py-1 rounded border border-gray-100">OPEN</span>
               </Link>
               <Link href="/blog-rank-b" target="_blank" className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-orange-50 hover:text-[#ff8533] transition-all font-bold group">
                 <span>블로그 순위 (Type B)</span>
-                <span className="text-xs bg-white px-2 py-1 rounded border border-gray-100 group-hover:border-orange-200">OPEN</span>
+                <span className="text-[10px] bg-white px-2 py-1 rounded border border-gray-100">OPEN</span>
               </Link>
               <Link href="/kin-rank" target="_blank" className="flex items-center justify-between p-4 rounded-2xl bg-gray-50 hover:bg-orange-50 hover:text-[#ff8533] transition-all font-bold group">
                 <span>지식인 순위 (Type C)</span>
-                <span className="text-xs bg-white px-2 py-1 rounded border border-gray-100 group-hover:border-orange-200">OPEN</span>
+                <span className="text-[10px] bg-white px-2 py-1 rounded border border-gray-100">OPEN</span>
               </Link>
             </div>
-            
-            <p className="mt-6 text-center text-xs text-gray-400 font-medium">
-              기존 메뉴는 새 창으로 열립니다.
-            </p>
+            <p className="mt-6 text-center text-[11px] text-gray-400 font-medium">기존 메뉴는 새 창에서 열립니다.</p>
           </div>
         </div>
       )}
