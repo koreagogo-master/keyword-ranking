@@ -22,7 +22,7 @@ function AnalysisContent() {
     }
   }, [searchParams]);
 
-  // 등급 판정 로직
+  // 등급 판정 로직 (기존 유지)
   const getGradeInfo = (rate: number) => {
     if (rate < 0.5) return { 
       label: "S", title: "압도적 황금 키워드", color: "from-yellow-400 to-orange-500", 
@@ -46,17 +46,20 @@ function AnalysisContent() {
     const searchTarget = targetKeyword || keyword;
     if (!searchTarget.trim()) return;
     
-    if (targetKeyword) setKeyword(targetKeyword);
+    if (targetKeyword) setKeyword(searchTarget);
     setIsSearching(true);
 
     try {
       const res = await fetch(`/api/keyword?keyword=${encodeURIComponent(searchTarget)}`);
       if (!res.ok) throw new Error('네트워크 응답 오류');
       const data = await res.json();
+      
       setSearchResult(data);
-      if (data.blogList) setBlogList(data.blogList);
+      if (data.blogList) setBlogList(data.blogList); // 10개 출력
+      
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (e) {
+      console.error(e);
       alert("데이터를 가져오는데 실패했습니다.");
     } finally {
       setIsSearching(false);
@@ -71,7 +74,6 @@ function AnalysisContent() {
       <main className="flex-1 ml-64 p-10">
         <div className="max-w-6xl mx-auto">
           
-          {/* 타이틀 */}
           <div className="mb-10 text-left">
             <div className="flex items-center gap-3 mb-2">
               <span className="w-2 h-8 bg-[#ff8533] rounded-full"></span>
@@ -79,7 +81,6 @@ function AnalysisContent() {
             </div>
           </div>
 
-          {/* 검색바 */}
           <div className="bg-white p-4 rounded-[28px] shadow-sm border border-gray-100 flex items-center mb-10">
             <input 
               type="text" 
@@ -97,13 +98,11 @@ function AnalysisContent() {
           {searchResult && currentGrade ? (
             <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
               
-              {/* 판정 카드 (도움말 아이콘 추가) */}
               <div className={`mb-10 p-8 rounded-[32px] bg-gradient-to-br ${currentGrade.color} text-white shadow-xl text-left relative overflow-hidden group`}>
                 <div className="flex items-start justify-between relative z-10">
                   <div>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="bg-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase">TMG AI 판정</span>
-                      {/* 도움말 아이콘 및 툴팁 */}
+                      <span className="bg-white/20 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">TMG AI 판정</span>
                       <div className="relative group/tip">
                         <span className="cursor-help text-white/60 hover:text-white transition-colors">ⓘ</span>
                         <div className="absolute left-0 top-6 w-64 p-3 bg-black/80 backdrop-blur text-[11px] rounded-xl opacity-0 group-hover/tip:opacity-100 transition-opacity pointer-events-none z-50 leading-relaxed font-medium">
@@ -111,57 +110,89 @@ function AnalysisContent() {
                         </div>
                       </div>
                     </div>
-                    <h2 className="text-3xl font-black mb-2 font-title">
+                    <h2 className="text-3xl font-black mb-2 font-title tracking-tight">
                       이 키워드는 현재 <span className="underline decoration-white/40 underline-offset-8">{currentGrade.title}</span>입니다.
                     </h2>
                     <p className="text-white/80 font-medium max-w-2xl leading-relaxed">{currentGrade.desc}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-6xl font-black font-title leading-none">{currentGrade.label}</p>
-                    <p className="text-[10px] font-bold text-white/60 mt-2 uppercase tracking-widest">Grade</p>
+                    <p className="text-7xl font-black font-title leading-none drop-shadow-lg">{currentGrade.label}</p>
+                    <p className="text-[10px] font-bold text-white/60 mt-2 uppercase tracking-[0.2em]">Grade Index</p>
                   </div>
                 </div>
               </div>
 
-              {/* 인사이트/분포비 */}
               <div className="grid grid-cols-3 gap-6 mb-10">
+                {/* [수정된 부분] 공략 골든타임 & 타겟팅 */}
                 <div className="col-span-2 bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm text-left">
-                  <h3 className="font-title font-bold text-gray-800 mb-8 flex items-center gap-2">공략 골든타임 & 타겟팅</h3>
+                  <div className="flex items-center gap-2 mb-10">
+                    <h3 className="font-title font-bold text-gray-800 text-lg">공략 골든타임 & 타겟팅</h3>
+                    <div className="relative group/hospitality">
+                      <span className="cursor-help text-gray-300 hover:text-gray-500 transition-colors text-sm">ⓘ</span>
+                      <div className="absolute left-0 top-6 w-64 p-3 bg-gray-800 text-white text-[11px] rounded-xl opacity-0 group-hover/hospitality:opacity-100 transition-opacity pointer-events-none z-50 leading-relaxed">
+                        실제 데이터가 부족할 경우 분석 불가로 표시될 수 있습니다.
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div className="flex items-center justify-around gap-4 pb-4 font-title">
                     <div className="text-center">
-                      <p className="text-gray-400 text-[10px] font-bold mb-2 uppercase">Primary Target</p>
-                      <p className="text-xl font-black text-gray-800">{searchResult.demographics?.age || "30-40대"}</p>
+                      <p className="text-gray-400 text-[10px] font-bold mb-3 uppercase tracking-wider">Top Age Group</p>
+                      <div className="flex gap-1 justify-center items-baseline">
+                        {searchResult.demographics?.topAges ? (
+                          searchResult.demographics.topAges.map((age: any, i: number) => (
+                            <span key={i} className={`font-black ${i === 0 ? 'text-gray-800 text-2xl' : 'text-gray-300 text-sm ml-1'}`}>
+                              {age.label}
+                            </span>
+                          ))
+                        ) : (
+                          <p className="text-sm font-bold text-gray-400 italic tracking-tighter">데이터 부족</p>
+                        )}
+                      </div>
                     </div>
                     <div className="h-10 w-px bg-gray-100"></div>
                     <div className="text-center">
-                      <p className="text-gray-400 text-[10px] font-bold mb-2 uppercase">Gender Bias</p>
-                      <p className="text-xl font-black text-[#ff8533]">{searchResult.demographics?.gender === 'm' ? "남성 위주" : "여성 위주"}</p>
+                      <p className="text-gray-400 text-[10px] font-bold mb-3 uppercase tracking-wider">Gender Bias</p>
+                      {searchResult.demographics?.maleRate ? (
+                        <p className="text-xl font-black text-[#ff8533]">
+                          남 {searchResult.demographics.maleRate}% <span className="text-gray-200 mx-1">/</span> 여 {searchResult.demographics.femaleRate}%
+                        </p>
+                      ) : (
+                        <p className="text-sm font-bold text-gray-400 italic tracking-tighter">분석 불가</p>
+                      )}
                     </div>
                     <div className="h-10 w-px bg-gray-100"></div>
                     <div className="text-center">
-                      <p className="text-gray-400 text-[10px] font-bold mb-2 uppercase">Best Day</p>
-                      <p className="text-xl font-black text-blue-500">수요일 오후</p>
+                      <p className="text-gray-400 text-[10px] font-bold mb-3 uppercase tracking-wider">Best Day (1~3위)</p>
+                      {searchResult.demographics?.topDays ? (
+                        <p className="text-xl font-black text-blue-500">
+                          {searchResult.demographics.topDays.map((d: any) => d.label).join(", ")}
+                        </p>
+                      ) : (
+                        <p className="text-sm font-bold text-gray-400 italic tracking-tighter">분석 불가</p>
+                      )}
                     </div>
                   </div>
                 </div>
+
                 <div className="bg-white p-8 rounded-[32px] border border-gray-100 shadow-sm text-left">
-                  <h3 className="font-title font-bold text-gray-800 mb-6">콘텐츠 분포비</h3>
-                  <div className="space-y-5">
+                  <h3 className="font-title font-bold text-gray-800 mb-8 text-lg">콘텐츠 분포비</h3>
+                  <div className="space-y-6">
                     <div>
                       <div className="flex justify-between text-[11px] font-bold mb-2 uppercase">
-                        <span className="text-gray-500">블로그</span>
+                        <span className="text-gray-400">블로그</span>
                         <span className="text-gray-900">{((searchResult.totalPostCount / (searchResult.totalPostCount + searchResult.totalCafeCount)) * 100).toFixed(1)}%</span>
                       </div>
-                      <div className="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-gray-50 rounded-full overflow-hidden">
                         <div className="h-full bg-orange-400 transition-all duration-1000" style={{ width: `${(searchResult.totalPostCount / (searchResult.totalPostCount + searchResult.totalCafeCount)) * 100}%` }}></div>
                       </div>
                     </div>
                     <div>
                       <div className="flex justify-between text-[11px] font-bold mb-2 uppercase">
-                        <span className="text-gray-500">카페</span>
+                        <span className="text-gray-400">카페</span>
                         <span className="text-gray-900">{((searchResult.totalCafeCount / (searchResult.totalPostCount + searchResult.totalCafeCount)) * 100).toFixed(1)}%</span>
                       </div>
-                      <div className="w-full h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                      <div className="w-full h-2 bg-gray-50 rounded-full overflow-hidden">
                         <div className="h-full bg-blue-400 transition-all duration-1000" style={{ width: `${(searchResult.totalCafeCount / (searchResult.totalPostCount + searchResult.totalCafeCount)) * 100}%` }}></div>
                       </div>
                     </div>
@@ -169,9 +200,7 @@ function AnalysisContent() {
                 </div>
               </div>
 
-              {/* 메인 리포트 영역 (너비 조정 적용) */}
               <div className="grid grid-cols-12 gap-8">
-                {/* 왼쪽: 연관 키워드 탐색 (width 축소) */}
                 <div className="col-span-5 bg-white rounded-[32px] border border-gray-100 shadow-sm overflow-hidden text-left flex flex-col h-fit">
                    <div className="p-6 border-b border-gray-50 bg-gray-50/50">
                     <h3 className="text-lg font-bold text-gray-800 font-title">연관키워드 탐색 상위 20</h3>
@@ -202,20 +231,20 @@ function AnalysisContent() {
                   </div>
                 </div>
 
-                {/* 오른쪽: 블로그 실시간 순위 (width 확장) */}
                 <div className="col-span-7 bg-white rounded-[32px] border border-gray-100 shadow-sm p-8 text-left h-fit">
                   <h3 className="font-title font-bold text-xl mb-10 flex items-center gap-2">
-                    <span className="bg-orange-100 text-orange-600 px-3 py-1 rounded-lg text-sm font-black">TOP 10</span> 
-                    <span className="text-gray-800">블로그 실시간 순위</span>
+                    <span className="bg-orange-100 text-orange-600 px-3 py-1 rounded-lg text-sm font-black uppercase tracking-tighter">Real-time</span> 
+                    <span className="text-gray-800">블로그 실시간 순위 TOP 10</span>
                   </h3>
                   <div className="grid grid-cols-1 gap-6">
                     {blogList.map((blog, idx) => (
-                      <a key={idx} href={blog.link} target="_blank" className="flex items-start gap-5 group pb-4 border-b border-gray-50 last:border-none">
-                        <span className="text-lg font-black text-gray-200 group-hover:text-orange-500 transition-colors pt-1">{idx + 1}</span>
+                      <a key={idx} href={blog.link} target="_blank" className="flex items-start gap-5 group pb-5 border-b border-gray-50 last:border-none">
+                        <span className="text-xl font-black text-gray-200 group-hover:text-orange-500 transition-colors pt-1 leading-none">{idx + 1}</span>
                         <div className="flex-1">
                           <div className="text-base font-bold text-gray-800 group-hover:text-orange-600 group-hover:underline leading-relaxed mb-2" dangerouslySetInnerHTML={{ __html: blog.title }} />
                           <div className="flex items-center gap-3 text-xs text-gray-400 font-medium">
-                            <span className="bg-gray-100 px-2 py-0.5 rounded text-gray-500">{blog.bloggername}</span>
+                            <span className="bg-gray-100 px-2 py-0.5 rounded text-gray-600 font-bold tracking-tight">{blog.bloggername}</span>
+                            <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
                             <span>{blog.postdate}</span>
                           </div>
                         </div>
@@ -226,9 +255,12 @@ function AnalysisContent() {
               </div>
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-40 animate-pulse text-gray-300">
-              <span className="text-7xl mb-6">🔍</span>
-              <p className="font-black text-lg">키워드를 입력하여 마케팅 로드맵을 설계하세요.</p>
+            <div className="flex flex-col items-center justify-center py-48 animate-in fade-in zoom-in-95 duration-700">
+              <div className="w-24 h-24 bg-orange-100 rounded-full flex items-center justify-center mb-8">
+                <span className="text-4xl">🔍</span>
+              </div>
+              <h2 className="text-2xl font-black text-gray-800 mb-2 font-title">키워드 마케팅 로드맵 설계</h2>
+              <p className="text-gray-400 font-medium">분석할 키워드를 입력하고 실시간 경쟁 강도를 확인하세요.</p>
             </div>
           )}
         </div>
@@ -239,7 +271,7 @@ function AnalysisContent() {
 
 export default function AnalysisPage() {
   return (
-    <Suspense fallback={<div className="p-20 text-center font-bold">로딩 중...</div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen font-black text-gray-400 tracking-widest uppercase">System Loading...</div>}>
       <AnalysisContent />
     </Suspense>
   );
