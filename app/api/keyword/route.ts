@@ -8,16 +8,12 @@ export async function GET(request: Request) {
   if (!keyword) return NextResponse.json({ error: '키워드를 입력해주세요.' }, { status: 400 });
 
   try {
-    // [진단 1] 환경 변수가 잘 로드되었는지 확인
+    // [진단 1] 환경 변수 로드
     const NAVER_ID = process.env.NAVER_SEARCH_CLIENT_ID!;
     const NAVER_SECRET = process.env.NAVER_SEARCH_CLIENT_SECRET!;
     const AD_CUSTOMER_ID = process.env.NAVER_AD_CUSTOMER_ID!;
     const AD_ACCESS_LICENSE = process.env.NAVER_AD_ACCESS_LICENSE!;
     const AD_SECRET_KEY = process.env.NAVER_AD_SECRET_KEY!;
-
-    console.log('--- 환경 변수 로드 확인 ---');
-    console.log('NAVER_ID 존재 여부:', !!NAVER_ID);
-    console.log('AD_SECRET_KEY 존재 여부:', !!AD_SECRET_KEY);
 
     const timestamp = Date.now().toString();
     const signature = crypto.createHmac('sha256', AD_SECRET_KEY)
@@ -30,9 +26,9 @@ export async function GET(request: Request) {
       'Content-Type': 'application/json'
     };
 
-    // [진단 2] 각 API 호출 직전 로그
     console.log(`--- API 호출 시작 (키워드: ${keyword}) ---`);
 
+    // 1. 모든 API를 동시에 호출합니다.
     const [adRes, blogRes, cafeRes, datalabRes] = await Promise.all([
       fetch(`https://api.naver.com/keywordstool?hintKeywords=${encodeURIComponent(keyword)}&showDetail=1`, {
         headers: { 'X-Timestamp': timestamp, 'X-API-KEY': AD_ACCESS_LICENSE, 'X-Customer': AD_CUSTOMER_ID, 'X-Signature': signature }
@@ -51,25 +47,27 @@ export async function GET(request: Request) {
       })
     ]);
 
-    // [진단 3] 각 API의 응답 코드(200, 401 등) 확인
-    console.log('광고 API 응답:', adRes.status);
-    console.log('블로그 API 응답:', blogRes.status);
-    console.log('데이터랩 API 응답:', datalabRes.status);
-
-    // 에러 발생 시 상세 이유를 출력하도록 함
-    if (!adRes.ok) {
-        const errText = await adRes.text();
-        console.error('광고 API 실패 상세:', errText);
+    // [진단 2] 광고 API 응답 처리 (body 중복 읽기 에러 방지)
+    let adData: any = { keywordList: [] };
+    
+    if (adRes.ok) {
+      // 성공했을 때만 JSON으로 한 번 읽습니다.
+      adData = await adRes.json();
+    } else {
+      // 실패했다면 텍스트로 딱 한 번만 읽고 에러를 던집니다.
+      const errText = await adRes.text();
+      console.error(`❌ 네이버 광고 API 거절 사유 (${adRes.status}):`, errText);
+      throw new Error(`광고 API 에러: ${errText}`);
     }
 
-    const adData = await adRes.json();
+    // 나머지 API들도 안전하게 읽어옵니다.
     const blogData = await blogRes.json();
     const cafeData = await cafeRes.json();
     const datalabData = await datalabRes.json();
 
     const keywordStat = adData.keywordList?.find((item: any) => item.relKeyword.replace(/\s+/g, "") === keyword.replace(/\s+/g, ""));
 
-    // --- 여기부터는 기존 128줄에 있던 모든 가공 로직입니다 ---
+    // --- 데이터 가공 로직 (기존과 동일) ---
     let maleRate = "50.0", femaleRate = "50.0";
     if (keywordStat?.genderGroup) {
       const totalG = (Number(keywordStat.genderGroup.m) || 0) + (Number(keywordStat.genderGroup.f) || 0) || 1;
@@ -88,11 +86,7 @@ export async function GET(request: Request) {
           .sort((a, b) => b.value - a.value)
           .slice(0, 3);
     } else {
-      topAges = [
-        { label: "50대+", value: 45 },
-        { label: "40대", value: 30 },
-        { label: "30대", value: 15 }
-      ];
+      topAges = [{ label: "50대+", value: 45 }, { label: "40대", value: 30 }, { label: "30대", value: 15 }];
     }
 
     const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
@@ -121,17 +115,10 @@ export async function GET(request: Request) {
       competitionRate,
       relatedKeywords: adData.keywordList || [],
       blogList: blogData.items || [],
-      demographics: {
-        maleRate,
-        femaleRate,
-        topAges,
-        topDays,
-        datalabRaw: datalabData
-      }
+      demographics: { maleRate, femaleRate, topAges, topDays, datalabRaw: datalabData }
     });
 
   } catch (error: any) {
-    // [진단 4] 최종 에러 단계 기록
     console.error('최종 catch 에러 발생:', error.message);
     return NextResponse.json({ error: '데이터 처리 오류', details: error.message }, { status: 500 });
   }
