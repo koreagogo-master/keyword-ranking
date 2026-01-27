@@ -8,11 +8,16 @@ export async function GET(request: Request) {
   if (!keyword) return NextResponse.json({ error: '키워드를 입력해주세요.' }, { status: 400 });
 
   try {
+    // [진단 1] 환경 변수가 잘 로드되었는지 확인
     const NAVER_ID = process.env.NAVER_SEARCH_CLIENT_ID!;
     const NAVER_SECRET = process.env.NAVER_SEARCH_CLIENT_SECRET!;
     const AD_CUSTOMER_ID = process.env.NAVER_AD_CUSTOMER_ID!;
     const AD_ACCESS_LICENSE = process.env.NAVER_AD_ACCESS_LICENSE!;
     const AD_SECRET_KEY = process.env.NAVER_AD_SECRET_KEY!;
+
+    console.log('--- 환경 변수 로드 확인 ---');
+    console.log('NAVER_ID 존재 여부:', !!NAVER_ID);
+    console.log('AD_SECRET_KEY 존재 여부:', !!AD_SECRET_KEY);
 
     const timestamp = Date.now().toString();
     const signature = crypto.createHmac('sha256', AD_SECRET_KEY)
@@ -25,8 +30,9 @@ export async function GET(request: Request) {
       'Content-Type': 'application/json'
     };
 
-    // 1. 모든 API 동시 호출 (광고 API + 검색 API + 데이터랩)
-    // 데이터랩은 성별/연령별로 데이터를 쪼개어 가져오도록 요청을 구성할 수 있습니다.
+    // [진단 2] 각 API 호출 직전 로그
+    console.log(`--- API 호출 시작 (키워드: ${keyword}) ---`);
+
     const [adRes, blogRes, cafeRes, datalabRes] = await Promise.all([
       fetch(`https://api.naver.com/keywordstool?hintKeywords=${encodeURIComponent(keyword)}&showDetail=1`, {
         headers: { 'X-Timestamp': timestamp, 'X-API-KEY': AD_ACCESS_LICENSE, 'X-Customer': AD_CUSTOMER_ID, 'X-Signature': signature }
@@ -45,6 +51,17 @@ export async function GET(request: Request) {
       })
     ]);
 
+    // [진단 3] 각 API의 응답 코드(200, 401 등) 확인
+    console.log('광고 API 응답:', adRes.status);
+    console.log('블로그 API 응답:', blogRes.status);
+    console.log('데이터랩 API 응답:', datalabRes.status);
+
+    // 에러 발생 시 상세 이유를 출력하도록 함
+    if (!adRes.ok) {
+        const errText = await adRes.text();
+        console.error('광고 API 실패 상세:', errText);
+    }
+
     const adData = await adRes.json();
     const blogData = await blogRes.json();
     const cafeData = await cafeRes.json();
@@ -52,23 +69,17 @@ export async function GET(request: Request) {
 
     const keywordStat = adData.keywordList?.find((item: any) => item.relKeyword.replace(/\s+/g, "") === keyword.replace(/\s+/g, ""));
 
-    // --- 데이터 하이브리드 가공 로직 ---
-
-    // 1. 성별 비중 (광고 API 데이터가 없으면 데이터랩 트렌드를 분석하여 보정)
+    // --- 여기부터는 기존 128줄에 있던 모든 가공 로직입니다 ---
     let maleRate = "50.0", femaleRate = "50.0";
     if (keywordStat?.genderGroup) {
       const totalG = (Number(keywordStat.genderGroup.m) || 0) + (Number(keywordStat.genderGroup.f) || 0) || 1;
       maleRate = ((Number(keywordStat.genderGroup.m) / totalG) * 100).toFixed(1);
       femaleRate = (100 - Number(maleRate)).toFixed(1);
     } else if (datalabData.results?.[0]?.data?.length > 0) {
-      // 데이터랩 결과를 분석하여 성별을 추정하는 로직 (삼성전자 등 대형 키워드 대응)
-      // 실무에서는 데이터랩 성별 필터를 걸어 2번 호출한 뒤 비율을 계산합니다.
-      // 여기서는 1차적으로 '삼성전자' 등의 키워드 특성에 맞는 기본 분석값을 제공합니다.
       maleRate = "62.8"; 
       femaleRate = "37.2";
     }
 
-    // 2. 연령대 TOP 3 (광고 API 우선 사용, 부재 시 데이터랩 기반 추정)
     const ageMap: any = { "10": "10대", "20": "20대", "30": "30대", "40": "40대", "50": "50대+" };
     let topAges = [];
     if (keywordStat?.ageGroup && Object.keys(keywordStat.ageGroup).length > 0) {
@@ -77,7 +88,6 @@ export async function GET(request: Request) {
           .sort((a, b) => b.value - a.value)
           .slice(0, 3);
     } else {
-      // 광고 데이터가 없을 경우 데이터랩의 인기도를 반영한 표준 분포 적용
       topAges = [
         { label: "50대+", value: 45 },
         { label: "40대", value: 30 },
@@ -85,7 +95,6 @@ export async function GET(request: Request) {
       ];
     }
 
-    // 3. 요일별 가중치 (광고 API가 없으면 '평일 중심'으로 기본값 설정)
     const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
     let topDays = [];
     if (keywordStat?.weeklyQcCnt && keywordStat.weeklyQcCnt.length > 0) {
@@ -94,7 +103,7 @@ export async function GET(request: Request) {
           .sort((a: any, b: any) => b.value - a.value)
           .slice(0, 3);
     } else {
-      topDays = [{ label: "월", label2: "화", label3: "목" }].map(() => ({ label: "월, 화, 목", value: 100 }));
+      topDays = [{ label: "월, 화, 목", value: 100 }];
     }
 
     const pcCount = Number(keywordStat?.monthlyPcQcCnt) || 0;
@@ -116,13 +125,14 @@ export async function GET(request: Request) {
         maleRate,
         femaleRate,
         topAges,
-        topDays: topDays.slice(0, 3),
+        topDays,
         datalabRaw: datalabData
       }
     });
 
-  } catch (error) {
-    console.error('API Error:', error);
-    return NextResponse.json({ error: '데이터 처리 도중 오류가 발생했습니다.' }, { status: 500 });
+  } catch (error: any) {
+    // [진단 4] 최종 에러 단계 기록
+    console.error('최종 catch 에러 발생:', error.message);
+    return NextResponse.json({ error: '데이터 처리 오류', details: error.message }, { status: 500 });
   }
 }
