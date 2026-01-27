@@ -8,7 +8,6 @@ export async function GET(request: Request) {
   if (!keyword) return NextResponse.json({ error: '키워드를 입력해주세요.' }, { status: 400 });
 
   try {
-    // [진단 1] 환경 변수 로드
     const NAVER_ID = process.env.NAVER_SEARCH_CLIENT_ID!;
     const NAVER_SECRET = process.env.NAVER_SEARCH_CLIENT_SECRET!;
     const AD_CUSTOMER_ID = process.env.NAVER_AD_CUSTOMER_ID!;
@@ -26,100 +25,142 @@ export async function GET(request: Request) {
       'Content-Type': 'application/json'
     };
 
-    console.log(`--- API 호출 시작 (키워드: ${keyword}) ---`);
+    const endDate = new Date().toISOString().split('T')[0];
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    const startDate = oneYearAgo.toISOString().split('T')[0];
 
-    // 1. 모든 API를 동시에 호출합니다.
-    const [adRes, blogRes, cafeRes, datalabRes] = await Promise.all([
+    const [adRes, blogRes, cafeRes, dlTotalRes, dlMaleRes, dlFemaleRes, dlAgeRes] = await Promise.all([
       fetch(`https://api.naver.com/keywordstool?hintKeywords=${encodeURIComponent(keyword)}&showDetail=1`, {
         headers: { 'X-Timestamp': timestamp, 'X-API-KEY': AD_ACCESS_LICENSE, 'X-Customer': AD_CUSTOMER_ID, 'X-Signature': signature }
       }),
       fetch(`https://openapi.naver.com/v1/search/blog.json?query=${encodeURIComponent(keyword)}&display=10`, { headers: searchHeaders }),
       fetch(`https://openapi.naver.com/v1/search/cafearticle.json?query=${encodeURIComponent(keyword)}&display=1`, { headers: searchHeaders }),
       fetch('https://openapi.naver.com/v1/datalab/search', {
-        method: 'POST',
-        headers: searchHeaders,
-        body: JSON.stringify({
-          startDate: new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString().split('T')[0],
-          endDate: new Date().toISOString().split('T')[0],
-          timeUnit: "month",
-          keywordGroups: [{ groupName: keyword, keywords: [keyword] }]
-        })
+        method: 'POST', headers: searchHeaders,
+        body: JSON.stringify({ startDate, endDate, timeUnit: "month", keywordGroups: [{ groupName: keyword, keywords: [keyword] }] })
+      }),
+      fetch('https://openapi.naver.com/v1/datalab/search', {
+        method: 'POST', headers: searchHeaders,
+        body: JSON.stringify({ startDate: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0], endDate, timeUnit: "date", keywordGroups: [{ groupName: keyword, keywords: [keyword] }], gender: "m" })
+      }),
+      fetch('https://openapi.naver.com/v1/datalab/search', {
+        method: 'POST', headers: searchHeaders,
+        body: JSON.stringify({ startDate: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0], endDate, timeUnit: "date", keywordGroups: [{ groupName: keyword, keywords: [keyword] }], gender: "f" })
+      }),
+      fetch('https://openapi.naver.com/v1/datalab/search', {
+        method: 'POST', headers: searchHeaders,
+        body: JSON.stringify({ startDate: new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0], endDate, timeUnit: "date", keywordGroups: [{ groupName: keyword, keywords: [keyword] }], ages: ["1","2","3","4","5","6","7","8","9","10","11"] })
       })
     ]);
 
-    // [진단 2] 광고 API 응답 처리 (body 중복 읽기 에러 방지)
-    let adData: any = { keywordList: [] };
-    
-    if (adRes.ok) {
-      // 성공했을 때만 JSON으로 한 번 읽습니다.
-      adData = await adRes.json();
-    } else {
-      // 실패했다면 텍스트로 딱 한 번만 읽고 에러를 던집니다.
-      const errText = await adRes.text();
-      console.error(`❌ 네이버 광고 API 거절 사유 (${adRes.status}):`, errText);
-      throw new Error(`광고 API 에러: ${errText}`);
-    }
-
-    // 나머지 API들도 안전하게 읽어옵니다.
+    const adData = adRes.ok ? await adRes.json() : { keywordList: [] };
     const blogData = await blogRes.json();
     const cafeData = await cafeRes.json();
-    const datalabData = await datalabRes.json();
+    const dlTotal = await dlTotalRes.json();
+    const dlMale = dlMaleRes.ok ? await dlMaleRes.json() : null;
+    const dlFemale = dlFemaleRes.ok ? await dlFemaleRes.json() : null;
+    const dlAge = dlAgeRes.ok ? await dlAgeRes.json() : null;
 
     const keywordStat = adData.keywordList?.find((item: any) => item.relKeyword.replace(/\s+/g, "") === keyword.replace(/\s+/g, ""));
 
-    // --- 데이터 가공 로직 (기존과 동일) ---
-    let maleRate = "50.0", femaleRate = "50.0";
-    if (keywordStat?.genderGroup) {
-      const totalG = (Number(keywordStat.genderGroup.m) || 0) + (Number(keywordStat.genderGroup.f) || 0) || 1;
-      maleRate = ((Number(keywordStat.genderGroup.m) / totalG) * 100).toFixed(1);
-      femaleRate = (100 - Number(maleRate)).toFixed(1);
-    } else if (datalabData.results?.[0]?.data?.length > 0) {
-      maleRate = "62.8"; 
-      femaleRate = "37.2";
-    }
+    const pcCount = Number(keywordStat?.monthlyPcQcCnt) || 0;
+    const moCount = Number(keywordStat?.monthlyMobileQcCnt) || 0;
+    const totalSearchCount = pcCount + moCount;
 
-    const ageMap: any = { "10": "10대", "20": "20대", "30": "30대", "40": "40대", "50": "50대+" };
-    let topAges = [];
-    if (keywordStat?.ageGroup && Object.keys(keywordStat.ageGroup).length > 0) {
-      topAges = Object.keys(keywordStat.ageGroup)
-          .map(key => ({ label: ageMap[key] || key, value: Number(keywordStat.ageGroup[key]) }))
-          .sort((a, b) => b.value - a.value)
-          .slice(0, 3);
-    } else {
-      topAges = [{ label: "50대+", value: 45 }, { label: "40대", value: 30 }, { label: "30대", value: 15 }];
+    const monthsNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+    const monthlyTrend = dlTotal.results?.[0]?.data?.map((d: any) => ({
+      label: monthsNames[new Date(d.period).getMonth()],
+      value: Number(d.ratio.toFixed(1))
+    })) || [];
+
+    let momentum = { change: "0", status: "steady", message: "변동없음" };
+    if (monthlyTrend.length >= 2) {
+      const last = monthlyTrend[monthlyTrend.length - 1].value;
+      const prev = monthlyTrend[monthlyTrend.length - 2].value;
+      const diff = last - prev;
+      momentum = {
+        change: Math.abs(diff).toFixed(1),
+        status: diff > 0 ? "up" : diff < 0 ? "down" : "steady",
+        message: diff > 0 ? "상승세" : diff < 0 ? "하락세" : "유지세"
+      };
     }
 
     const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
-    let topDays = [];
-    if (keywordStat?.weeklyQcCnt && keywordStat.weeklyQcCnt.length > 0) {
-      topDays = keywordStat.weeklyQcCnt
-          .map((val: number, idx: number) => ({ label: dayNames[idx], value: val }))
-          .sort((a: any, b: any) => b.value - a.value)
-          .slice(0, 3);
-    } else {
-      topDays = [{ label: "월, 화, 목", value: 100 }];
-    }
+    const dayStats = [0, 0, 0, 0, 0, 0, 0];
+    const dayCounts = [0, 0, 0, 0, 0, 0, 0];
+    dlTotal?.results?.[0]?.data?.forEach((d: any) => {
+      const dayIdx = new Date(d.period).getDay();
+      dayStats[dayIdx] += d.ratio;
+      dayCounts[dayIdx]++;
+    });
+    const weeklyTrend = dayNames.map((name, i) => ({
+      label: name,
+      value: dayCounts[i] > 0 ? Number((dayStats[i] / dayCounts[i]).toFixed(1)) : 0
+    }));
 
-    const pcCount = Number(keywordStat?.monthlyPcQcCnt) || 0;
-    const mobileCount = Number(keywordStat?.monthlyMobileQcCnt) || 0;
-    const totalSearch = pcCount + mobileCount;
-    const totalDocs = (Number(blogData.total) || 0) + (Number(cafeData.total) || 0);
-    const competitionRate = totalSearch > 0 ? (totalDocs / totalSearch).toFixed(2) : "0";
+    const mSum = dlMale?.results?.[0]?.data?.reduce((acc: number, curr: any) => acc + curr.ratio, 0) || 0;
+    const fSum = dlFemale?.results?.[0]?.data?.reduce((acc: number, curr: any) => acc + curr.ratio, 0) || 0;
+    const genderTotal = mSum + fSum;
+    
+    // (4) 성별 비율 - 데이터 없을 시 50:50으로 채우던 Fallback 삭제
+    const genderRatio = genderTotal > 0 ? {
+      female: Number(((fSum / genderTotal) * 100).toFixed(1)),
+      male: Number(((mSum / genderTotal) * 100).toFixed(1))
+    } : null;
+
+    const ageData = dlAge?.results || [];
+    const ageGroups = [
+      { label: "10대", ids: ["1", "2"], val: 0 },
+      { label: "20대", ids: ["3", "4"], val: 0 },
+      { label: "30대", ids: ["5", "6"], val: 0 },
+      { label: "40대", ids: ["7", "8"], val: 0 },
+      { label: "50대+", ids: ["9", "10", "11"], val: 0 },
+    ];
+    ageGroups.forEach(group => {
+      group.ids.forEach(id => {
+        const match = ageData.find((r: any) => r.group === id);
+        group.val += match?.data?.reduce((acc: number, curr: any) => acc + curr.ratio, 0) || 0;
+      });
+    });
+    const ageTotal = ageGroups.reduce((acc, curr) => acc + curr.val, 0);
+    const ageTrend = ageGroups.map(g => ({
+      label: g.label,
+      value: ageTotal > 0 ? Number(((g.val / ageTotal) * 100).toFixed(1)) : 0
+    }));
+
+    // (5) 핵심 타겟 & 최고 시점 - 데이터 없을 시 "30대", "5월"로 채우던 Fallback 삭제
+    const topAge = (ageTotal > 0 && ageTrend.length > 0) ? ageTrend.reduce((p, c) => (p.value > c.value ? p : c)).label : null;
+    const bestMonth = monthlyTrend.length > 0 ? monthlyTrend.reduce((p:any, c:any) => (p.value > c.value ? p : c)).label : null;
 
     return NextResponse.json({
       keyword,
       monthlyPcQcCnt: pcCount,
-      monthlyMobileQcCnt: mobileCount,
+      monthlyMobileQcCnt: moCount,
       totalPostCount: Number(blogData.total) || 0,
       totalCafeCount: Number(cafeData.total) || 0,
-      competitionRate,
+      competitionRate: totalSearchCount > 0 ? (((Number(blogData.total) || 0) + (Number(cafeData.total) || 0)) / totalSearchCount).toFixed(2) : "0",
       relatedKeywords: adData.keywordList || [],
       blogList: blogData.items || [],
-      demographics: { maleRate, femaleRate, topAges, topDays, datalabRaw: datalabData }
+      analysis: {
+        deviceMix: { 
+          pc: totalSearchCount > 0 ? ((pcCount / totalSearchCount) * 100).toFixed(1) : 0, 
+          mobile: totalSearchCount > 0 ? ((moCount / totalSearchCount) * 100).toFixed(1) : 0 
+        },
+        genderRatio,
+        ageTrend,
+        monthlyTrend,
+        weeklyTrend,
+        trendMomentum: momentum,
+        coreTarget: { 
+          gender: genderRatio ? (genderRatio.female > 50 ? "여성" : "남성") : "확인불가", 
+          summary: topAge ? `${topAge} 중심` : "데이터 부족" 
+        },
+        seasonality: { bestMonth: bestMonth || "데이터 부족" }
+      }
     });
 
   } catch (error: any) {
-    console.error('최종 catch 에러 발생:', error.message);
-    return NextResponse.json({ error: '데이터 처리 오류', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
