@@ -41,6 +41,7 @@ function AnalysisContent() {
     }
   };
 
+  // 공통 가로형 막대 그래프 컴포넌트 (1, 2, 3번 카드용)
   const HorizontalBarChart = ({ value1, value2, label1, label2, color1, color2 }: any) => {
     const v1 = Number(value1) || 0;
     const v2 = Number(value2) || 0;
@@ -50,11 +51,11 @@ function AnalysisContent() {
 
     return (
       <div className="w-full px-2">
-        <div className="flex h-12 w-full mb-4 border border-gray-100">
+        <div className="flex h-10 w-full mb-4 border border-gray-100">
           <div style={{ width: `${ratio1}%`, backgroundColor: color1 }} className="h-full transition-all duration-1000" />
           <div style={{ width: `${ratio2}%`, backgroundColor: color2 }} className="h-full transition-all duration-1000" />
         </div>
-        <div className="flex justify-between items-center text-sm font-black">
+        <div className="flex justify-between items-center text-[13px] font-black">
           <div style={{ color: color1 }}>{label1} {ratio1.toFixed(1)}%</div>
           <div style={{ color: color2 }}>{ratio2.toFixed(1)}% {label2}</div>
         </div>
@@ -68,6 +69,17 @@ function AnalysisContent() {
       <main className="flex-1 ml-64 p-10">
         <div className="max-w-6xl mx-auto">
           
+          {/* 페이지 제목 영역 */}
+          <div className="mb-8">
+            <h1 className="text-2xl font-black text-gray-800 border-l-8 border-[#ff8533] pl-4">
+              키워드 정밀 분석 리포트
+            </h1>
+            <p className="text-gray-400 text-sm font-bold mt-2 ml-6">
+              실시간 네이버 데이터를 바탕으로 키워드 가치를 분석합니다.
+            </p>
+          </div>
+
+          {/* 검색창 영역 */}
           <div className="bg-white p-2 border border-gray-200 flex items-center mb-10 shadow-sm">
             <input 
               type="text" 
@@ -85,9 +97,11 @@ function AnalysisContent() {
           {searchResult ? (
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-400">
               
-              <div className="grid grid-cols-3 gap-6 mb-10">
+              {/* 핵심 지표 2x2 그리드 레이아웃 */}
+              <div className="grid grid-cols-2 gap-6 mb-10">
+                
+                {/* 1. PC / Mobile 검색비율 */}
                 <div className="bg-white p-8 border border-gray-200 shadow-sm">
-                  {/* 메뉴명 스타일 조정 및 간격 좁힘 */}
                   <h3 className="font-bold text-gray-600 mb-5 text-left text-[15px] border-l-4 border-[#ff8533] pl-3">PC / Mobile 검색비율</h3>
                   <HorizontalBarChart 
                     value1={searchResult.analysis?.deviceMix?.mobile} 
@@ -99,6 +113,7 @@ function AnalysisContent() {
                   />
                 </div>
 
+                {/* 2. 성별 검색 비율 */}
                 <div className="bg-white p-8 border border-gray-200 shadow-sm">
                   <h3 className="font-bold text-gray-600 mb-5 text-left text-[15px] border-l-4 border-[#ff8533] pl-3">성별 검색 비율</h3>
                   {searchResult.analysis?.genderRatio ? (
@@ -115,6 +130,7 @@ function AnalysisContent() {
                   )}
                 </div>
 
+                {/* 3. 블로그 / 카페 콘텐츠 분포 */}
                 <div className="bg-white p-8 border border-gray-200 shadow-sm">
                   <h3 className="font-bold text-gray-600 mb-5 text-left text-[15px] border-l-4 border-[#ff8533] pl-3">블로그 / 카페 콘텐츠 분포</h3>
                   <HorizontalBarChart 
@@ -126,42 +142,49 @@ function AnalysisContent() {
                     color2="#60a5fa" 
                   />
                 </div>
-              </div>
 
-              <div className="space-y-6 mb-10 text-left">
-                
-                <div className="bg-white p-8 border border-gray-200 shadow-sm">
-                  <div className="flex justify-between items-end mb-8">
-                    <h3 className="font-bold text-gray-600 text-[15px] border-l-4 border-[#ff8533] pl-3">월간 검색량 상세 분석</h3>
-                    <div className="text-right">
-                      <span className="text-gray-400 text-[10px] font-bold uppercase block mb-1">월간 총 검색량</span>
-                      <span className="text-3xl font-black text-gray-800">
-                        {(searchResult.monthlyPcQcCnt + searchResult.monthlyMobileQcCnt).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
+                {/* 4. 월간 검색량 상세 분석 (제목 통합 및 그래프 굵기 통일) */}
+                <div className="bg-white p-8 border border-gray-200 shadow-sm flex flex-col justify-between">
+                  <h3 className="font-bold text-gray-600 mb-5 text-left text-[15px] border-l-4 border-[#ff8533] pl-3">
+                    월간 검색량 상세 분석 
+                    <span className="ml-2 text-[13px] text-gray-400 font-medium">
+                      (총 검색량: {(searchResult.monthlyPcQcCnt + searchResult.monthlyMobileQcCnt).toLocaleString()})
+                    </span>
+                  </h3>
                   
-                  <div className="space-y-4">
-                    <div className="flex h-16 w-full border border-gray-100">
+                  <div className="flex-1 flex flex-col justify-center px-2">
+                    <div className="flex h-10 w-full border border-gray-100 mb-4">
                       <div 
                         style={{ width: `${(searchResult.monthlyMobileQcCnt / (searchResult.monthlyPcQcCnt + searchResult.monthlyMobileQcCnt)) * 100}%` }} 
-                        className="bg-orange-400 h-full flex items-center px-4 overflow-hidden"
-                      >
-                        <span className="text-white text-sm font-black whitespace-nowrap">MO {searchResult.monthlyMobileQcCnt.toLocaleString()}</span>
-                      </div>
+                        className="bg-orange-400 h-full transition-all duration-1000" 
+                      />
                       <div 
                         style={{ width: `${(searchResult.monthlyPcQcCnt / (searchResult.monthlyPcQcCnt + searchResult.monthlyMobileQcCnt)) * 100}%` }} 
-                        className="bg-blue-400 h-full flex items-center justify-end px-4 overflow-hidden"
-                      >
-                        <span className="text-white text-sm font-black whitespace-nowrap">PC {searchResult.monthlyPcQcCnt.toLocaleString()}</span>
+                        className="bg-blue-400 h-full transition-all duration-1000" 
+                      />
+                    </div>
+                    
+                    <div className="flex justify-between items-center text-[13px] font-black">
+                      <div className="text-orange-500">
+                        MO {searchResult.monthlyMobileQcCnt.toLocaleString()}
+                        <span className="ml-1 text-[11px] opacity-70">
+                          ({((searchResult.monthlyMobileQcCnt / (searchResult.monthlyPcQcCnt + searchResult.monthlyMobileQcCnt)) * 100).toFixed(1)}%)
+                        </span>
+                      </div>
+                      <div className="text-blue-500 text-right">
+                        <span className="mr-1 text-[11px] opacity-70">
+                          ({((searchResult.monthlyPcQcCnt / (searchResult.monthlyPcQcCnt + searchResult.monthlyMobileQcCnt)) * 100).toFixed(1)}%)
+                        </span>
+                        PC {searchResult.monthlyPcQcCnt.toLocaleString()}
                       </div>
                     </div>
-                    <p className="text-[10px] text-gray-400 font-bold text-center uppercase tracking-widest">
-                      모바일 vs PC 실제 검색량 비교
-                    </p>
                   </div>
                 </div>
 
+              </div>
+
+              {/* 하단 상세 리포트 영역 */}
+              <div className="space-y-6 mb-10 text-left">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="bg-white p-8 border border-gray-200 shadow-sm">
                     <h4 className="text-sm font-bold text-gray-600 mb-8 uppercase tracking-widest border-l-4 border-[#ff8533] pl-3">월별 검색 비율</h4>
