@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { checkNaverKinRank } from './actions';
+import Sidebar from '@/components/Sidebar'; // 사이드바 추가
 import RankTabs from '@/components/RankTabs';
 
 interface SearchResult {
@@ -19,18 +20,17 @@ interface InputRow {
 }
 
 export default function KinRankPage() {
-  // [수정] 입력창을 10개로 늘렸습니다.
   const [inputs, setInputs] = useState<InputRow[]>([
     { keyword: '', targetTitle: '' },
     { keyword: '', targetTitle: '' },
     { keyword: '', targetTitle: '' },
     { keyword: '', targetTitle: '' },
     { keyword: '', targetTitle: '' },
-    { keyword: '', targetTitle: '' }, // 6
-    { keyword: '', targetTitle: '' }, // 7
-    { keyword: '', targetTitle: '' }, // 8
-    { keyword: '', targetTitle: '' }, // 9
-    { keyword: '', targetTitle: '' }, // 10
+    { keyword: '', targetTitle: '' },
+    { keyword: '', targetTitle: '' },
+    { keyword: '', targetTitle: '' },
+    { keyword: '', targetTitle: '' },
+    { keyword: '', targetTitle: '' },
   ]);
 
   const [loading, setLoading] = useState(false);
@@ -104,111 +104,119 @@ export default function KinRankPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] bg-gray-900 text-white p-10">
-      <div className="max-w-7xl mx-auto mt-10">
-        
-        <RankTabs />
-        
-        <h1 className="text-3xl font-bold mb-8 text-left text-green-500">
-          N 지식인 통검노출, 순위, 날짜 확인
-        </h1>
-        
-        <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 shadow-lg mb-8">
-          <div className="flex flex-col gap-4">
-            {/* 10개로 늘어난 입력창 렌더링 */}
-            {inputs.map((row, index) => (
-              <div key={index} className="flex gap-4 items-start">
-                <div className="w-1/3">
-                  {index === 0 && <label className="block text-sm font-medium mb-2 text-gray-300">키워드</label>}
-                  <input 
-                    type="text"
-                    value={row.keyword}
-                    onChange={(e) => handleInputChange(index, 'keyword', e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={`키워드 ${index + 1}`}
-                    className="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-green-500 text-white"
-                  />
+    <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] font-sans">
+      {/* 사이드바 추가 */}
+      <Sidebar />
+
+      {/* 메인 영역: p-10으로 상단 여백 통일 */}
+      <main className="flex-1 ml-64 p-10">
+        <div className="max-w-7xl mx-auto">
+          
+          <RankTabs />
+          
+          {/* 제목 스타일 수정 */}
+          <h1 className="text-2xl font-normal text-gray-900 mb-8">
+            N 지식인 통검노출, 순위, 날짜 확인
+          </h1>
+          
+          {/* 입력 영역: 흰색 배경 테마로 변경 */}
+          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-10">
+            <div className="flex flex-col gap-3">
+              {inputs.map((row, index) => (
+                <div key={index} className="flex gap-4 items-start">
+                  <div className="w-1/3">
+                    {index === 0 && <label className="block text-sm font-medium mb-2 text-gray-600">키워드</label>}
+                    <input 
+                      type="text"
+                      value={row.keyword}
+                      onChange={(e) => handleInputChange(index, 'keyword', e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder={`키워드 ${index + 1}`}
+                      className="w-full p-3 h-[45px] rounded bg-white border border-gray-300 focus:outline-none focus:border-[#1a73e8] text-gray-900 text-sm transition-colors"
+                    />
+                  </div>
+                  <div className="w-2/3">
+                    {index === 0 && <label className="block text-sm font-medium mb-2 text-gray-600">찾을 제목</label>}
+                    <input 
+                      type="text"
+                      value={row.targetTitle}
+                      onChange={(e) => handleInputChange(index, 'targetTitle', e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      placeholder={`제목 식별 문구 ${index + 1}`}
+                      className="w-full p-3 h-[45px] rounded bg-white border border-gray-300 focus:outline-none focus:border-[#1a73e8] text-gray-900 text-sm transition-colors"
+                    />
+                  </div>
                 </div>
-                <div className="w-2/3">
-                  {index === 0 && <label className="block text-sm font-medium mb-2 text-gray-300">찾을 제목</label>}
-                  <input 
-                    type="text"
-                    value={row.targetTitle}
-                    onChange={(e) => handleInputChange(index, 'targetTitle', e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    placeholder={`제목 식별 문구 ${index + 1}`}
-                    className="w-full p-3 rounded bg-gray-700 border border-gray-600 focus:outline-none focus:border-green-500 text-white"
-                  />
-                </div>
+              ))}
+
+              <div className="mt-4">
+                <button 
+                  onClick={handleCheck}
+                  disabled={loading}
+                  className={`w-full py-3 rounded font-bold text-white transition-all
+                    ${loading ? 'bg-gray-400' : 'bg-[#1a73e8] hover:bg-[#1557b0]'}`}
+                >
+                  {loading ? progress : '순위 확인하기 (입력된 항목 일괄 조회)'}
+                </button>
               </div>
-            ))}
-
-            <div className="mt-4">
-              <button 
-                onClick={handleCheck}
-                disabled={loading}
-                className={`w-full py-3 rounded font-bold transition-all
-                  ${loading ? 'bg-gray-600' : 'bg-green-600 hover:bg-green-500'}`}
-              >
-                {loading ? `🔄 ${progress}` : '순위 확인하기 (입력된 항목 일괄 조회)'}
-              </button>
             </div>
           </div>
-        </div>
 
-        {results.length > 0 && (
-          <div className="animate-fade-in-up">
-            <h2 className="text-xl font-bold mb-4 text-gray-200">검색 결과 ({results.length}건)</h2>
-            
-            <div className="bg-gray-800 rounded-lg border border-gray-700 shadow-xl overflow-hidden">
-              <table className="w-full text-left border-collapse">
-                <thead className="bg-gray-700 text-gray-300 text-xs uppercase">
-                  <tr>
-                    <th className="p-3 border-b border-gray-600 w-32 text-center">키워드</th>
-                    <th className="p-3 border-b border-gray-600 w-24 text-center">통검 노출</th>
-                    <th className="p-3 border-b border-gray-600 w-24 text-center">탭 순위</th>
-                    <th className="p-3 border-b border-gray-600 w-32 text-center">작성일</th>
-                    <th className="p-3 border-b border-gray-600 w-auto text-left">제목</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-700">
-                  {results.map((res, index) => (
-                    <tr key={index} className="hover:bg-gray-700/50 transition-colors">
-                      <td className="p-3 text-center font-light text-white truncate">{res.keyword}</td>
-                      
-                      <td className="p-3 text-center">
-                        {res.isMainExposed === true ? (
-                            <span className="px-2 py-1 rounded bg-blue-900 text-blue-200 text-xs font-bold border border-blue-700">노출 O</span>
-                        ) : res.isMainExposed === false ? (
-                            <span className="text-gray-500 text-sm">X</span>
-                        ) : (
-                            <span className="text-gray-600">-</span>
-                        )}
-                      </td>
-
-                      <td className="p-3 text-center">
-                        {res.tabRank !== 'X' && res.tabRank !== 'Err' ? (
-                          <span className="text-xl font-bold text-green-400">{res.tabRank}</span>
-                        ) : (
-                          <span className="text-sm text-red-400">{res.tabRank}</span>
-                        )}
-                      </td>
-
-                      <td className="p-3 text-center text-sm text-gray-400">
-                        {res.date}
-                      </td>
-
-                      <td className="p-3 text-sm text-gray-300 truncate max-w-[400px]" title={res.title}>
-                        {res.title}
-                      </td>
+          {/* 결과 테이블: 흰색 배경 테마로 변경 */}
+          {results.length > 0 && (
+            <div>
+              <h2 className="text-lg font-bold mb-4 text-gray-700">검색 결과 ({results.length}건)</h2>
+              
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                <table className="w-full text-left border-collapse">
+                  <thead className="bg-gray-50 text-gray-400 text-xs uppercase">
+                    <tr>
+                      <th className="p-4 border-b w-32 text-center">키워드</th>
+                      <th className="p-4 border-b w-24 text-center">통검 노출</th>
+                      <th className="p-4 border-b w-24 text-center">탭 순위</th>
+                      <th className="p-4 border-b w-32 text-center">작성일</th>
+                      <th className="p-4 border-b w-auto text-left">제목</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {results.map((res, index) => (
+                      <tr key={index} className="hover:bg-blue-50/30 transition-colors">
+                        <td className="p-4 text-center font-semibold text-gray-900 truncate">{res.keyword}</td>
+                        
+                        <td className="p-4 text-center">
+                          {res.isMainExposed === true ? (
+                              <span className="px-2 py-1 rounded bg-blue-50 text-blue-600 text-xs font-bold border border-blue-200">노출 O</span>
+                          ) : res.isMainExposed === false ? (
+                              <span className="text-gray-400 text-sm font-medium">X</span>
+                          ) : (
+                              <span className="text-gray-300">-</span>
+                          )}
+                        </td>
+
+                        <td className="p-4 text-center">
+                          {res.tabRank !== 'X' && res.tabRank !== 'Err' ? (
+                            <span className="text-lg font-bold text-[#1a73e8]">{res.tabRank}</span>
+                          ) : (
+                            <span className="text-sm text-red-400 font-medium">{res.tabRank}</span>
+                          )}
+                        </td>
+
+                        <td className="p-4 text-center text-sm text-gray-400">
+                          {res.date}
+                        </td>
+
+                        <td className="p-4 text-sm text-gray-600 truncate max-w-[400px]" title={res.title}>
+                          {res.title}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </main>
     </div>
   );
 }
