@@ -19,15 +19,11 @@ export default function KeywordStrategy({ stats }: { stats: any }) {
     const shares = stats.content.shares;
     const gVolume = stats.googleVolume || 0;
 
-    // 정보성: 기존 로직 유지
     const infoVal = Math.floor(((shares.blog || 0) + (shares.cafe || 0)) * 0.3);
-    
-    // 상업성: 기존 로직 유지
     let googleCommBonus = 0;
     if (gVolume > 3000) googleCommBonus = 10;
     const commVal = (shares.shop || 0) * 5 + 15 + googleCommBonus;
     
-    // 이슈성: 기존 로직 유지
     let googleIssueBonus = Math.floor(gVolume / 1500);
     if (googleIssueBonus > 15) googleIssueBonus = 15;
 
@@ -57,59 +53,92 @@ export default function KeywordStrategy({ stats }: { stats: any }) {
     };
   }, [stats]);
 
-  const guide = useMemo(() => {
-    const { infoVal, commVal, issueVal } = displayScores;
-    const max = Math.max(infoVal, commVal, issueVal);
-    if (max === commVal) return { title: "광고주들의 전쟁터입니다.", desc: "구매 의도가 매우 높은 키워드입니다. 단순한 포스팅보다는 '네이버 플레이스' 광고나 '파워링크' 광고를 통해 직접 노출을 노리는 것이 효율적입니다.", tag: "상업 집중형", color: "bg-red-500" };
-    if (max === issueVal) return { title: "지금 물 들어올 때 노 저으세요!", desc: "최근 화제성이 폭발하고 있는 키워드입니다. 깊이 있는 분석보다는 현재 상황을 빠르게 전달하는 속보형 포스팅으로 트래픽을 선점하세요.", tag: "트렌드 민감형", color: "bg-orange-500" };
-    return { title: "신뢰를 쌓기 가장 좋은 키워드입니다.", desc: "사람들이 정보를 찾기 위해 검색하는 단계입니다. 전문적이고 상세한 정보를 제공하여 블로그의 지수를 높이는 용도로 활용하기 최적입니다.", tag: "정보 제공형", color: "bg-blue-600" };
-  }, [displayScores]);
-
   return (
     <div className="mt-10 font-['NanumSquare']">
+      {/* ✅ 메인 타이틀 변경 */}
       <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-        TMG 핵심 전략 분석 (Google Data 통합)
-        <InfoTip text="네이버와 구글의 데이터를 종합 분석하여 최적의 마케팅 전략을 제안합니다." />
+        키워드 성격 및 섹션 노출
+        <InfoTip text="네이버 통합검색의 섹션 배치 순서를 통해 실제 노출 가능성을 직접 판단하세요." />
       </h2>
       
-      <div className="grid grid-cols-2 gap-0 border border-gray-200 bg-white rounded-none shadow-sm">
-        {/* 왼쪽 패널: 정렬 방식을 justify-start로 변경하여 상단 여백 조절을 용이하게 함 */}
-        <div className="p-8 border-r border-gray-100 flex flex-col items-center justify-start">
-          
-          {/* ✅ 1번 공백 수정: mt-12를 추가하여 상단 여백을 대폭 넓힘 */}
-          <div className="w-full h-72 mt-12">
+      <div className="grid grid-cols-3 gap-0 border border-gray-200 bg-white rounded-none shadow-sm min-h-[420px]">
+        
+        {/* 좌측: 지표 (1/3) */}
+        <div className="col-span-1 px-4 py-6 border-r border-gray-100 flex flex-col items-center justify-start">
+          <div className="w-full h-64 mt-10">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
                 <PolarGrid stroke="#e5e7eb" />
-                <PolarAngleAxis dataKey="subject" tick={{ fill: '#4b5563', fontSize: 13, fontWeight: 'bold' }} />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: '#4b5563', fontSize: 12, fontWeight: 'bold' }} />
                 <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
                 <Radar dataKey="A" stroke="#1a73e8" strokeWidth={1} fill="#1a73e8" fillOpacity={0.3} dot={false} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
-
-          {/* ✅ 2번 공백 수정: mt-6에서 mt-2로 줄여 차트와 지수 사이를 좁힘 */}
-          <div className="mt-2 flex flex-col items-center gap-2">
-            <div className="flex gap-5 text-[12px] font-bold text-gray-500">
-              <div>정보성 지수 : {displayScores.infoVal}</div>
-              <div>상업성 지수 : {displayScores.commVal}</div>
-              <div>이슈성 지수 : {displayScores.issueVal}</div>
+          <div className="mt-2 flex flex-col items-center gap-1.5">
+            <div className="flex flex-col items-center text-[11px] font-bold text-gray-500">
+              <span>정보성:{displayScores.infoVal} | 상업성:{displayScores.commVal} | 이슈성:{displayScores.issueVal}</span>
             </div>
-            
             {displayScores.googleVolume > 0 && (
-              <div className="text-[11px] text-blue-500 font-medium bg-blue-50 px-2 py-0.5 rounded">
-                * 구글 월간 검색량: {displayScores.googleVolume.toLocaleString()}건 반영됨
+              <div className="text-[10px] text-blue-500 font-medium bg-blue-50 px-2 py-0.5 rounded">
+                * 구글 검색량 반영됨
               </div>
             )}
           </div>
         </div>
-        
-        <div className="p-10 flex flex-col justify-center bg-gray-50/30">
-          <div className="mb-6">
-            <span className={`px-3 py-1 text-white text-[11px] font-bold rounded-full ${guide.color}`}>{guide.tag}</span>
+
+        {/* 우측: 섹션 비교 (2/3) */}
+        <div className="col-span-2 p-10 flex flex-col bg-gray-50/30">
+          <div className="flex justify-between items-end mb-8 border-b pb-4 border-gray-200">
+            {/* ✅ 섹션 헤더 변경: 검색 키워드 포함 */}
+            <h3 className="text-lg font-bold text-gray-800">"{stats.keyword || '해당 키워드'}" 검색 네이버 섹션 순서</h3>
           </div>
-          <h3 className="text-2xl font-light text-gray-900 mb-5 leading-tight break-keep">{guide.title}</h3>
-          <p className="text-sm text-gray-600 leading-relaxed font-normal break-keep">{guide.desc}</p>
+
+          <div className="grid grid-cols-2 gap-10">
+            {/* PC 섹션 영역 */}
+            <div>
+              <div className="mb-4">
+                {/* ✅ PC 헤더 변경: 박스 제거 및 텍스트만 유지 */}
+                <h4 className="text-sm font-bold text-gray-700">PC 섹션</h4>
+              </div>
+              <ul className="space-y-2.5">
+                {[
+                  { name: "파워링크 (광고)" },
+                  { name: "플레이스 (지도)" },
+                  { name: "쇼핑 / 브랜드 검색" },
+                  { name: "VIEW (블로그/카페)" },
+                  { name: "지식iN / Q&A" },
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-3 text-[13px] text-gray-600 bg-white p-2.5 border border-gray-100 shadow-sm rounded">
+                    <span className="font-bold text-gray-300 w-4">{idx + 1}</span>
+                    <span className="font-medium">{item.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 모바일 섹션 영역 */}
+            <div>
+              <div className="mb-4">
+                {/* ✅ MOBILE 헤더 변경: 박스 제거 및 텍스트만 유지 */}
+                <h4 className="text-sm font-bold text-gray-700">MOBILE 섹션</h4>
+              </div>
+              <ul className="space-y-2.5">
+                {[
+                  { name: "파워링크 (광고)" },
+                  { name: "브랜드 검색 / 플레이스" },
+                  { name: "스마트블록 (인기글)" },
+                  { name: "쇼핑 추천" },
+                  { name: "지식iN / 동영상" },
+                ].map((item, idx) => (
+                  <li key={idx} className="flex items-center gap-3 text-[13px] text-gray-600 bg-white p-2.5 border border-gray-100 shadow-sm rounded">
+                    <span className="font-bold text-gray-300 w-4">{idx + 1}</span>
+                    <span className="font-medium">{item.name}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
     </div>
