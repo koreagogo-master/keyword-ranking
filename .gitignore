@@ -39,5 +39,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-# .env 파일은 예외적으로 허용 (GitHub에 올리기)
-!.env
+

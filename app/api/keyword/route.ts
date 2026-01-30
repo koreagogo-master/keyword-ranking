@@ -6,7 +6,9 @@ import { calculateGenderRatio, calculateWeeklyTrend, calculateMonthlyTrend } fro
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const keyword = (searchParams.get('keyword') || '').trim();
+  
+  // ✅ 수정된 부분: 키워드에서 모든 띄어쓰기를 강제로 제거하여 네이버 API 에러를 방지합니다.
+  const keyword = (searchParams.get('keyword') || '').replace(/\s+/g, '').trim();
 
   if (!keyword) return NextResponse.json({ error: '키워드를 입력해주세요.' }, { status: 400 });
 

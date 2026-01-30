@@ -9,6 +9,7 @@ import ContentStats from "./components/2_ContentStats";
 import TrendCharts from "./components/3_TrendCharts";
 import RelatedKeywords from "./components/4_RelatedKeywords";
 import SimilarityAnalysis from "./components/5_SimilarityAnalysis";
+import KeywordStrategy from "./components/6_KeywordStrategy";
 
 function safeNumber(v: any) {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
@@ -17,6 +18,7 @@ function safeNumber(v: any) {
 export default function AnalysisPage() {
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState<any>(null);
+  const [googleVolume, setGoogleVolume] = useState<number>(0);
   const [isSearching, setIsSearching] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
@@ -31,13 +33,33 @@ export default function AnalysisPage() {
     setKeyword(k);
     setIsSearching(true);
     setIsCompleted(false);
+    setGoogleVolume(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     try {
-      const res = await fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`);
-      const result = await res.json();
-      if (!res.ok) throw new Error(result?.error || "데이터 로드 실패");
-      setData(result);
+      // ✅ 네이버와 구글 데이터를 동시에(병렬) 요청하여 속도 최적화
+      const [naverRes, googleRes] = await Promise.all([
+        fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`),
+        fetch('/api/google-ads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keyword: k }),
+        })
+      ]);
+
+      // 네이버 데이터 처리
+      const naverData = await naverRes.json();
+      if (!naverRes.ok) throw new Error(naverData?.error || "네이버 데이터 로드 실패");
+
+      // 구글 데이터 처리
+      let gVolume = 0;
+      if (googleRes.ok) {
+        const gData = await googleRes.json();
+        gVolume = gData.monthlySearchVolume || 0;
+      }
+      
+      setGoogleVolume(gVolume);
+      setData(naverData);
       setIsCompleted(true);
     } catch (e: any) {
       alert(e?.message || "데이터를 가져오는 중 오류가 발생했습니다.");
@@ -58,9 +80,11 @@ export default function AnalysisPage() {
       content: { total: cTotal, blog: safeNumber(data.contentCount?.blog), cafe: safeNumber(data.contentCount?.cafe), kin: safeNumber(data.contentCount?.kin), news: safeNumber(data.contentCount?.news), shares: calcShares(cTotal, safeNumber(data.contentCount?.blog), safeNumber(data.contentCount?.cafe), safeNumber(data.contentCount?.news)) },
       content30: data.content30,
       ratios: { devicePc: safeNumber(data.ratios?.device?.pc), deviceMobile: safeNumber(data.ratios?.device?.mobile), genderMale: safeNumber(data.ratios?.gender?.male), genderFemale: safeNumber(data.ratios?.gender?.female) },
-      weeklyTrend: data.weeklyTrend, monthlyTrend: data.monthlyTrend,
+      weeklyTrend: data.weeklyTrend, 
+      monthlyTrend: data.monthlyTrend,
+      googleVolume: googleVolume 
     };
-  }, [data]);
+  }, [data, googleVolume]);
 
   return (
     <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043]" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
@@ -88,8 +112,7 @@ export default function AnalysisPage() {
               <SearchVolume stats={stats} />
               <ContentStats stats={stats} />
               <TrendCharts stats={stats} />
-              
-              {/* ✅ 하단 2분할 레이아웃 섹션 */}
+              <KeywordStrategy stats={stats} />
               <div className="grid grid-cols-2 gap-10 items-start">
                 <RelatedKeywords data={data} onKeywordClick={handleSearch} />
                 <SimilarityAnalysis data={data} mainKeyword={keyword} onKeywordClick={handleSearch} />
