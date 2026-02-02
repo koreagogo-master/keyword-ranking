@@ -10,7 +10,10 @@ import ContentStats from "./components/2_ContentStats";
 import TrendCharts from "./components/3_TrendCharts";
 import RelatedKeywords from "./components/4_RelatedKeywords";
 import SimilarityAnalysis from "./components/5_SimilarityAnalysis";
+// ✅ RelatedVisual 컴포넌트 임포트 삭제
 import KeywordStrategy from "./components/6_KeywordStrategy";
+// ✅ 7번 섹션 테스트 주석 유지
+// import SectionTest from "./components/7_SectionTest";
 
 function safeNumber(v: any) {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
@@ -47,6 +50,7 @@ function AnalysisContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     try {
+      // ✅ 무거운 시각 분석 API(section-order) 호출을 제거하여 안정성 확보
       const [naverRes, googleRes] = await Promise.all([
         fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`),
         fetch('/api/google-ads', {
@@ -66,7 +70,10 @@ function AnalysisContent() {
       }
       
       setGoogleVolume(gVolume);
-      setData(naverData);
+
+      // ✅ 네이버 기본 데이터만 저장하도록 간소화
+      setData({ ...naverData }); 
+      
       setIsCompleted(true);
     } catch (e: any) {
       alert(e?.message || "데이터를 가져오는 중 오류가 발생했습니다.");
@@ -84,16 +91,15 @@ function AnalysisContent() {
     const cTotal = safeNumber(data.contentCount?.total);
     
     return {
-      keyword: keyword, // ✅ [수정] stats 객체에 현재 검색된 키워드를 추가합니다.
+      keyword: keyword,
       search: { total: safeNumber(data.searchCount?.total), pc: safeNumber(data.searchCount?.pc), mobile: safeNumber(data.searchCount?.mobile) },
       content: { total: cTotal, blog: safeNumber(data.contentCount?.blog), cafe: safeNumber(data.contentCount?.cafe), kin: safeNumber(data.contentCount?.kin), news: safeNumber(data.contentCount?.news), shares: calcShares(cTotal, safeNumber(data.contentCount?.blog), safeNumber(data.contentCount?.cafe), safeNumber(data.contentCount?.news)) },
       content30: data.content30,
       ratios: { devicePc: safeNumber(data.ratios?.device?.pc), deviceMobile: safeNumber(data.ratios?.device?.mobile), genderMale: safeNumber(data.ratios?.gender?.male), genderFemale: safeNumber(data.ratios?.gender?.female) },
       weeklyTrend: data.weeklyTrend, 
       monthlyTrend: data.monthlyTrend,
-      googleVolume: googleVolume 
+      googleVolume: googleVolume
     };
-    // [수정] 의존성 배열에 keyword를 추가하여 키워드가 바뀔 때마다 stats도 갱신되게 합니다.
   }, [data, googleVolume, keyword]);
 
   return (
@@ -101,7 +107,8 @@ function AnalysisContent() {
       <Sidebar />
       <main className="flex-1 ml-64 p-10">
         <div className="max-w-7xl mx-auto">
-          {/* RankTabs는 별도의 파일이 없으므로 현재 구조를 유지하거나 필요시 수정하세요. */}
+          <RankTabs />
+          
           <div className="mb-10">
             <h1 className="text-2xl font-normal text-gray-900">
               {keyword ? `"${keyword}" 키워드 정밀 분석` : "키워드 정밀 분석"}
@@ -127,10 +134,16 @@ function AnalysisContent() {
               <ContentStats stats={stats} />
               <TrendCharts stats={stats} />
               <KeywordStrategy stats={stats} />
+              
               <div className="grid grid-cols-2 gap-10 items-start">
                 <RelatedKeywords data={data} onKeywordClick={handleSearch} />
-                <SimilarityAnalysis data={data} mainKeyword={keyword} onKeywordClick={handleSearch} />
+                <div className="space-y-10">
+                  <SimilarityAnalysis data={data} mainKeyword={keyword} onKeywordClick={handleSearch} />
+                  {/* ✅ 요청하신 "연관검색어" 단락 및 RelatedVisual 컴포넌트 삭제 완료 */}
+                </div>
               </div>
+
+              {/* <SectionTest data={data} /> */}
             </div>
           )}
         </div>

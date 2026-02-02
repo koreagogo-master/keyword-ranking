@@ -7,7 +7,8 @@ export default function RankTabs() {
   const pathname = usePathname();
 
   const tabs = [
-    { name: '키워드 분석', href: '/analysis' }, // 맨 앞에 추가
+    { name: '키워드 분석', href: '/analysis' },
+    { name: '연관 검색어 분석', href: '/related' }, // ✅ 신규 추가
     { name: 'N 모바일 통검', href: '/blog-rank' },
     { name: 'N 모바일 블로그', href: '/blog-rank-b' },
     { name: 'N 지식인', href: '/kin-rank' },

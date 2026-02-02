@@ -11,6 +11,7 @@ export default function Sidebar() {
       title: "Naver 분석",
       items: [
         { name: "키워드 정밀 분석", href: "/analysis" },
+        { name: "연관 검색어 분석", href: "/related" }, // ✅ 신규 추가
         { name: "통검 순위", href: "/blog-rank" },
         { name: "블로그 순위", href: "/blog-rank-b" },
         { name: "지식인 순위", href: "/kin-rank" },
@@ -41,7 +42,6 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-50">
-      {/* 1. 로고 영역: 나눔스퀘어 적용 및 렌더링 최적화 */}
       <div className="h-16 flex items-center px-6 border-b border-gray-100">
         <span 
           className="text-lg font-extrabold text-[#1a73e8] tracking-tight antialiased"
