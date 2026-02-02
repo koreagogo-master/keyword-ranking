@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, Suspense } from "react"; // [수정] Suspense 추가
+import { useSearchParams } from "next/navigation"; // [수정] 주소창 읽기 도구 추가
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
@@ -15,12 +16,23 @@ function safeNumber(v: any) {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
 }
 
-export default function AnalysisPage() {
+// [수정] URL 파라미터를 읽고 검색을 실행하는 내부 컴포넌트
+function AnalysisContent() {
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState<any>(null);
   const [googleVolume, setGoogleVolume] = useState<number>(0);
   const [isSearching, setIsSearching] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+
+  const searchParams = useSearchParams(); // [수정] 주소창의 정보 가져오기
+  const urlKeyword = searchParams.get("keyword"); // [수정] ?keyword=값 에서 '값' 추출
+
+  // [수정] 페이지 로드 시 URL에 키워드가 있으면 즉시 검색 실행
+  useEffect(() => {
+    if (urlKeyword) {
+      handleSearch(urlKeyword);
+    }
+  }, [urlKeyword]);
 
   useEffect(() => {
     setIsCompleted(false);
@@ -37,7 +49,6 @@ export default function AnalysisPage() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     try {
-      // ✅ 네이버와 구글 데이터를 동시에(병렬) 요청하여 속도 최적화
       const [naverRes, googleRes] = await Promise.all([
         fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`),
         fetch('/api/google-ads', {
@@ -47,11 +58,9 @@ export default function AnalysisPage() {
         })
       ]);
 
-      // 네이버 데이터 처리
       const naverData = await naverRes.json();
       if (!naverRes.ok) throw new Error(naverData?.error || "네이버 데이터 로드 실패");
 
-      // 구글 데이터 처리
       let gVolume = 0;
       if (googleRes.ok) {
         const gData = await googleRes.json();
@@ -122,5 +131,14 @@ export default function AnalysisPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+// [수정] useSearchParams를 사용하기 위해 Suspense로 감싸기 (Next.js 권장 사항)
+export default function AnalysisPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-center">로딩 중...</div>}>
+      <AnalysisContent />
+    </Suspense>
   );
 }
