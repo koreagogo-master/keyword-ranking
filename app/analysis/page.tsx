@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState, useEffect, Suspense } from "react"; // [수정] Suspense 추가
-import { useSearchParams } from "next/navigation"; // [수정] 주소창 읽기 도구 추가
+import { useMemo, useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
@@ -16,7 +16,6 @@ function safeNumber(v: any) {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
 }
 
-// [수정] URL 파라미터를 읽고 검색을 실행하는 내부 컴포넌트
 function AnalysisContent() {
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState<any>(null);
@@ -24,10 +23,9 @@ function AnalysisContent() {
   const [isSearching, setIsSearching] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
-  const searchParams = useSearchParams(); // [수정] 주소창의 정보 가져오기
-  const urlKeyword = searchParams.get("keyword"); // [수정] ?keyword=값 에서 '값' 추출
+  const searchParams = useSearchParams();
+  const urlKeyword = searchParams.get("keyword");
 
-  // [수정] 페이지 로드 시 URL에 키워드가 있으면 즉시 검색 실행
   useEffect(() => {
     if (urlKeyword) {
       handleSearch(urlKeyword);
@@ -84,7 +82,9 @@ function AnalysisContent() {
       return { blog: Math.round((blog/t)*100), cafe: Math.round((cafe/t)*100), news: Math.round((news/t)*100) };
     };
     const cTotal = safeNumber(data.contentCount?.total);
+    
     return {
+      keyword: keyword, // ✅ [수정] stats 객체에 현재 검색된 키워드를 추가합니다.
       search: { total: safeNumber(data.searchCount?.total), pc: safeNumber(data.searchCount?.pc), mobile: safeNumber(data.searchCount?.mobile) },
       content: { total: cTotal, blog: safeNumber(data.contentCount?.blog), cafe: safeNumber(data.contentCount?.cafe), kin: safeNumber(data.contentCount?.kin), news: safeNumber(data.contentCount?.news), shares: calcShares(cTotal, safeNumber(data.contentCount?.blog), safeNumber(data.contentCount?.cafe), safeNumber(data.contentCount?.news)) },
       content30: data.content30,
@@ -93,15 +93,20 @@ function AnalysisContent() {
       monthlyTrend: data.monthlyTrend,
       googleVolume: googleVolume 
     };
-  }, [data, googleVolume]);
+    // [수정] 의존성 배열에 keyword를 추가하여 키워드가 바뀔 때마다 stats도 갱신되게 합니다.
+  }, [data, googleVolume, keyword]);
 
   return (
     <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043]" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
       <Sidebar />
       <main className="flex-1 ml-64 p-10">
         <div className="max-w-7xl mx-auto">
-          <RankTabs />
-          <div className="mb-10"><h1 className="text-2xl font-normal text-gray-900">키워드 정밀 분석</h1></div>
+          {/* RankTabs는 별도의 파일이 없으므로 현재 구조를 유지하거나 필요시 수정하세요. */}
+          <div className="mb-10">
+            <h1 className="text-2xl font-normal text-gray-900">
+              {keyword ? `"${keyword}" 키워드 정밀 분석` : "키워드 정밀 분석"}
+            </h1>
+          </div>
 
           <div className="bg-white border border-gray-300 flex items-center mb-12 shadow-sm focus-within:border-blue-500 transition-all rounded-none max-w-3xl mx-auto w-full">
             <input 
@@ -134,7 +139,6 @@ function AnalysisContent() {
   );
 }
 
-// [수정] useSearchParams를 사용하기 위해 Suspense로 감싸기 (Next.js 권장 사항)
 export default function AnalysisPage() {
   return (
     <Suspense fallback={<div className="p-10 text-center">로딩 중...</div>}>
