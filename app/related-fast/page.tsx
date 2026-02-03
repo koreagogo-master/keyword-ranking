@@ -16,6 +16,32 @@ function RelatedFastContent() {
   const [sortField, setSortField] = useState<'pc' | 'mobile' | 'total' | null>(null);
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc' | null>(null);
 
+  /**
+   * ✅ 선택된 키워드들의 총 검색량 합계 계산
+   */
+  const totalSelectedVolume = useMemo(() => {
+    return selectedKeywords.reduce((acc, cur) => acc + (cur.total || 0), 0);
+  }, [selectedKeywords]);
+
+  /**
+   * ✅ 키워드 일괄 복사 함수 (줄바꿈 형식)
+   */
+  const copyToClipboard = () => {
+    if (selectedKeywords.length === 0) return;
+    const textToCopy = selectedKeywords
+      .map(it => `${it.keyword} (${formatNum(it.total)})`)
+      .join('\n');
+    
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      alert("선택된 키워드 목록이 복사되었습니다.");
+    }).catch(err => {
+      console.error('복사 실패:', err);
+    });
+  };
+
+  /**
+   * ✅ 키워드 선택/해제 로직
+   */
   const toggleKeyword = (item: any) => {
     setSelectedKeywords(prev => {
       const isAlreadySelected = prev.find(it => it.keyword === item.keyword);
@@ -23,12 +49,6 @@ function RelatedFastContent() {
       return [...prev, item];
     });
   };
-
-  const mainKeywordData = useMemo(() => {
-    if (adsList.length === 0) return null;
-    const searchKey = keyword.replace(/\s+/g, '');
-    return adsList.find(it => it.keyword.replace(/\s+/g, '') === searchKey);
-  }, [adsList, keyword]);
 
   const handleSearch = async (targetKeyword?: string) => {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
@@ -96,6 +116,12 @@ function RelatedFastContent() {
     }
   };
 
+  const mainKeywordData = useMemo(() => {
+    if (adsList.length === 0) return null;
+    const searchKey = keyword.replace(/\s+/g, '');
+    return adsList.find(it => it.keyword.replace(/\s+/g, '') === searchKey);
+  }, [adsList, keyword]);
+
   const sortedList = useMemo(() => {
     if (adsList.length === 0) return [];
     const searchKey = keyword.replace(/\s+/g, '');
@@ -136,13 +162,13 @@ function RelatedFastContent() {
           <RankTabs />
           
           <div className="mb-8">
-            <h1 className="text-2xl font-bold !text-black">추천 연관 키워드 조회</h1>
-            <p className="text-sm text-slate-500 mt-1">포스팅 시 적용 가능한 연관 키워드를 네이버 API 기반으로 추천합니다.</p>
+            <h1 className="text-2xl font-bold !text-black">연관 키워드 조회</h1>
+            <p className="text-sm text-slate-500 mt-1">포스팅 시 적용 가능한 연관 키워드를 네이버 API 기반으로 추천합니다. 조회 후 리스트에서 키워드를 선택 하면 좌측 [선택된 키워드]의 리스트가 생성 됩니다.</p>
+            <p className="text-sm text-slate-500 mt-1">최종 선택 된 키워드를 복사하여 메모장에 붙여넣기가 가능 합니다. 선택된 키워드는 조회 키워드를 변경 하여도 남아 있습니다.</p>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start relative">
             
-            {/* ⬅️ 왼쪽 영역: 선택 목록 고도화 */}
             <div className="w-full lg:w-[420px] sticky top-[64px] z-30 space-y-3 bg-[#f8f9fa]">
               <div className="bg-white border border-gray-200 rounded-sm flex items-center shadow-md focus-within:border-blue-400 overflow-hidden">
                 <input 
@@ -160,9 +186,9 @@ function RelatedFastContent() {
 
               {mainKeywordData && (
                 <div className="grid grid-cols-2 gap-2 pb-2">
-                  <div className="bg-white px-4 py-4 border border-gray-100 shadow-sm rounded-sm flex justify-between items-center">
+                  <div className="bg-white px-4 py-3 border border-gray-100 shadow-sm rounded-sm flex justify-between items-center">
                     <span className="text-[12px] font-medium text-slate-400">예상클릭율</span>
-                    <span className="text-lg font-bold text-blue-600 leading-none">{mainKeywordData.ctr.toFixed(2)}%</span>
+                    <span className="text-base font-extrabold text-blue-600 leading-none">{mainKeywordData.ctr.toFixed(2)}%</span>
                   </div>
                   <div className="bg-white px-4 py-4 border border-gray-100 shadow-sm rounded-sm flex justify-between items-center">
                     <span className="text-[12px] font-medium text-slate-400">광고 경쟁도</span>
@@ -173,31 +199,46 @@ function RelatedFastContent() {
                 </div>
               )}
 
-              {/* ✅ 선택된 키워드: 키워드 + 총 검색량 병렬 표시 */}
+              {/* ✅ 선택된 키워드: 헤더 레이아웃 수정 */}
               {selectedKeywords.length > 0 && (
-                <div className="bg-white border border-gray-200 shadow-md rounded-sm overflow-hidden">
+                <div className="bg-white border border-gray-200 shadow-md rounded-sm overflow-hidden flex flex-col">
                   <div className="bg-slate-50 px-4 py-2.5 border-b border-gray-200 flex justify-between items-center">
-                    <span className="text-xs font-bold text-slate-600">선택된 키워드 ({selectedKeywords.length})</span>
+                    {/* ✅ 검색량 수치를 텍스트 우측으로 이동 및 폰트 크기 통일 */}
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-600">선택된 키워드 ({selectedKeywords.length})</span>
+                      <span className="text-xs text-blue-600 font-extrabold">{formatNum(totalSelectedVolume)}</span>
+                    </div>
                     <button onClick={() => setSelectedKeywords([])} className="text-[10px] text-red-500 hover:underline font-bold">전체삭제</button>
                   </div>
+                  
                   <div className="max-h-[350px] overflow-y-auto p-2 space-y-1">
                     {selectedKeywords.map((item, i) => (
-                      <div key={i} className="flex justify-between items-center px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-sm">
+                      <div key={i} className="flex justify-between items-center px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-sm group hover:border-blue-300 transition-all">
                         <div className="flex items-baseline gap-2 overflow-hidden">
-                          {/* 키워드명 */}
                           <span className="text-[13px] font-bold text-blue-700 truncate">{item.keyword}</span>
-                          {/* ✅ 추가된 총 검색량 (작은 회색 폰트로 가독성 유지) */}
                           <span className="text-[11px] text-slate-400 font-medium whitespace-nowrap">{formatNum(item.total)}</span>
                         </div>
-                        <button onClick={() => toggleKeyword(item)} className="text-slate-300 hover:text-red-500 transition-colors ml-2"><span className="text-xs">✕</span></button>
+                        <button 
+                          onClick={() => toggleKeyword(item)} 
+                          className="p-1 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-full transition-all"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
                       </div>
                     ))}
+                  </div>
+
+                  <div className="p-2 border-t border-gray-100 bg-gray-50/50">
+                    <button onClick={copyToClipboard} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-bold rounded-sm transition-colors shadow-sm">
+                      선택 키워드 일괄 복사
+                    </button>
                   </div>
                 </div>
               )}
             </div>
 
-            {/* ➡️ 오른쪽 영역: 리스트 */}
             <div className="flex-1 w-full">
               {adsList.length > 0 && (
                 <div className="bg-white border border-gray-300 shadow-sm overflow-visible rounded-sm">
@@ -238,7 +279,6 @@ function RelatedFastContent() {
                           <td className="px-4 py-2.5 text-right font-bold text-blue-700 text-sm">{formatNum(mainKeywordData.total)}</td>
                         </tr>
                       )}
-
                       {sortedList.map((item, idx) => (
                         <tr key={idx} className="hover:bg-gray-50 transition-colors">
                           <td className="px-2 py-2 text-center">

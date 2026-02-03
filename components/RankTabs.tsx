@@ -8,7 +8,7 @@ export default function RankTabs() {
 
   const tabs = [
     { name: '키워드 분석', href: '/analysis' },
-    { name: '연관 검색어 분석', href: '/related' }, // ✅ 신규 추가
+    { name: '연관 키워드 조회', href: '/related-fast' }, // ✅ 신규 추가
     { name: 'N 모바일 통검', href: '/blog-rank' },
     { name: 'N 모바일 블로그', href: '/blog-rank-b' },
     { name: 'N 지식인', href: '/kin-rank' },

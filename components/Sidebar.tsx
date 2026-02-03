@@ -11,7 +11,7 @@ export default function Sidebar() {
       title: "Naver 분석",
       items: [
         { name: "키워드 정밀 분석", href: "/analysis" },
-        { name: "연관 검색어 분석", href: "/related" }, // ✅ 신규 추가
+        { name: "연관 키워드 조회", href: "/related-fast" }, // ✅ 신규 추가
         { name: "통검 순위", href: "/blog-rank" },
         { name: "블로그 순위", href: "/blog-rank-b" },
         { name: "지식인 순위", href: "/kin-rank" },
