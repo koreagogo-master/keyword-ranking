@@ -11,9 +11,18 @@ function RelatedFastContent() {
   const [adsList, setAdsList] = useState<any[]>([]); 
   const [isSearching, setIsSearching] = useState(false);
   const [searchAttempted, setSearchAttempted] = useState(false);
-  
+  const [selectedKeywords, setSelectedKeywords] = useState<any[]>([]);
+
   const [sortField, setSortField] = useState<'pc' | 'mobile' | 'total' | null>(null);
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc' | null>(null);
+
+  const toggleKeyword = (item: any) => {
+    setSelectedKeywords(prev => {
+      const isAlreadySelected = prev.find(it => it.keyword === item.keyword);
+      if (isAlreadySelected) return prev.filter(it => it.keyword !== item.keyword);
+      return [...prev, item];
+    });
+  };
 
   const mainKeywordData = useMemo(() => {
     if (adsList.length === 0) return null;
@@ -133,11 +142,9 @@ function RelatedFastContent() {
 
           <div className="flex flex-col lg:flex-row gap-8 items-start relative">
             
-            {/* ⬅️ 왼쪽 영역: 검색창부터 최상단 고정 */}
-            {/* sticky top-0을 사용하여 스크롤 시 검색창이 화면 맨 위에서 멈춥니다. */}
-            <div className="w-full lg:w-[420px] sticky top-0 z-30 space-y-3 pt-1 bg-[#f8f9fa]">
-              {/* 검색 박스 */}
-              <div className="bg-white border border-gray-200 rounded-sm flex items-center shadow-md focus-within:border-blue-400 transition-all overflow-hidden">
+            {/* ⬅️ 왼쪽 영역: 선택 목록 고도화 */}
+            <div className="w-full lg:w-[420px] sticky top-[64px] z-30 space-y-3 bg-[#f8f9fa]">
+              <div className="bg-white border border-gray-200 rounded-sm flex items-center shadow-md focus-within:border-blue-400 overflow-hidden">
                 <input 
                   type="text" 
                   value={keyword} 
@@ -146,10 +153,7 @@ function RelatedFastContent() {
                   className="flex-1 py-3 px-4 text-base outline-none !text-black bg-white" 
                   placeholder="분석할 키워드 입력" 
                 />
-                <button 
-                  onClick={() => handleSearch()} 
-                  className="px-10 py-3.5 font-bold bg-[#1a73e8] hover:bg-[#1557b0] text-white transition-colors text-base whitespace-nowrap border-l border-gray-200"
-                >
+                <button onClick={() => handleSearch()} className="px-10 py-3.5 font-bold bg-[#1a73e8] hover:bg-[#1557b0] text-white transition-colors text-base whitespace-nowrap border-l border-gray-200">
                   {isSearching ? "..." : "조회"}
                 </button>
               </div>
@@ -168,63 +172,96 @@ function RelatedFastContent() {
                   </div>
                 </div>
               )}
+
+              {/* ✅ 선택된 키워드: 키워드 + 총 검색량 병렬 표시 */}
+              {selectedKeywords.length > 0 && (
+                <div className="bg-white border border-gray-200 shadow-md rounded-sm overflow-hidden">
+                  <div className="bg-slate-50 px-4 py-2.5 border-b border-gray-200 flex justify-between items-center">
+                    <span className="text-xs font-bold text-slate-600">선택된 키워드 ({selectedKeywords.length})</span>
+                    <button onClick={() => setSelectedKeywords([])} className="text-[10px] text-red-500 hover:underline font-bold">전체삭제</button>
+                  </div>
+                  <div className="max-h-[350px] overflow-y-auto p-2 space-y-1">
+                    {selectedKeywords.map((item, i) => (
+                      <div key={i} className="flex justify-between items-center px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-sm">
+                        <div className="flex items-baseline gap-2 overflow-hidden">
+                          {/* 키워드명 */}
+                          <span className="text-[13px] font-bold text-blue-700 truncate">{item.keyword}</span>
+                          {/* ✅ 추가된 총 검색량 (작은 회색 폰트로 가독성 유지) */}
+                          <span className="text-[11px] text-slate-400 font-medium whitespace-nowrap">{formatNum(item.total)}</span>
+                        </div>
+                        <button onClick={() => toggleKeyword(item)} className="text-slate-300 hover:text-red-500 transition-colors ml-2"><span className="text-xs">✕</span></button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
-            {/* ➡️ 오른쪽 영역: 테이블 헤더 고정 */}
+            {/* ➡️ 오른쪽 영역: 리스트 */}
             <div className="flex-1 w-full">
               {adsList.length > 0 && (
-                <div className="bg-white border border-gray-300 shadow-sm overflow-hidden rounded-sm">
+                <div className="bg-white border border-gray-300 shadow-sm overflow-visible rounded-sm">
                   <table className="w-full text-left border-collapse">
-                    {/* 왼쪽 검색창과 높이를 맞추기 위해 동일한 sticky top-0을 설정합니다. */}
-                    <thead className="sticky top-0 z-20 bg-slate-50 border-b border-gray-200 shadow-sm">
-                      <tr className="text-[13px]">
-                        <th className="px-4 py-4 font-bold text-slate-500 text-center w-20">순위</th>
-                        <th className="px-4 py-4 font-bold text-slate-500">연관 키워드</th>
-                        <th className="px-4 py-4 text-right cursor-pointer hover:bg-slate-100 group" onClick={() => handleSort('pc')}>
-                          <div className="flex items-center justify-end"><strong>PC (%)</strong>{renderSortIcon('pc')}</div>
+                    <thead className="sticky top-[64px] z-20">
+                      <tr className="text-[13px] bg-slate-50">
+                        <th className="px-2 py-4 text-center w-12 font-bold text-slate-500 border-b border-gray-200">선택</th>
+                        <th className="px-4 py-4 font-bold text-slate-500 text-center w-32 border-b border-gray-200">순위</th>
+                        <th className="px-4 py-4 font-bold text-slate-500 border-b border-gray-200">연관 키워드</th>
+                        <th className="px-4 py-4 text-right cursor-pointer hover:bg-slate-100 group font-semibold text-slate-500 border-b border-gray-200" onClick={() => handleSort('pc')}>
+                          <div className="flex items-center justify-end">PC (%){renderSortIcon('pc')}</div>
                         </th>
-                        <th className="px-4 py-4 text-right cursor-pointer hover:bg-slate-100 group" onClick={() => handleSort('mobile')}>
-                          <div className="flex items-center justify-end"><strong>모바일 (%)</strong>{renderSortIcon('mobile')}</div>
+                        <th className="px-4 py-4 text-right cursor-pointer hover:bg-slate-100 group font-semibold text-slate-500 border-b border-gray-200" onClick={() => handleSort('mobile')}>
+                          <div className="flex items-center justify-end">모바일 (%){renderSortIcon('mobile')}</div>
                         </th>
-                        <th className="px-4 py-3 text-right cursor-pointer hover:bg-blue-50 group" onClick={() => handleSort('total')}>
-                          <div className="flex items-center justify-end"><span className="font-bold text-blue-600">총 검색량</span>{renderSortIcon('total')}</div>
+                        <th className="px-4 py-4 text-right cursor-pointer hover:bg-blue-50 group text-blue-600 font-bold border-b border-gray-200" onClick={() => handleSort('total')}>
+                          <div className="flex items-center justify-end">총 검색량{renderSortIcon('total')}</div>
                         </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {mainKeywordData && (
                         <tr className="bg-blue-50/40 transition-colors border-b-2 border-blue-100">
+                          <td className="px-2 py-2.5 text-center">
+                            <input 
+                              type="checkbox" 
+                              checked={!!selectedKeywords.find(it => it.keyword === mainKeywordData.keyword)}
+                              onChange={() => toggleKeyword(mainKeywordData)}
+                              className="w-4 h-4 cursor-pointer accent-blue-600"
+                            />
+                          </td>
                           <td className="px-4 py-2.5 text-center">
-                            <span className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm">검색어</span>
+                            <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm whitespace-nowrap min-w-[50px] inline-block">검색어</span>
                           </td>
                           <td className="px-4 py-2.5 font-bold text-blue-700 text-sm">{mainKeywordData.keyword}</td>
-                          <td className="px-4 py-2.5 text-right font-semibold text-sm">{formatNum(mainKeywordData.pc)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(mainKeywordData.pc/mainKeywordData.total*100)}%)</span></td>
-                          <td className="px-4 py-2.5 text-right font-semibold text-sm">{formatNum(mainKeywordData.mobile)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(mainKeywordData.mobile/mainKeywordData.total*100)}%)</span></td>
+                          <td className="px-4 py-2.5 text-right font-medium text-sm text-slate-700">{formatNum(mainKeywordData.pc)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(mainKeywordData.pc/mainKeywordData.total*100)}%)</span></td>
+                          <td className="px-4 py-2.5 text-right font-medium text-sm text-slate-700">{formatNum(mainKeywordData.mobile)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(mainKeywordData.mobile/mainKeywordData.total*100)}%)</span></td>
                           <td className="px-4 py-2.5 text-right font-bold text-blue-700 text-sm">{formatNum(mainKeywordData.total)}</td>
                         </tr>
                       )}
 
                       {sortedList.map((item, idx) => (
                         <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-2 py-2 text-center">
+                            <input 
+                              type="checkbox" 
+                              checked={!!selectedKeywords.find(it => it.keyword === item.keyword)}
+                              onChange={() => toggleKeyword(item)}
+                              className="w-4 h-4 cursor-pointer accent-blue-600"
+                            />
+                          </td>
                           <td className="px-4 py-2 text-center text-slate-400 font-medium text-[13px]">{idx + 1}</td>
                           <td className="px-4 py-2">
                             <button onClick={() => handleSearch(item.keyword)} className="!text-black font-bold text-[13px] hover:text-blue-600 hover:underline text-left">
                               {item.keyword}
                             </button>
                           </td>
-                          <td className="px-4 py-2 text-right !text-black font-semibold text-[13px]">{formatNum(item.pc)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(item.pc/item.total*100)}%)</span></td>
-                          <td className="px-4 py-2 text-right !text-black font-semibold text-[13px]">{formatNum(item.mobile)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(item.mobile/item.total*100)}%)</span></td>
+                          <td className="px-4 py-2 text-right !text-black font-medium text-[13px]">{formatNum(item.pc)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(item.pc/item.total*100)}%)</span></td>
+                          <td className="px-4 py-2 text-right !text-black font-medium text-[13px]">{formatNum(item.mobile)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(item.mobile/item.total*100)}%)</span></td>
                           <td className={`px-4 py-2 text-right font-bold text-blue-600 bg-blue-50/20 border-b border-gray-100 text-[13px]`}>{formatNum(item.total)}</td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
-                </div>
-              )}
-
-              {searchAttempted && !isSearching && adsList.length === 0 && (
-                <div className="bg-white border border-gray-300 p-12 text-center shadow-sm rounded-sm">
-                  <p className="text-slate-400 font-bold text-base italic">분석 결과가 없습니다.</p>
                 </div>
               )}
             </div>
