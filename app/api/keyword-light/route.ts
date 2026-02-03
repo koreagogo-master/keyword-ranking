@@ -1,3 +1,4 @@
+// /api/related-ads/route.ts
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
 import axios from 'axios';
@@ -33,17 +34,16 @@ export async function POST(request: Request) {
     const adsKeywords = response.data.keywordList
       .slice(0, 200)
       .map((item: any) => {
-        // ✅ 경쟁도 한글 데이터를 영문 상수로 변환 (프론트엔드 호환성)
-        let normalizedCompIdx = item.compIdx;
+        // ✅ 경쟁도 데이터 영문 상수로 변환
+        let normalizedCompIdx = 'LOW';
         if (item.compIdx === '높음') normalizedCompIdx = 'HIGH';
         else if (item.compIdx === '중간') normalizedCompIdx = 'MEDIUM';
-        else if (item.compIdx === '낮음') normalizedCompIdx = 'LOW';
 
         return {
           keyword: item.relKeyword,
           pc: item.monthlyPcQcCnt,
           mobile: item.monthlyMobileQcCnt,
-          // ✅ 원본 샘플의 'Clk' 필드명을 반영
+          // ✅ API 필드명(ClkCnt)을 정확히 매핑
           monthlyAvePcClkCnt: item.monthlyAvePcClkCnt,
           monthlyAveMobileClkCnt: item.monthlyAveMobileClkCnt,
           monthlyAvePcCtr: item.monthlyAvePcCtr,

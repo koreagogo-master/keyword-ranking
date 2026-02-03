@@ -16,16 +16,20 @@ function RelatedAnalysisContent() {
   const [searchAttempted, setSearchAttempted] = useState(false);
   const [isAdsExpanded, setIsAdsExpanded] = useState(false); // ✅ '더 보기' 상태 관리
 
-  // Puppeteer 추출 단어들의 검색량을 가져오는 함수
+  /**
+   * ✅ 수정된 부분: Puppeteer 추출 단어들의 검색량을 '가벼운 API'를 통해 가져옵니다.
+   * 기존 /api/keyword (호출 9번) 대신 /api/keyword-light (호출 1번)를 사용합니다.
+   */
   const fetchVolumes = async (words: string[]) => {
     const detailPromises = words.slice(0, 20).map(async (word: string) => {
-      const res = await fetch(`/api/keyword?keyword=${encodeURIComponent(word)}`);
+      // 🚀 가벼운 전용 API 호출로 429 에러를 방지합니다.
+      const res = await fetch(`/api/keyword-light?keyword=${encodeURIComponent(word)}`);
       const d = await res.json();
       return {
         keyword: word,
-        pc: d.searchCount?.pc || 0,
-        mobile: d.searchCount?.mobile || 0,
-        total: d.searchCount?.total || 0
+        pc: d.pc || 0,        // 가벼운 API 응답 구조에 맞춰 수정
+        mobile: d.mobile || 0,
+        total: d.total || 0
       };
     });
     return await Promise.all(detailPromises);
@@ -38,14 +42,14 @@ function RelatedAnalysisContent() {
     setKeyword(k);
     setIsSearching(true);
     setSearchAttempted(true);
-    setIsAdsExpanded(false); // ✅ 새로운 검색 시 '더 보기' 상태를 닫힘으로 초기화
+    setIsAdsExpanded(false); 
     
     setMainData(null);
     setVisualList([]);
     setAdsList([]);
 
     try {
-      // [1단계] 메인 키워드 기본 정보
+      // [1단계] 메인 키워드 기본 정보 (이건 1번만 호출하므로 기존 무거운 API 유지 가능)
       const mainRes = await fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`);
       const mainJson = await mainRes.json();
       setMainData(mainJson.searchCount);
@@ -85,7 +89,6 @@ function RelatedAnalysisContent() {
 
   // 공통 테이블 컴포넌트
   const KeywordTable = ({ title, list, colorClass, isExpandable = false }: { title: string, list: any[], colorClass: string, isExpandable?: boolean }) => {
-    // ✅ 펼침 상태에 따라 보여줄 리스트 개수 조절 (기본 10개)
     const displayList = (isExpandable && !isAdsExpanded) ? list.slice(0, 10) : list;
 
     return (
@@ -130,7 +133,6 @@ function RelatedAnalysisContent() {
             </tbody>
           </table>
 
-          {/* ✅ '더 보기' 버튼 영역 (10개 초과일 때만 노출) */}
           {isExpandable && list.length > 10 && !isAdsExpanded && (
             <div className="p-8 bg-slate-50 border-t border-gray-200 text-center">
               <button 
@@ -198,10 +200,9 @@ function RelatedAnalysisContent() {
           )}
 
           {visualList.length > 0 && (
-            <KeywordTable title="실시간 시각 연관검색어" list={visualList} colorClass="bg-blue-600" />
+            <KeywordTable title="실시간 연관검색어" list={visualList} colorClass="bg-blue-600" />
           )}
 
-          {/* ✅ 광고 데이터 섹션에만 더 보기(isExpandable) 기능을 적용했습니다. */}
           {adsList.length > 0 && (
             <KeywordTable 
               title="네이버 연관검색어 (최대 200개)" 

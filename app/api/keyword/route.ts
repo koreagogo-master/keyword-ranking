@@ -7,7 +7,7 @@ import { calculateGenderRatio, calculateWeeklyTrend, calculateMonthlyTrend } fro
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   
-  // ✅ 수정된 부분: 키워드에서 모든 띄어쓰기를 강제로 제거하여 네이버 API 에러를 방지합니다.
+  // ✅ 키워드에서 모든 띄어쓰기를 제거하여 검색 효율을 높입니다.
   const keyword = (searchParams.get('keyword') || '').replace(/\s+/g, '').trim();
 
   if (!keyword) return NextResponse.json({ error: '키워드를 입력해주세요.' }, { status: 400 });
@@ -28,6 +28,7 @@ export async function GET(request: Request) {
       startDate: new Date(new Date().setFullYear(new Date().getFullYear() - 1)).toISOString().split('T')[0]
     };
 
+    // 0_NaverFetch.ts에서 수정된 fetchAllNaverData를 호출합니다. (재시도 로직 포함)
     const [adData, blogData, cafeData, kinData, newsData, dlTotal, dlFemale, dlMale, dlMonthly] = await fetchAllNaverData(keyword, config);
 
     const keywordStat = adData.keywordList?.find((item: any) => String(item.relKeyword || '').replace(/\s+/g, '') === keyword.replace(/\s+/g, ''));
@@ -55,7 +56,20 @@ export async function GET(request: Request) {
       weeklyTrend: calculateWeeklyTrend(dlTotal),
       relatedKeywords: adData.keywordList?.slice(0, 200) || [],
     });
+
   } catch (error: any) {
-    return NextResponse.json({ error: error?.message || '데이터 로드 실패' }, { status: 500 });
+    // ❌ 에러 발생 시 로그를 남기고 클라이언트에 상세 내용을 전달합니다.
+    console.error(`❌ API 호출 오류 (${keyword}):`, error.message);
+    
+    // 네이버 429(Too Many Requests) 에러인 경우 사용자 친화적인 메시지를 보냅니다.
+    const isRateLimit = error.message.includes('429');
+    
+    return NextResponse.json(
+      { 
+        error: isRateLimit ? '네이버 API 호출량이 많아 잠시 제한되었습니다. 잠시 후 자동으로 다시 시도됩니다.' : '데이터를 가져오는 중 오류가 발생했습니다.',
+        detail: error.message 
+      }, 
+      { status: isRateLimit ? 429 : 500 }
+    );
   }
 }
