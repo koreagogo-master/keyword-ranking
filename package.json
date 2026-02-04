@@ -12,6 +12,7 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.91.0",
     "axios": "^1.13.4",
+    "cheerio": "^1.2.0",
     "next": "16.1.1",
     "puppeteer": "^24.34.0",
     "react": "19.2.3",

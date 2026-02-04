@@ -12,8 +12,8 @@ import RelatedKeywords from "./components/4_RelatedKeywords";
 import SimilarityAnalysis from "./components/5_SimilarityAnalysis";
 // ✅ RelatedVisual 컴포넌트 임포트 삭제
 import KeywordStrategy from "./components/6_KeywordStrategy";
-// ✅ 7번 섹션 테스트 주석 유지
-// import SectionTest from "./components/7_SectionTest";
+
+import SectionOrder from "./components/7_SectionOrder";
 
 function safeNumber(v: any) {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
@@ -139,11 +139,11 @@ function AnalysisContent() {
                 <RelatedKeywords data={data} onKeywordClick={handleSearch} />
                 <div className="space-y-10">
                   <SimilarityAnalysis data={data} mainKeyword={keyword} onKeywordClick={handleSearch} />
-                  {/* ✅ 요청하신 "연관검색어" 단락 및 RelatedVisual 컴포넌트 삭제 완료 */}
                 </div>
               </div>
 
-              {/* <SectionTest data={data} /> */}
+              {/* ✅ 섹션 순서 분석 컴포넌트 호출 */}
+              <SectionOrder keyword={keyword} />
             </div>
           )}
         </div>
