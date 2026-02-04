@@ -5,7 +5,9 @@ import { useEffect, useMemo, useState } from 'react';
 
 interface SectionItem {
   name: string;
-  count: number; // 파워링크/플레이스만 의미 있음
+  count: number;
+  isSide?: boolean;
+  subItems?: string[]; // subItems 타입 추가
 }
 
 export default function SectionOrder({ keyword }: { keyword: string }) {
@@ -84,14 +86,34 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
                 const showCount = item.name === '파워링크' || item.name === '플레이스';
 
                 return (
-                  <div key={`${item.name}-${idx}`} className="flex items-center py-3">
-                    <div className="w-7 text-sm font-extrabold text-gray-700">{idx + 1}</div>
-                    <div className="flex-1">
-                      <div className="text-sm font-bold text-gray-900">{item.name}</div>
+                  // 하위 아이템 노출을 위해 flex-col로 변경하고 기존 items-center는 내부 div로 이동
+                  <div 
+                    key={`${item.name}-${idx}`} 
+                    className={`flex flex-col py-3 px-4 ${item.isSide ? 'bg-gray-50' : ''}`}
+                  >
+                    <div className="flex items-center">
+                      <div className="w-7 text-sm font-extrabold text-gray-700">{idx + 1}</div>
+                      <div className="flex-1">
+                        <div className="text-sm font-bold text-gray-900">
+                          {item.name}
+                          {item.isSide && <span className="ml-2 text-[10px] font-normal text-gray-400 border px-1 rounded">Side</span>}
+                        </div>
+                      </div>
+
+                      {showCount && item.count > 0 && (
+                        <div className="text-xs text-gray-400">{item.count}개의 콘텐츠 노출 중</div>
+                      )}
                     </div>
 
-                    {showCount && item.count > 0 && (
-                      <div className="text-xs text-gray-400">{item.count}개의 콘텐츠 노출 중</div>
+                    {/* [추가] 연관 검색어 등의 하위 단축 텍스트 나열 */}
+                    {item.subItems && item.subItems.length > 0 && (
+                      <div className="mt-1 ml-7 flex flex-wrap gap-1">
+                        {item.subItems.map((sub, sIdx) => (
+                          <span key={sIdx} className="text-[11px] text-gray-400">
+                            "{sub}"
+                          </span>
+                        ))}
+                      </div>
                     )}
                   </div>
                 );
