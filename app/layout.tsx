@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Header from "@/components/Header"; 
 import MemoSidebar from "@/components/MemoSidebar"; // 1. 메모장 컴포넌트 추가
+import Footer from "@/components/Footer"; // 푸터 컴포넌트 추가
 
 // 1. 나눔바른고딕 설정
 const nanumBarunGothic = localFont({
@@ -45,9 +46,13 @@ export default function RootLayout({
         {/* 우측 슬라이딩 메모장 (모든 페이지에서 따라다님) */}
         <MemoSidebar />
         
+        {/* 메인 콘텐츠 영역 */}
         <div className="pt-16 min-h-screen bg-gray-900 text-white">
           {children}
         </div>
+
+        {/* 푸터 영역 (모든 페이지 하단에 공통 적용) */}
+        <Footer />
       </body>
     </html>
   );
