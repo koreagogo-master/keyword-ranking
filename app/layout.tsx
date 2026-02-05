@@ -1,9 +1,10 @@
-import type { Metadata } from "next"; // 22번줄 Metadata 에러 해결
-import localFont from "next/font/local"; // 2, 11번줄 localFont 에러 해결
+import type { Metadata } from "next"; 
+import localFont from "next/font/local"; 
 import "./globals.css";
-import Header from "@/components/Header"; // 36번줄 Header 에러 해결
+import Header from "@/components/Header"; 
+import MemoSidebar from "@/components/MemoSidebar"; // 1. 메모장 컴포넌트 추가
 
-// 1. 나눔바른고딕 설정 (작은 글씨 가독성용)
+// 1. 나눔바른고딕 설정
 const nanumBarunGothic = localFont({
   src: [
     { path: "../public/fonts/NanumBarunGothic.ttf", weight: "400", style: "normal" },
@@ -12,7 +13,7 @@ const nanumBarunGothic = localFont({
   variable: "--font-nanum-barun",
 });
 
-// 2. 나눔스퀘어 설정 (제목 및 큰 글씨용)
+// 2. 나눔스퀘어 설정
 const nanumSquare = localFont({
   src: [
     { path: "../public/fonts/NanumSquareL.ttf", weight: "300", style: "normal" },
@@ -38,8 +39,11 @@ export default function RootLayout({
       <body
         className={`${nanumBarunGothic.variable} ${nanumSquare.variable} antialiased`}
       >
-        {/* 사용자님께서 만드신 상단 바 컴포넌트입니다. Headers가 아니라 Header가 맞습니다. */}
+        {/* 상단 네비게이션 바 */}
         <Header />
+        
+        {/* 우측 슬라이딩 메모장 (모든 페이지에서 따라다님) */}
+        <MemoSidebar />
         
         <div className="pt-16 min-h-screen bg-gray-900 text-white">
           {children}
