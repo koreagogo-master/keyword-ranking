@@ -8,87 +8,88 @@ import { useRouter } from "next/navigation";
 export default function Header() {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false); // 기존 메뉴 팝업 상태
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const supabase = createClient();
+  const router = useRouter();
 
-  // 로그인 사용자 및 프로필 정보 가져오기
+  const fetchUserData = async (currentUser: any) => {
+    if (!currentUser) {
+      setUser(null);
+      setProfile(null);
+      return;
+    }
+    setUser(currentUser);
+    const { data } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
+    setProfile(data);
+  };
+
   useEffect(() => {
-    const getUser = async () => {
+    const initUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-
-      if (user) {
-        const { data } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-        setProfile(data);
-      }
+      await fetchUserData(user);
     };
-    getUser();
-  }, []);
+    initUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        await fetchUserData(session?.user);
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null);
+        setProfile(null);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [supabase]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     alert("로그아웃 되었습니다.");
-    window.location.href = "/"; // 메인으로 이동
+    window.location.href = "/";
   };
 
   return (
     <>
-      <header className="w-full h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 fixed top-0 left-0 z-50 shadow-sm">
+      <header className="w-full h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 fixed top-0 left-0 z-[9999] shadow-sm">
         <div className="flex items-center gap-6">
-          {/* 로고: 클릭 시 메인으로 */}
-          <Link href="/" className="text-2xl font-black text-[#ff8533] tracking-tighter italic">
-            TMG AD
-          </Link>
-
-          {/* 기존 메뉴 모달 버튼: 공간 확보를 위해 버튼 하나로 통합 */}
+          <Link href="/" className="text-2xl font-black text-[#ff8533] tracking-tighter italic">TMG AD</Link>
           {user && (
-            <button 
-              onClick={() => setIsModalOpen(true)}
-              className="text-xs font-bold bg-orange-50 text-[#ff8533] px-3 py-1.5 rounded-full border border-orange-100 hover:bg-orange-100 transition-all"
-            >
+            <button onClick={() => setIsModalOpen(true)} className="text-xs font-bold bg-orange-50 text-[#ff8533] px-3 py-1.5 rounded-full border border-orange-100 hover:bg-orange-100 transition-all">
               [기존 메뉴 A,B,C]
             </button>
           )}
         </div>
 
-        {/* 우측 사용자 메뉴 */}
         <div className="flex items-center gap-4 text-sm font-medium">
           {user ? (
             <>
               <div className="text-right hidden sm:block mr-2">
-                <p className="text-gray-900 font-bold leading-none">{user.email.split('@')[0]}</p>
+                <p className="text-gray-900 font-bold leading-none">{user.email?.split('@')[0]}</p>
                 <p className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">
                   GRADE: <span className="text-[#ff8533]">{profile?.grade?.toUpperCase() || 'STANDARD'}</span>
                 </p>
               </div>
 
-              {profile?.role === 'admin' ? (
-                <Link href="/admin" className="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl transition shadow-sm">
-                  관리자
-                </Link>
+              {profile?.role?.toLowerCase() === 'admin' ? (
+                <Link href="/admin" className="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl transition shadow-sm">관리자</Link>
               ) : (
-                <Link href="/mypage" className="bg-[#ff8533] hover:bg-[#e6772e] text-white px-4 py-2 rounded-xl transition shadow-md shadow-orange-100">
-                  마이페이지
-                </Link>
+                <Link href="/mypage" className="bg-[#ff8533] hover:bg-[#e6772e] text-white px-4 py-2 rounded-xl transition shadow-md shadow-orange-100">마이페이지</Link>
               )}
 
-              <button onClick={handleLogout} className="text-gray-400 hover:text-red-500 font-bold ml-2">
+              {/* [수정 포인트] 로그아웃 버튼 스타일을 관리자 버튼과 동일하게 변경 */}
+              <button 
+                onClick={handleLogout} 
+                className="bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl transition shadow-sm font-bold ml-2"
+              >
                 로그아웃
               </button>
             </>
           ) : (
-            <Link href="/" className="bg-[#ff8533] hover:bg-[#e6772e] text-white px-6 py-2 rounded-xl font-bold transition shadow-md shadow-orange-100">
-              로그인
-            </Link>
+            <Link href="/login" className="bg-[#ff8533] hover:bg-[#e6772e] text-white px-6 py-2 rounded-xl font-bold transition shadow-md shadow-orange-100">로그인</Link>
           )}
         </div>
       </header>
 
-      {/* 기존 메뉴 팝업 (모달) */}
+      {/* 기존 메뉴 팝업 모달 코드 (기존과 동일) */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm px-4" onClick={() => setIsModalOpen(false)}>
           <div className="bg-white p-8 rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-sm" onClick={e => e.stopPropagation()}>

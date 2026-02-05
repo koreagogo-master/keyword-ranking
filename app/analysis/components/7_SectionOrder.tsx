@@ -38,6 +38,7 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
   }, [keyword]);
 
   const pcList = useMemo(() => orderData?.pc ?? [], [orderData]);
+  const mobileList = useMemo(() => orderData?.mobile ?? [], [orderData]); // 모바일 데이터 연결 대비
 
   if (!keyword) return null;
 
@@ -45,7 +46,8 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
     <div className="mt-12">
       <div className="bg-white border border-gray-200 shadow-sm">
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-          <h2 className="text-base font-extrabold text-gray-900">PC 섹션 배치 순서</h2>
+          {/* 텍스트 수정: PC 섹션 배치 순서 -> [pc 섹션] */}
+          <h2 className="text-base font-extrabold text-gray-900">[pc 섹션]</h2>
 
           <button
             type="button"
@@ -54,7 +56,7 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
             aria-label="섹션 순서 영역 열기/닫기"
           >
             <span className="inline-flex items-center justify-center w-8 h-8 rounded-full hover:bg-gray-100">
-              {/* eye icon */}
+              {/* eye icon - 기존 코드 유지 */}
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
                   d="M2.5 12s3.5-7 9.5-7 9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12Z"
@@ -75,58 +77,82 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
 
         {isOpen && (
           <div className="px-6 py-4">
-            {loading && <div className="mb-3 text-xs text-gray-500">불러오는 중…</div>}
+            {/* 2분할 그리드 적용 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              
+              {/* 좌측: PC 섹션 영역 */}
+              <div>
+                <div className="mb-4 pb-2 border-b border-gray-100">
+                  <span className="text-xs font-bold text-blue-600">PC LAYOUT</span>
+                </div>
+                
+                {loading && <div className="mb-3 text-xs text-gray-500">불러오는 중…</div>}
 
-            {!loading && pcList.length === 0 && (
-              <div className="text-sm text-gray-500">섹션 데이터를 불러오지 못했습니다.</div>
-            )}
+                {!loading && pcList.length === 0 && (
+                  <div className="text-sm text-gray-500">섹션 데이터를 불러오지 못했습니다.</div>
+                )}
 
-            <div className="divide-y divide-gray-100">
-              {pcList.map((item, idx) => {
-                const showCount = item.name === '파워링크' || item.name === '플레이스';
+                <div className="divide-y divide-gray-100">
+                  {pcList.map((item, idx) => {
+                    const showCount = item.name === '파워링크' || item.name === '플레이스';
 
-                return (
-                  // 하위 아이템 노출을 위해 flex-col로 변경하고 기존 items-center는 내부 div로 이동
-                  <div 
-                    key={`${item.name}-${idx}`} 
-                    className={`flex flex-col py-3 px-4 ${item.isSide ? 'bg-gray-50' : ''}`}
-                  >
-                    <div className="flex items-center">
-                      <div className="w-7 text-sm font-extrabold text-gray-700">{idx + 1}</div>
-                      <div className="flex-1">
-                        <div className="text-sm font-bold text-gray-900">
-                          {item.name}
-                          {item.isSide && <span className="ml-2 text-[10px] font-normal text-gray-400 border px-1 rounded">Side</span>}
+                    return (
+                      <div 
+                        key={`${item.name}-${idx}`} 
+                        className={`flex flex-col py-3 px-4 ${item.isSide ? 'bg-gray-50' : ''}`}
+                      >
+                        <div className="flex items-center">
+                          <div className="w-7 text-sm font-extrabold text-gray-700">{idx + 1}</div>
+                          <div className="flex-1">
+                            <div className="text-sm font-bold text-gray-900">
+                              {item.name}
+                              {item.isSide && <span className="ml-2 text-[10px] font-normal text-gray-400 border px-1 rounded">Side</span>}
+                            </div>
+                          </div>
+
+                          {showCount && item.count > 0 && (
+                            <div className="text-xs text-gray-400">{item.count}개의 콘텐츠 노출 중</div>
+                          )}
                         </div>
-                      </div>
 
-                      {showCount && item.count > 0 && (
-                        <div className="text-xs text-gray-400">{item.count}개의 콘텐츠 노출 중</div>
-                      )}
-                    </div>
-
-                    {/* [추가] 연관 검색어 등의 하위 단축 텍스트 나열 */}
-                    {item.subItems && item.subItems.length > 0 && (
-                      <div className="mt-1 ml-7 flex flex-wrap gap-1">
-                        {item.subItems.map((sub, sIdx) => (
-                          <span key={sIdx} className="text-[11px] text-gray-400">
-                            "{sub}"
-                          </span>
-                        ))}
+                        {item.subItems && item.subItems.length > 0 && (
+                          <div className="mt-1 ml-7 flex flex-wrap gap-1">
+                            {item.subItems.map((sub, sIdx) => (
+                              <span key={sIdx} className="text-[11px] text-gray-400">
+                                "{sub}"
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 우측: [MOBILE 섹션] 영역 추가 */}
+              <div className="border-l border-gray-100 pl-8">
+                <div className="mb-4 pb-2 border-b border-gray-100">
+                  <span className="text-xs font-bold text-green-600">MOBILE LAYOUT</span>
+                </div>
+                <h3 className="text-sm font-extrabold text-gray-900 mb-4">[MOBILE 섹션]</h3>
+                
+                <div className="space-y-3">
+                  <div className="text-sm text-gray-400 py-20 text-center border border-dashed border-gray-200 rounded">
+                    모바일 섹션 분석 데이터가 표시될 영역입니다.
                   </div>
-                );
-              })}
+                </div>
+              </div>
+
             </div>
           </div>
         )}
       </div>
 
-      {/* 모바일은 PC 정확도 완료 후 진행 */}
+      {/* 기존 하단 영역 유지 (필요 시 삭제 가능) */}
       <div className="mt-6 opacity-40">
-        <div className="bg-white border border-dashed border-gray-200 p-6 text-center text-gray-400">
-          MOBILE (PC 완료 후 진행)
+        <div className="bg-white border border-dashed border-gray-200 p-6 text-center text-gray-400 text-xs">
+          모바일 데이터 크롤링 로직 구현 후 이곳에 통합됩니다.
         </div>
       </div>
     </div>
