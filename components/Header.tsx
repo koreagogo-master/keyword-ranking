@@ -4,6 +4,14 @@ import Link from "next/link";
 import { createClient } from "@/app/utils/supabase/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Montserrat } from 'next/font/google';
+
+// 로고 전용 폰트 설정
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['400', '700', '900'],
+  style: ['normal', 'italic'],
+});
 
 export default function Header() {
   const [user, setUser] = useState<any>(null);
@@ -22,7 +30,6 @@ export default function Header() {
       setUser(currentUser);
       const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUser.id).single();
       
-      // PGRST116은 데이터가 없을 때의 정상이므로 에러 처리에서 제외합니다.
       if (error && error.code !== 'PGRST116' && error.name !== 'AbortError') {
         console.warn("프로필 조회 중 알림:", error.message);
       }
@@ -41,7 +48,6 @@ export default function Header() {
         if (error && error.name !== 'AbortError') throw error;
         await fetchUserData(user);
       } catch (err: any) {
-        // AbortError는 무시하여 빨간 화면을 방지합니다.
       }
     };
     initUser();
@@ -55,7 +61,6 @@ export default function Header() {
           setProfile(null);
         }
       } catch (err) {
-        // 상태 변경 시 발생하는 일시적 에러 방어
       }
     });
     return () => subscription.unsubscribe();
@@ -71,12 +76,21 @@ export default function Header() {
     }
   };
 
-  // ... (이하 return 부분은 기존과 동일하므로 생략하지만 실제 파일엔 그대로 두시면 됩니다) ...
   return (
     <>
       <header className="w-full h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 fixed top-0 left-0 z-[9999] shadow-sm">
         <div className="flex items-center gap-6">
-          <Link href="/" className="text-2xl font-black text-[#ff8533] tracking-tighter italic">TMG AD</Link>
+          {/* 요청하신 로고 수정 사항 반영 */}
+          <Link href="/" className={`flex items-center ${montserrat.className}`}>
+            {/* TMG: 주황색 고정 */}
+            <span style={{ color: '#ff8533' }} className="text-3xl font-[700] tracking-tight">TMG</span>
+            {/* ad: 검정색 고정 */}
+            <span style={{ color: '#111827' }} className="text-xl font-normal italic ml-1">ad</span>
+            <span className="mx-3 text-gray-200 font-light">|</span>
+            {/* Ranking Pro: 파란색 고정 */}
+            <span style={{ color: '#1a73e8' }} className="text-2xl font-bold tracking-tight">Ranking Pro</span>
+          </Link>
+          
           {user && (
             <button onClick={() => setIsModalOpen(true)} className="text-xs font-bold bg-orange-50 text-[#ff8533] px-3 py-1.5 rounded-full border border-orange-100 hover:bg-orange-100 transition-all">
               [기존 메뉴 A,B,C]
@@ -106,7 +120,6 @@ export default function Header() {
         </div>
       </header>
 
-      {/* 모달 부분 생략 */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm px-4" onClick={() => setIsModalOpen(false)}>
           <div className="bg-white p-8 rounded-[32px] shadow-2xl border border-gray-100 w-full max-w-sm" onClick={e => e.stopPropagation()}>

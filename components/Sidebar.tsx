@@ -2,16 +2,33 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { createClient } from "@/app/utils/supabase/client";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const supabase = createClient();
+  const [user, setUser] = useState<any>(null);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+        setProfile(data || null);
+      }
+    };
+    fetchUserData();
+  }, [supabase]);
 
   const menuGroups = [
     {
       title: "Naver 분석",
       items: [
         { name: "키워드 정밀 분석", href: "/analysis" },
-        { name: "연관 키워드 조회", href: "/related-fast" }, // ✅ 신규 추가
+        { name: "연관 키워드 조회", href: "/related-fast" },
         { name: "통검 순위", href: "/blog-rank" },
         { name: "블로그 순위", href: "/blog-rank-b" },
         { name: "지식인 순위", href: "/kin-rank" },
@@ -42,14 +59,42 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-50">
-      <div className="h-16 flex items-center px-6 border-b border-gray-100">
+      {/* Ranking Pro1 부분 주석 처리 유지 */}
+      {/* <div className="h-16 flex items-center px-6 border-b border-gray-100">
         <span 
           className="text-lg font-extrabold text-[#1a73e8] tracking-tight antialiased"
           style={{ fontFamily: "'NanumSquare', sans-serif" }}
         >
-          Ranking Pro
+          Ranking Pro1
         </span>
-      </div>
+      </div> 
+      */}
+
+      {/* 개선된 회원 정보 영역 (텍스트 중심의 깔끔한 디자인) */}
+      {user && (
+        <div className="px-6 py-7 border-b border-gray-100 bg-gray-50/30">
+          <div className="mb-4">
+            <p className="text-gray-400 font-medium text-[11px] mb-1">Signed in as</p>
+            <p className="text-gray-800 font-bold text-[13px] break-all leading-snug">
+              {user.email}
+            </p>
+          </div>
+          
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Grade</span>
+            <span className="text-[11px] font-extrabold text-[#ff8533] px-2 py-0.5 bg-orange-50 rounded border border-orange-100">
+              {profile?.grade?.toUpperCase() || 'STANDARD'}
+            </span>
+          </div>
+
+          <Link 
+            href="/mypage" 
+            className="flex items-center justify-center w-full border border-gray-200 bg-white hover:border-[#ff8533] hover:text-[#ff8533] text-gray-600 text-[12px] font-bold py-2 rounded-lg transition-all shadow-sm"
+          >
+            마이페이지 관리
+          </Link>
+        </div>
+      )}
 
       <nav className="flex-1 py-6 overflow-y-auto">
         <ul>
