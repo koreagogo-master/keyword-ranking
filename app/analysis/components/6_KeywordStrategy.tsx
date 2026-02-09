@@ -1,8 +1,10 @@
+// keyword-ranking\app\analysis\components\6_KeywordStrategy.tsx
 import React, { useMemo } from 'react';
 import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer
 } from 'recharts';
 
+// 도움말 툴팁 컴포넌트
 function InfoTip({ text }: { text: string }) {
   return (
     <span className="relative inline-flex items-center group ml-2">
@@ -15,15 +17,19 @@ function InfoTip({ text }: { text: string }) {
 export default function KeywordStrategy({ stats }: { stats: any }) {
   if (!stats) return null;
 
+  // 데이터 계산 로직 (원본 유지)
   const { displayScores, chartData } = useMemo(() => {
     const shares = stats.content.shares;
     const gVolume = stats.googleVolume || 0;
 
     const infoVal = Math.floor(((shares.blog || 0) + (shares.cafe || 0)) * 0.3);
+    
+    // 구글 검색량에 따른 상업성 보너스
     let googleCommBonus = 0;
     if (gVolume > 3000) googleCommBonus = 10;
     const commVal = (shares.shop || 0) * 5 + 15 + googleCommBonus;
     
+    // 구글 검색량에 따른 이슈성 보너스
     let googleIssueBonus = Math.floor(gVolume / 1500);
     if (googleIssueBonus > 15) googleIssueBonus = 15;
 
@@ -54,92 +60,37 @@ export default function KeywordStrategy({ stats }: { stats: any }) {
   }, [stats]);
 
   return (
-    <div className="mt-10 font-['NanumSquare']">
-      {/* ✅ 메인 타이틀 변경 */}
-      <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-        키워드 성격 및 섹션 노출
-        <InfoTip text="네이버 통합검색의 섹션 배치 순서를 통해 실제 노출 가능성을 직접 판단하세요." />
-      </h2>
-      
-      <div className="grid grid-cols-3 gap-0 border border-gray-200 bg-white rounded-none shadow-sm min-h-[420px]">
-        
-        {/* 좌측: 지표 (1/3) */}
-        <div className="col-span-1 px-4 py-6 border-r border-gray-100 flex flex-col items-center justify-start">
-          <div className="w-full h-64 mt-10">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
-                <PolarGrid stroke="#e5e7eb" />
-                <PolarAngleAxis dataKey="subject" tick={{ fill: '#4b5563', fontSize: 12, fontWeight: 'bold' }} />
-                <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar dataKey="A" stroke="#1a73e8" strokeWidth={1} fill="#1a73e8" fillOpacity={0.3} dot={false} />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="mt-2 flex flex-col items-center gap-1.5">
-            <div className="flex flex-col items-center text-[11px] font-bold text-gray-500">
-              <span>정보성:{displayScores.infoVal} | 상업성:{displayScores.commVal} | 이슈성:{displayScores.issueVal}</span>
-            </div>
-            {displayScores.googleVolume > 0 && (
-              <div className="text-[10px] text-blue-500 font-medium bg-blue-50 px-2 py-0.5 rounded">
-                * 구글 검색량 반영됨
-              </div>
-            )}
-          </div>
+    <div className="bg-white border border-gray-200 p-8 shadow-sm flex flex-col items-center justify-center min-h-[420px]">
+      {/* 제목 및 툴팁 */}
+      <h3 className="text-sm font-bold text-gray-900 mb-6 flex items-center justify-center w-full">
+        키워드 성격 분석
+        <InfoTip text="콘텐츠 점유율과 트렌드, 구글 검색량 등을 종합하여 키워드의 성격을 분석합니다." />
+      </h3>
+
+      {/* 방사형 차트 영역 */}
+      <div className="w-full h-64">
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
+            <PolarGrid stroke="#e5e7eb" />
+            <PolarAngleAxis dataKey="subject" tick={{ fill: '#4b5563', fontSize: 12, fontWeight: 'bold' }} />
+            <PolarRadiusAxis domain={[0, 100]} tick={false} axisLine={false} />
+            <Radar dataKey="A" stroke="#1a73e8" strokeWidth={1} fill="#1a73e8" fillOpacity={0.3} dot={false} />
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
+
+      {/* 수치 요약 박스 */}
+      <div className="mt-6 flex flex-col items-center gap-3">
+        <div className="text-[11px] font-bold text-gray-500 bg-gray-50 px-4 py-2 rounded-full border border-gray-100">
+          정보성:{displayScores.infoVal} | 상업성:{displayScores.commVal} | 이슈성:{displayScores.issueVal}
         </div>
 
-        {/* 우측: 섹션 비교 (2/3) */}
-        <div className="col-span-2 p-10 flex flex-col bg-gray-50/30">
-          <div className="flex justify-between items-end mb-8 border-b pb-4 border-gray-200">
-            {/* ✅ 섹션 헤더 변경: 검색 키워드 포함 */}
-            <h3 className="text-lg font-bold text-gray-800">"{stats.keyword || '해당 키워드'}" 검색 네이버 섹션 순서</h3>
+        {/* ✅ [복구 완료] 구글 검색량 반영 알림 표시 */}
+        {displayScores.googleVolume > 0 && (
+          <div className="text-[10px] text-blue-500 font-bold bg-blue-50 px-3 py-1 rounded-md border border-blue-100 animate-pulse">
+            * 구글 검색량 데이터가 분석에 반영되었습니다
           </div>
-
-          <div className="grid grid-cols-2 gap-10">
-            {/* PC 섹션 영역 */}
-            <div>
-              <div className="mb-4">
-                {/* ✅ PC 헤더 변경: 박스 제거 및 텍스트만 유지 */}
-                <h4 className="text-sm font-bold text-gray-700">PC 섹션</h4>
-              </div>
-              <ul className="space-y-2.5">
-                {[
-                  { name: "파워링크 (광고)" },
-                  { name: "플레이스 (지도)" },
-                  { name: "쇼핑 / 브랜드 검색" },
-                  { name: "VIEW (블로그/카페)" },
-                  { name: "지식iN / Q&A" },
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-3 text-[13px] text-gray-600 bg-white p-2.5 border border-gray-100 shadow-sm rounded">
-                    <span className="font-bold text-gray-300 w-4">{idx + 1}</span>
-                    <span className="font-medium">{item.name}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* 모바일 섹션 영역 */}
-            <div>
-              <div className="mb-4">
-                {/* ✅ MOBILE 헤더 변경: 박스 제거 및 텍스트만 유지 */}
-                <h4 className="text-sm font-bold text-gray-700">MOBILE 섹션</h4>
-              </div>
-              <ul className="space-y-2.5">
-                {[
-                  { name: "파워링크 (광고)" },
-                  { name: "브랜드 검색 / 플레이스" },
-                  { name: "스마트블록 (인기글)" },
-                  { name: "쇼핑 추천" },
-                  { name: "지식iN / 동영상" },
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-center gap-3 text-[13px] text-gray-600 bg-white p-2.5 border border-gray-100 shadow-sm rounded">
-                    <span className="font-bold text-gray-300 w-4">{idx + 1}</span>
-                    <span className="font-medium">{item.name}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
