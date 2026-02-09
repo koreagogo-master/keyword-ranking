@@ -27,10 +27,16 @@ export default function LoginPage() {
         alert("로그인 실패: " + error.message);
       } else {
         alert("로그인되었습니다!");
-        // 로그인 성공 시 메인으로 이동 (Header가 실시간으로 바뀝니다)
+        // 로그인 성공 시 메인으로 이동
         router.push("/"); 
       }
-    } catch (err) {
+    } catch (err: any) {
+      // [수정 포인트] AbortError 처리 추가
+      // 페이지 이동이나 통신 중단으로 인해 발생하는 에러는 무시하여 로그아웃 트리거를 방지합니다.
+      if (err.name === 'AbortError' || err.message?.includes('aborted')) {
+        return;
+      }
+      
       console.error(err);
       alert("알 수 없는 오류가 발생했습니다.");
     } finally {

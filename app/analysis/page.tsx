@@ -10,7 +10,6 @@ import ContentStats from "./components/2_ContentStats";
 import TrendCharts from "./components/3_TrendCharts";
 import RelatedKeywords from "./components/4_RelatedKeywords";
 import SimilarityAnalysis from "./components/5_SimilarityAnalysis";
-// ✅ RelatedVisual 컴포넌트 임포트 삭제
 import KeywordStrategy from "./components/6_KeywordStrategy";
 
 import SectionOrder from "./components/7_SectionOrder";
@@ -50,7 +49,6 @@ function AnalysisContent() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     try {
-      // ✅ 무거운 시각 분석 API(section-order) 호출을 제거하여 안정성 확보
       const [naverRes, googleRes] = await Promise.all([
         fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`),
         fetch('/api/google-ads', {
@@ -70,10 +68,7 @@ function AnalysisContent() {
       }
       
       setGoogleVolume(gVolume);
-
-      // ✅ 네이버 기본 데이터만 저장하도록 간소화
       setData({ ...naverData }); 
-      
       setIsCompleted(true);
     } catch (e: any) {
       alert(e?.message || "데이터를 가져오는 중 오류가 발생했습니다.");
@@ -132,7 +127,13 @@ function AnalysisContent() {
             <div className="space-y-10">
               <SearchVolume stats={stats} />
               <ContentStats stats={stats} />
+              
+              {/* 3. 검색 관심도(트렌드) 단락 */}
               <TrendCharts stats={stats} />
+
+              {/* ✅ [이동 완료] 섹션 순서 분석 컴포넌트 호출 */}
+              <SectionOrder keyword={keyword} />
+
               <KeywordStrategy stats={stats} />
               
               <div className="grid grid-cols-2 gap-10 items-start">
@@ -141,9 +142,6 @@ function AnalysisContent() {
                   <SimilarityAnalysis data={data} mainKeyword={keyword} onKeywordClick={handleSearch} />
                 </div>
               </div>
-
-              {/* ✅ 섹션 순서 분석 컴포넌트 호출 */}
-              <SectionOrder keyword={keyword} />
             </div>
           )}
         </div>

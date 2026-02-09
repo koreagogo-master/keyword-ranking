@@ -41,6 +41,7 @@ function pushUnique(out: SectionItem[], item: SectionItem) {
 
 /**
  * 네이버 PC 통합검색에서 섹션 순서를 최대한 안정적으로 추출합니다.
+ * (수정 및 삭제 없이 그대로 유지)
  */
 async function fetchSectionOrderPC(keyword: string): Promise<SectionItem[]> {
   const url = `https://search.naver.com/search.naver?where=nexearch&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(
@@ -147,7 +148,8 @@ async function fetchSectionOrderPC(keyword: string): Promise<SectionItem[]> {
 }
 
 /**
- * 네이버 Mobile 통합검색에서 섹션 순서를 추출합니다. (SDS 구조 및 광고 명칭 수정 반영)
+ * 네이버 Mobile 통합검색에서 섹션 순서를 추출합니다. 
+ * (사용자님이 작성하신 로직을 그대로 적용함)
  */
 async function fetchSectionOrderMobile(keyword: string): Promise<SectionItem[]> {
   const url = `https://m.search.naver.com/search.naver?where=m&sm=mtp_hty&query=${encodeURIComponent(keyword)}`;
@@ -182,7 +184,6 @@ async function fetchSectionOrderMobile(keyword: string): Promise<SectionItem[]> 
       const className = ($el.attr('class') || '').trim();
       const id = ($el.attr('id') || '').trim();
 
-      // 1. SDS 디자인 시스템 텍스트 우선 확인 (함께 많이 찾는, 함께 보면 좋은 대응)
       const sdsTitle = $el.find('.sds-comps-text').first().text().replace(/\s+/g, ' ').trim();
       
       if (sdsTitle.includes('함께 많이 찾는')) {
@@ -190,13 +191,11 @@ async function fetchSectionOrderMobile(keyword: string): Promise<SectionItem[]> 
       } else if (sdsTitle.includes('함께 보면 좋은')) {
         name = '함께 보면 좋은';
       } 
-      // 2. 광고 섹션 (줄바꿈 제거하여 "[키워드] 관련 광고" 전체 보존)
       else if (id.includes('power_link') || className.includes('ad_powerlink') || $el.find('.lst_type_ad, .ad_item').length > 0) {
         const adTitle = $el.find('.api_title, .tit').first().text().replace(/\s+/g, ' ').trim();
         name = adTitle || '파워링크'; 
         count = $el.find('.ad_item').length || 0;
       } 
-      // 3. 연관 검색어 ("연관" 시작 대응)
       else if (className.includes('rel_search') || fullText.startsWith('연관')) {
         name = '연관 검색어';
         $el.find('.api_pure_text, a').each((_, subEl) => {
@@ -204,19 +203,16 @@ async function fetchSectionOrderMobile(keyword: string): Promise<SectionItem[]> 
           if (subText && !['신고','도움말'].includes(subText)) subItems.push(subText);
         });
       }
-      // 4. 사이트 (알려주신 구조 기반 감지 로직 강화)
       else if (className.includes('sp_nwebsite') || $el.find('.nxt_web, .web_item, .link_tit, .link_url').length > 0) {
         name = '사이트';
       }
 
-      // 제목 태그 기반 최종 이름 확인
       if (!name) {
         const titleElement = $el.find('.api_title, .tit, h2, .sds-comps-text').first();
         const titleText = titleElement.text().replace(/\s+/g, ' ').trim();
         if (titleText) name = titleText;
       }
 
-      // 광고 문구("관련 광고") 보존을 위해 광고 섹션이 아닐 때만 정규화 적용
       if (name && !name.includes('광고')) {
         name = normalizeName(name);
       }

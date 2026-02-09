@@ -3,11 +3,14 @@
 
 import { useEffect, useMemo, useState } from 'react';
 
+// subName, isAd 등 상세 정보 표시를 위해 인터페이스를 확장했습니다.
 interface SectionItem {
   name: string;
   count: number;
   isSide?: boolean;
   subItems?: string[];
+  subName?: string; 
+  isAd?: boolean;
 }
 
 export default function SectionOrder({ keyword }: { keyword: string }) {
@@ -21,14 +24,22 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
     const fetchOrder = async () => {
       setLoading(true);
       try {
-        // API에서 PC와 Mobile 데이터를 모두 가져옵니다.
-        const res = await fetch(`/api/section-order?keyword=${encodeURIComponent(keyword)}`, {
-          cache: 'no-store',
+        // [수정] 두 개의 API를 병렬로 호출하여 각각의 데이터를 가져옵니다.
+        const [pcRes, mobileRes] = await Promise.all([
+          fetch(`/api/section-order?keyword=${encodeURIComponent(keyword)}`, { cache: 'no-store' }),
+          fetch(`/api/debug-mobile?keyword=${encodeURIComponent(keyword)}`, { cache: 'no-store' })
+        ]);
+
+        const pcData = await pcRes.json();
+        const mobileData = await mobileRes.json();
+
+        // PC는 기존 API의 pc 필드, 모바일은 새 API의 mobile 필드를 사용합니다.
+        setOrderData({
+          pc: pcData.pc || [],
+          mobile: mobileData.mobile || []
         });
-        const data = await res.json();
-        setOrderData(data);
       } catch (error) {
-        console.error(error);
+        console.error('데이터 호출 오류:', error);
         setOrderData(null);
       } finally {
         setLoading(false);
@@ -38,7 +49,6 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
     fetchOrder();
   }, [keyword]);
 
-  // 로직 분리: PC와 Mobile 리스트를 각각 별도로 관리합니다.
   const pcList = useMemo(() => orderData?.pc ?? [], [orderData]);
   const mobileList = useMemo(() => orderData?.mobile ?? [], [orderData]);
 
@@ -46,7 +56,7 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
 
   return (
     <div className="mt-12 grid grid-cols-2 gap-6 items-start">
-      {/* 1. [pc 섹션] 분석 박스 */}
+      {/* 1. [pc 섹션] - 원본 로직 유지 */}
       <div className="bg-white border border-gray-200 shadow-sm">
         <div className="flex items-center justify-between px-6 h-[64px] border-b border-gray-200">
           <h2 className="text-base font-extrabold text-gray-900">[pc 섹션]</h2>
@@ -66,9 +76,9 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
 
         {isOpen && (
           <div className="px-6 py-4">
-            {loading && <div className="mb-3 text-xs text-gray-500">불러오는 중…</div>}
+            {loading && <div className="mb-3 text-xs text-gray-500 animate-pulse">PC 데이터를 불러오는 중…</div>}
             {!loading && pcList.length === 0 && (
-              <div className="text-sm text-gray-500">데이터가 없습니다.</div>
+              <div className="text-sm text-gray-500 py-4 text-center">데이터가 없습니다.</div>
             )}
             <div className="divide-y divide-gray-100">
               {pcList.map((item, idx) => (
@@ -79,7 +89,7 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
         )}
       </div>
 
-      {/* 2. [MOBILE 섹션] 분석 박스 (PC와 동일한 로직 적용) */}
+      {/* 2. [MOBILE 섹션] - 95% 완성된 정밀 로직 적용 */}
       <div className="bg-white border border-gray-200 shadow-sm">
         <div className="flex items-center px-6 h-[64px] border-b border-gray-200">
           <h3 className="text-base font-extrabold text-gray-900">[MOBILE 섹션]</h3>
@@ -87,12 +97,11 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
         
         {isOpen && (
           <div className="px-6 py-4">
-            {loading && <div className="mb-3 text-xs text-gray-500">불러오는 중…</div>}
+            {loading && <div className="mb-3 text-xs text-gray-500 animate-pulse">모바일 데이터를 불러오는 중…</div>}
             {!loading && mobileList.length === 0 && (
-              <div className="text-sm text-gray-500">데이터가 없습니다.</div>
+              <div className="text-sm text-gray-500 py-4 text-center">데이터가 없습니다.</div>
             )}
             <div className="divide-y divide-gray-100">
-              {/* 모바일 리스트 렌더링 (수정 예정인 로직이 들어갈 곳) */}
               {mobileList.map((item, idx) => (
                 <SectionRow key={`mobile-${idx}`} item={item} idx={idx} />
               ))}
@@ -104,28 +113,38 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
   );
 }
 
-// 공통 행 렌더링 컴포넌트 (로직 동일성 유지)
+// 공통 행 렌더링 컴포넌트
 function SectionRow({ item, idx }: { item: SectionItem; idx: number }) {
   const showCount = item.name === '파워링크' || item.name === '플레이스';
   
   return (
-    <div className={`flex flex-col py-3 px-4 ${item.isSide ? 'bg-gray-50' : ''}`}>
+    <div className={`flex flex-col py-3 px-4 transition-colors hover:bg-gray-50 ${item.isSide ? 'bg-gray-50' : ''}`}>
       <div className="flex items-center">
-        <div className="w-7 text-sm font-extrabold text-gray-700">{idx + 1}</div>
+        <div className="w-7 text-sm font-extrabold text-gray-400">{idx + 1}</div>
         <div className="flex-1">
-          <div className="text-sm font-bold text-gray-900">
-            {item.name}
+          <div className="text-sm font-bold text-gray-900 flex items-center gap-1">
+            <span>{item.name}</span>
+            {/* [추가] 모바일 관련 광고 등의 상세 정보를 이름 옆에 표시합니다. */}
+            {item.subName && (
+              <span className="font-bold">
+                {item.subName}
+              </span>
+            )}
             {item.isSide && <span className="ml-2 text-[10px] font-normal text-gray-400 border px-1 rounded">Side</span>}
           </div>
         </div>
         {showCount && item.count > 0 && (
-          <div className="text-xs text-gray-400">{item.count}개 노출</div>
+          <div className="text-xs font-medium text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded-full">
+            {item.count}개 노출
+          </div>
         )}
       </div>
       {item.subItems && item.subItems.length > 0 && (
-        <div className="mt-1 ml-7 flex flex-wrap gap-1">
+        <div className="mt-2 ml-7 flex flex-wrap gap-1">
           {item.subItems.map((sub, sIdx) => (
-            <span key={sIdx} className="text-[11px] text-gray-400">"{sub}"</span>
+            <span key={sIdx} className="text-[11px] px-1.5 py-0.5 bg-gray-50 text-gray-500 rounded border border-gray-100">
+              "{sub}"
+            </span>
           ))}
         </div>
       )}
