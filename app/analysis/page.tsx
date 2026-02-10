@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation"; // ✅ useRouter 추가
+import { useSearchParams, useRouter } from "next/navigation"; 
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
@@ -25,14 +25,13 @@ function AnalysisContent() {
   const [isSearching, setIsSearching] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   
-  // ✅ [추가] 상단 연관검색어 버튼들을 저장할 상태
+  // ✅ 상단 연관검색어 저장 상태
   const [relatedKeywords, setRelatedKeywords] = useState<string[]>([]);
 
   const searchParams = useSearchParams();
-  const router = useRouter(); // ✅ 라우터 객체 생성
+  const router = useRouter(); 
   const urlKeyword = searchParams.get("keyword");
 
-  // ✅ URL 키워드 변경 감지 및 검색 실행
   useEffect(() => {
     if (urlKeyword && urlKeyword !== "") {
       executeSearch(urlKeyword);
@@ -43,16 +42,12 @@ function AnalysisContent() {
     setIsCompleted(false);
   }, [keyword]);
 
-  // ✅ 실제 검색 로직 수행 함수
   const executeSearch = async (k: string) => {
     setKeyword(k);
     setIsSearching(true);
     setIsCompleted(false);
-    
-    // ✅ 새로운 검색 시작 시 기존 데이터 및 연관검색어 초기화
     setData(null); 
     setRelatedKeywords([]); 
-    
     setGoogleVolume(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -85,12 +80,9 @@ function AnalysisContent() {
     }
   };
 
-  // ✅ 검색 버튼 클릭 또는 연관 키워드 클릭 시 실행
   const handleSearch = (targetKeyword?: string) => {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
-
-    // ✅ URL 주소창을 변경하여 검색을 유도합니다.
     router.push(`/analysis?keyword=${encodeURIComponent(k)}`);
   };
 
@@ -169,20 +161,32 @@ function AnalysisContent() {
             </button>
           </div>
 
-          {/* ✅ [신규] 상단 연관검색어 버튼 나열 섹션 */}
-          {relatedKeywords.length > 0 && (
-            <div className="max-w-3xl mx-auto w-full mb-10 flex flex-wrap gap-2 justify-center">
-              {relatedKeywords.map((kw, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => handleSearch(kw)}
-                  className="text-[12px] px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-800 hover:border-blue-500 hover:text-blue-500 transition-all shadow-sm"
-                >
-                  #{kw}
-                </button>
-              ))}
-            </div>
-          )}
+          {/* ✅ [개선] 레이아웃 시프트 방지(min-h-100) 및 세련된 네이비 그레이 톤 적용 */}
+          <div className="max-w-3xl mx-auto w-full mb-10 min-h-[100px] flex items-center justify-center">
+            {isSearching ? (
+              // 검색 중일 때 보여주는 부드러운 로딩 점 애니메이션
+              <div className="flex gap-2">
+                <div className="w-2.5 h-2.5 bg-blue-200 rounded-full animate-bounce"></div>
+                <div className="w-2.5 h-2.5 bg-blue-300 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                <div className="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+              </div>
+            ) : relatedKeywords.length > 0 ? (
+              <div className="flex flex-wrap gap-2 justify-center">
+                {relatedKeywords.map((kw, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSearch(kw)}
+                    className="text-[13px] px-4 py-1.5 bg-white border border-gray-200 rounded-full !text-slate-600 !font-bold hover:!border-blue-500 hover:!text-blue-600 transition-all shadow-sm"
+                  >
+                    #{kw}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              // 초기 상태 또는 키워드 없을 때 높이 유지를 위해 빈 공간 표시 (텍스트 제거 가능)
+              <div className="text-gray-300 text-sm font-medium">연관 키워드가 이곳에 노출됩니다.</div>
+            )}
+          </div>
 
           {stats && (
             <div className="space-y-10">
@@ -197,7 +201,6 @@ function AnalysisContent() {
                     <KeywordStrategy stats={stats} />
                   </div>
                   <div className="w-[60%] flex-none">
-                    {/* ✅ onKeywordsFound를 통해 7번 파일로부터 연관검색어 목록을 받습니다. */}
                     <SectionOrder 
                       keyword={keyword} 
                       onKeywordsFound={setRelatedKeywords}
