@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation"; // ✅ useRouter 추가
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
@@ -24,13 +24,18 @@ function AnalysisContent() {
   const [googleVolume, setGoogleVolume] = useState<number>(0);
   const [isSearching, setIsSearching] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  
+  // ✅ [추가] 상단 연관검색어 버튼들을 저장할 상태
+  const [relatedKeywords, setRelatedKeywords] = useState<string[]>([]);
 
   const searchParams = useSearchParams();
+  const router = useRouter(); // ✅ 라우터 객체 생성
   const urlKeyword = searchParams.get("keyword");
 
+  // ✅ URL 키워드 변경 감지 및 검색 실행
   useEffect(() => {
-    if (urlKeyword) {
-      handleSearch(urlKeyword);
+    if (urlKeyword && urlKeyword !== "") {
+      executeSearch(urlKeyword);
     }
   }, [urlKeyword]);
 
@@ -38,16 +43,15 @@ function AnalysisContent() {
     setIsCompleted(false);
   }, [keyword]);
 
-  const handleSearch = async (targetKeyword?: string) => {
-    const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
-    if (!k) return;
-
+  // ✅ 실제 검색 로직 수행 함수
+  const executeSearch = async (k: string) => {
     setKeyword(k);
     setIsSearching(true);
     setIsCompleted(false);
-
-    // ✅ [데이터 누락 방지] 새로운 검색 시작 시 이전 데이터를 초기화합니다.
+    
+    // ✅ 새로운 검색 시작 시 기존 데이터 및 연관검색어 초기화
     setData(null); 
+    setRelatedKeywords([]); 
     
     setGoogleVolume(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -81,10 +85,18 @@ function AnalysisContent() {
     }
   };
 
+  // ✅ 검색 버튼 클릭 또는 연관 키워드 클릭 시 실행
+  const handleSearch = (targetKeyword?: string) => {
+    const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
+    if (!k) return;
+
+    // ✅ URL 주소창을 변경하여 검색을 유도합니다.
+    router.push(`/analysis?keyword=${encodeURIComponent(k)}`);
+  };
+
   const stats = useMemo(() => {
     if (!data) return null;
 
-    // 지식인(kin) 비율 계산 기능 포함
     const calcShares = (total: number, blog: number, cafe: number, kin: number, news: number) => {
       const t = total > 0 ? total : 1;
       return { 
@@ -144,7 +156,7 @@ function AnalysisContent() {
             </h1>
           </div>
 
-          <div className="bg-white border border-gray-300 flex items-center mb-12 shadow-sm focus-within:border-blue-500 transition-all rounded-none max-w-3xl mx-auto w-full">
+          <div className="bg-white border border-gray-300 flex items-center mb-6 shadow-sm focus-within:border-blue-500 transition-all rounded-none max-w-3xl mx-auto w-full">
             <input 
               type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} 
               onKeyDown={(e) => e.key === "Enter" && handleSearch()} 
@@ -157,13 +169,27 @@ function AnalysisContent() {
             </button>
           </div>
 
+          {/* ✅ [신규] 상단 연관검색어 버튼 나열 섹션 */}
+          {relatedKeywords.length > 0 && (
+            <div className="max-w-3xl mx-auto w-full mb-10 flex flex-wrap gap-2 justify-center">
+              {relatedKeywords.map((kw, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleSearch(kw)}
+                  className="text-[12px] px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-800 hover:border-blue-500 hover:text-blue-500 transition-all shadow-sm"
+                >
+                  #{kw}
+                </button>
+              ))}
+            </div>
+          )}
+
           {stats && (
             <div className="space-y-10">
               <SearchVolume stats={stats} />
               <ContentStats stats={stats} />
               <TrendCharts stats={stats} />
 
-              {/* ✅ [디자인 수정] 타이틀 추가 및 40:60 가로 배치 */}
               <div>
                 <h2 className="text-xl font-bold text-gray-900 mb-4">키워드 성격 및 섹션</h2>
                 <div className="flex gap-8 items-start">
@@ -171,7 +197,11 @@ function AnalysisContent() {
                     <KeywordStrategy stats={stats} />
                   </div>
                   <div className="w-[60%] flex-none">
-                    <SectionOrder keyword={keyword} />
+                    {/* ✅ onKeywordsFound를 통해 7번 파일로부터 연관검색어 목록을 받습니다. */}
+                    <SectionOrder 
+                      keyword={keyword} 
+                      onKeywordsFound={setRelatedKeywords}
+                    />
                   </div>
                 </div>
               </div>

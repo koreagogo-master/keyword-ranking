@@ -1,6 +1,19 @@
 // app/api/debug-mobile/route.ts
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
+// ✅ 프록시 경유를 위해 에이전트가 필요합니다. 
+// 터미널에서 설치 필수: npm install https-proxy-agent
+import { HttpsProxyAgent } from 'https-proxy-agent';
+
+// 1. puppeteerHelper.ts의 Smartproxy 정보를 그대로 가져와 연결 고리를 만듭니다.
+const PROXY_HOST = 'proxy.smartproxy.net';
+const PROXY_PORT = '3120';
+const PROXY_USER = 'smart-tmgad01_area-KR';
+const PROXY_PASS = 'bsh103501';
+
+// 프록시 URL 조립 (인증정보 포함)
+const PROXY_URL = `http://${PROXY_USER}:${PROXY_PASS}@${PROXY_HOST}:${PROXY_PORT}`;
+const proxyAgent = new HttpsProxyAgent(PROXY_URL);
 
 type SectionItem = { 
   name: string; 
@@ -12,7 +25,7 @@ type SectionItem = {
 };
 
 /**
- * 섹션명 정규화 함수
+ * 섹션명 정규화 함수 (기존 로직 유지)
  */
 function normalizeName(raw: string) {
   const t = (raw || '')
@@ -49,14 +62,24 @@ async function fetchMobileDebug(keyword: string): Promise<SectionItem[]> {
   const url = `https://m.search.naver.com/search.naver?where=m&sm=mtp_hty&query=${encodeURIComponent(keyword)}`;
 
   try {
+    // ✅ [핵심] Smartproxy를 통해 접속하여 네이버의 차단을 우회합니다.
     const response = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1',
+        // puppeteerHelper.ts에 정의된 최신 User-Agent와 일치시켰습니다.
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
       },
+      // @ts-ignore (Next.js fetch와 agent 타입 호환성 무시)
+      agent: proxyAgent, 
       cache: 'no-store',
     });
 
     const html = await response.text();
+
+    // 🚨 네이버 차단 메시지 발생 시 로그 기록
+    if (html.includes("이용이 제한되었습니다") || html.includes("자동접근방지")) {
+      console.error("🚨 [주의] 프록시 IP가 네이버로부터 차단되었습니다. 다른 IP 대역을 사용해야 할 수 있습니다.");
+    }
+
     const $ = cheerio.load(html);
     const out: SectionItem[] = [];
     const mainChildren = $('#ct').children();
@@ -81,10 +104,9 @@ async function fetchMobileDebug(keyword: string): Promise<SectionItem[]> {
       const hasAdLabel = titleWrap.find('span.sub').text().includes('광고');
       const isOrganicSite = className.includes('fds-web-list-root') || $el.find('.fds-web-list-root').length > 0;
 
-      // [어학사전 전용 체크] 캡처본 기반 SDS 헤더 텍스트 정밀 검사
       const sdsHeaderText = $el.find('.sds-comps-header-title, .sds-comps-text').text().replace(/\s+/g, '');
 
-      // 1. [연관 검색어]
+      // 1. [연관 검색어] - 최신 로직 반영
       if (className.includes('rel_search') || id.includes('nx_related_keywords') || fullText.startsWith('연관')) {
         name = '연관 검색어';
         $el.find('.api_pure_text, a').each((_, a) => {
@@ -92,7 +114,7 @@ async function fetchMobileDebug(keyword: string): Promise<SectionItem[]> {
           if (txt && !['신고', '도움말'].includes(txt)) subItems.push(txt);
         });
       }
-      // 2. [어학사전] - 누락 방지를 위해 최상단으로 순위 격상
+      // 2. [어학사전]
       else if (sdsHeaderText.includes('어학사전') || fullText.startsWith('어학사전')) {
         name = '어학사전';
       }
@@ -123,7 +145,7 @@ async function fetchMobileDebug(keyword: string): Promise<SectionItem[]> {
       else if (fullText.includes('함께 보면 좋은')) name = '함께 보면 좋은';
       else if (fullText.replace(/\s/g, '').includes('건강·의학 인기글')) name = '건강·의학 인기글';
 
-      // 7. 일반 제목 추출 (위에서 걸러지지 않은 경우)
+      // 7. 일반 제목 추출 (기존 로직)
       if (!name) {
         const titleEl = $el.find('.api_title, .tit, h2, .sds-comps-text').first();
         const titleText = titleEl.text().replace(/\s+/g, ' ').trim();
@@ -139,7 +161,7 @@ async function fetchMobileDebug(keyword: string): Promise<SectionItem[]> {
 
     return out;
   } catch (e) {
-    console.error('Mobile Debug Error:', e);
+    console.error('Mobile Debug Proxy Error:', e);
     return [];
   }
 }
