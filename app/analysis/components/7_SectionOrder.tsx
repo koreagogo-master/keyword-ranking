@@ -21,6 +21,9 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
   useEffect(() => {
     if (!keyword) return;
 
+    // ✅ 새로운 검색 시작 시 이전 데이터와 에러 상태를 깨끗이 초기화합니다.
+    setOrderData(null);
+
     const fetchOrder = async () => {
       setLoading(true);
       try {
@@ -29,6 +32,11 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
           fetch(`/api/section-order?keyword=${encodeURIComponent(keyword)}`, { cache: 'no-store' }),
           fetch(`/api/debug-mobile?keyword=${encodeURIComponent(keyword)}`, { cache: 'no-store' })
         ]);
+
+        // 응답이 성공적인지 확인합니다.
+        if (!pcRes.ok || !mobileRes.ok) {
+           throw new Error('API 응답 오류');
+        }
 
         const pcData = await pcRes.json();
         const mobileData = await mobileRes.json();
@@ -40,7 +48,8 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
         });
       } catch (error) {
         console.error('데이터 호출 오류:', error);
-        setOrderData(null);
+        // 에러 발생 시 빈 값을 넣어 "데이터가 없습니다" 메시지가 나오도록 합니다.
+        setOrderData({ pc: [], mobile: [] });
       } finally {
         setLoading(false);
       }
@@ -55,7 +64,8 @@ export default function SectionOrder({ keyword }: { keyword: string }) {
   if (!keyword) return null;
 
   return (
-    <div className="mt-12 grid grid-cols-2 gap-6 items-start">
+    /* ✅ mt-12를 mt-0으로 수정하여 상단 여백을 맞췄습니다. */
+    <div className="mt-0 grid grid-cols-2 gap-6 items-start">
       {/* 1. [pc 섹션] - 원본 로직 유지 */}
       <div className="bg-white border border-gray-200 shadow-sm">
         <div className="flex items-center justify-between px-6 h-[64px] border-b border-gray-200">

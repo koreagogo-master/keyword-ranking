@@ -5,14 +5,14 @@ import { useSearchParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
-import SearchVolume from "./components/1_SearchVolume";
-import ContentStats from "./components/2_ContentStats";
-import TrendCharts from "./components/3_TrendCharts";
-import RelatedKeywords from "./components/4_RelatedKeywords";
-import SimilarityAnalysis from "./components/5_SimilarityAnalysis";
-import KeywordStrategy from "./components/6_KeywordStrategy";
-
-import SectionOrder from "./components/7_SectionOrder";
+// 컴포넌트 임포트
+import SearchVolume from "./components/1_SearchVolume"; // 월간 검색량, PC / Mobile 비중 / 성별 검색 비중
+import ContentStats from "./components/2_ContentStats"; // 콘텐츠 분석 / 최근 30일 신규 발행 콘텐츠 / 전체(누적) & 플랫폼별 구성
+import TrendCharts from "./components/3_TrendCharts"; // 검색 관심도(트렌드) / 연간 검색 비율 (월별 %) / 요일별 분포 (단위: 요일)
+import RelatedKeywords from "./components/4_RelatedKeywords"; // 연관 키워드 분석 (조회수 기준)
+import SimilarityAnalysis from "./components/5_SimilarityAnalysis"; // 유사 키워드 분석 (유사도 기준)
+import KeywordStrategy from "./components/6_KeywordStrategy"; // 키워드 성격 분석 (3각 표)
+import SectionOrder from "./components/7_SectionOrder"; // pc 섹션 / MOBILE 섹션
 
 function safeNumber(v: any) {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
@@ -45,6 +45,10 @@ function AnalysisContent() {
     setKeyword(k);
     setIsSearching(true);
     setIsCompleted(false);
+
+    // ✅ [데이터 누락 방지] 새로운 검색 시작 시 이전 데이터를 초기화합니다.
+    setData(null); 
+    
     setGoogleVolume(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -79,18 +83,48 @@ function AnalysisContent() {
 
   const stats = useMemo(() => {
     if (!data) return null;
-    const calcShares = (total: number, blog: number, cafe: number, news: number) => {
+
+    // 지식인(kin) 비율 계산 기능 포함
+    const calcShares = (total: number, blog: number, cafe: number, kin: number, news: number) => {
       const t = total > 0 ? total : 1;
-      return { blog: Math.round((blog/t)*100), cafe: Math.round((cafe/t)*100), news: Math.round((news/t)*100) };
+      return { 
+        blog: Math.round((blog / t) * 100), 
+        cafe: Math.round((cafe / t) * 100), 
+        kin: Math.round((kin / t) * 100), 
+        news: Math.round((news / t) * 100) 
+      };
     };
+
     const cTotal = safeNumber(data.contentCount?.total);
     
     return {
       keyword: keyword,
-      search: { total: safeNumber(data.searchCount?.total), pc: safeNumber(data.searchCount?.pc), mobile: safeNumber(data.searchCount?.mobile) },
-      content: { total: cTotal, blog: safeNumber(data.contentCount?.blog), cafe: safeNumber(data.contentCount?.cafe), kin: safeNumber(data.contentCount?.kin), news: safeNumber(data.contentCount?.news), shares: calcShares(cTotal, safeNumber(data.contentCount?.blog), safeNumber(data.contentCount?.cafe), safeNumber(data.contentCount?.news)) },
+      search: { 
+        total: safeNumber(data.searchCount?.total), 
+        pc: safeNumber(data.searchCount?.pc), 
+        mobile: safeNumber(data.searchCount?.mobile) 
+      },
+      content: { 
+        total: cTotal, 
+        blog: safeNumber(data.contentCount?.blog), 
+        cafe: safeNumber(data.contentCount?.cafe), 
+        kin: safeNumber(data.contentCount?.kin), 
+        news: safeNumber(data.contentCount?.news), 
+        shares: calcShares(
+          cTotal, 
+          safeNumber(data.contentCount?.blog), 
+          safeNumber(data.contentCount?.cafe), 
+          safeNumber(data.contentCount?.kin), 
+          safeNumber(data.contentCount?.news)
+        ) 
+      },
       content30: data.content30,
-      ratios: { devicePc: safeNumber(data.ratios?.device?.pc), deviceMobile: safeNumber(data.ratios?.device?.mobile), genderMale: safeNumber(data.ratios?.gender?.male), genderFemale: safeNumber(data.ratios?.gender?.female) },
+      ratios: { 
+        devicePc: safeNumber(data.ratios?.device?.pc), 
+        deviceMobile: safeNumber(data.ratios?.device?.mobile), 
+        genderMale: safeNumber(data.ratios?.gender?.male), 
+        genderFemale: safeNumber(data.ratios?.gender?.female) 
+      },
       weeklyTrend: data.weeklyTrend, 
       monthlyTrend: data.monthlyTrend,
       googleVolume: googleVolume
@@ -127,14 +161,20 @@ function AnalysisContent() {
             <div className="space-y-10">
               <SearchVolume stats={stats} />
               <ContentStats stats={stats} />
-              
-              {/* 3. 검색 관심도(트렌드) 단락 */}
               <TrendCharts stats={stats} />
 
-              {/* ✅ [이동 완료] 섹션 순서 분석 컴포넌트 호출 */}
-              <SectionOrder keyword={keyword} />
-
-              <KeywordStrategy stats={stats} />
+              {/* ✅ [디자인 수정] 타이틀 추가 및 40:60 가로 배치 */}
+              <div>
+                <h2 className="text-xl font-bold text-gray-900 mb-4">키워드 성격 및 섹션</h2>
+                <div className="flex gap-8 items-start">
+                  <div className="w-[40%] flex-none">
+                    <KeywordStrategy stats={stats} />
+                  </div>
+                  <div className="w-[60%] flex-none">
+                    <SectionOrder keyword={keyword} />
+                  </div>
+                </div>
+              </div>
               
               <div className="grid grid-cols-2 gap-10 items-start">
                 <RelatedKeywords data={data} onKeywordClick={handleSearch} />

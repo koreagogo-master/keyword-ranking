@@ -19,10 +19,10 @@ export default function Home() {
   };
 
   const services = [
-    { title: "키워드 탐색기", desc: "네이버 검색량, 문서수, 경쟁강도를 실시간 분석합니다.", icon: "🔍", href: "/analysis" },
-    { title: "통합 순위 분석", desc: "네이버 통합검색 내 내 콘텐츠의 위치를 추적합니다.", icon: "📊", href: "/blog-rank" },
-    { title: "블로그 순위", desc: "블로그 섹션 내 실시간 노출 순위를 모니터링합니다.", icon: "📈", href: "/blog-rank-b" },
-    { title: "지식인 순위", desc: "지식인 답변의 노출 여부와 순위를 분석합니다.", icon: "🙋", href: "/kin-rank" },
+    { title: "키워드 정밀 분석", desc:"키워드 정보를 정밀하게 실시간 분석 합니다.", href: "/analysis" },
+    { title: "블로그 순위 확인", desc: "블로그 섹션 내 실시간 노출 순위를 모니터링합니다.", icon: "📈", href: "/blog-rank-b" },
+    { title: "N 통합 순위 분석", desc: "네이버 통합검색 내 내 콘텐츠의 위치를 추적합니다.", icon: "📊", href: "/blog-rank" },
+    { title: "지식인 순위 확인", desc: "지식인 답변의 노출 여부와 순위를 분석합니다.", icon: "🙋", href: "/kin-rank" },
     { title: "구글 분석", desc: "구글 키워드 트렌드와 검색 최적화 데이터를 제공합니다.", icon: "🌐", href: "/google-analysis" },
     { title: "셀러 도구", desc: "쇼핑몰 운영을 위한 경쟁강도 및 수익률을 계산합니다.", icon: "🛒", href: "/shopping-comp" },
   ];
@@ -34,9 +34,9 @@ export default function Home() {
       <main className="flex-1 flex flex-col items-center justify-center px-4 pt-20 pb-32">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-black text-gray-900 mb-4 font-title tracking-tight">
-            TMG <span className="text-[#ff8533]">AD Intelligence</span>
+            TMG ad. <span className="text-[#ff8533]">Ranking Pro</span>
           </h1>
-          <p className="text-gray-400 font-medium">성공적인 마케팅을 위한 정밀 데이터 분석 솔루션</p>
+          <p className="text-gray-400 font-medium">Naver API와 Google API를 기반으로 성공적인 마케팅을 위한 정밀 데이터 분석 솔루션</p>
         </div>
 
         {/* 검색창 영역 */}
@@ -62,7 +62,7 @@ export default function Home() {
       {/* 4. 서비스 메뉴 박스 나열 섹션 */}
       <section className="bg-gray-50 py-24 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="text-left mb-12">
+          <div className="text-center mb-12">
             <h2 className="text-2xl font-black text-gray-800 font-title mb-2">제공 서비스</h2>
             <p className="text-gray-400 text-sm font-medium">TMG AD가 제공하는 전문 마케팅 분석 도구입니다.</p>
           </div>

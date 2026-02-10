@@ -62,7 +62,7 @@ export default function KeywordStrategy({ stats }: { stats: any }) {
   return (
     <div className="bg-white border border-gray-200 p-8 shadow-sm flex flex-col items-center justify-center min-h-[420px]">
       {/* 제목 및 툴팁 */}
-      <h3 className="text-sm font-bold text-gray-900 mb-6 flex items-center justify-center w-full">
+      <h3 className="text-sm font-bold text-gray-900 mb-6 flex items-left justify-left w-full">
         키워드 성격 분석
         <InfoTip text="콘텐츠 점유율과 트렌드, 구글 검색량 등을 종합하여 키워드의 성격을 분석합니다." />
       </h3>
