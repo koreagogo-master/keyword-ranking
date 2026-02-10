@@ -135,7 +135,7 @@ export default function BlogRankPage() {
           <RankTabs />
 
           <h1 className="text-2xl font-normal text-gray-900 mb-8">
-            N 블로그 탭 순위 확인 (멀티 닉네임)
+            N 모바일 블로그 탭 순위 확인
           </h1>
 
           {/* 입력 영역 */}

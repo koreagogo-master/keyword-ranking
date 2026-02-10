@@ -29,7 +29,7 @@ export default function RelatedKeywords({ data, onKeywordClick }: { data: any, o
 
   return (
     <div className="mt-12">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">연관 키워드 분석</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-4">연관 키워드 분석 (조회수 기준)</h2>
       
       <div className="bg-white border border-gray-200 rounded-none overflow-hidden shadow-sm">
         <table className="w-full text-left text-[13px] border-collapse">

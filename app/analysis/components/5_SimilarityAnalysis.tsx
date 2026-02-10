@@ -60,7 +60,7 @@ export default function SimilarityAnalysis({ data, mainKeyword, onKeywordClick }
 
   return (
     <div className="mt-12">
-      <h2 className="text-xl font-bold text-gray-900 mb-4">유사 키워드 분석</h2>
+      <h2 className="text-xl font-bold text-gray-900 mb-4">유사 키워드 분석 (유사도 기준)</h2>
       
       <div className="bg-white border border-gray-200 rounded-none overflow-hidden shadow-sm">
         <table className="w-full text-left text-[12px] border-collapse">
