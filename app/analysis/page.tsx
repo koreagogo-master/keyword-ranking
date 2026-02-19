@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
-// 컴포넌트 임포트
+// 컴포넌트 임포트 (주석 복구됨)
 import SearchVolume from "./components/1_SearchVolume"; // 월간 검색량, PC / Mobile 비중 / 성별 검색 비중
 import ContentStats from "./components/2_ContentStats"; // 콘텐츠 분석 / 최근 30일 신규 발행 콘텐츠 / 전체(누적) & 플랫폼별 구성
 import TrendCharts from "./components/3_TrendCharts"; // 검색 관심도(트렌드) / 연간 검색 비율 (월별 %) / 요일별 분포 (단위: 요일)
@@ -25,7 +25,7 @@ function AnalysisContent() {
   const [isSearching, setIsSearching] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   
-  // ✅ 상단 연관검색어 저장 상태
+  // 상단 연관검색어 저장 상태
   const [relatedKeywords, setRelatedKeywords] = useState<string[]>([]);
 
   const searchParams = useSearchParams();
@@ -136,96 +136,103 @@ function AnalysisContent() {
   }, [data, googleVolume, keyword]);
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043]" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-      <Sidebar />
-      <main className="flex-1 ml-64 p-10">
-        <div className="max-w-7xl mx-auto">
-          <RankTabs />
-          
-          <div className="mb-10">
-            <h1 className="text-2xl font-normal text-gray-900">
-              {keyword ? `"${keyword}" 키워드 정밀 분석` : "키워드 정밀 분석"}
-            </h1>
-          </div>
+    <>
+      {/* 1. 나눔스퀘어 폰트 CDN 추가 */}
+      <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
 
-          <div className="bg-white border border-gray-300 flex items-center mb-6 shadow-sm focus-within:border-blue-500 transition-all rounded-none max-w-3xl mx-auto w-full">
-            <input 
-              type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} 
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()} 
-              className="flex-1 py-4 px-6 text-lg outline-none" placeholder="분석할 키워드를 입력하세요" 
-            />
-            <button onClick={() => handleSearch()} disabled={isSearching} 
-              className={`px-12 py-5 font-bold transition-all disabled:opacity-60 ${isCompleted ? 'bg-green-600 hover:bg-green-700' : 'bg-[#1a73e8] hover:bg-blue-700'} text-white`}
-            >
-              {isSearching ? "분석 중..." : isCompleted ? "키워드 분석 완료" : "키워드 분석 실행"}
-            </button>
-          </div>
+      {/* 2. antialiased(선명하게), tracking-tight(자간 좁게) 추가 */}
+      <div 
+        className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" 
+        style={{ fontFamily: "'NanumSquare', sans-serif" }}
+      >
+        <Sidebar />
+        <main className="flex-1 ml-64 p-10">
+          <div className="max-w-7xl mx-auto">
+            <RankTabs />
+            
+            <div className="mb-10">
+              <h1 className="text-2xl font-bold text-gray-900">
+                {keyword ? `"${keyword}" 키워드 정밀 분석` : "키워드 정밀 분석"}
+              </h1>
+            </div>
 
-          {/* ✅ [개선] 레이아웃 시프트 방지(min-h-100) 및 세련된 네이비 그레이 톤 적용 */}
-          <div className="max-w-3xl mx-auto w-full mb-10 min-h-[100px] flex items-center justify-center">
-            {isSearching ? (
-              // 검색 중일 때 보여주는 부드러운 로딩 점 애니메이션
-              <div className="flex gap-2">
-                <div className="w-2.5 h-2.5 bg-blue-200 rounded-full animate-bounce"></div>
-                <div className="w-2.5 h-2.5 bg-blue-300 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                <div className="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+            <div className="bg-white border border-gray-300 flex items-center mb-6 shadow-sm focus-within:border-blue-500 transition-all rounded-none max-w-3xl mx-auto w-full">
+              <input 
+                type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} 
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()} 
+                className="flex-1 py-4 px-6 text-lg outline-none font-medium" 
+                placeholder="분석할 키워드를 입력하세요" 
+              />
+              <button onClick={() => handleSearch()} disabled={isSearching} 
+                className={`px-12 py-5 font-bold transition-all disabled:opacity-60 ${isCompleted ? 'bg-green-600 hover:bg-green-700' : 'bg-[#1a73e8] hover:bg-blue-700'} text-white`}
+              >
+                {isSearching ? "분석 중..." : isCompleted ? "키워드 분석 완료" : "키워드 분석 실행"}
+              </button>
+            </div>
+
+            <div className="max-w-3xl mx-auto w-full mb-10 min-h-[100px] flex items-center justify-center">
+              {isSearching ? (
+                <div className="flex gap-2">
+                  <div className="w-2.5 h-2.5 bg-blue-200 rounded-full animate-bounce"></div>
+                  <div className="w-2.5 h-2.5 bg-blue-300 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                  <div className="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                </div>
+              ) : relatedKeywords.length > 0 ? (
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {relatedKeywords.map((kw, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSearch(kw)}
+                      className="text-[13px] px-4 py-1.5 bg-white border border-gray-200 rounded-full !text-slate-600 !font-bold hover:!border-blue-500 hover:!text-blue-600 transition-all shadow-sm"
+                    >
+                      #{kw}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-gray-400 text-sm font-bold">연관 키워드가 이곳에 노출됩니다.</div>
+              )}
+            </div>
+
+            {stats && (
+              <div className="space-y-10">
+                <SearchVolume stats={stats} />
+                <ContentStats stats={stats} />
+                <TrendCharts stats={stats} />
+
+                <div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-4">키워드 성격 및 섹션</h2>
+                  <div className="flex gap-8 items-start">
+                    <div className="w-[40%] flex-none">
+                      <KeywordStrategy stats={stats} />
+                    </div>
+                    <div className="w-[60%] flex-none">
+                      <SectionOrder 
+                        keyword={keyword} 
+                        onKeywordsFound={setRelatedKeywords}
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-10 items-start">
+                  <RelatedKeywords data={data} onKeywordClick={handleSearch} />
+                  <div className="space-y-10">
+                    <SimilarityAnalysis data={data} mainKeyword={keyword} onKeywordClick={handleSearch} />
+                  </div>
+                </div>
               </div>
-            ) : relatedKeywords.length > 0 ? (
-              <div className="flex flex-wrap gap-2 justify-center">
-                {relatedKeywords.map((kw, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleSearch(kw)}
-                    className="text-[13px] px-4 py-1.5 bg-white border border-gray-200 rounded-full !text-slate-600 !font-bold hover:!border-blue-500 hover:!text-blue-600 transition-all shadow-sm"
-                  >
-                    #{kw}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              // 초기 상태 또는 키워드 없을 때 높이 유지를 위해 빈 공간 표시 (텍스트 제거 가능)
-              <div className="text-gray-300 text-sm font-medium">연관 키워드가 이곳에 노출됩니다.</div>
             )}
           </div>
-
-          {stats && (
-            <div className="space-y-10">
-              <SearchVolume stats={stats} />
-              <ContentStats stats={stats} />
-              <TrendCharts stats={stats} />
-
-              <div>
-                <h2 className="text-xl font-bold text-gray-900 mb-4">키워드 성격 및 섹션</h2>
-                <div className="flex gap-8 items-start">
-                  <div className="w-[40%] flex-none">
-                    <KeywordStrategy stats={stats} />
-                  </div>
-                  <div className="w-[60%] flex-none">
-                    <SectionOrder 
-                      keyword={keyword} 
-                      onKeywordsFound={setRelatedKeywords}
-                    />
-                  </div>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-10 items-start">
-                <RelatedKeywords data={data} onKeywordClick={handleSearch} />
-                <div className="space-y-10">
-                  <SimilarityAnalysis data={data} mainKeyword={keyword} onKeywordClick={handleSearch} />
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }
 
 export default function AnalysisPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center">로딩 중...</div>}>
+    <Suspense fallback={<div className="p-10 text-center font-bold">로딩 중...</div>}>
       <AnalysisContent />
     </Suspense>
   );

@@ -32,11 +32,13 @@ export default function BlogRankPage() {
   const [progress, setProgress] = useState('');
   const [results, setResults] = useState<SearchResultRow[]>([]);
 
+  // 콤마로 구분된 닉네임 배열 생성
   const nicknames = targetNickname
     .split(',')
     .map(s => s.trim())
     .filter(Boolean);
 
+  // 작성자 닉네임에 따라 색상 매칭
   const getAuthorColorClass = (author: string) => {
     if (!author || author === '-') return 'text-gray-400';
 
@@ -122,128 +124,137 @@ export default function BlogRankPage() {
     if (e.key === 'Enter') handleCheck();
   };
 
+  // 중복 키워드 제거 (테이블 표시용)
   const uniqueKeywords = Array.from(new Set(results.map(r => r.keyword)));
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] font-sans">
-      {/* 사이드바 */}
-      <Sidebar />
+    <>
+      {/* 1. 에러 방지를 위해 표준 Link 태그 사용 */}
+      <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
 
-      {/* 메인 영역 */}
-      <main className="flex-1 ml-64 p-10">
-        <div className="max-w-7xl mx-auto">
-          <RankTabs />
+      {/* 2. 폰트 적용 및 스타일 통일 */}
+      <div 
+        className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight"
+        style={{ fontFamily: "'NanumSquare', sans-serif" }}
+      >
+        {/* 사이드바 */}
+        <Sidebar />
 
-          <h1 className="text-2xl font-normal text-gray-900 mb-8">
-            N 모바일 블로그 탭 순위 확인
-          </h1>
+        {/* 메인 영역 */}
+        <main className="flex-1 ml-64 p-10">
+          <div className="max-w-7xl mx-auto">
+            <RankTabs />
 
-          {/* 입력 영역 */}
-          <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-8">
-            <div className="flex gap-4 items-start">
-              <div className="w-1/4 min-w-[200px]">
-                <label className="block text-sm font-medium mb-2 text-gray-600">
-                  블로그 닉네임
-                </label>
-                {/* 🎨 테두리를 border-gray-300(진한 회색)으로 수정했습니다 */}
-                <input
-                  value={targetNickname}
-                  onChange={e => setTargetNickname(e.target.value)}
-                  className="w-full p-3 h-[50px] border border-gray-300 rounded 
-                             focus:outline-none focus:border-[#1a73e8] transition-colors"
-                  placeholder="예: 연세베스트치과"
-                />
-              </div>
+            {/* 타이틀 스타일 통일 */}
+            <h1 className="text-2xl font-bold text-gray-900 mb-8">
+              N 모바일 블로그 탭 순위 확인
+            </h1>
 
-              <div className="flex-1">
-                <label className="block text-sm font-medium mb-2 text-gray-600">
-                  키워드 (쉼표 구분)
-                </label>
-                {/* 🎨 테두리를 border-gray-300(진한 회색)으로 수정했습니다 */}
-                <input
-                  value={keywordInput}
-                  onChange={e => setKeywordInput(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="w-full p-3 h-[50px] border border-gray-300 rounded 
-                             focus:outline-none focus:border-[#1a73e8] transition-colors"
-                  placeholder="부천교정, 부천치과"
-                />
-              </div>
+            {/* 입력 영역 */}
+            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-8">
+              <div className="flex gap-4 items-end">
+                <div className="w-1/4 min-w-[200px]">
+                  <label className="block text-sm font-bold mb-2 text-gray-600">
+                    블로그 닉네임
+                  </label>
+                  <input
+                    value={targetNickname}
+                    onChange={e => setTargetNickname(e.target.value)}
+                    className="w-full p-3 h-[50px] border border-gray-300 rounded 
+                               focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-all shadow-sm"
+                    placeholder="예: 연세베스트치과"
+                  />
+                </div>
 
-              <div className="mt-[29px]">
-                <button
-                  onClick={handleCheck}
-                  disabled={loading}
-                  className={`h-[50px] px-6 rounded font-bold text-white transition-all ${
-                    loading
-                      ? 'bg-gray-400'
-                      : 'bg-[#1a73e8] hover:bg-[#1557b0]'
-                  }`}
-                >
-                  {loading ? progress : '순위 확인하기'}
-                </button>
+                <div className="flex-1">
+                  <label className="block text-sm font-bold mb-2 text-gray-600">
+                    키워드 (쉼표 구분)
+                  </label>
+                  <input
+                    value={keywordInput}
+                    onChange={e => setKeywordInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    className="w-full p-3 h-[50px] border border-gray-300 rounded 
+                               focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-all shadow-sm"
+                    placeholder="부천교정, 부천치과"
+                  />
+                </div>
+
+                <div>
+                  <button
+                    onClick={handleCheck}
+                    disabled={loading}
+                    className={`h-[50px] px-6 rounded font-bold text-white transition-all shadow-md ${
+                      loading
+                        ? 'bg-gray-400'
+                        : 'bg-[#1a73e8] hover:bg-[#1557b0] hover:shadow-lg'
+                    }`}
+                  >
+                    {loading ? progress : '순위 확인하기'}
+                  </button>
+                </div>
               </div>
             </div>
+
+            {/* 결과 테이블 */}
+            {results.length > 0 && (
+              <div>
+                <h2 className="text-lg font-bold mb-4 text-gray-700">
+                  검색 결과 ({results.length}건)
+                </h2>
+
+                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                  <table className="w-full border-collapse text-left">
+                    <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-bold tracking-wider">
+                      <tr>
+                        <th className="p-4 border-b w-32">키워드</th>
+                        <th className="p-4 border-b w-40 text-center">순위</th>
+                        <th className="p-4 border-b">제목</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {uniqueKeywords.map((kw, i) => {
+                        const rows = results.filter(r => r.keyword === kw);
+
+                        return (
+                          <tr key={i} className="hover:bg-blue-50/30 transition-colors">
+                            <td className="p-4 font-bold text-gray-900">{kw}</td>
+                            <td className="p-4 text-center">
+                              {rows.map((r, j) => (
+                                <span
+                                  key={j}
+                                  className={`font-extrabold text-lg ${getAuthorColorClass(
+                                    r.author
+                                  )}`}
+                                >
+                                  {r.rank}
+                                  {j < rows.length - 1 && ' / '}
+                                </span>
+                              ))}
+                            </td>
+                            <td className="p-4 text-sm text-gray-700 font-medium">
+                              {rows.map((r, j) => (
+                                <div key={j} className="mb-1 last:mb-0">
+                                  {r.title}
+                                  {r.date !== '-' && (
+                                    <span className="ml-2 text-xs text-gray-400 font-normal">
+                                      ({r.date})
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
-
-          {/* 결과 테이블 */}
-          {results.length > 0 && (
-            <div>
-              <h2 className="text-lg font-bold mb-4 text-gray-700">
-                검색 결과 ({results.length}건)
-              </h2>
-
-              <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
-                <table className="w-full border-collapse">
-                  <thead className="bg-gray-50 text-xs uppercase text-gray-400">
-                    <tr>
-                      <th className="p-4 border-b w-32">키워드</th>
-                      <th className="p-4 border-b w-40 text-center">순위</th>
-                      <th className="p-4 border-b">제목</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {uniqueKeywords.map((kw, i) => {
-                      const rows = results.filter(r => r.keyword === kw);
-
-                      return (
-                        <tr key={i} className="hover:bg-blue-50/30">
-                          <td className="p-4 font-semibold">{kw}</td>
-                          <td className="p-4 text-center">
-                            {rows.map((r, j) => (
-                              <span
-                                key={j}
-                                className={`font-bold ${getAuthorColorClass(
-                                  r.author
-                                )}`}
-                              >
-                                {r.rank}
-                                {j < rows.length - 1 && ' / '}
-                              </span>
-                            ))}
-                          </td>
-                          <td className="p-4 text-sm text-gray-600">
-                            {rows.map((r, j) => (
-                              <div key={j}>
-                                {r.title}
-                                {r.date !== '-' && (
-                                  <span className="ml-2 text-xs text-gray-400">
-                                    ({r.date})
-                                  </span>
-                                )}
-                              </div>
-                            ))}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </>
   );
 }
