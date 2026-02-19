@@ -5,14 +5,14 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
-// 컴포넌트 임포트 (주석 복구됨)
-import SearchVolume from "./components/1_SearchVolume"; // 월간 검색량, PC / Mobile 비중 / 성별 검색 비중
-import ContentStats from "./components/2_ContentStats"; // 콘텐츠 분석 / 최근 30일 신규 발행 콘텐츠 / 전체(누적) & 플랫폼별 구성
-import TrendCharts from "./components/3_TrendCharts"; // 검색 관심도(트렌드) / 연간 검색 비율 (월별 %) / 요일별 분포 (단위: 요일)
-import RelatedKeywords from "./components/4_RelatedKeywords"; // 연관 키워드 분석 (조회수 기준)
-import SimilarityAnalysis from "./components/5_SimilarityAnalysis"; // 유사 키워드 분석 (유사도 기준)
-import KeywordStrategy from "./components/6_KeywordStrategy"; // 키워드 성격 분석 (3각 표)
-import SectionOrder from "./components/7_SectionOrder"; // pc 섹션 / MOBILE 섹션
+// 컴포넌트 임포트
+import SearchVolume from "./components/1_SearchVolume"; // 월간 검색량
+import ContentStats from "./components/2_ContentStats"; // 콘텐츠 분석
+import TrendCharts from "./components/3_TrendCharts"; // 검색 트렌드
+import RelatedKeywords from "./components/4_RelatedKeywords"; // 연관 키워드
+import SimilarityAnalysis from "./components/5_SimilarityAnalysis"; // 유사 키워드
+import KeywordStrategy from "./components/6_KeywordStrategy"; // 키워드 성격
+import SectionOrder from "./components/7_SectionOrder"; // 섹션 순서
 
 function safeNumber(v: any) {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
@@ -137,10 +137,8 @@ function AnalysisContent() {
 
   return (
     <>
-      {/* 1. 나눔스퀘어 폰트 CDN 추가 */}
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
 
-      {/* 2. antialiased(선명하게), tracking-tight(자간 좁게) 추가 */}
       <div 
         className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" 
         style={{ fontFamily: "'NanumSquare', sans-serif" }}
@@ -202,11 +200,22 @@ function AnalysisContent() {
 
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 mb-4">키워드 성격 및 섹션</h2>
-                  <div className="flex gap-8 items-start">
-                    <div className="w-[40%] flex-none">
+                  
+                  {/* ✅ [레이아웃 수정] 
+                    기존: flex + width 40%/60% -> 여백 포함 시 100% 초과 문제 발생
+                    변경: grid grid-cols-3 (3등분) -> 1:1:1 비율로 완벽하게 정렬
+                  */}
+                  <div className="grid grid-cols-3 gap-8 items-start">
+                    
+                    {/* 1. 키워드 성격 분석 (1칸 차지) -> 33.3% */}
+                    <div className="col-span-1">
                       <KeywordStrategy stats={stats} />
                     </div>
-                    <div className="w-[60%] flex-none">
+                    
+                    {/* 2. 섹션 순서 (2칸 차지) -> 66.6% 
+                      * SectionOrder 내부에서 다시 2등분 되므로, 결과적으로 PC/Mobile 각각 33.3%가 됨
+                    */}
+                    <div className="col-span-2">
                       <SectionOrder 
                         keyword={keyword} 
                         onKeywordsFound={setRelatedKeywords}

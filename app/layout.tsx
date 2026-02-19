@@ -52,7 +52,10 @@ export default function RootLayout({
         </div>
 
         {/* 푸터 영역 (모든 페이지 하단에 공통 적용) */}
-        <Footer />
+        {/* ✅ 수정된 부분: 사이드바 너비(255px)만큼 왼쪽 여백을 주어 겹치지 않게 합니다. */}
+        <div className="ml-[255px]">
+          <Footer />
+        </div>
       </body>
     </html>
   );
