@@ -13,11 +13,14 @@ function RelatedFastContent() {
   const [searchAttempted, setSearchAttempted] = useState(false);
   const [selectedKeywords, setSelectedKeywords] = useState<any[]>([]);
   
-  // ✅ 필터 활성화 상태 (결과가 너무 적게 나온다면 OFF로 테스트해보세요)
   const [isFilterOn, setIsFilterOn] = useState(true);
 
-  const [sortField, setSortField] = useState<'pc' | 'mobile' | 'total' | null>(null);
+  const [sortField, setSortField] = useState<'pc' | 'mobile' | 'total' | 'cpc' | null>(null);
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc' | null>(null);
+
+  // 콤보박스 상태 관리
+  const [cpcOption, setCpcOption] = useState('MOBILE_3');
+  const [isCpcUpdating, setIsCpcUpdating] = useState(false);
 
   const totalSelectedVolume = useMemo(() => {
     return selectedKeywords.reduce((acc, cur) => acc + (cur.total || 0), 0);
@@ -44,19 +47,11 @@ function RelatedFastContent() {
     });
   };
 
-  /**
-   * ✅ 토큰화 로직 개선: 
-   * 입력값을 2글자 단위로 쪼개어 더 넓은 범위의 연관성을 체크합니다.
-   */
   const tokenize = (str: string) => {
     const tokens = new Set<string>();
     const cleanStr = str.replace(/\s+/g, '');
-    
-    // 2글자씩 슬라이딩 윈도우 방식으로 쪼개기
     if (cleanStr.length >= 2) {
-      for (let i = 0; i <= cleanStr.length - 2; i++) {
-        tokens.add(cleanStr.substring(i, i + 2));
-      }
+      for (let i = 0; i <= cleanStr.length - 2; i++) tokens.add(cleanStr.substring(i, i + 2));
     } else {
       tokens.add(cleanStr);
     }
@@ -74,11 +69,14 @@ function RelatedFastContent() {
     setSortField(null);
     setSortOrder(null);
 
+    const [device, posStr] = cpcOption.split('_');
+    const cpcPosition = parseInt(posStr, 10);
+
     try {
       const adsRes = await fetch('/api/related-ads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ keyword: k })
+        body: JSON.stringify({ keyword: k, cpcDevice: device, cpcPosition: cpcPosition })
       });
       const adsJson = await adsRes.json();
       
@@ -100,10 +98,8 @@ function RelatedFastContent() {
         adsJson.keywords.forEach((item: any) => {
           const normalized = item.keyword.replace(/\s+/g, '');
           const isMainKeyword = normalized === searchKey;
-          
           let passFilter = true;
           
-          // ✅ 필터 로직: 켜져 있을 때만 작동
           if (isFilterOn && !isMainKeyword) {
             passFilter = searchTokens.some(token => normalized.includes(token));
           }
@@ -114,8 +110,8 @@ function RelatedFastContent() {
               pc: forceNum(item.pc),
               mobile: forceNum(item.mobile),
               total: forceNum(item.pc) + forceNum(item.mobile),
+              cpc: forceNum(item.cpc),
               compText: item.compIdx === 'HIGH' ? '높음' : item.compIdx === 'MEDIUM' ? '중간' : '낮음',
-              // ✅ 이전 코드 오류 수정: formatNum이 아닌 forceNum을 사용해야 계산이 끊기지 않습니다.
               ctr: (forceNum(item.monthlyAvePcCtr) + forceNum(item.monthlyAveMobileCtr)) / 2
             });
           }
@@ -126,6 +122,39 @@ function RelatedFastContent() {
       console.error(e);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  const handleCpcChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newOption = e.target.value;
+    setCpcOption(newOption);
+    
+    if (adsList.length === 0) return;
+
+    setIsCpcUpdating(true);
+    const [device, posStr] = newOption.split('_');
+    const position = parseInt(posStr, 10);
+    
+    const keywordList = adsList.map(item => item.keyword);
+    
+    try {
+      const res = await fetch('/api/related-ads', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ isCpcOnly: true, keywords: keywordList, device, position })
+      });
+      const data = await res.json();
+      
+      if (data.success && data.estimateMap) {
+        setAdsList(prev => prev.map(item => ({
+          ...item,
+          cpc: data.estimateMap[item.keyword] !== undefined ? data.estimateMap[item.keyword] : item.cpc
+        })));
+      }
+    } catch (error) {
+      console.error("CPC 업데이트 실패:", error);
+    } finally {
+      setIsCpcUpdating(false);
     }
   };
 
@@ -149,14 +178,14 @@ function RelatedFastContent() {
     return otherItems;
   }, [adsList, sortField, sortOrder, keyword]);
 
-  const handleSort = (field: 'pc' | 'mobile' | 'total') => {
+  const handleSort = (field: 'pc' | 'mobile' | 'total' | 'cpc') => {
     if (sortField === field) {
       if (sortOrder === 'desc') setSortOrder('asc');
       else { setSortField(null); setSortOrder(null); }
     } else { setSortField(field); setSortOrder('desc'); }
   };
 
-  const renderSortIcon = (field: 'pc' | 'mobile' | 'total') => {
+  const renderSortIcon = (field: 'pc' | 'mobile' | 'total' | 'cpc') => {
     if (sortField !== field) return (
       <span className="flex flex-col ml-1.5 opacity-20 text-[10px] leading-tight group-hover:opacity-40 transition-opacity">
         <span className="-mb-0.5">▲</span><span className="-mt-0.5">▼</span>
@@ -176,8 +205,9 @@ function RelatedFastContent() {
           
           <div className="mb-8">
             <h1 className="text-2xl font-bold !text-black">연관 키워드 조회</h1>
-            <p className="text-sm text-slate-500 mt-1">포스팅 시 적용 가능한 연관 키워드를 네이버 API 기반으로 추천합니다. 조회 후 리스트에서 키워드를 선택 하면 좌측 [선택된 키워드]의 리스트가 생성 됩니다.</p>
-            <p className="text-sm text-slate-500 mt-1">최종 선택 된 키워드를 복사하여 메모장에 붙여넣기가 가능 합니다. 선택된 키워드는 조회 키워드를 변경 하여도 남아 있습니다.</p>
+            <p className="text-sm text-slate-500 mt-1">* 포스팅 시 적용 가능한 연관 키워드를 네이버 API 기반으로 추천합니다. 조회 후 리스트에서 키워드를 선택 하면 좌측 [선택된 키워드]의 리스트가 생성 됩니다.</p>
+            <p className="text-sm text-slate-500 mt-1">* 최종 선택 된 키워드를 복사하여 메모장에 붙여넣기가 가능 합니다. 선택된 키워드는 조회 키워드를 변경 하여도 남아 있습니다.</p>
+            <p className="text-sm text-slate-500 mt-1">* CPC 단가 : 우측 상단의 순위를 조정 하면 조회 시점 기준으로 업데이트 됩니다.</p>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start relative">
@@ -196,7 +226,6 @@ function RelatedFastContent() {
                 </button>
               </div>
 
-              {/* 필터 토글 스위치 */}
               <div className="flex justify-between items-center px-1">
                 <span className="text-[11px] text-slate-400 font-medium">연관성 필터링 (핵심어 기준)</span>
                 <button 
@@ -257,67 +286,113 @@ function RelatedFastContent() {
 
             <div className="flex-1 w-full">
               {adsList.length > 0 && (
-                <div className="bg-white border border-gray-300 shadow-sm overflow-visible rounded-sm">
-                  <table className="w-full text-left border-collapse table-fixed">
-                    <thead className="sticky top-[64px] z-20 bg-slate-50 border-b border-gray-200">
-                      <tr className="text-[13px]">
-                        <th className="px-2 py-4 text-center w-12 font-bold text-slate-500">선택</th>
-                        <th className="px-4 py-4 font-bold text-slate-500 text-center w-28">순위</th>
-                        <th className="px-4 py-4 font-bold text-slate-500">연관 키워드</th>
-                        <th className="px-4 py-4 text-right cursor-pointer hover:bg-slate-100 group font-semibold text-slate-500 w-28" onClick={() => handleSort('pc')}>
-                          <div className="flex items-center justify-end">PC (%){renderSortIcon('pc')}</div>
-                        </th>
-                        <th className="px-4 py-4 text-right cursor-pointer hover:bg-slate-100 group font-semibold text-slate-500 w-28" onClick={() => handleSort('mobile')}>
-                          <div className="flex items-center justify-end">모바일 (%){renderSortIcon('mobile')}</div>
-                        </th>
-                        <th className="px-4 py-4 text-right cursor-pointer hover:bg-blue-50 group text-blue-600 font-bold w-32" onClick={() => handleSort('total')}>
-                          <div className="flex items-center justify-end">총 검색량{renderSortIcon('total')}</div>
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 bg-white">
-                      {mainKeywordData && (
-                        <tr className="bg-blue-50/40 transition-colors border-b-2 border-blue-100">
-                          <td className="px-2 py-2.5 text-center">
-                            <input 
-                              type="checkbox" 
-                              checked={!!selectedKeywords.find(it => it.keyword === mainKeywordData.keyword)}
-                              onChange={() => toggleKeyword(mainKeywordData)}
-                              className="w-4 h-4 cursor-pointer accent-blue-600"
-                            />
-                          </td>
-                          <td className="px-4 py-2.5 text-center">
-                            <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm whitespace-nowrap min-w-[50px] inline-block">검색어</span>
-                          </td>
-                          <td className="px-4 py-2.5 font-bold text-blue-700 text-sm truncate">{mainKeywordData.keyword}</td>
-                          <td className="px-4 py-2.5 text-right font-medium text-sm text-slate-700">{formatNum(mainKeywordData.pc)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(mainKeywordData.pc/mainKeywordData.total*100)}%)</span></td>
-                          <td className="px-4 py-2.5 text-right font-medium text-sm text-slate-700">{formatNum(mainKeywordData.mobile)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(mainKeywordData.mobile/mainKeywordData.total*100)}%)</span></td>
-                          <td className="px-4 py-2.5 text-right font-bold text-blue-700 text-sm">{formatNum(mainKeywordData.total)}</td>
+                <div className="flex flex-col gap-3">
+                  {/* 🌟 콤보박스를 표 우측 상단으로 독립시켰습니다. */}
+                  <div className="flex justify-end items-center gap-2">
+                    <span className="text-[12px] font-bold text-slate-500">단가 조회 기준 :</span>
+                    <select 
+                      value={cpcOption} 
+                      onChange={handleCpcChange}
+                      disabled={isCpcUpdating || isSearching}
+                      className="bg-white text-orange-600 border border-orange-200 text-[12px] font-extrabold py-1.5 px-2 rounded-sm outline-none cursor-pointer hover:bg-orange-50 focus:border-orange-400 disabled:opacity-50"
+                    >
+                      <option value="MOBILE_1">모바일 1위</option>
+                      <option value="MOBILE_2">모바일 2위</option>
+                      <option value="MOBILE_3">모바일 3위</option>
+                      <option value="PC_1">PC 1위</option>
+                      <option value="PC_2">PC 2위</option>
+                      <option value="PC_3">PC 3위</option>
+                    </select>
+                  </div>
+
+                  <div className="bg-white border border-gray-300 shadow-sm overflow-visible rounded-sm">
+                    <table className="w-full text-left border-collapse table-fixed">
+                      <thead className="sticky top-[64px] z-20 bg-slate-50 border-b border-gray-200">
+                        <tr className="text-[13px]">
+                          <th className="px-2 py-4 text-center w-12 font-bold text-slate-500">선택</th>
+                          <th className="px-4 py-4 font-bold text-slate-500 text-center w-16">순위</th>
+                          <th className="px-4 py-4 font-bold text-slate-500">연관 키워드</th>
+                          
+                          {/* 🌟 예상 CPC 헤더가 드디어 완벽한 수평 라인을 찾았습니다! */}
+                          <th className="px-4 py-4 text-right cursor-pointer hover:bg-orange-50 group font-bold text-orange-600 w-28 align-middle" onClick={() => handleSort('cpc')}>
+                            <div className="flex items-center justify-end" title="선택된 기준 예상 평균 클릭 비용">
+                              *예상 CPC{renderSortIcon('cpc')}
+                            </div>
+                          </th>
+                          
+                          <th className="px-4 py-4 text-right cursor-pointer hover:bg-blue-50 group text-blue-600 font-bold w-40" onClick={() => handleSort('total')}>
+                            <div className="flex items-center justify-end">총 검색량 (월){renderSortIcon('total')}</div>
+                          </th>
+                          <th className="px-4 py-4 text-right cursor-pointer hover:bg-slate-100 group font-semibold text-slate-500 w-32" onClick={() => handleSort('pc')}>
+                            <div className="flex items-center justify-end">PC (%){renderSortIcon('pc')}</div>
+                          </th>
+                          <th className="px-4 py-4 text-right cursor-pointer hover:bg-slate-100 group font-semibold text-slate-500 w-32" onClick={() => handleSort('mobile')}>
+                            <div className="flex items-center justify-end">모바일 (%){renderSortIcon('mobile')}</div>
+                          </th>
                         </tr>
-                      )}
-                      {sortedList.map((item, idx) => (
-                        <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-2 py-2 text-center">
-                            <input 
-                              type="checkbox" 
-                              checked={!!selectedKeywords.find(it => it.keyword === item.keyword)}
-                              onChange={() => toggleKeyword(item)}
-                              className="w-4 h-4 cursor-pointer accent-blue-600"
-                            />
-                          </td>
-                          <td className="px-4 py-2 text-center text-slate-400 font-medium text-[13px]">{idx + 1}</td>
-                          <td className="px-4 py-2">
-                            <button onClick={() => handleSearch(item.keyword)} className="!text-black font-bold text-[13px] hover:text-blue-600 hover:underline text-left truncate w-full">
-                              {item.keyword}
-                            </button>
-                          </td>
-                          <td className="px-4 py-2 text-right !text-black font-medium text-[13px]">{formatNum(item.pc)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(item.pc/item.total*100)}%)</span></td>
-                          <td className="px-4 py-2 text-right !text-black font-medium text-[13px]">{formatNum(item.mobile)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(item.mobile/item.total*100)}%)</span></td>
-                          <td className={`px-4 py-2 text-right font-bold text-blue-600 bg-blue-50/20 border-b border-gray-100 text-[13px]`}>{formatNum(item.total)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 bg-white">
+                        {mainKeywordData && (
+                          <tr className="bg-blue-50/40 transition-colors border-b-2 border-blue-100">
+                            <td className="px-2 py-2.5 text-center">
+                              <input 
+                                type="checkbox" 
+                                checked={!!selectedKeywords.find(it => it.keyword === mainKeywordData.keyword)}
+                                onChange={() => toggleKeyword(mainKeywordData)}
+                                className="w-4 h-4 cursor-pointer accent-blue-600"
+                              />
+                            </td>
+                            <td className="px-4 py-2.5 text-center">
+                              <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm whitespace-nowrap min-w-[40px] inline-block">검색어</span>
+                            </td>
+                            <td className="px-4 py-2.5 font-bold text-blue-700 text-sm truncate">{mainKeywordData.keyword}</td>
+                            
+                            <td className={`px-4 py-2.5 text-right font-extrabold text-[13px] ${isCpcUpdating ? 'text-orange-300 animate-pulse' : 'text-orange-600'}`}>
+                              {mainKeywordData.cpc ? `${formatNum(mainKeywordData.cpc)}원` : '-'}
+                            </td>
+                            
+                            <td className="px-4 py-2.5 text-right font-bold text-blue-700 text-sm">{formatNum(mainKeywordData.total)}</td>
+                            <td className="px-4 py-2.5 text-right font-medium text-sm text-slate-700">
+                              {formatNum(mainKeywordData.pc)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(mainKeywordData.pc/mainKeywordData.total*100)}%)</span>
+                            </td>
+                            <td className="px-4 py-2.5 text-right font-medium text-sm text-slate-700">
+                              {formatNum(mainKeywordData.mobile)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(mainKeywordData.mobile/mainKeywordData.total*100)}%)</span>
+                            </td>
+                          </tr>
+                        )}
+                        {sortedList.map((item, idx) => (
+                          <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-2 py-2 text-center">
+                              <input 
+                                type="checkbox" 
+                                checked={!!selectedKeywords.find(it => it.keyword === item.keyword)}
+                                onChange={() => toggleKeyword(item)}
+                                className="w-4 h-4 cursor-pointer accent-blue-600"
+                              />
+                            </td>
+                            <td className="px-4 py-2 text-center text-slate-400 font-medium text-[13px]">{idx + 1}</td>
+                            <td className="px-4 py-2">
+                              <button onClick={() => handleSearch(item.keyword)} className="!text-black font-bold text-[13px] hover:text-blue-600 hover:underline text-left truncate w-full cursor-pointer">
+                                {item.keyword}
+                              </button>
+                            </td>
+                            
+                            <td className={`px-4 py-2 text-right font-bold bg-orange-50/20 text-[13px] ${isCpcUpdating ? 'text-orange-300 animate-pulse' : 'text-orange-600'}`}>
+                              {item.cpc ? `${formatNum(item.cpc)}원` : '-'}
+                            </td>
+                            
+                            <td className={`px-4 py-2 text-right font-bold text-blue-600 bg-blue-50/20 text-[13px]`}>{formatNum(item.total)}</td>
+                            <td className="px-4 py-2 text-right !text-black font-medium text-[13px]">
+                              {formatNum(item.pc)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(item.pc/item.total*100)}%)</span>
+                            </td>
+                            <td className="px-4 py-2 text-right !text-black font-medium text-[13px]">
+                              {formatNum(item.mobile)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(item.mobile/item.total*100)}%)</span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               )}
             </div>
