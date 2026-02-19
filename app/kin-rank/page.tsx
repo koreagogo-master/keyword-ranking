@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { checkNaverKinRank } from './actions';
-import Sidebar from '@/components/Sidebar'; // 사이드바 추가
+import Sidebar from '@/components/Sidebar';
 import RankTabs from '@/components/RankTabs';
 
 interface SearchResult {
@@ -20,12 +20,8 @@ interface InputRow {
 }
 
 export default function KinRankPage() {
+  // 초기 상태 5개
   const [inputs, setInputs] = useState<InputRow[]>([
-    { keyword: '', targetTitle: '' },
-    { keyword: '', targetTitle: '' },
-    { keyword: '', targetTitle: '' },
-    { keyword: '', targetTitle: '' },
-    { keyword: '', targetTitle: '' },
     { keyword: '', targetTitle: '' },
     { keyword: '', targetTitle: '' },
     { keyword: '', targetTitle: '' },
@@ -40,6 +36,24 @@ export default function KinRankPage() {
   const handleInputChange = (index: number, field: keyof InputRow, value: string) => {
     const newInputs = [...inputs];
     newInputs[index][field] = value;
+    setInputs(newInputs);
+  };
+
+  // [추가] 행 추가 로직
+  const handleAddRow = () => {
+    if (inputs.length >= 10) {
+      alert('최대 10개까지만 입력 가능합니다.');
+      return;
+    }
+    setInputs([...inputs, { keyword: '', targetTitle: '' }]);
+  };
+
+  // [추가] 행 삭제 로직
+  const handleRemoveRow = (index: number) => {
+    // 최소 1개는 유지하고 싶다면 아래 조건 사용 (선택사항)
+    if (inputs.length <= 1) return;
+    
+    const newInputs = inputs.filter((_, i) => i !== index);
     setInputs(newInputs);
   };
 
@@ -105,49 +119,90 @@ export default function KinRankPage() {
 
   return (
     <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] font-sans">
-      {/* 사이드바 추가 */}
       <Sidebar />
 
-      {/* 메인 영역: p-10으로 상단 여백 통일 */}
       <main className="flex-1 ml-64 p-10">
         <div className="max-w-7xl mx-auto">
           
           <RankTabs />
           
-          {/* 제목 스타일 수정 */}
           <h1 className="text-2xl font-normal text-gray-900 mb-8">
             N 지식인 통검노출, 순위, 날짜 확인
           </h1>
           
-          {/* 입력 영역: 흰색 배경 테마로 변경 */}
           <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-10">
             <div className="flex flex-col gap-3">
-              {inputs.map((row, index) => (
-                <div key={index} className="flex gap-4 items-start">
-                  <div className="w-1/3">
-                    {index === 0 && <label className="block text-sm font-medium mb-2 text-gray-600">키워드</label>}
-                    <input 
-                      type="text"
-                      value={row.keyword}
-                      onChange={(e) => handleInputChange(index, 'keyword', e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder={`키워드 ${index + 1}`}
-                      className="w-full p-3 h-[45px] rounded bg-white border border-gray-300 focus:outline-none focus:border-[#1a73e8] text-gray-900 text-sm transition-colors"
-                    />
+              {inputs.map((row, index) => {
+                // 마지막 줄인지 확인 (마지막 줄에만 + 표시)
+                const isLastItem = index === inputs.length - 1;
+                // 10개 꽉 찼으면 + 버튼 숨기기 위해 체크
+                const isFull = inputs.length >= 10;
+
+                return (
+                  <div key={index} className="flex gap-4 items-end">
+                    
+                    {/* [버튼 영역] 좌측 배치 */}
+                    <div className="w-[45px] flex-shrink-0">
+                      {/* 첫 번째 줄일 때 라벨과의 줄 맞춤을 위한 빈 공간 */}
+                      {index === 0 && <div className="mb-2 h-5"></div>}
+                      
+                      {isLastItem ? (
+                        /* 마지막 줄: 10개 미만일 때 + 버튼, 10개면 - 버튼(혹은 숨김) */
+                        !isFull ? (
+                          <button
+                            onClick={handleAddRow}
+                            className="w-full h-[45px] rounded bg-blue-500 hover:bg-blue-600 text-white font-bold text-xl flex items-center justify-center transition-colors"
+                            title="입력창 추가"
+                          >
+                            +
+                          </button>
+                        ) : (
+                          /* 10개 꽉 찼을 때는 마지막 줄도 삭제 가능하게 - 처리 */
+                          <button
+                            onClick={() => handleRemoveRow(index)}
+                            className="w-full h-[45px] rounded bg-red-100 hover:bg-red-200 text-red-500 font-bold text-xl flex items-center justify-center transition-colors"
+                            title="삭제"
+                          >
+                            -
+                          </button>
+                        )
+                      ) : (
+                        /* 마지막 줄이 아니면: 삭제(-) 버튼 */
+                        <button
+                          onClick={() => handleRemoveRow(index)}
+                          className="w-full h-[45px] rounded bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-red-500 font-bold text-xl flex items-center justify-center transition-colors"
+                          title="삭제"
+                        >
+                          -
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex-1">
+                      {index === 0 && <label className="block text-sm font-medium mb-2 text-gray-600">키워드</label>}
+                      <input 
+                        type="text"
+                        value={row.keyword}
+                        onChange={(e) => handleInputChange(index, 'keyword', e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder={`키워드 ${index + 1}`}
+                        className="w-full p-3 h-[45px] rounded bg-white border border-gray-300 focus:outline-none focus:border-[#1a73e8] text-gray-900 text-sm transition-colors"
+                      />
+                    </div>
+                    <div className="flex-[2]">
+                      {index === 0 && <label className="block text-sm font-medium mb-2 text-gray-600">찾을 제목</label>}
+                      <input 
+                        type="text"
+                        value={row.targetTitle}
+                        onChange={(e) => handleInputChange(index, 'targetTitle', e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        placeholder={`제목 식별 문구 ${index + 1}`}
+                        className="w-full p-3 h-[45px] rounded bg-white border border-gray-300 focus:outline-none focus:border-[#1a73e8] text-gray-900 text-sm transition-colors"
+                      />
+                    </div>
                   </div>
-                  <div className="w-2/3">
-                    {index === 0 && <label className="block text-sm font-medium mb-2 text-gray-600">찾을 제목</label>}
-                    <input 
-                      type="text"
-                      value={row.targetTitle}
-                      onChange={(e) => handleInputChange(index, 'targetTitle', e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder={`제목 식별 문구 ${index + 1}`}
-                      className="w-full p-3 h-[45px] rounded bg-white border border-gray-300 focus:outline-none focus:border-[#1a73e8] text-gray-900 text-sm transition-colors"
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
 
               <div className="mt-4">
                 <button 
@@ -162,7 +217,7 @@ export default function KinRankPage() {
             </div>
           </div>
 
-          {/* 결과 테이블: 흰색 배경 테마로 변경 */}
+          {/* 결과 테이블 */}
           {results.length > 0 && (
             <div>
               <h2 className="text-lg font-bold mb-4 text-gray-700">검색 결과 ({results.length}건)</h2>

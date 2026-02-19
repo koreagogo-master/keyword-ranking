@@ -1,27 +1,56 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createClient } from "@/app/utils/supabase/client";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter(); 
   const supabase = createClient();
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setUser(user);
-        const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-        setProfile(data || null);
+      setIsLoading(true); 
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setUser(user);
+          const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+          setProfile(data || null);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("유저 로드 실패", error);
+        setUser(null);
+      } finally {
+        setIsLoading(false); 
       }
     };
     fetchUserData();
   }, [supabase]);
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      
+      if (typeof window !== 'undefined') {
+        window.localStorage.clear();
+        window.sessionStorage.clear();
+      }
+
+      alert("로그아웃 되었습니다.");
+      window.location.replace("/"); 
+    } catch (err) {
+      console.error("로그아웃 실행 중 오류:", err);
+      window.location.replace("/");
+    }
+  };
 
   const menuGroups = [
     {
@@ -59,19 +88,13 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-50">
-      {/* Ranking Pro1 부분 주석 처리 유지 */}
-      {/* <div className="h-16 flex items-center px-6 border-b border-gray-100">
-        <span 
-          className="text-lg font-extrabold text-[#1a73e8] tracking-tight antialiased"
-          style={{ fontFamily: "'NanumSquare', sans-serif" }}
-        >
-          Ranking Pro1
-        </span>
-      </div> 
-      */}
-
-      {/* 개선된 회원 정보 영역 (텍스트 중심의 깔끔한 디자인) */}
-      {user && (
+      
+      {/* 1. 회원 정보 영역 */}
+      {isLoading ? (
+        <div className="px-6 py-7 border-b border-gray-100 bg-gray-50/30 flex items-center justify-center h-[130px]">
+          <span className="text-xs text-gray-400 font-bold">정보 불러오는 중...</span>
+        </div>
+      ) : user ? (
         <div className="px-6 py-7 border-b border-gray-100 bg-gray-50/30">
           <div className="mb-4">
             <p className="text-gray-400 font-medium text-[11px] mb-1">Signed in as</p>
@@ -87,15 +110,33 @@ export default function Sidebar() {
             </span>
           </div>
 
-          <Link 
-            href="/mypage" 
-            className="flex items-center justify-center w-full border border-gray-200 bg-white hover:border-[#ff8533] hover:text-[#ff8533] text-gray-600 text-[12px] font-bold py-2 rounded-lg transition-all shadow-sm"
-          >
-            마이페이지 관리
+          {/* My page / Log out 버튼 (둘 다 rounded-lg 적용 완료) */}
+          <div className="flex gap-2 w-full mt-2">
+            <Link 
+              href="/mypage" 
+              className="flex-1 flex items-center justify-center border border-gray-200 bg-white hover:border-[#ff8533] hover:text-[#ff8533] text-gray-600 text-[12px] font-bold py-2 rounded-lg transition-all shadow-sm"
+            >
+              My page
+            </Link>
+            <button 
+              onClick={handleLogout}
+              className="flex-1 flex items-center justify-center border border-gray-200 bg-white hover:border-red-500 transition-all shadow-sm group rounded-lg"
+            >
+              <span className="text-gray-600 group-hover:text-red-500 text-[12px] font-bold">
+                Log out
+              </span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="px-6 py-7 border-b border-gray-100 bg-gray-50/30 flex items-center justify-center h-[130px]">
+          <Link href="/login" className="text-[13px] font-bold text-[#ff8533] hover:underline">
+            로그인이 필요합니다
           </Link>
         </div>
       )}
 
+      {/* 2. 메뉴 목록 */}
       <nav className="flex-1 py-6 overflow-y-auto">
         <ul>
           {menuGroups.map((group, groupIdx) => (
