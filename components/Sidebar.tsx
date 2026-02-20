@@ -14,25 +14,55 @@ export default function Sidebar() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // 화면 전환 시 엉킴을 방지하는 안전장치
+    let isMounted = true;
+
     const fetchUserData = async () => {
       setIsLoading(true); 
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          setUser(user);
+          if (isMounted) setUser(user);
           const { data } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-          setProfile(data || null);
+          if (isMounted) setProfile(data || null);
         } else {
-          setUser(null);
+          if (isMounted) setUser(null);
         }
       } catch (error) {
         console.error("유저 로드 실패", error);
-        setUser(null);
+        if (isMounted) setUser(null);
       } finally {
-        setIsLoading(false); 
+        if (isMounted) setIsLoading(false); 
       }
     };
+    
     fetchUserData();
+
+    // 헤더와 동일한 '실시간 로그인 상태 감지기' 장착
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+      setIsLoading(true);
+      try {
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+          if (session?.user) {
+            setUser(session.user);
+            const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+            setProfile(data || null);
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null);
+          setProfile(null);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    });
+
+    // 컴포넌트 종료 시 감지기 해제
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, [supabase]);
 
   const handleLogout = async () => {

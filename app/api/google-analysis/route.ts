@@ -5,7 +5,7 @@ export async function POST(request: Request) {
 
   if (!rawKeyword) return NextResponse.json({ error: '키워드가 없습니다.' }, { status: 400 });
 
-  const keyword = rawKeyword.replace(/\s+/g, '').trim();
+  const keyword = rawKeyword.trim();
 
   const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID?.replace(/-/g, '').trim();
   const developerToken = process.env.GOOGLE_ADS_DEVELOPER_TOKEN?.trim();
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     const accessToken = tokenData.access_token;
 
     const response = await fetch(
-      `https://googleads.googleapis.com/v19/customers/${customerId}:generateKeywordIdeas`,
+      `https://googleads.googleapis.com/v23/customers/${customerId}:generateKeywordIdeas`,
       {
         method: 'POST',
         headers: {
@@ -54,6 +54,11 @@ export async function POST(request: Request) {
 
     const data = JSON.parse(resText);
     const hasData = data.results && data.results.length > 0;
+    
+    // 🌟 [추가] 터미널에 구글이 준 데이터 개수를 출력해 봅니다.
+    console.log(`[디버그] "${keyword}" 구글 응답 데이터 개수:`, data.results?.length || 0);
+
+    if (!hasData) return NextResponse.json({ success: true, keywords: [] });
 
     if (!hasData) return NextResponse.json({ success: true, keywords: [] });
 
@@ -71,6 +76,8 @@ export async function POST(request: Request) {
         keyword: idea.text,
         searchVolume: metrics.avgMonthlySearches || 0,
         competition: compText,
+        // 🌟 [추가된 부분] 구글 API에서 넘겨주는 경쟁도 지수(0~100)를 프론트엔드로 전달합니다.
+        competitionIndex: metrics.competitionIndex !== undefined ? metrics.competitionIndex : undefined,
         cpcLow: lowBid,
         cpcHigh: highBid,
       };

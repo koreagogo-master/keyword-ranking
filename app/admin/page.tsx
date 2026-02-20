@@ -6,61 +6,56 @@ import { useRouter } from "next/navigation";
 
 export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  
+  // 1. 컴포넌트가 엉키지 않도록 세 가지 상태로 명확히 나눕니다.
+  const [status, setStatus] = useState<'checking' | 'admin' | 'redirecting'>('checking');
+  
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
-    checkAdminAndFetchUsers();
+    // React 생명주기 안전장치 (화면이 전환될 때 메모리 누수 방지)
+    let isMounted = true;
+
+    const safeAuthCheck = async () => {
+      try {
+        // [수정됨] getSession 대신 getUser를 사용하여 서버에서 가장 정확한 상태를 확인합니다.
+        const { data: { user }, error } = await supabase.auth.getUser();
+
+        // [수정됨] 에러가 있거나, 유저가 없거나, 관리자 이메일이 아닌 경우 (일반 사용자)
+        if (error || !user || user.email !== 'a01091944465@gmail.com') {
+          if (isMounted) {
+            // 1. 화면을 더 이상 그리지 않도록 'redirecting' 상태로 고정합니다.
+            setStatus('redirecting'); 
+            
+            // 2. [수정됨] Next.js 라우터 대신 브라우저의 강력한 이동(새로고침 동반)을 사용합니다.
+            // 이 방식을 통해 메인 페이지의 헤더와 서브 페이지의 사이드바가 로그인 상태를 잃지 않고 정상 작동하게 됩니다.
+            window.location.replace("/");
+          }
+          return;
+        }
+
+        // 관리자인 경우 정상 작동
+        if (isMounted) {
+          setStatus('admin');
+          fetchUsers();
+        }
+      } catch (error) {
+        if (isMounted) {
+          setStatus('redirecting');
+          window.location.replace("/");
+        }
+      }
+    };
+
+    safeAuthCheck();
+
+    // 컴포넌트가 사라질 때 실행되는 정리(Cleanup) 함수
+    return () => {
+      isMounted = false;
+    };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const checkAdminAndFetchUsers = async () => {
-    console.log("1. 보안 확인 시작...");
-    try {
-      // A. 세션 정보를 먼저 가져옵니다 (getUser보다 빠르고 안정적일 때가 있습니다)
-      const { data: { session } } = await supabase.auth.getSession();
-      const user = session?.user;
-
-      if (!user) {
-        console.log("2. 로그인 정보 없음 -> 로그인 페이지 이동");
-        router.replace("/login");
-        return;
-      }
-
-      console.log("2. 로그인 유저 확인 완료:", user.email);
-
-      // B. 역할 확인
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      const userRole = profile?.role?.toLowerCase();
-      console.log("3. DB 권한 확인:", userRole);
-
-      if (profileError || userRole !== 'admin') {
-        console.warn("4. 관리자 아님 -> 메인으로 이동");
-        alert("관리자 권한이 없습니다.");
-        router.replace("/");
-        return;
-      }
-
-      // C. 관리자 확인 완료
-      console.log("4. 관리자 접속 허용");
-      setIsAdmin(true);
-      await fetchUsers();
-      
-    } catch (err) {
-      console.error("보안 확인 중 예외 발생:", err);
-      router.replace("/");
-    } finally {
-      // [핵심] 어떤 경우에도(성공, 실패, 에러 모두) 로딩은 끕니다.
-      console.log("5. 로딩 해제");
-      setLoading(false);
-    }
-  };
 
   const fetchUsers = async () => {
     const { data, error } = await supabase
@@ -83,18 +78,10 @@ export default function AdminPage() {
     }
   };
 
-  // 로딩 화면
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex flex-col items-center justify-center gap-4">
-        <div className="text-white text-xl font-bold">보안 확인 중...</div>
-        <p className="text-gray-400 text-sm">잠시만 기다려주세요.</p>
-      </div>
-    );
+  // 2. 확인 중이거나 튕겨내는 중일 때는 까만 화면만 띄워 UI 충돌을 완벽히 방지합니다.
+  if (status === 'checking' || status === 'redirecting') {
+    return <div className="min-h-screen bg-gray-900"></div>;
   }
-
-  // 관리자가 아닐 때 내용을 보여주지 않음
-  if (!isAdmin) return null;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white p-10 pt-24">
