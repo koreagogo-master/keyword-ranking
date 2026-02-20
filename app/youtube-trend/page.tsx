@@ -23,6 +23,11 @@ export default function YouTubeTrendPage() {
   const [suggestedList, setSuggestedList] = useState<string[]>([]);
   const [searchedKeyword, setSearchedKeyword] = useState("");
 
+  const [descModal, setDescModal] = useState<{isOpen: boolean, text: string, title: string}>({isOpen: false, text: '', title: ''});
+  
+  // 🌟 [추가됨] 어떤 영상의 '숨은 태그'가 펼쳐져 있는지 기억하는 상태 저장소
+  const [expandedTags, setExpandedTags] = useState<Record<string, boolean>>({});
+
   const handleSearch = async (targetKeyword?: string) => {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
@@ -33,6 +38,7 @@ export default function YouTubeTrendPage() {
     setVideoList([]);
     setSuggestedList([]); 
     setSearchedKeyword(k);
+    setExpandedTags({}); // 🌟 새로운 검색 시 태그 펼침 상태 초기화
 
     try {
       const res = await fetch(`/api/youtube-search?keyword=${encodeURIComponent(k)}`);
@@ -69,11 +75,19 @@ export default function YouTubeTrendPage() {
     });
   };
 
+  // 🌟 [추가됨] 태그 더보기/접기 버튼을 눌렀을 때 작동하는 함수
+  const toggleTags = (videoId: string) => {
+    setExpandedTags(prev => ({
+      ...prev,
+      [videoId]: !prev[videoId]
+    }));
+  };
+
   return (
     <div className="flex min-h-screen bg-[#f8f9fa] !text-black">
       <Sidebar />
       
-      <main className="flex-1 ml-64 p-10">
+      <main className="flex-1 ml-64 p-10 relative">
         <div className="max-w-7xl mx-auto">
           
           <div className="mb-8">
@@ -145,6 +159,7 @@ export default function YouTubeTrendPage() {
                         <th className="px-5 py-4 font-bold text-slate-500 w-auto">영상 정보 & 숨겨진 태그</th>
                         <th className="px-5 py-4 font-bold text-slate-500 text-right w-28">조회수</th>
                         <th className="px-5 py-4 font-bold text-slate-500 text-right w-24">좋아요</th>
+                        <th className="px-5 py-4 font-bold text-slate-500 text-right w-24">댓글</th>
                         <th className="px-5 py-4 font-bold text-slate-500 text-center w-28">업로드일</th>
                       </tr>
                     </thead>
@@ -155,12 +170,19 @@ export default function YouTubeTrendPage() {
                             {idx + 1}
                           </td>
                           <td className="px-5 py-3">
-                            <img 
-                              src={video.thumbnail} 
-                              alt="thumbnail" 
-                              className="w-full h-auto rounded-md shadow-sm border border-gray-200 object-cover aspect-video"
-                              loading="lazy"
-                            />
+                            <div className="relative w-full">
+                              <img 
+                                src={video.thumbnail} 
+                                alt="thumbnail" 
+                                className="w-full h-auto rounded-md shadow-sm border border-gray-200 object-cover aspect-video"
+                                loading="lazy"
+                              />
+                              {video.isShorts && (
+                                <span className="absolute bottom-1.5 right-1.5 bg-[#ea4335] text-white text-[10px] font-black px-1.5 py-0.5 rounded shadow-sm border border-[#d33828]">
+                                  SHORTS
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-5 py-3">
                             <a 
@@ -171,20 +193,55 @@ export default function YouTubeTrendPage() {
                             >
                               {video.title}
                             </a>
-                            <p className="text-[13px] text-slate-500 font-medium mb-2">{video.channelTitle}</p>
                             
-                            {/* 🌟 [수정됨] 태그 영역을 더 눈에 띄는 박스 형태로 변경 */}
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-[13px] text-slate-500 font-medium">{video.channelTitle}</span>
+                              <span className="text-[11px] bg-red-50 text-red-600 px-1.5 py-0.5 rounded border border-red-100 font-bold whitespace-nowrap">
+                                구독자 {formatNum(video.subscriberCount)}명
+                              </span>
+                              
+                              {/* 🌟 [수정됨] 상세 설명 버튼 텍스트를 검은색(!text-black)으로 변경 */}
+                              {video.description && video.description.trim() !== '' && (
+                                <button 
+                                  onClick={() => setDescModal({isOpen: true, text: video.description, title: video.title})}
+                                  className="text-[11px] bg-slate-100 !text-black hover:bg-slate-200 border border-slate-200 px-1.5 py-0.5 rounded font-bold transition-colors"
+                                >
+                                  상세 설명 보기
+                                </button>
+                              )}
+                            </div>
+                            
                             {video.tags && video.tags.length > 0 && (
-                              <div className="flex flex-wrap gap-1.5 mt-2 p-2 bg-[#f8f9fa] rounded-md border border-gray-100">
-                                {video.tags.slice(0, 5).map((tag: string, i: number) => (
+                              <div className="flex flex-wrap gap-1.5 mt-2 p-2 bg-[#f8f9fa] rounded-md border border-gray-100 items-center">
+                                <span className="text-[12px] font-bold text-slate-700 mr-1 flex items-center whitespace-nowrap">
+                                  숨은 태그:
+                                </span>
+                                
+                                {/* 🌟 [수정됨] 펼침 상태(expandedTags)에 따라 5개만 보여줄지, 전부 다 보여줄지 결정 */}
+                                {(expandedTags[video.videoId] ? video.tags : video.tags.slice(0, 5)).map((tag: string, i: number) => (
                                   <span key={i} className="px-2 py-1 bg-white text-slate-600 text-[12px] rounded-sm font-medium border border-gray-200 shadow-sm">
                                     #{tag}
                                   </span>
                                 ))}
-                                {video.tags.length > 5 && (
-                                  <span className="px-2 py-1 text-slate-400 text-[11px] font-bold flex items-center">
-                                    +{video.tags.length - 5}
-                                  </span>
+                                
+                                {/* 접혀있고 태그가 5개 이상일 때 나타나는 [더보기] 버튼 */}
+                                {!expandedTags[video.videoId] && video.tags.length > 5 && (
+                                  <button 
+                                    onClick={() => toggleTags(video.videoId)}
+                                    className="px-2 py-1 !text-blue-600 hover:!text-black text-[11px] font-bold flex items-center bg-gray-200 rounded-sm cursor-pointer transition-colors"
+                                  >
+                                    +{video.tags.length - 5} 더보기
+                                  </button>
+                                )}
+                                
+                                {/* 펼쳐져 있을 때 나타나는 [접기] 버튼 */}
+                                {expandedTags[video.videoId] && video.tags.length > 5 && (
+                                  <button 
+                                    onClick={() => toggleTags(video.videoId)}
+                                    className="px-2 py-1 !text-blue-600 hover:!text-black text-[11px] font-bold flex items-center bg-gray-200 rounded-sm cursor-pointer transition-colors"
+                                  >
+                                    접기
+                                  </button>
                                 )}
                               </div>
                             )}
@@ -194,6 +251,9 @@ export default function YouTubeTrendPage() {
                           </td>
                           <td className="px-5 py-3 text-right font-medium text-slate-600 text-[13px]">
                             {formatNum(video.likeCount)}
+                          </td>
+                          <td className="px-5 py-3 text-right font-medium text-slate-600 text-[13px]">
+                            {formatNum(video.commentCount)}
                           </td>
                           <td className="px-5 py-3 text-center text-slate-500 text-[13px] tracking-tighter">
                             {formatDate(video.publishedAt)}
@@ -218,6 +278,28 @@ export default function YouTubeTrendPage() {
           )}
 
         </div>
+        
+        {descModal.isOpen && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-[999] p-4 backdrop-blur-sm">
+            <div className="bg-white rounded-lg w-full max-w-2xl max-h-[80vh] flex flex-col shadow-2xl">
+              <div className="p-4 border-b border-gray-200 flex justify-between items-center bg-slate-50 rounded-t-lg">
+                <h4 className="font-bold text-slate-800 text-[15px] truncate pr-4 border-l-4 border-[#ea4335] pl-2">
+                  상세 설명 (더보기란)
+                </h4>
+                <button 
+                  onClick={() => setDescModal({isOpen: false, text: '', title: ''})} 
+                  className="text-gray-400 hover:text-red-500 font-bold text-2xl leading-none"
+                >
+                  &times;
+                </button>
+              </div>
+              <div className="p-6 overflow-y-auto whitespace-pre-wrap text-[14px] text-slate-700 leading-relaxed font-medium">
+                {descModal.text || '상세 설명이 없습니다.'}
+              </div>
+            </div>
+          </div>
+        )}
+
       </main>
     </div>
   );
