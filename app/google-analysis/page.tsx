@@ -144,7 +144,8 @@ export default function GoogleAnalysisPage() {
           
           <div className="mb-8">
             <h1 className="text-2xl font-bold !text-black">구글 키워드 분석</h1>
-            <p className="text-sm text-slate-500 mt-1">구글 Ads API를 활용하여 글로벌 및 국내 검색량, 경쟁도, 예상 CPC(클릭당 비용)를 분석합니다.</p>
+            <p className="text-sm text-slate-500 mt-1">* 구글 Ads API를 활용하여 글로벌 및 국내 검색량, 경쟁도, 예상 CPC(클릭당 비용)를 분석합니다.</p>
+            <p className="text-sm text-slate-500 mt-1">* 구글 기준 조회수가 적은 키워드는 구글 Ads에서 검색되지 않을 수 있습니다.</p>
           </div>
 
           <div className="bg-white border border-gray-200 rounded-sm flex items-center shadow-md focus-within:border-blue-400 overflow-hidden max-w-2xl mb-8">
@@ -154,7 +155,7 @@ export default function GoogleAnalysisPage() {
               onChange={(e) => setKeyword(e.target.value)} 
               onKeyDown={(e) => e.key === "Enter" && handleSearch()} 
               className="flex-1 py-3 px-4 text-base outline-none !text-black bg-white" 
-              placeholder="분석할 구글 키워드 입력 (예: 마케팅)" 
+              placeholder="분석할 구글 키워드 입력 (예: 다이어트)" 
             />
             <button 
               onClick={() => handleSearch()} 
@@ -200,10 +201,10 @@ export default function GoogleAnalysisPage() {
                 {/* 대안 B: PC 구글 팝업 (검색어 연동) */}
                 <div className="md:col-span-1 bg-white p-5 border border-gray-200 shadow-sm rounded-sm flex flex-col justify-center">
                   <h3 className="font-bold text-slate-700 text-sm mb-3 flex items-center gap-2">
-                    관련 검색어 직접 확인
+                    관련 검색어 실시간 확인
                   </h3>
                   <p className="text-[13px] text-slate-500 mb-4 leading-relaxed">
-                    구글 검색 결과 하단에서 연관 키워드를 직접 확인하세요.
+                    구글 검색 결과 하단에서 <strong className="text-blue-700">"{keyword}"</strong> 관련 검색어를 직접 확인하세요. <br />(PC검색 결과 입니다. 모바일은 다를 수 있습니다.)
                   </p>
                   
                   <button 

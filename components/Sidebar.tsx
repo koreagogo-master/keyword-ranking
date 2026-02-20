@@ -2,23 +2,28 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+// 🌟 1. useMemo를 추가로 불러옵니다.
+import { useEffect, useState, useMemo } from 'react'; 
 import { createClient } from "@/app/utils/supabase/client";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter(); 
-  const supabase = createClient();
+  
+  // 🌟 2. [핵심] Supabase 클라이언트가 화면이 바뀔 때마다 새로 생성되지 않도록 꽉 묶어둡니다.
+  const supabase = useMemo(() => createClient(), []);
+
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // 화면 전환 시 엉킴을 방지하는 안전장치
     let isMounted = true;
 
     const fetchUserData = async () => {
-      setIsLoading(true); 
+      // 🌟 3. 유저 정보가 없을 때(최초 접속)만 로딩을 띄웁니다.
+      if (!user) setIsLoading(true); 
+      
       try {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -38,10 +43,9 @@ export default function Sidebar() {
     
     fetchUserData();
 
-    // 헤더와 동일한 '실시간 로그인 상태 감지기' 장착
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
-      setIsLoading(true);
+      
       try {
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           if (session?.user) {
@@ -58,12 +62,11 @@ export default function Sidebar() {
       }
     });
 
-    // 컴포넌트 종료 시 감지기 해제
     return () => {
       isMounted = false;
       subscription.unsubscribe();
     };
-  }, [supabase]);
+  }, [supabase]); // 이제 supabase가 고정되었으므로, 검색창 키워드가 바뀌어도 이 로직이 미쳐 날뛰지 않습니다.
 
   const handleLogout = async () => {
     try {
@@ -140,7 +143,6 @@ export default function Sidebar() {
             </span>
           </div>
 
-          {/* My page / Log out 버튼 (둘 다 rounded-lg 적용 완료) */}
           <div className="flex gap-2 w-full mt-2">
             <Link 
               href="/mypage" 
