@@ -14,7 +14,8 @@ export async function GET(request: Request) {
   }
 
   try {
-    const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(keyword)}&type=video&regionCode=KR&key=${apiKey}`;
+    // 🌟 [수정됨] maxResults=10 이었던 부분을 원하시는 대로 maxResults=25 로 늘렸습니다.
+    const searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=25&q=${encodeURIComponent(keyword)}&type=video&regionCode=KR&key=${apiKey}`;
     const searchRes = await fetch(searchUrl);
     const searchData = await searchRes.json();
 
@@ -30,7 +31,7 @@ export async function GET(request: Request) {
     const videoIds = videoItems.map((item: any) => item.id.videoId).join(',');
     const channelIds = [...new Set(videoItems.map((item: any) => item.snippet.channelId))].join(',');
 
-    // 🌟 [수정됨] part에 contentDetails를 추가하여 영상 길이를 가져옵니다.
+    // 🌟 [유지됨] part에 contentDetails를 추가하여 영상 길이를 가져옵니다.
     const statsUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet,contentDetails&id=${videoIds}&key=${apiKey}`;
     const statsRes = await fetch(statsUrl);
     const statsData = await statsRes.json();
@@ -49,7 +50,7 @@ export async function GET(request: Request) {
     const finalData = statsData.items.map((item: any) => {
       const chId = item.snippet.channelId;
       
-      // 🌟 [추가됨] 유튜브 영상 길이(ISO 8601 형식)를 분석하여 Shorts(60초 이하)인지 판별합니다.
+      // 🌟 [유지됨] 유튜브 영상 길이(ISO 8601 형식)를 분석하여 Shorts(60초 이하)인지 판별합니다.
       const duration = item.contentDetails?.duration || '';
       let isShorts = false;
       if (!duration.includes('H')) { // 시간이 포함되어 있으면 무조건 롱폼
@@ -72,7 +73,7 @@ export async function GET(request: Request) {
         subscriberCount: channelStatsMap[chId] || '0',
         tags: item.snippet.tags || [],
         
-        // 🌟 [추가됨] 더보기란 원본 텍스트와 Shorts 여부를 함께 보냅니다.
+        // 🌟 [유지됨] 더보기란 원본 텍스트와 Shorts 여부를 함께 보냅니다.
         description: item.snippet.description || '',
         isShorts: isShorts,
       };

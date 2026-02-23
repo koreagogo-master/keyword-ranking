@@ -140,7 +140,7 @@ export default function YouTubeTrendPage() {
                 <div className="bg-white border border-gray-300 shadow-sm rounded-sm overflow-hidden">
                   <div className="px-5 py-4 border-b border-gray-200 bg-slate-50 flex justify-between items-center">
                     <h3 className="font-bold text-slate-700 text-sm">
-                      "<span className="text-[#ea4335]">{searchedKeyword}</span>" 상위 노출 영상 TOP 10
+                      "<span className="text-[#ea4335]">{searchedKeyword}</span>" 상위 노출 영상 TOP <span className="text-[#ea4335]">{videoList.length}</span>
                     </h3>
                     
                     <button 

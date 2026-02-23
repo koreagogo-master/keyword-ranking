@@ -17,20 +17,29 @@ export default function Sidebar() {
 
   useEffect(() => {
     let isMounted = true;
+    
+    // 🛡️ [추가됨] 절대 무한 로딩에 빠지지 않도록 3초 뒤 강제로 로딩을 해제하는 타이머
+    const fallbackTimer = setTimeout(() => {
+      if (isMounted) setIsLoading(false);
+    }, 3000);
 
     const loadSession = async () => {
       try {
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // 🌟 [수정됨] Header.tsx와 동일하게 가장 안정적인 getUser() 방식으로 통일
+        const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
         
-        if (sessionError) throw sessionError;
+        if (userError) {
+           if (userError.name === 'AbortError' || userError.message?.includes('aborted')) return;
+           throw userError;
+        }
         
-        if (session?.user) {
-          if (isMounted) setUser(session.user);
+        if (currentUser) {
+          if (isMounted) setUser(currentUser);
           
           const { data, error: profileError } = await supabase
             .from('profiles')
             .select('*')
-            .eq('id', session.user.id)
+            .eq('id', currentUser.id)
             .single();
           
           if (profileError && profileError.code !== 'PGRST116') {
@@ -45,6 +54,7 @@ export default function Sidebar() {
         console.error("세션 로드 실패", error);
         if (isMounted) setUser(null);
       } finally {
+        clearTimeout(fallbackTimer); // 통신이 정상적으로 끝나면 강제 해제 타이머를 취소합니다.
         if (isMounted) setIsLoading(false); 
       }
     };
@@ -68,6 +78,7 @@ export default function Sidebar() {
 
     return () => {
       isMounted = false;
+      clearTimeout(fallbackTimer);
       subscription.unsubscribe();
     };
   }, [supabase]);
