@@ -5,6 +5,9 @@ import { checkNaverRank } from './actions';
 import Sidebar from '@/components/Sidebar';
 import RankTabs from '@/components/RankTabs';
 
+// 🌟 1. 로그인 신분증을 챙기기 위해 중앙 통제실 스위치를 가져옵니다.
+import { useAuth } from '@/app/contexts/AuthContext';
+
 interface SearchResult {
   keyword: string;
   success: boolean;
@@ -15,6 +18,9 @@ interface SearchResult {
 }
 
 export default function BlogRankPage() {
+  // 🌟 2. 중앙 통제실에서 현재 로그인한 유저 정보(user)를 꺼내옵니다.
+  const { user } = useAuth();
+
   const [targetNickname, setTargetNickname] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,6 +31,12 @@ export default function BlogRankPage() {
     if (!targetNickname || !keywordInput) {
       alert('닉네임과 키워드를 모두 입력해주세요.');
       return;
+    }
+
+    // 🌟 3. 혹시 로그인이 풀렸거나 정보를 못 가져왔다면 여기서 방어합니다.
+    if (!user) {
+        alert('로그인 정보가 만료되었거나 확인할 수 없습니다. 다시 로그인해주세요.');
+        return;
     }
 
     const keywords = keywordInput
@@ -40,6 +52,7 @@ export default function BlogRankPage() {
       setProgress(`${i + 1} / ${keywords.length} 진행 중... (${keyword})`);
 
       try {
+        // 서버(actions.ts) 함수를 호출합니다. 이제 Next.js 환경에서 쿠키가 자동으로 전달됩니다.
         const data = await checkNaverRank(keyword, targetNickname);
 
         setResults(prev => [
@@ -47,13 +60,14 @@ export default function BlogRankPage() {
           {
             keyword,
             success: data.success,
-            rank: data.success ? data.data?.totalRank || 0 : 'X',
+            // 🌟 4. 서버에서 "로그인이 필요한 서비스입니다"라고 거절당했을 경우를 명확히 보여줍니다.
+            rank: data.success ? data.data?.totalRank || 0 : (data.message.includes('로그인') ? 'Auth Error' : 'X'),
             date: data.success ? data.data?.date || '-' : '-',
-            title: data.success ? data.data?.title || '' : '순위 내 없음',
+            title: data.success ? data.data?.title || '' : (data.message || '순위 내 없음'),
             author: data.success ? data.data?.author || '' : '-',
           },
         ]);
-      } catch {
+      } catch (err) {
         setResults(prev => [
           ...prev,
           {
@@ -61,7 +75,7 @@ export default function BlogRankPage() {
             success: false,
             rank: 'Err',
             date: '-',
-            title: '오류 발생',
+            title: '시스템 오류 발생',
             author: '-',
           },
         ]);
@@ -78,10 +92,8 @@ export default function BlogRankPage() {
 
   return (
     <>
-      {/* 1. 폰트 적용 (에러 방지를 위한 Link 태그 사용) */}
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
 
-      {/* 2. 스타일 통일 (font-sans 제거, antialiased, tracking-tight 추가) */}
       <div 
         className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight"
         style={{ fontFamily: "'NanumSquare', sans-serif" }}
@@ -92,12 +104,12 @@ export default function BlogRankPage() {
           <div className="max-w-7xl mx-auto">
             <RankTabs />
 
-            {/* 타이틀 스타일 통일 (font-bold) */}
             <h1 className="text-2xl font-bold text-gray-900 mb-8">
               N 모바일 통검 순위 확인
             </h1>
+            <p>* "사이트", "뉴스", "플레이스"는 순위에서 제외 됩니다.</p>
+            <p>* "지식인"이 순위에 노출 될 경우 제목에 내용이 길게 표시 됩니다.</p><br />
 
-            {/* 입력 영역 */}
             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-10">
               <div className="flex gap-4 items-end">
                 <div className="w-1/4 min-w-[200px]">
@@ -144,7 +156,6 @@ export default function BlogRankPage() {
               </div>
             </div>
 
-            {/* 결과 테이블 */}
             {results.length > 0 && (
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                 <table className="w-full text-sm text-left border-collapse">
@@ -161,10 +172,12 @@ export default function BlogRankPage() {
                       <tr key={i} className="hover:bg-blue-50/30 transition-colors">
                         <td className="px-6 py-4 font-bold text-gray-900 text-center">{r.keyword}</td>
                         <td className="px-6 py-4 text-center">
-                          {r.rank !== 'X' && r.rank !== 'Err' && r.rank !== 0 ? (
+                          {r.rank === 'Auth Error' ? (
+                              <span className="text-sm text-red-500 font-bold">인증 실패</span>
+                          ) : r.rank !== 'X' && r.rank !== 'Err' && r.rank !== 0 ? (
                             <span className="text-lg font-extrabold text-[#1a73e8]">{r.rank}위</span>
                           ) : (
-                            <span className="text-sm text-gray-400 font-medium">순위밖</span>
+                            <span className="text-sm text-gray-400 font-medium">-</span>
                           )}
                         </td>
                         <td className="px-6 py-4 text-center text-gray-400 font-medium">
