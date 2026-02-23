@@ -3,6 +3,7 @@
 import { useState, Suspense, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
+import SaveSnapshotButton from "@/components/SaveSnapshotButton";
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
 
@@ -197,11 +198,24 @@ function RelatedFastContent() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9fa] !text-black">
-      <Sidebar />
-      <main className="flex-1 ml-64 p-10">
-        <div className="max-w-7xl mx-auto">
-          <RankTabs />
+    <>
+      {/* 🌟 1. 나눔스퀘어 폰트 불러오기 (다른 페이지들과 동일) */}
+      <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
+
+      {/* 🌟 2. 폰트 스타일(fontFamily)과 자간(tracking-tight) 적용 */}
+      <div 
+        className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" 
+        style={{ fontFamily: "'NanumSquare', sans-serif" }}
+      >
+        <Sidebar />
+
+        {/* 🌟 추가: 현재 페이지 이름을 "연관 키워드 조회"로 달아서 버튼을 배치합니다. */}
+        {/* 주의: resultData={data} 의 'data' 부분은 대표님 코드에서 실제 검색 결과를 담고 있는 변수명(예: results, keywords 등)과 똑같이 맞춰주시면 됩니다. */}
+        <SaveSnapshotButton keyword={keyword} resultData={keyword} pageName="연관 키워드 조회" />
+
+        <main className="flex-1 ml-64 p-10">
+          <div className="max-w-7xl mx-auto">
+            <RankTabs />
           
           <div className="mb-8">
             <h1 className="text-2xl font-bold !text-black">연관 키워드 조회</h1>
@@ -400,6 +414,7 @@ function RelatedFastContent() {
         </div>
       </main>
     </div>
+    </>
   );
 }
 

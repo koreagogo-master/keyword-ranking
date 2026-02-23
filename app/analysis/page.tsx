@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation"; 
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
+import SaveSnapshotButton from "@/components/SaveSnapshotButton";
 
 // 컴포넌트 임포트
 import SearchVolume from "./components/1_SearchVolume"; // 월간 검색량
@@ -144,6 +145,10 @@ function AnalysisContent() {
         style={{ fontFamily: "'NanumSquare', sans-serif" }}
       >
         <Sidebar />
+        
+        {/* 🌟 2. 화면 우측 상단에 고정될 저장 버튼 부품을 끼워 넣습니다. */}
+        <SaveSnapshotButton keyword={keyword} resultData={stats} pageName="키워드 분석" />
+
         <main className="flex-1 ml-64 p-10">
           <div className="max-w-7xl mx-auto">
             <RankTabs />
@@ -188,7 +193,7 @@ function AnalysisContent() {
                   ))}
                 </div>
               ) : (
-                <div className="text-gray-400 text-sm font-bold">연관 키워드가 이곳에 노출됩니다.</div>
+                <div className="text-gray-400 text-sm font-bold">검색 결과에 연관 키워드가 있으면 이곳에 노출됩니다.</div>
               )}
             </div>
 
