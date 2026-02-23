@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { createClient } from "@/app/utils/supabase/client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useRouter, usePathname } from "next/navigation"; 
 import { Montserrat } from 'next/font/google';
 
@@ -23,7 +23,8 @@ export default function Header() {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true); 
   
-  const supabase = createClient();
+// ✅ 수정 2: 매번 렌더링될 때마다 재생성되지 않도록 useMemo로 단단히 묶어줍니다.
+  const supabase = useMemo(() => createClient(), []);
   const router = useRouter();
   const pathname = usePathname(); 
   const [noticeIndex, setNoticeIndex] = useState(0);

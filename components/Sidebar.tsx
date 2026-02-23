@@ -13,7 +13,6 @@ export default function Sidebar() {
 
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<any>(null);
-  // 🌟 초기 상태를 true로 두되, 로딩을 최대한 빨리 끝내도록 로직을 수정합니다.
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -21,12 +20,23 @@ export default function Sidebar() {
 
     const loadSession = async () => {
       try {
-        // 🌟 핵심 해결책: 서버까지 가지 않고, 브라우저 저장소에서 즉시 세션을 읽어옵니다. (속도 10배 이상 향상)
-        const { data: { session } } = await supabase.auth.getSession();
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) throw sessionError;
         
         if (session?.user) {
           if (isMounted) setUser(session.user);
-          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+          
+          const { data, error: profileError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (profileError && profileError.code !== 'PGRST116') {
+            console.warn("Sidebar 프로필 로드 알림:", profileError.message);
+          }
+          
           if (isMounted) setProfile(data || null);
         } else {
           if (isMounted) setUser(null);
@@ -44,8 +54,7 @@ export default function Sidebar() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
       
-      // 🌟 F5 누를 때 불필요한 깜빡임을 막기 위해, '진짜 새로 로그인했을 때'만 화면을 업데이트합니다.
-      if (event === 'SIGNED_IN') {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session?.user) {
           setUser(session.user);
           const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
