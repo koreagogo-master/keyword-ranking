@@ -1,11 +1,11 @@
-// keyword-ranking\components\Header.tsx
+// keyword-ranking/components/Header.tsx
 'use client';
 
 import Link from "next/link";
-import { createClient } from "@/app/utils/supabase/client";
-import { useEffect, useState, useMemo } from "react";
-import { useRouter, usePathname } from "next/navigation"; 
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation"; 
 import { Montserrat } from 'next/font/google';
+import { useAuth } from "@/app/contexts/AuthContext";
 
 const montserrat = Montserrat({
   subsets: ['latin'],
@@ -19,81 +19,11 @@ const NOTICES = [
 ];
 
 export default function Header() {
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true); 
-  
-// ✅ 수정 2: 매번 렌더링될 때마다 재생성되지 않도록 useMemo로 단단히 묶어줍니다.
-  const supabase = useMemo(() => createClient(), []);
-  const router = useRouter();
   const pathname = usePathname(); 
   const [noticeIndex, setNoticeIndex] = useState(0);
-
-  const fetchUserData = async (currentUser: any) => {
-    try {
-      if (!currentUser) {
-        setUser(null);
-        setProfile(null);
-        return;
-      }
-      setUser(currentUser);
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', currentUser.id)
-        .single();
-      
-      if (error) {
-        if (error.name === 'AbortError' || error.message?.includes('aborted')) return;
-        if (error.code !== 'PGRST116') {
-          console.warn("프로필 조회 알림:", error.message);
-        }
-      }
-      
-      console.log("현재 로그인된 유저의 DB 프로필 정보:", data);
-      
-      setProfile(data || null);
-    } catch (err: any) {
-      if (err.name === 'AbortError' || err.message?.includes('aborted')) return;
-      console.error("Header 프로필 로드 실패:", err);
-    }
-  };
-
-  useEffect(() => {
-    const initUser = async () => {
-      setIsLoading(true);
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-        if (error) {
-          if (error.name === 'AbortError' || error.message?.includes('aborted')) return;
-          throw error;
-        }
-        await fetchUserData(user);
-      } catch (err: any) {
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    initUser();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      setIsLoading(true);
-      try {
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          await fetchUserData(session?.user);
-        } else if (event === 'SIGNED_OUT') {
-          setUser(null);
-          setProfile(null);
-        }
-      } catch (err: any) {
-        if (err.name === 'AbortError') return;
-      } finally {
-        setIsLoading(false);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [supabase]);
+  
+  // 중앙 통제실에서 정보 가져오기
+  const { user, profile, isLoading, handleLogout } = useAuth();
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -101,23 +31,6 @@ export default function Header() {
     }, 4000);
     return () => clearInterval(timer);
   }, []);
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      
-      if (typeof window !== 'undefined') {
-        window.localStorage.clear();
-        window.sessionStorage.clear();
-      }
-
-      alert("로그아웃 되었습니다.");
-      window.location.replace("/"); 
-    } catch (err) {
-      console.error("로그아웃 실행 중 오류:", err);
-      window.location.replace("/");
-    }
-  };
 
   return (
     <header className="w-full h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 fixed top-0 left-0 z-[9999] shadow-sm">
@@ -140,33 +53,38 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-4 text-sm font-medium z-10">
-        {pathname === '/' && (
-          isLoading ? (
-            <div className="w-20 h-9"></div> 
-          ) : user ? (
-            <>
-              {profile?.role?.toLowerCase() === 'admin' && (
-                <Link href="/admin" className="flex items-center justify-center bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl text-[13px] font-bold transition shadow-sm">
-                  관리자
-                </Link>
-              )}
-              
-              {/* My page 버튼 */}
-              <Link href="/mypage" className="flex items-center justify-center bg-white border border-gray-200 hover:border-[#ff8533] hover:text-[#ff8533] text-gray-600 px-4 py-2 rounded-xl text-[13px] font-bold transition shadow-sm">
-                My page
+        {isLoading ? (
+          <div className="w-20 h-9"></div> 
+        ) : user ? (
+          <>
+            {/* 🌟 1. 관리자 버튼: 조건 없이, 관리자 등급이면 무조건 상단에 노출 */}
+            {profile?.role?.toLowerCase() === 'admin' && (
+              <Link href="/admin" className="flex items-center justify-center bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl text-[13px] font-bold transition shadow-sm">
+                관리자
               </Link>
-              
-              {/* Log out 버튼 (span 보호막 추가 및 디자인 완벽 통일) */}
-              <button 
-                onClick={handleLogout}
-                className="flex items-center justify-center bg-white border border-gray-200 hover:border-[#ff8533] transition shadow-sm rounded-xl px-4 py-2 group"
-              >
-                <span className="text-gray-600 group-hover:text-[#ff8533] text-[13px] font-bold transition-colors">
-                  Log out
-                </span>
-              </button>
-            </>
-          ) : (
+            )}
+            
+            {/* 🌟 2. My page & Log out 버튼: 메인 페이지('/')에서만 노출 */}
+            {pathname === '/' && (
+              <>
+                <Link href="/mypage" className="flex items-center justify-center bg-white border border-gray-200 hover:border-[#ff8533] hover:text-[#ff8533] text-gray-600 px-4 py-2 rounded-xl text-[13px] font-bold transition shadow-sm">
+                  My page
+                </Link>
+                
+                <button 
+                  onClick={handleLogout}
+                  className="flex items-center justify-center bg-white border border-gray-200 hover:border-[#ff8533] transition shadow-sm rounded-xl px-4 py-2 group"
+                >
+                  <span className="text-gray-600 group-hover:text-[#ff8533] text-[13px] font-bold transition-colors">
+                    Log out
+                  </span>
+                </button>
+              </>
+            )}
+          </>
+        ) : (
+          /* 비로그인 상태의 로그인 버튼도 메인 페이지에서만 노출 */
+          pathname === '/' && (
             <Link href="/login" className="flex items-center justify-center bg-[#ff8533] hover:bg-[#e6772e] text-white px-6 py-2 rounded-xl font-bold transition shadow-md shadow-orange-100">
               로그인
             </Link>

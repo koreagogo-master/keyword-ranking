@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import localFont from "next/font/local"; 
 import "./globals.css";
 import Header from "@/components/Header"; 
-import MemoSidebar from "@/components/MemoSidebar"; // 1. 메모장 컴포넌트 추가
-import Footer from "@/components/Footer"; // 푸터 컴포넌트 추가
+import MemoSidebar from "@/components/MemoSidebar"; 
+import Footer from "@/components/Footer"; 
+// 🌟 1. 방금 1단계에서 만든 중앙 통제실(AuthProvider)을 불러옵니다.
+import { AuthProvider } from "@/app/contexts/AuthContext";
 
-// 1. 나눔바른고딕 설정
 const nanumBarunGothic = localFont({
   src: [
     { path: "../public/fonts/NanumBarunGothic.ttf", weight: "400", style: "normal" },
@@ -14,7 +15,6 @@ const nanumBarunGothic = localFont({
   variable: "--font-nanum-barun",
 });
 
-// 2. 나눔스퀘어 설정
 const nanumSquare = localFont({
   src: [
     { path: "../public/fonts/NanumSquareL.ttf", weight: "300", style: "normal" },
@@ -40,22 +40,24 @@ export default function RootLayout({
       <body
         className={`${nanumBarunGothic.variable} ${nanumSquare.variable} antialiased`}
       >
-        {/* 상단 네비게이션 바 */}
-        <Header />
-        
-        {/* 우측 슬라이딩 메모장 (모든 페이지에서 따라다님) */}
-        <MemoSidebar />
-        
-        {/* 메인 콘텐츠 영역 */}
-        <div className="pt-16 min-h-screen bg-gray-900 text-white">
-          {children}
-        </div>
+        {/* 🌟 2. AuthProvider로 웹사이트 전체 화면(Header, 콘텐츠, Footer 등)을 싹 감싸줍니다. */}
+        <AuthProvider>
+          {/* 상단 네비게이션 바 */}
+          <Header />
+          
+          {/* 우측 슬라이딩 메모장 (모든 페이지에서 따라다님) */}
+          <MemoSidebar />
+          
+          {/* 메인 콘텐츠 영역 */}
+          <div className="pt-16 min-h-screen bg-gray-900 text-white">
+            {children}
+          </div>
 
-        {/* 푸터 영역 (모든 페이지 하단에 공통 적용) */}
-        {/* ✅ 수정된 부분: 사이드바 너비(255px)만큼 왼쪽 여백을 주어 겹치지 않게 합니다. */}
-        <div className="ml-[255px]">
-          <Footer />
-        </div>
+          {/* 푸터 영역 (모든 페이지 하단에 공통 적용) */}
+          <div className="ml-[255px]">
+            <Footer />
+          </div>
+        </AuthProvider>
       </body>
     </html>
   );

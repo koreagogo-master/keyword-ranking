@@ -1,104 +1,17 @@
+// keyword-ranking/components/Sidebar.tsx
 'use client';
 
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, useMemo } from 'react'; 
-import { createClient } from "@/app/utils/supabase/client";
+import { usePathname } from 'next/navigation';
+
+// 🌟 1. 중앙 통제실 스위치를 가져옵니다.
+import { useAuth } from "@/app/contexts/AuthContext";
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const router = useRouter(); 
   
-  const supabase = useMemo(() => createClient(), []);
-
-  const [user, setUser] = useState<any>(null);
-  const [profile, setProfile] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    let isMounted = true;
-    
-    // 🛡️ [추가됨] 절대 무한 로딩에 빠지지 않도록 3초 뒤 강제로 로딩을 해제하는 타이머
-    const fallbackTimer = setTimeout(() => {
-      if (isMounted) setIsLoading(false);
-    }, 3000);
-
-    const loadSession = async () => {
-      try {
-        // 🌟 [수정됨] Header.tsx와 동일하게 가장 안정적인 getUser() 방식으로 통일
-        const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-        
-        if (userError) {
-           if (userError.name === 'AbortError' || userError.message?.includes('aborted')) return;
-           throw userError;
-        }
-        
-        if (currentUser) {
-          if (isMounted) setUser(currentUser);
-          
-          const { data, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', currentUser.id)
-            .single();
-          
-          if (profileError && profileError.code !== 'PGRST116') {
-            console.warn("Sidebar 프로필 로드 알림:", profileError.message);
-          }
-          
-          if (isMounted) setProfile(data || null);
-        } else {
-          if (isMounted) setUser(null);
-        }
-      } catch (error) {
-        console.error("세션 로드 실패", error);
-        if (isMounted) setUser(null);
-      } finally {
-        clearTimeout(fallbackTimer); // 통신이 정상적으로 끝나면 강제 해제 타이머를 취소합니다.
-        if (isMounted) setIsLoading(false); 
-      }
-    };
-    
-    loadSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (!isMounted) return;
-      
-      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-        if (session?.user) {
-          setUser(session.user);
-          const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
-          if (isMounted) setProfile(data || null);
-        }
-      } else if (event === 'SIGNED_OUT') {
-        setUser(null);
-        setProfile(null);
-      }
-    });
-
-    return () => {
-      isMounted = false;
-      clearTimeout(fallbackTimer);
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      
-      if (typeof window !== 'undefined') {
-        window.localStorage.clear();
-        window.sessionStorage.clear();
-      }
-
-      alert("로그아웃 되었습니다.");
-      window.location.replace("/"); 
-    } catch (err) {
-      console.error("로그아웃 실행 중 오류:", err);
-      window.location.replace("/");
-    }
-  };
+  // 🌟 2. 수십 줄의 코드를 지우고, 여기서도 게시판 정보만 쓱 읽어옵니다.
+  const { user, profile, isLoading, handleLogout } = useAuth();
 
   const menuGroups = [
     {
