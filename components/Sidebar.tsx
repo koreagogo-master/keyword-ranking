@@ -96,7 +96,7 @@ export default function Sidebar() {
             className="w-full mt-2 flex items-center justify-center gap-1.5 bg-[#1a73e8] hover:bg-blue-700 text-white text-[12px] font-bold py-2.5 rounded-lg transition-all shadow-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
-            저장된 결과 보관함
+            저장된 키워드 보기
           </button>
         </div>
       ) : (

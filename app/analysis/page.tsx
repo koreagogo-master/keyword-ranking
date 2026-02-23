@@ -146,9 +146,8 @@ function AnalysisContent() {
       >
         <Sidebar />
         
-        {/* 🌟 2. 화면 우측 상단에 고정될 저장 버튼 부품을 끼워 넣습니다. */}
-        <SaveSnapshotButton keyword={keyword} resultData={stats} pageName="키워드 분석" />
-
+        {/* 🌟 수정: 이 페이지 전용 '엑셀 도면'을 직접 만들어서 버튼에 통째로 넘겨줍니다! */}
+        <SaveSnapshotButton keyword={keyword} resultData={stats} pageName="키워드 정밀 분석" />
         <main className="flex-1 ml-64 p-10">
           <div className="max-w-7xl mx-auto">
             <RankTabs />
