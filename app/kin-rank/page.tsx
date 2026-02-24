@@ -5,6 +5,10 @@ import { checkNaverKinRank } from './actions';
 import Sidebar from '@/components/Sidebar';
 import RankTabs from '@/components/RankTabs';
 
+import { createClient } from "@/app/utils/supabase/client";
+import { useAuth } from "@/app/contexts/AuthContext";
+import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+
 interface SearchResult {
   keyword: string;
   success: boolean;
@@ -20,7 +24,9 @@ interface InputRow {
 }
 
 export default function KinRankPage() {
-  // 초기 상태 5개
+  const { user } = useAuth();
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
   const [inputs, setInputs] = useState<InputRow[]>([
     { keyword: '', targetTitle: '' },
     { keyword: '', targetTitle: '' },
@@ -58,8 +64,9 @@ export default function KinRankPage() {
     return new Promise(resolve => setTimeout(resolve, ms));
   };
 
-  const handleCheck = async () => {
-    const validInputs = inputs.filter(input => input.keyword.trim() !== '' && input.targetTitle.trim() !== '');
+  const handleCheck = async (overrideInputs?: InputRow[]) => {
+    const inputsToUse = overrideInputs || inputs;
+    const validInputs = inputsToUse.filter(input => input.keyword.trim() !== '' && input.targetTitle.trim() !== '');
 
     if (validInputs.length === 0) {
       alert('최소 하나의 키워드와 찾을 제목을 입력해주세요.');
@@ -82,10 +89,11 @@ export default function KinRankPage() {
       try {
         const data = await checkNaverKinRank(keyword, targetTitle);
 
+        // 🌟 [수정됨] 순위 뒤에 붙던 "위" 텍스트를 제거했습니다.
         const newResult: SearchResult = {
           keyword: keyword,
           success: data.success,
-          tabRank: data.success ? (data.data?.tabRank && data.data.tabRank > 0 ? `${data.data.tabRank}위` : 'X') : 'Err',
+          tabRank: data.success ? (data.data?.tabRank && data.data.tabRank > 0 ? data.data.tabRank : 'X') : 'Err',
           isMainExposed: data.success ? data.data?.isMainExposed || false : null,
           title: data.success ? data.data?.title || '' : '오류 발생',
           date: data.success ? data.data?.date || '-' : '-', 
@@ -113,14 +121,45 @@ export default function KinRankPage() {
     if (e.key === 'Enter') handleCheck();
   };
 
+  const handleSaveCurrentSetting = async () => {
+    const validInputs = inputs.filter(input => input.keyword.trim() !== '' && input.targetTitle.trim() !== '');
+    if (validInputs.length === 0) {
+      alert("최소 하나의 키워드와 찾을 제목을 입력한 후 저장해주세요.");
+      return;
+    }
+    const supabase = createClient();
+    const { error } = await supabase.from('saved_searches').insert({
+      user_id: user?.id,
+      page_type: 'JISIKIN',
+      jisikin_data: validInputs
+    });
+    
+    if (!error) alert("현재 설정이 안전하게 저장되었습니다.");
+    else alert("저장 중 오류가 발생했습니다.");
+  };
+
+  const handleApplySavedSetting = (item: any) => {
+    setIsDrawerOpen(false);
+    
+    if (item.jisikin_data && Array.isArray(item.jisikin_data)) {
+      const loadedInputs = item.jisikin_data.slice(0, 10);
+      
+      const paddedInputs = [...loadedInputs];
+      while (paddedInputs.length < 5) {
+        paddedInputs.push({ keyword: '', targetTitle: '' });
+      }
+
+      setInputs(paddedInputs);
+      handleCheck(loadedInputs);
+    }
+  };
+
   return (
     <>
-      {/* 1. 나눔스퀘어 폰트를 웹에서 가져오는 코드 (반드시 필요) */}
       <style jsx global>{`
         @import url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css');
       `}</style>
 
-      {/* 2. antialiased (부드럽게), tracking-tight (자간 좁게) 추가됨 */}
       <div 
         className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" 
         style={{ fontFamily: "'NanumSquare', sans-serif" }}
@@ -132,9 +171,27 @@ export default function KinRankPage() {
             
             <RankTabs />
             
-            <h1 className="text-2xl font-bold text-gray-900 mb-8">
-              N 지식인 통검노출, 순위, 날짜 확인
-            </h1>
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-2xl font-bold text-gray-900">
+                N 지식인 통검노출, 순위, 날짜 확인
+              </h1>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={handleSaveCurrentSetting}
+                  className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                  현재 설정 저장
+                </button>
+                <button 
+                  onClick={() => setIsDrawerOpen(true)}
+                  className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
+                  저장된 목록 보기
+                </button>
+              </div>
+            </div>
             
             <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-10">
               <div className="flex flex-col gap-3">
@@ -144,7 +201,6 @@ export default function KinRankPage() {
 
                   return (
                     <div key={index} className="flex gap-4 items-end">
-                      
                       <div className="w-[45px] flex-shrink-0">
                         {index === 0 && <div className="mb-2 h-5"></div>}
                         
@@ -205,7 +261,7 @@ export default function KinRankPage() {
 
                 <div className="mt-4">
                   <button 
-                    onClick={handleCheck}
+                    onClick={() => handleCheck()}
                     disabled={loading}
                     className={`w-full py-3 rounded font-bold text-white transition-all shadow-md
                       ${loading ? 'bg-gray-400' : 'bg-[#1a73e8] hover:bg-[#1557b0] hover:shadow-lg'}`}
@@ -271,6 +327,13 @@ export default function KinRankPage() {
           </div>
         </main>
       </div>
+
+      <SavedSearchesDrawer 
+        isOpen={isDrawerOpen} 
+        onClose={() => setIsDrawerOpen(false)} 
+        pageType="JISIKIN" 
+        onSelect={handleApplySavedSetting} 
+      />
     </>
   );
 }

@@ -1,4 +1,3 @@
-// keyword-ranking/components/Sidebar.tsx
 'use client';
 
 import Link from 'next/link';
@@ -6,12 +5,11 @@ import { usePathname } from 'next/navigation';
 
 // 🌟 1. 중앙 통제실 스위치를 가져옵니다.
 import { useAuth } from "@/app/contexts/AuthContext";
-import SnapshotSidebar from "@/components/SnapshotSidebar";
 
 export default function Sidebar() {
   const pathname = usePathname();
   
-  // 🌟 2. 수십 줄의 코드를 지우고, 여기서도 게시판 정보만 쓱 읽어옵니다.
+  // 🌟 2. 게시판 정보 읽어오기
   const { user, profile, isLoading, handleLogout } = useAuth();
 
   const menuGroups = [
@@ -51,7 +49,6 @@ export default function Sidebar() {
 
   return (
     <>
-    <SnapshotSidebar />
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-50">
       
       {/* 1. 회원 정보 영역 */}
@@ -91,14 +88,6 @@ export default function Sidebar() {
               </span>
             </button>
           </div>
-          {/* 🌟 추가: 스냅샷 보관함 열기 신호를 보내는 버튼 */}
-          <button 
-            onClick={() => window.dispatchEvent(new Event('open-snapshot-sidebar'))}
-            className="w-full mt-2 flex items-center justify-center gap-1.5 bg-[#1a73e8] hover:bg-blue-700 text-white text-[12px] font-bold py-2.5 rounded-lg transition-all shadow-sm"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
-            저장된 키워드 보기
-          </button>
         </div>
       ) : (
         <div className="px-6 py-7 border-b border-gray-100 bg-gray-50/30 flex items-center justify-center h-[130px]">
