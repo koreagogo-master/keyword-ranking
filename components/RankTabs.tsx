@@ -7,11 +7,12 @@ export default function RankTabs() {
   const pathname = usePathname();
 
   const tabs = [
-    { name: '키워드 분석', href: '/analysis' },
-    { name: '연관 키워드 조회', href: '/related-fast' }, // ✅ 신규 추가
-    { name: 'N 모바일 통검', href: '/blog-rank' },
+    { name: '키워드 정밀 분석', href: '/analysis' },
+    { name: '연관 키워드 조회', href: '/related-fast' },
+    { name: "키워드 생성기", href: "/keyword-generator" },    
     { name: 'N 모바일 블로그', href: '/blog-rank-b' },
-    { name: 'N 지식인', href: '/kin-rank' },
+    { name: 'N 모바일 지식인', href: '/kin-rank' },
+    { name: 'N 모바일 통검 노출/순위 확인', href: '/blog-rank' },
   ];
 
   return (

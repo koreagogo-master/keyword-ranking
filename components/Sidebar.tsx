@@ -20,9 +20,10 @@ export default function Sidebar() {
       items: [
         { name: "키워드 정밀 분석", href: "/analysis" },
         { name: "연관 키워드 조회", href: "/related-fast" },
-        { name: "통검 순위", href: "/blog-rank" },
-        { name: "블로그 순위", href: "/blog-rank-b" },
-        { name: "지식인 순위", href: "/kin-rank" },
+        { name: "키워드 생성기", href: "/keyword-generator" },
+        { name: "블로그 순위 확인", href: "/blog-rank-b" },
+        { name: "지식인 순위 확인", href: "/kin-rank" },
+        { name: "통검 노출/순위 확인", href: "/blog-rank" },
       ]
     },
     {
