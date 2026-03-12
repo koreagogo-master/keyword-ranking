@@ -9,7 +9,7 @@ import FadeInUp from "@/components/FadeInUp";
 
 export default function Home() {
   const [keyword, setKeyword] = useState("");
-  const [isFocused, setIsFocused] = useState(false); // 🌟 추가: 마우스 클릭을 감지하는 센서
+  const [isFocused, setIsFocused] = useState(false);
   const router = useRouter();
 
   const handleSearch = (e?: React.FormEvent) => {
@@ -18,34 +18,19 @@ export default function Home() {
     router.push(`/analysis?keyword=${encodeURIComponent(keyword)}`);
   };
 
-  const services = [
-    { title: "키워드 정밀 분석", href: "/analysis", icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg> },
-    { title: "블로그 순위 확인", href: "/blog-rank-b", icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg> },
-    { title: "N 통합 순위 분석", href: "/blog-rank", icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg> },
-    { title: "지식인 순위 확인", href: "/kin-rank", icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg> },
-    { title: "구글 분석", href: "/google-analysis", icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg> },
-    { title: "셀러 도구", href: "/shopping-comp", icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg> },
-    { title: "연관 검색어 추출", href: "/related", icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg> },
-    { title: "블로그 지수 확인", href: "/blog-index", icon: <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg> },
-  ];
-
   return (
-    <div className="min-h-screen bg-gray-50 font-body flex flex-col">
+    <div className="min-h-screen bg-white font-body flex flex-col">
       
-      {/* 1. 메인 히어로 섹션 */}
-      <main className="bg-white flex flex-col items-center justify-center px-4 pt-28 pb-32 border-b border-gray-100">
+      {/* 🌟 1. 메인 히어로 섹션 (배경색 추가: bg-gray-50) */}
+      <main className="bg-gray-50 flex flex-col items-center justify-center px-4 pt-28 pb-32 border-b border-gray-100">
         <FadeInUp>
           <div className="text-center mb-12">
-            
-            <span className="text-indigo-600 font-bold text-sm md:text-base mb-6 inline-block bg-indigo-50 px-4 py-1.5 rounded-full">
+            <span className="text-indigo-600 font-bold text-sm md:text-base mb-6 inline-block bg-indigo-100/50 px-4 py-1.5 rounded-full">
               회원가입 시 매일 5회 무료 검색 제공!
             </span>
-            
-            {/* 🌟 2% 부족함 채우기: 폰트 두께를 가장 무겁게(font-black) 압도적으로 키우고, 'Pro'에만 브랜드 컬러(text-indigo-600) 적용 */}
             <h1 className="text-5xl md:text-7xl font-black font-sans text-gray-900 mb-8 tracking-tighter">
               Ranking <span className="text-indigo-600">Pro</span>
             </h1>
-            
             <p className="text-gray-500 text-lg md:text-xl font-medium leading-relaxed">
               Naver API와 Google API를 기반으로<br className="md:hidden" /> 성공적인 마케팅을 위한 정밀 데이터 분석 솔루션
             </p>
@@ -55,7 +40,6 @@ export default function Home() {
         <FadeInUp delay={0.2}>
           <div className="w-full flex justify-center px-4">
             <form onSubmit={handleSearch} className="flex justify-center w-full">
-              
               <div 
                 className="relative flex items-center bg-white rounded-2xl p-1.5 transition-all duration-500 ease-out"
                 style={{ 
@@ -81,7 +65,6 @@ export default function Home() {
                   검색
                 </button>
               </div>
-
             </form>
           </div>
           
@@ -93,8 +76,8 @@ export default function Home() {
         </FadeInUp>
       </main>
 
-      {/* 2. 소개 섹션 */}
-      <section className="bg-gray-50 py-24 px-6">
+      {/* 🌟 2. 소개 섹션 (배경색 제거: bg-white) */}
+      <section className="bg-white py-24 px-6 border-b border-gray-100">
         <div className="max-w-6xl mx-auto text-center">
           <FadeInUp>
             <h2 className="text-3xl font-black text-gray-900 mb-4 font-title">압도적인 데이터, 직관적인 분석</h2>
@@ -129,124 +112,223 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 3. 제공 서비스 */}
-      <section className="bg-white py-24 px-6 border-t border-b border-gray-100">
+      {/* 🌟 3. 제공 솔루션 (배경색 추가: bg-gray-50, 내부 박스는 bg-white로 대비) */}
+      <section className="bg-gray-50 py-24 px-6 border-b border-gray-100">
         <div className="max-w-5xl mx-auto">
           <FadeInUp>
-            <div className="text-center mb-12">
-              <h2 className="text-3xl font-black text-gray-800 font-title mb-4">제공 서비스</h2>
-              <p className="text-gray-500 text-sm font-medium">Ranking Pro가 제공하는 전문 마케팅 분석 도구입니다.</p>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-black text-gray-800 font-title">제공 솔루션</h2>
             </div>
           </FadeInUp>
           
           <FadeInUp delay={0.2}>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {services.map((service, idx) => (
-                <Link 
-                  key={idx} 
-                  href={service.href} 
-                  className="bg-white py-8 px-4 rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:-translate-y-1 hover:border-indigo-600 transition-all duration-300 group flex flex-col items-center text-center"
-                >
-                  <div className="w-16 h-16 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 mb-5 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
-                    {service.icon}
-                  </div>
-                  <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-600 transition-colors">{service.title}</h3>
-                </Link>
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+              
+              <Link href="/analysis" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">키워드 정밀 분석</h3>
+              </Link>
+
+              <Link href="/related-fast" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">연관 키워드 조회</h3>
+              </Link>
+
+              <Link href="/keyword-generator" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">키워드 생성기</h3>
+              </Link>
+
+              <Link href="/blog-rank-b" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">블로그 순위 확인</h3>
+              </Link>
+
+              <Link href="/kin-rank" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">지식인 순위 확인</h3>
+              </Link>
+
+              <Link href="/blog-rank" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">통검 노출/순위 확인</h3>
+              </Link>
+
+              <Link href="/google-analysis" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">구글 키워드 분석</h3>
+              </Link>
+
+              <Link href="/youtube-trend" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">유튜브 트렌드</h3>
+              </Link>
+
+              <Link href="/shopping-insight" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">쇼핑 경쟁강도</h3>
+              </Link>
+
+              <Link href="/calculator" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">수익률 계산기</h3>
+              </Link>
+
+              <Link href="/history" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">분석 히스토리</h3>
+              </Link>
+
+              <Link href="/settings" className="bg-white h-40 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center justify-center transition-all duration-300 group hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.2)] hover:border-indigo-300 cursor-pointer">
+                <div className="text-gray-400 group-hover:text-indigo-600 transition-colors duration-300 mb-4">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-indigo-700 transition-colors duration-300">사용자 설정</h3>
+              </Link>
+
             </div>
           </FadeInUp>
         </div>
       </section>
 
-      {/* 4. 요금제 */}
-      <section className="bg-white py-32 px-6 border-t border-gray-100">
-        <div className="max-w-6xl mx-auto text-center">
+      {/* 4. 합리적인 포인트 요금제 (타이틀 고유 컬러 적용 + 묵직한 블랙 버튼) */}
+      <section className="bg-white py-24 px-6 border-b border-gray-100">
+        <div className="max-w-5xl mx-auto">
           <FadeInUp>
-            <h2 className="text-3xl font-black text-gray-900 mb-4 font-title">합리적인 포인트 요금제</h2>
-            <p className="text-gray-500 mb-10">필요한 만큼만 충전해서 사용하는 종량제 방식으로 비용 부담을 줄이세요.</p>
-            
-            <div className="bg-indigo-50 border border-indigo-100 text-indigo-700 py-4 px-6 rounded-2xl max-w-2xl mx-auto mb-14 shadow-sm">
-              <p className="font-bold text-sm md:text-base">
-                * 신규 회원가입 혜택: 매일 <span className="text-indigo-900 font-black underline">무료 검색 5회</span> 제공! 
-                <span className="font-medium text-indigo-500 ml-1 text-xs md:text-sm">(상세 데이터 일부 제한) *</span>
-              </p>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-black text-gray-800 font-title mb-4">합리적인 포인트 요금제</h2>
+              <p className="text-gray-500 text-sm font-medium">필요한 만큼만 충전하고, 모든 분석 도구를 자유롭게 사용하세요.</p>
             </div>
           </FadeInUp>
-
+          
           <FadeInUp delay={0.2}>
-            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               
-              {/* 베이직 요금제 */}
-              <div className="bg-[#f5f5f5] p-10 rounded-3xl border border-gray-200 flex flex-col">
+              {/* 🌟 1. 스타터 */}
+              <div className="group bg-gray-50 rounded-2xl p-8 border border-gray-200 flex flex-col transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-[0_10px_30px_-10px_rgba(16,185,129,0.3)] hover:border-emerald-500">
                 <div className="text-center mb-8 pb-8 border-b border-gray-200">
-                  <h3 className="text-lg font-bold text-gray-500 mb-2">스타터 (Starter)</h3>
-                  <div className="text-4xl font-black text-gray-900 mb-4">10,000<span className="text-lg text-gray-400 font-medium ml-1">원</span></div>
-                  <p className="text-indigo-600 font-bold">10,000 포인트 충전</p>
-                </div>
-                <ul className="space-y-4 mb-10 text-gray-600 text-sm flex-1">
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                    <span>모든 순위 검색 기능 이용</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                    <span>1회 검색 시 10P 차감</span>
-                  </li>
-                </ul>
-                <button className="w-full py-4 rounded-xl font-bold bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm transition-all !text-[#575151]">결제하기</button>
-              </div>
-
-              {/* 프로 요금제 */}
-              <div className="bg-white p-10 rounded-3xl shadow-xl border-2 border-indigo-600 relative flex flex-col transform md:-translate-y-4 z-10">
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-indigo-600 text-white px-4 py-1.5 rounded-full text-xs font-black tracking-wider shadow-md">
-                  가장 많이 선택하는
-                </div>
-                <div className="text-center mb-8 pb-8 border-b border-gray-100">
-                  <h3 className="text-lg font-bold text-indigo-600 mb-2">프로 (Pro)</h3>
-                  <div className="text-4xl font-black text-gray-900 mb-4">30,000<span className="text-lg text-gray-400 font-medium ml-1">원</span></div>
-                  <div className="flex items-center justify-center gap-2">
-                    <p className="text-indigo-600 font-bold">35,000 포인트 충전</p>
-                    <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">+5,000P</span>
+                  <span className="text-[11px] font-black tracking-widest text-gray-400 block mb-1">STARTER</span>
+                  {/* 🚀 변경: 기본 상태부터 에메랄드 색상 적용 */}
+                  <h3 className="text-2xl font-black text-emerald-500 mb-2">스타터</h3>
+                  <p className="text-sm text-gray-400 mb-6">개인 및 1인 셀러를 위한 플랜</p>
+                  
+                  <div className="flex flex-col items-center gap-1">
+                    <p className="text-gray-700 font-bold text-lg">30,000 포인트 충전</p>
+                    <div className="flex items-center gap-1 text-gray-400 mt-1">
+                      <span className="text-lg font-semibold">30,000</span>
+                      <span className="text-sm">원</span>
+                    </div>
                   </div>
                 </div>
-                <ul className="space-y-4 mb-10 text-gray-600 text-sm flex-1">
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                    <span>모든 순위 검색 기능 이용</span>
+                
+                <ul className="space-y-4 mb-10 text-gray-500 text-sm flex-1 max-w-[200px] mx-auto w-full">
+                  <li className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    <span>모든 분석 기능 사용 가능</span>
                   </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                    <span>가성비 보너스 포인트 지급</span>
+                  <li className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    <span>기본 고객 지원</span>
                   </li>
-                  <li className="flex items-center gap-2">
+                </ul>
+                
+                <button className="w-full py-3.5 rounded-xl font-bold bg-gray-900 text-white shadow-sm hover:bg-black hover:shadow-md transition-all">
+                  선택하기
+                </button>
+              </div>
+
+              {/* 🌟 2. 프로 */}
+              <div className="group bg-gray-50 rounded-2xl p-8 border border-gray-200 flex flex-col transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.3)] hover:border-indigo-500">
+                <div className="text-center mb-8 pb-8 border-b border-gray-200">
+                  <span className="text-[11px] font-black tracking-widest text-gray-400 block mb-1">PRO</span>
+                  {/* 🚀 변경: 기본 상태부터 브랜드 메인 컬러(인디고 보라) 적용 */}
+                  <h3 className="text-2xl font-black text-indigo-600 mb-2">프로</h3>
+                  <p className="text-sm text-gray-400 mb-6">전문 마케터를 위한 베스트 플랜</p>
+                  
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-gray-700 font-bold text-lg">70,000 포인트 충전</p>
+                      <span className="text-[11px] bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded font-bold">+10,000P</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-400 mt-1">
+                      <span className="text-lg font-semibold">70,000</span>
+                      <span className="text-sm">원</span>
+                    </div>
+                  </div>
+                </div>
+                
+                <ul className="space-y-4 mb-10 text-gray-500 text-sm flex-1 max-w-[200px] mx-auto w-full">
+                  <li className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    <span>보너스 포인트 추가 제공</span>
+                  </li>
+                  <li className="flex items-center gap-3">
                     <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                     <span>우선 고객 지원</span>
                   </li>
                 </ul>
-                <button className="w-full py-4 rounded-xl font-bold text-white bg-indigo-600 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-200">결제하기</button>
+                
+                <button className="w-full py-3.5 rounded-xl font-bold bg-gray-900 text-white shadow-sm hover:bg-black hover:shadow-md transition-all">
+                  선택하기
+                </button>
               </div>
 
-              {/* 에이전시 요금제 */}
-              <div className="bg-[#f5f5f5] p-10 rounded-3xl border border-gray-200 flex flex-col">
+              {/* 🌟 3. 에이전시 */}
+              <div className="group bg-gray-50 rounded-2xl p-8 border border-gray-200 flex flex-col transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-[0_10px_30px_-10px_rgba(17,24,39,0.3)] hover:border-gray-900">
                 <div className="text-center mb-8 pb-8 border-b border-gray-200">
-                  <h3 className="text-lg font-bold text-gray-500 mb-2">에이전시 (Agency)</h3>
-                  <div className="text-4xl font-black text-gray-900 mb-4">100,000<span className="text-lg text-gray-400 font-medium ml-1">원</span></div>
-                  <div className="flex items-center justify-center gap-2">
-                    <p className="text-indigo-600 font-bold">130,000 포인트 충전</p>
-                    <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded">+30,000P</span>
+                  <span className="text-[11px] font-black tracking-widest text-gray-400 block mb-1">AGENCY</span>
+                  {/* 🚀 변경: 기본 상태부터 가장 묵직한 다크 그레이 색상 적용 */}
+                  <h3 className="text-2xl font-black text-gray-900 mb-2">에이전시</h3>
+                  <p className="text-sm text-gray-400 mb-6">대행사 및 대용량 분석용 플랜</p>
+                  
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="flex items-center gap-2">
+                      <p className="text-gray-700 font-bold text-lg">130,000 포인트 충전</p>
+                      <span className="text-[11px] bg-gray-100 text-gray-700 px-2 py-0.5 rounded font-bold">+30,000P</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-gray-400 mt-1">
+                      <span className="text-lg font-semibold">130,000</span>
+                      <span className="text-sm">원</span>
+                    </div>
                   </div>
                 </div>
-                <ul className="space-y-4 mb-10 text-gray-600 text-sm flex-1">
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                    <span>대행사 및 헤비 유저용</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <svg className="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                
+                <ul className="space-y-4 mb-10 text-gray-500 text-sm flex-1 max-w-[200px] mx-auto w-full">
+                  <li className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                     <span>최대 보너스 포인트 지급</span>
                   </li>
+                  <li className="flex items-center gap-3">
+                    <svg className="w-4 h-4 text-gray-800" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    <span>전담 매니저 및 맞춤 지원</span>
+                  </li>
                 </ul>
-                <button className="w-full py-4 rounded-xl font-bold bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 hover:shadow-sm transition-all !text-[#575151]">결제하기</button>
+                
+                <button className="w-full py-3.5 rounded-xl font-bold bg-gray-900 text-white shadow-sm hover:bg-black hover:shadow-md transition-all">
+                  선택하기
+                </button>
               </div>
 
             </div>

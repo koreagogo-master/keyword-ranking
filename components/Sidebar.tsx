@@ -1,16 +1,25 @@
+// components/Sidebar.tsx
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-// 🌟 1. 중앙 통제실 스위치를 가져옵니다.
+import { useEffect, useState } from "react"; // 🌟 추가: React 기능 불러오기
 import { useAuth } from "@/app/contexts/AuthContext";
 
 export default function Sidebar() {
   const pathname = usePathname();
-  
-  // 🌟 2. 게시판 정보 읽어오기
   const { user, profile, isLoading, handleLogout } = useAuth();
+
+  // 🌟 1. 접속 IP 상태 관리
+  const [clientIp, setClientIp] = useState<string | null>(null);
+
+  // 🌟 2. 사이드바에서도 가볍게 IP 읽어오기
+  useEffect(() => {
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => setClientIp(data.ip))
+      .catch(() => setClientIp('확인 불가'));
+  }, []);
 
   const menuGroups = [
     {
@@ -65,11 +74,20 @@ export default function Sidebar() {
             </p>
           </div>
           
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] text-gray-400 font-black uppercase tracking-widest">Grade</span>
             <span className="text-[11px] font-extrabold text-[#ff8533] px-2 py-0.5 bg-orange-50 rounded border border-orange-100">
               {profile?.grade?.toUpperCase() || 'STANDARD'}
             </span>
+          </div>
+
+          {/* 🌟 3. 좌측 네비바 IP 정보 표시 (내 정보 바로 아래) */}
+          <div className="mt-3 mb-4 p-2.5 bg-white border border-gray-200 rounded-lg shadow-sm flex items-center justify-between">
+            <span className="text-[10px] text-gray-400 font-bold tracking-wider">접속 IP</span>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              <span className="text-[11px] font-black text-gray-600">{clientIp || '확인 중...'}</span>
+            </div>
           </div>
 
           <div className="flex gap-2 w-full mt-2">

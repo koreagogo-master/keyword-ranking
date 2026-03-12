@@ -22,12 +22,20 @@ export default function Header() {
   const pathname = usePathname(); 
   const [noticeIndex, setNoticeIndex] = useState(0);
   
+  const [clientIp, setClientIp] = useState<string | null>(null);
+  
   const { user, profile, isLoading, handleLogout } = useAuth();
 
   useEffect(() => {
     const timer = setInterval(() => {
       setNoticeIndex((prev) => (prev + 1) % NOTICES.length);
     }, 4000);
+
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => setClientIp(data.ip))
+      .catch(() => setClientIp('확인 불가'));
+
     return () => clearInterval(timer);
   }, []);
 
@@ -36,11 +44,9 @@ export default function Header() {
       
       <div className="flex items-center gap-6 z-10">
         <Link href="/" className={`flex items-center gap-2 group ${montserrat.className}`}>
-          {/* 🌟 1. 세련된 인디고 심볼 아이콘 추가 */}
           <div className="bg-indigo-600 text-white p-1.5 rounded-lg shadow-sm group-hover:bg-indigo-700 transition-colors">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
           </div>
-          {/* 🌟 2. TMG ad를 빼고 Ranking Pro만 심플하게 강조 */}
           <span className="text-gray-900 text-2xl font-black tracking-tight group-hover:text-indigo-600 transition-colors">
             Ranking<span className="text-indigo-600 ml-0.5">Pro</span>
           </span>
@@ -56,6 +62,17 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-4 text-sm font-medium z-10">
+        
+        {/* 🌟 핵심 변경: 현재 페이지(pathname)가 메인('/')일 때만 IP 뱃지를 보여주도록 조건(pathname === '/')을 걸었습니다. */}
+        {pathname === '/' && (
+          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg mr-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span className="text-[11px] font-bold text-gray-500 tracking-wider">
+              IP: <span className="text-gray-700">{clientIp || '로딩중...'}</span>
+            </span>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="w-20 h-9"></div> 
         ) : user ? (
