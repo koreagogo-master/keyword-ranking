@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     // ==========================================
     let suggested: string[] = [];
     try {
-      const suggestRes = await fetch(`http://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(k)}&hl=ko&gl=kr`);
+      const suggestRes = await fetch(`http://suggestqueries.google.com/complete/search?client=chrome&q=${encodeURIComponent(k)}&hl=ko&gl=kr&ie=utf8&oe=utf8`);
       if (suggestRes.ok) {
         const suggestData = await suggestRes.json();
         suggested = suggestData[1] || [];
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
     // ==========================================
     let related: string[] = [];
     try {
-      const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(k)}&hl=ko&gl=kr`;
+      const searchUrl = `https://www.google.com/search?q=${encodeURIComponent(k)}&hl=ko&gl=kr&ie=utf8&oe=utf8`;
       const response = await fetch(searchUrl, {
         headers: {
           // 🌟 완전한 아이폰(iOS) 사파리 브라우저로 위장
