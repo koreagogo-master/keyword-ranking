@@ -1,4 +1,4 @@
-// keyword-ranking/components/Header.tsx
+// components/Header.tsx
 'use client';
 
 import Link from "next/link";
@@ -14,15 +14,14 @@ const montserrat = Montserrat({
 });
 
 const NOTICES = [
-  "📢 [공지1] 사이트 오픈!! 시스템 최적화 및 신규 기능 업데이트 안내",
-  "🎉 [공지2] 회원 가입을 하시면 보다 많은 기능을 사용 하실 수 있습니다.",
+  "[공지1] 사이트 오픈!! 시스템 최적화 및 신규 기능 업데이트 안내",
+  "[공지2] 회원 가입을 하시면 보다 많은 기능을 사용 하실 수 있습니다.",
 ];
 
 export default function Header() {
   const pathname = usePathname(); 
   const [noticeIndex, setNoticeIndex] = useState(0);
   
-  // 중앙 통제실에서 정보 가져오기
   const { user, profile, isLoading, handleLogout } = useAuth();
 
   useEffect(() => {
@@ -36,16 +35,20 @@ export default function Header() {
     <header className="w-full h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 fixed top-0 left-0 z-[9999] shadow-sm">
       
       <div className="flex items-center gap-6 z-10">
-        <Link href="/" className={`flex items-center ${montserrat.className}`}>
-          <span style={{ color: '#ff8533' }} className="text-3xl font-[700] tracking-tight">TMG</span>
-          <span style={{ color: '#111827' }} className="text-xl font-normal italic ml-1">ad</span>
-          <span className="mx-3 text-gray-200 font-light">|</span>
-          <span style={{ color: '#1a73e8' }} className="text-2xl font-bold tracking-tight">Ranking Pro</span>
+        <Link href="/" className={`flex items-center gap-2 group ${montserrat.className}`}>
+          {/* 🌟 1. 세련된 인디고 심볼 아이콘 추가 */}
+          <div className="bg-indigo-600 text-white p-1.5 rounded-lg shadow-sm group-hover:bg-indigo-700 transition-colors">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+          </div>
+          {/* 🌟 2. TMG ad를 빼고 Ranking Pro만 심플하게 강조 */}
+          <span className="text-gray-900 text-2xl font-black tracking-tight group-hover:text-indigo-600 transition-colors">
+            Ranking<span className="text-indigo-600 ml-0.5">Pro</span>
+          </span>
         </Link>
       </div>
 
       <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 justify-center items-center h-full w-full max-w-xl pointer-events-none">
-        <div className="bg-orange-50/30 border border-orange-100 text-[#ff8533] text-[13px] font-bold px-5 py-1.5 rounded-full flex items-center gap-2 shadow-sm transition-all duration-500 ease-in-out pointer-events-auto">
+        <div className="bg-indigo-50 border border-indigo-100 text-indigo-600 text-[13px] font-bold px-5 py-1.5 rounded-full flex items-center gap-2 shadow-sm transition-all duration-500 ease-in-out pointer-events-auto">
           <span className="animate-fade-in-up">
             {NOTICES[noticeIndex]}
           </span>
@@ -57,25 +60,23 @@ export default function Header() {
           <div className="w-20 h-9"></div> 
         ) : user ? (
           <>
-            {/* 🌟 1. 관리자 버튼: 조건 없이, 관리자 등급이면 무조건 상단에 노출 */}
             {profile?.role?.toLowerCase() === 'admin' && (
               <Link href="/admin" className="flex items-center justify-center bg-gray-800 hover:bg-black text-white px-4 py-2 rounded-xl text-[13px] font-bold transition shadow-sm">
                 관리자
               </Link>
             )}
             
-            {/* 🌟 2. My page & Log out 버튼: 메인 페이지('/')에서만 노출 */}
             {pathname === '/' && (
               <>
-                <Link href="/mypage" className="flex items-center justify-center bg-white border border-gray-200 hover:border-[#ff8533] hover:text-[#ff8533] text-gray-600 px-4 py-2 rounded-xl text-[13px] font-bold transition shadow-sm">
+                <Link href="/mypage" className="flex items-center justify-center bg-white border border-gray-200 hover:border-indigo-600 hover:text-indigo-600 text-gray-600 px-4 py-2 rounded-xl text-[13px] font-bold transition shadow-sm">
                   My page
                 </Link>
                 
                 <button 
                   onClick={handleLogout}
-                  className="flex items-center justify-center bg-white border border-gray-200 hover:border-[#ff8533] transition shadow-sm rounded-xl px-4 py-2 group"
+                  className="flex items-center justify-center bg-white border border-gray-200 hover:border-indigo-600 transition shadow-sm rounded-xl px-4 py-2 group"
                 >
-                  <span className="text-gray-600 group-hover:text-[#ff8533] text-[13px] font-bold transition-colors">
+                  <span className="text-gray-600 group-hover:text-indigo-600 text-[13px] font-bold transition-colors">
                     Log out
                   </span>
                 </button>
@@ -83,9 +84,8 @@ export default function Header() {
             )}
           </>
         ) : (
-          /* 비로그인 상태의 로그인 버튼도 메인 페이지에서만 노출 */
           pathname === '/' && (
-            <Link href="/login" className="flex items-center justify-center bg-[#ff8533] hover:bg-[#e6772e] text-white px-6 py-2 rounded-xl font-bold transition shadow-md shadow-orange-100">
+            <Link href="/login" className="flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-xl font-bold transition shadow-md shadow-indigo-100">
               로그인
             </Link>
           )

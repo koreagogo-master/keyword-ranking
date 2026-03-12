@@ -1,37 +1,40 @@
+// components/Footer.tsx
+'use client'; // 👈 1. 추가: 경로를 읽기 위해 클라이언트 모드로 설정
+
 import Link from "next/link";
+import { usePathname } from "next/navigation"; // 👈 2. 추가: 현재 페이지 경로를 읽는 도구 불러오기
 
 export default function Footer() {
+  const pathname = usePathname(); // 👈 3. 추가: 현재 경로 확인
+
+  // 🌟 메인 페이지('/')에서는 이 서브용 푸터를 렌더링하지 않고 숨깁니다!
+  if (pathname === '/') return null;
+
   return (
-    <footer className="bg-white border-t border-gray-100 py-12 px-6">
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-start gap-8">
-        {/* 왼쪽: 사업자 필수 정보 영역 (PG 심사 기준 완벽 충족) */}
-        <div>
-          <h2 className="text-xl font-black text-gray-900 mb-4 font-title">TMG AD.</h2>
-          <div className="text-[13px] text-gray-500 font-medium leading-relaxed space-y-1.5">
-            <p>
-              상호명: 주식회사 티엠지 <span className="text-gray-300 px-1">|</span> 대표자명: 배상호
-            </p>
-            <p>
-              사업장 소재지: 서울특별시 금천구 가산디지털1로 128 stx-v 타워 904호
-            </p>
-            <p>
-              사업자등록번호: 113-86-40578 <span className="text-gray-300 px-1">|</span> 통신판매업신고번호: 제2014-서울금천-0414호
-            </p>
-            <p>
-              고객센터: 02-2201-1881 <span className="text-gray-300 px-1">|</span> 이메일: con@tmgst.com
-            </p>
-            <p className="pt-3 text-gray-400 text-xs">
-              Copyright © 2026 TMGst. All rights reserved.
-            </p>
-          </div>
+    <footer className="bg-white py-8 px-6">
+      <div className="max-w-[1200px] mx-auto flex flex-col items-center text-center">
+        {/* ... (이하 기존 코드 동일) ... */}
+        <div className="text-[13px] text-gray-400 font-medium leading-tight space-y-1 mb-3">
+          <p>
+            상호명: 주식회사 티엠지 <span className="text-gray-200 px-1.5">|</span> 대표자명: 배상호 <span className="text-gray-200 px-1.5">|</span> 사업자등록번호: 113-86-40578 <span className="text-gray-200 px-1.5">|</span> 통신판매업신고번호: 제2014-서울금천-0414호
+          </p>
+          <p>
+            사업장 소재지: 서울특별시 금천구 가산디지털1로 128 stx-v 타워 904호 <span className="text-gray-200 px-1.5">|</span> 고객센터: 02-2201-1881 <span className="text-gray-200 px-1.5">|</span> 이메일: con@tmgst.com
+          </p>
         </div>
-        
-        {/* 오른쪽: 이용약관 등 필수 링크 영역 */}
-        <div className="flex gap-6 mt-2 md:mt-0">
-          <Link href="/terms" className="text-[13px] font-bold text-gray-400 hover:text-gray-700 transition-colors">이용약관</Link>
-          <Link href="/privacy" className="text-[13px] font-bold text-gray-400 hover:text-gray-700 transition-colors">개인정보처리방침</Link>
-          <Link href="/contact" className="text-[13px] font-bold text-gray-400 hover:text-gray-700 transition-colors">고객센터</Link>
+
+        <div className="flex items-center gap-4 mb-3">
+          <Link href="/terms" target="_blank" rel="noopener noreferrer" className="text-[13px] font-bold text-gray-500 hover:text-gray-800 transition-colors">이용약관</Link>
+          <span className="text-gray-200 text-xs">|</span>
+          <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[13px] font-bold text-gray-500 hover:text-gray-800 transition-colors">개인정보처리방침</Link>
+          <span className="text-gray-200 text-xs">|</span>
+          <Link href="/contact" target="_blank" rel="noopener noreferrer" className="text-[13px] font-bold text-gray-500 hover:text-gray-800 transition-colors">고객센터</Link>
         </div>
+
+        <p className="text-gray-300 text-xs tracking-wider">
+          Copyright © 2026 TMGst. All rights reserved.
+        </p>
+
       </div>
     </footer>
   );
