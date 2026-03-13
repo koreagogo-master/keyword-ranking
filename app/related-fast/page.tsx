@@ -4,7 +4,6 @@ import { useState, Suspense, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
-// 🌟 추가: DB 저장 및 서랍 컴포넌트 불러오기 (SaveSnapshotButton은 삭제됨)
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
@@ -12,7 +11,7 @@ import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
 
 function RelatedFastContent() {
-  const { user } = useAuth(); // 🌟 추가: 로그인 유저 정보
+  const { user } = useAuth();
 
   const [keyword, setKeyword] = useState("");
   const [adsList, setAdsList] = useState<any[]>([]); 
@@ -25,11 +24,10 @@ function RelatedFastContent() {
   const [sortField, setSortField] = useState<'pc' | 'mobile' | 'total' | 'cpc' | null>(null);
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc' | null>(null);
 
-  // 콤보박스 상태 관리
   const [cpcOption, setCpcOption] = useState('MOBILE_3');
   const [isCpcUpdating, setIsCpcUpdating] = useState(false);
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // 🌟 추가: 서랍 열림 상태
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const totalSelectedVolume = useMemo(() => {
     return selectedKeywords.reduce((acc, cur) => acc + (cur.total || 0), 0);
@@ -167,7 +165,6 @@ function RelatedFastContent() {
     }
   };
 
-  // 🌟 1. 현재 설정 저장 로직 (연관 키워드 조회 페이지용)
   const handleSaveCurrentSetting = async () => {
     if (!keyword) {
       alert("키워드를 입력한 후 저장해주세요.");
@@ -180,8 +177,8 @@ function RelatedFastContent() {
     const supabase = createClient();
     const { error } = await supabase.from('saved_searches').insert({
       user_id: user?.id,
-      page_type: 'RELATED', // 연관 키워드 페이지 명시
-      nickname: '', // 닉네임 불필요
+      page_type: 'RELATED', 
+      nickname: '', 
       keyword: keyword
     });
 
@@ -189,10 +186,9 @@ function RelatedFastContent() {
     else alert("저장 중 오류가 발생했습니다.");
   };
 
-  // 🌟 2. 저장된 데이터 불러오기 로직
   const handleApplySavedSetting = (item: any) => {
-    setIsDrawerOpen(false); // 서랍 닫기
-    handleSearch(item.keyword); // 저장된 키워드로 검색
+    setIsDrawerOpen(false); 
+    handleSearch(item.keyword); 
   };
 
   const mainKeywordData = useMemo(() => {
@@ -229,8 +225,8 @@ function RelatedFastContent() {
       </span>
     );
     return sortOrder === 'desc' 
-      ? <span className="text-blue-600 ml-1.5 text-xs font-extrabold">▼</span> 
-      : <span className="text-blue-600 ml-1.5 text-xs font-extrabold">▲</span>;
+      ? <span className="text-[#5244e8] ml-1.5 text-xs font-extrabold">▼</span> 
+      : <span className="text-[#5244e8] ml-1.5 text-xs font-extrabold">▲</span>;
   };
 
   return (
@@ -247,10 +243,9 @@ function RelatedFastContent() {
           <div className="max-w-7xl mx-auto">
             <RankTabs />
           
-          {/* 🌟 수정: 타이틀과 버튼 영역 분리 (SaveSnapshotButton 대체) */}
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h1 className="text-2xl font-bold !text-black mb-2">연관 키워드 조회</h1>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">연관 키워드 조회</h1>
               <p className="text-sm text-slate-500 mt-1">* 포스팅 시 적용 가능한 연관 키워드를 네이버 API 기반으로 추천합니다. 조회 후 리스트에서 키워드를 선택 하면 좌측 [선택된 키워드]의 리스트가 생성 됩니다.</p>
               <p className="text-sm text-slate-500 mt-1">* 최종 선택 된 키워드를 복사하여 메모장에 붙여넣기가 가능 합니다. 선택된 키워드는 조회 키워드를 변경 하여도 남아 있습니다.</p>
               <p className="text-sm text-slate-500 mt-1">* CPC 단가 : 우측 상단의 순위를 조정 하면 조회 시점 기준으로 업데이트 됩니다.</p>
@@ -275,7 +270,7 @@ function RelatedFastContent() {
 
           <div className="flex flex-col lg:flex-row gap-8 items-start relative">
             <div className="w-full lg:w-[420px] sticky top-[64px] z-30 space-y-3 bg-[#f8f9fa]">
-              <div className="bg-white border border-gray-200 rounded-sm flex items-center shadow-md focus-within:border-blue-400 overflow-hidden">
+              <div className="bg-white border border-gray-200 rounded-sm flex items-center shadow-md focus-within:border-[#5244e8]/50 overflow-hidden transition-colors">
                 <input 
                   type="text" 
                   value={keyword} 
@@ -284,7 +279,7 @@ function RelatedFastContent() {
                   className="flex-1 py-3 px-4 text-base outline-none !text-black bg-white" 
                   placeholder="분석할 키워드 입력" 
                 />
-                <button onClick={() => handleSearch()} className="px-10 py-3.5 font-bold bg-[#1a73e8] hover:bg-[#1557b0] text-white transition-colors text-base whitespace-nowrap border-l border-gray-200">
+                <button onClick={() => handleSearch()} className="px-10 py-3.5 font-bold bg-[#5244e8] hover:bg-[#4336c9] text-white transition-colors text-base whitespace-nowrap border-l border-gray-200">
                   {isSearching ? "..." : "조회"}
                 </button>
               </div>
@@ -293,7 +288,7 @@ function RelatedFastContent() {
                 <span className="text-[11px] text-slate-400 font-medium">연관성 필터링 (핵심어 기준)</span>
                 <button 
                   onClick={() => setIsFilterOn(!isFilterOn)}
-                  className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none ${isFilterOn ? 'bg-blue-600' : 'bg-slate-300'}`}
+                  className={`relative inline-flex h-5 w-10 items-center rounded-full transition-colors focus:outline-none ${isFilterOn ? 'bg-[#5244e8]' : 'bg-slate-300'}`}
                 >
                   <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${isFilterOn ? 'translate-x-5.5' : 'translate-x-1'}`} />
                 </button>
@@ -303,7 +298,7 @@ function RelatedFastContent() {
                 <div className="grid grid-cols-2 gap-2 pb-2">
                   <div className="bg-white px-4 py-3 border border-gray-100 shadow-sm rounded-sm flex justify-between items-center">
                     <span className="text-[12px] font-medium text-slate-400">예상클릭율</span>
-                    <span className="text-base font-extrabold text-blue-600 leading-none">{mainKeywordData.ctr.toFixed(2)}%</span>
+                    <span className="text-base font-extrabold text-[#5244e8] leading-none">{mainKeywordData.ctr.toFixed(2)}%</span>
                   </div>
                   <div className="bg-white px-4 py-4 border border-gray-100 shadow-sm rounded-sm flex justify-between items-center">
                     <span className="text-[12px] font-medium text-slate-400">광고 경쟁도</span>
@@ -319,15 +314,15 @@ function RelatedFastContent() {
                   <div className="bg-slate-50 px-4 py-2.5 border-b border-gray-200 flex justify-between items-center">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold text-slate-600">선택된 키워드 ({selectedKeywords.length})</span>
-                      <span className="text-xs text-blue-600 font-extrabold">{formatNum(totalSelectedVolume)}</span>
+                      <span className="text-xs text-[#5244e8] font-extrabold">{formatNum(totalSelectedVolume)}</span>
                     </div>
                     <button onClick={() => setSelectedKeywords([])} className="text-[10px] text-red-500 hover:underline font-bold">전체삭제</button>
                   </div>
                   <div className="max-h-[350px] overflow-y-auto p-2 space-y-1">
                     {selectedKeywords.map((item, i) => (
-                      <div key={i} className="flex justify-between items-center px-3 py-2 bg-blue-50/30 border border-blue-100 rounded-sm group hover:border-blue-300 transition-all">
+                      <div key={i} className="flex justify-between items-center px-3 py-2 bg-[#5244e8]/[0.03] border border-[#5244e8]/20 rounded-sm group hover:border-[#5244e8]/40 transition-all">
                         <div className="flex items-baseline gap-2 overflow-hidden">
-                          <span className="text-[13px] font-bold text-blue-700 truncate">{item.keyword}</span>
+                          <span className="text-[13px] font-bold text-[#5244e8] truncate">{item.keyword}</span>
                           <span className="text-[11px] text-slate-400 font-medium whitespace-nowrap">{formatNum(item.total)}</span>
                         </div>
                         <button onClick={() => toggleKeyword(item)} className="p-1 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-full transition-all">
@@ -339,7 +334,7 @@ function RelatedFastContent() {
                     ))}
                   </div>
                   <div className="p-2 border-t border-gray-100 bg-gray-50/50">
-                    <button onClick={copyToClipboard} className="w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-[12px] font-bold rounded-sm transition-colors shadow-sm">
+                    <button onClick={copyToClipboard} className="w-full py-2 bg-[#5244e8] hover:bg-[#4336c9] text-white text-[12px] font-bold rounded-sm transition-colors shadow-sm">
                       선택 키워드 일괄 복사
                     </button>
                   </div>
@@ -381,7 +376,7 @@ function RelatedFastContent() {
                             </div>
                           </th>
                           
-                          <th className="px-4 py-4 text-right cursor-pointer hover:bg-blue-50 group text-blue-600 font-bold w-40" onClick={() => handleSort('total')}>
+                          <th className="px-4 py-4 text-right cursor-pointer hover:bg-[#5244e8]/10 group text-[#5244e8] font-bold w-40 transition-colors" onClick={() => handleSort('total')}>
                             <div className="flex items-center justify-end">총 검색량 (월){renderSortIcon('total')}</div>
                           </th>
                           <th className="px-4 py-4 text-right cursor-pointer hover:bg-slate-100 group font-semibold text-slate-500 w-32" onClick={() => handleSort('pc')}>
@@ -394,25 +389,25 @@ function RelatedFastContent() {
                       </thead>
                       <tbody className="divide-y divide-gray-100 bg-white">
                         {mainKeywordData && (
-                          <tr className="bg-blue-50/40 transition-colors border-b-2 border-blue-100">
+                          <tr className="bg-[#5244e8]/5 transition-colors border-b-2 border-[#5244e8]/20">
                             <td className="px-2 py-2.5 text-center">
                               <input 
                                 type="checkbox" 
                                 checked={!!selectedKeywords.find(it => it.keyword === mainKeywordData.keyword)}
                                 onChange={() => toggleKeyword(mainKeywordData)}
-                                className="w-4 h-4 cursor-pointer accent-blue-600"
+                                className="w-4 h-4 cursor-pointer accent-[#5244e8]"
                               />
                             </td>
                             <td className="px-4 py-2.5 text-center">
-                              <span className="bg-blue-600 text-white text-[10px] font-bold px-2 py-1 rounded-sm whitespace-nowrap min-w-[40px] inline-block">검색어</span>
+                              <span className="bg-[#5244e8] text-white text-[10px] font-bold px-2 py-1 rounded-sm whitespace-nowrap min-w-[40px] inline-block">검색어</span>
                             </td>
-                            <td className="px-4 py-2.5 font-bold text-blue-700 text-sm truncate">{mainKeywordData.keyword}</td>
+                            <td className="px-4 py-2.5 font-bold text-[#5244e8] text-sm truncate">{mainKeywordData.keyword}</td>
                             
                             <td className={`px-4 py-2.5 text-right font-extrabold text-[13px] ${isCpcUpdating ? 'text-orange-300 animate-pulse' : 'text-orange-600'}`}>
                               {mainKeywordData.cpc ? `${formatNum(mainKeywordData.cpc)}원` : '-'}
                             </td>
                             
-                            <td className="px-4 py-2.5 text-right font-bold text-blue-700 text-sm">{formatNum(mainKeywordData.total)}</td>
+                            <td className="px-4 py-2.5 text-right font-bold text-[#5244e8] text-sm">{formatNum(mainKeywordData.total)}</td>
                             <td className="px-4 py-2.5 text-right font-medium text-sm text-slate-700">
                               {formatNum(mainKeywordData.pc)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(mainKeywordData.pc/mainKeywordData.total*100)}%)</span>
                             </td>
@@ -428,12 +423,12 @@ function RelatedFastContent() {
                                 type="checkbox" 
                                 checked={!!selectedKeywords.find(it => it.keyword === item.keyword)}
                                 onChange={() => toggleKeyword(item)}
-                                className="w-4 h-4 cursor-pointer accent-blue-600"
+                                className="w-4 h-4 cursor-pointer accent-[#5244e8]"
                               />
                             </td>
                             <td className="px-4 py-2 text-center text-slate-400 font-medium text-[13px]">{idx + 1}</td>
                             <td className="px-4 py-2">
-                              <button onClick={() => handleSearch(item.keyword)} className="!text-black font-bold text-[13px] hover:text-blue-600 hover:underline text-left truncate w-full cursor-pointer">
+                              <button onClick={() => handleSearch(item.keyword)} className="!text-black font-bold text-[13px] hover:text-[#5244e8] hover:underline text-left truncate w-full cursor-pointer">
                                 {item.keyword}
                               </button>
                             </td>
@@ -442,7 +437,7 @@ function RelatedFastContent() {
                               {item.cpc ? `${formatNum(item.cpc)}원` : '-'}
                             </td>
                             
-                            <td className={`px-4 py-2 text-right font-bold text-blue-600 bg-blue-50/20 text-[13px]`}>{formatNum(item.total)}</td>
+                            <td className={`px-4 py-2 text-right font-bold text-[#5244e8] bg-[#5244e8]/[0.05] text-[13px]`}>{formatNum(item.total)}</td>
                             <td className="px-4 py-2 text-right !text-black font-medium text-[13px]">
                               {formatNum(item.pc)} <span className="text-slate-400 text-[10px] font-normal italic">({Math.round(item.pc/item.total*100)}%)</span>
                             </td>
@@ -461,7 +456,6 @@ function RelatedFastContent() {
         </div>
       </main>
 
-      {/* 🌟 추가: 저장된 목록 서랍 컴포넌트 렌더링 */}
       <SavedSearchesDrawer 
         isOpen={isDrawerOpen} 
         onClose={() => setIsDrawerOpen(false)} 

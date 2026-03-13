@@ -7,7 +7,6 @@ export default function SelectedCart({ pickedKeywords, combinedList, totalPicked
     <div className="w-full lg:w-[380px] xl:w-[450px] sticky top-[64px] z-30 flex flex-col h-[750px]">
       <div className="bg-slate-50 border border-gray-300 shadow-sm rounded-sm p-6 overflow-hidden flex flex-col h-full">
         
-        {/* 🌟 수정: items-start 를 items-end 로 변경하여 버튼 묶음이 하단 텍스트 라인에 맞춰지도록 내렸습니다. */}
         <div className="flex justify-between items-end mb-4 min-h-[52px] flex-shrink-0">
           <div className="flex flex-col gap-1">
             <h3 className="text-lg font-bold text-slate-800">담은 키워드 ({pickedKeywords.length}개)</h3>
@@ -16,7 +15,6 @@ export default function SelectedCart({ pickedKeywords, combinedList, totalPicked
             </span>
           </div>
 
-          {/* 위치가 하단으로 정렬되었으므로 불필요한 위쪽 여백(mt-0.5)은 제거했습니다. */}
           <div className="flex items-center gap-2">
             <span className="text-[12px] font-bold text-slate-500">전체 비우기</span>
             <button 
@@ -56,7 +54,8 @@ export default function SelectedCart({ pickedKeywords, combinedList, totalPicked
                       <span className="w-[70px] text-right text-[12px] text-orange-600 font-bold whitespace-nowrap">
                         {found && found.isDone && found.cpc > 0 ? `${formatNum(found.cpc)}원` : "-"}
                       </span>
-                      <span className="w-[75px] text-right text-[12px] text-blue-600 font-bold whitespace-nowrap">
+                      {/* 🌟 수정: 총 검색량 텍스트 색상을 브랜드 컬러로 변경 */}
+                      <span className="w-[75px] text-right text-[12px] text-[#5244e8] font-bold whitespace-nowrap">
                         {found && found.isDone && found.total > 0 ? formatNum(found.total) : "-"}
                       </span>
                       
@@ -78,9 +77,10 @@ export default function SelectedCart({ pickedKeywords, combinedList, totalPicked
         </div>
         
         <div className="mt-4 flex justify-end flex-shrink-0">
+          {/* 🌟 수정: 담은 키워드 복사 버튼 색상을 브랜드 컬러로 변경 */}
           <button 
             onClick={copyPickedToClipboard} 
-            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-[13px] font-bold rounded-sm transition-colors shadow-sm flex items-center justify-center gap-1.5"
+            className="px-6 py-2.5 bg-[#5244e8] hover:bg-[#4336c9] text-white text-[13px] font-bold rounded-sm transition-colors shadow-sm flex items-center justify-center gap-1.5"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
             담은 키워드 복사

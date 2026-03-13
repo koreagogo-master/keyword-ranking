@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState, useEffect, Suspense } from "react";
-import { useSearchParams, useRouter } from "next/navigation"; 
+import { useSearchParams, useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
@@ -24,19 +24,19 @@ function safeNumber(v: any) {
 }
 
 function AnalysisContent() {
-  const { user } = useAuth(); // 🌟 추가: 로그인 유저 정보
+  const { user } = useAuth();
 
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState<any>(null);
   const [googleVolume, setGoogleVolume] = useState<number>(0);
   const [isSearching, setIsSearching] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  
+
   const [relatedKeywords, setRelatedKeywords] = useState<string[]>([]);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // 🌟 추가: 서랍 열림 상태
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const searchParams = useSearchParams();
-  const router = useRouter(); 
+  const router = useRouter();
   const urlKeyword = searchParams.get("keyword");
 
   useEffect(() => {
@@ -53,8 +53,8 @@ function AnalysisContent() {
     setKeyword(k);
     setIsSearching(true);
     setIsCompleted(false);
-    setData(null); 
-    setRelatedKeywords([]); 
+    setData(null);
+    setRelatedKeywords([]);
     setGoogleVolume(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
@@ -76,9 +76,9 @@ function AnalysisContent() {
         const gData = await googleRes.json();
         gVolume = gData.monthlySearchVolume || 0;
       }
-      
+
       setGoogleVolume(gVolume);
-      setData({ ...naverData }); 
+      setData({ ...naverData });
       setIsCompleted(true);
     } catch (e: any) {
       alert(e?.message || "데이터를 가져오는 중 오류가 발생했습니다.");
@@ -93,21 +93,20 @@ function AnalysisContent() {
     router.push(`/analysis?keyword=${encodeURIComponent(k)}`);
   };
 
-  // 🌟 1. 현재 설정 저장 로직 (분석 페이지용)
   const handleSaveCurrentSetting = async () => {
     if (!keyword) {
       alert("키워드를 입력한 후 저장해주세요.");
       return;
     }
     if (!user) {
-        alert('로그인 정보가 만료되었거나 확인할 수 없습니다. 다시 로그인해주세요.');
-        return;
+      alert('로그인 정보가 만료되었거나 확인할 수 없습니다. 다시 로그인해주세요.');
+      return;
     }
     const supabase = createClient();
     const { error } = await supabase.from('saved_searches').insert({
       user_id: user?.id,
-      page_type: 'ANALYSIS', // 분석 페이지 명시
-      nickname: '', // 닉네임이 없는 페이지이므로 빈 문자열 처리
+      page_type: 'ANALYSIS',
+      nickname: '',
       keyword: keyword
     });
 
@@ -115,10 +114,9 @@ function AnalysisContent() {
     else alert("저장 중 오류가 발생했습니다.");
   };
 
-  // 🌟 2. 저장된 데이터 불러오기 로직
   const handleApplySavedSetting = (item: any) => {
-    setIsDrawerOpen(false); // 서랍 닫기
-    handleSearch(item.keyword); // 저장된 키워드로 바로 검색 실행
+    setIsDrawerOpen(false);
+    handleSearch(item.keyword);
   };
 
   const stats = useMemo(() => {
@@ -126,45 +124,45 @@ function AnalysisContent() {
 
     const calcShares = (total: number, blog: number, cafe: number, kin: number, news: number) => {
       const t = total > 0 ? total : 1;
-      return { 
-        blog: Math.round((blog / t) * 100), 
-        cafe: Math.round((cafe / t) * 100), 
-        kin: Math.round((kin / t) * 100), 
-        news: Math.round((news / t) * 100) 
+      return {
+        blog: Math.round((blog / t) * 100),
+        cafe: Math.round((cafe / t) * 100),
+        kin: Math.round((kin / t) * 100),
+        news: Math.round((news / t) * 100)
       };
     };
 
     const cTotal = safeNumber(data.contentCount?.total);
-    
+
     return {
       keyword: keyword,
-      search: { 
-        total: safeNumber(data.searchCount?.total), 
-        pc: safeNumber(data.searchCount?.pc), 
-        mobile: safeNumber(data.searchCount?.mobile) 
+      search: {
+        total: safeNumber(data.searchCount?.total),
+        pc: safeNumber(data.searchCount?.pc),
+        mobile: safeNumber(data.searchCount?.mobile)
       },
-      content: { 
-        total: cTotal, 
-        blog: safeNumber(data.contentCount?.blog), 
-        cafe: safeNumber(data.contentCount?.cafe), 
-        kin: safeNumber(data.contentCount?.kin), 
-        news: safeNumber(data.contentCount?.news), 
+      content: {
+        total: cTotal,
+        blog: safeNumber(data.contentCount?.blog),
+        cafe: safeNumber(data.contentCount?.cafe),
+        kin: safeNumber(data.contentCount?.kin),
+        news: safeNumber(data.contentCount?.news),
         shares: calcShares(
-          cTotal, 
-          safeNumber(data.contentCount?.blog), 
-          safeNumber(data.contentCount?.cafe), 
-          safeNumber(data.contentCount?.kin), 
+          cTotal,
+          safeNumber(data.contentCount?.blog),
+          safeNumber(data.contentCount?.cafe),
+          safeNumber(data.contentCount?.kin),
           safeNumber(data.contentCount?.news)
-        ) 
+        )
       },
       content30: data.content30,
-      ratios: { 
-        devicePc: safeNumber(data.ratios?.device?.pc), 
-        deviceMobile: safeNumber(data.ratios?.device?.mobile), 
-        genderMale: safeNumber(data.ratios?.gender?.male), 
-        genderFemale: safeNumber(data.ratios?.gender?.female) 
+      ratios: {
+        devicePc: safeNumber(data.ratios?.device?.pc),
+        deviceMobile: safeNumber(data.ratios?.device?.mobile),
+        genderMale: safeNumber(data.ratios?.gender?.male),
+        genderFemale: safeNumber(data.ratios?.gender?.female)
       },
-      weeklyTrend: data.weeklyTrend, 
+      weeklyTrend: data.weeklyTrend,
       monthlyTrend: data.monthlyTrend,
       googleVolume: googleVolume
     };
@@ -174,32 +172,33 @@ function AnalysisContent() {
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
 
-      <div 
-        className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" 
+      <div
+        className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight"
         style={{ fontFamily: "'NanumSquare', sans-serif" }}
       >
         <Sidebar />
-        
+
         <main className="flex-1 ml-64 p-10">
           <div className="max-w-7xl mx-auto">
             <RankTabs />
-            
-            {/* 🌟 수정: 타이틀과 버튼 영역 분리 (blog-rank와 동일한 UI 적용) */}
-            <div className="flex justify-between items-start mb-10">
+
+            {/* 🌟 수정 1: 타이틀 밑에 설명글 추가 */}
+            <div className="flex justify-between items-start mb-8">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
                   {keyword ? `"${keyword}" 키워드 정밀 분석` : "키워드 정밀 분석"}
                 </h1>
+                <p className="text-sm text-slate-500">* 분석할 키워드를 입력하여 네이버 검색량 및 상세 지표를 확인하세요.</p>
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <button 
+                <button
                   onClick={handleSaveCurrentSetting}
                   className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                   현재 설정 저장
                 </button>
-                <button 
+                <button
                   onClick={() => setIsDrawerOpen(true)}
                   className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
                 >
@@ -209,41 +208,44 @@ function AnalysisContent() {
               </div>
             </div>
 
-            <div className="bg-white border border-gray-300 flex items-center mb-6 shadow-sm focus-within:border-blue-500 transition-all rounded-none max-w-3xl mx-auto w-full">
-              <input 
-                type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} 
-                onKeyDown={(e) => e.key === "Enter" && handleSearch()} 
-                className="flex-1 py-4 px-6 text-lg outline-none font-medium" 
-                placeholder="분석할 키워드를 입력하세요" 
+            {/* 🌟 수정 2: 가운데 정렬(mx-auto) 삭제, 너비를 max-w-4xl로 좌측 정렬, 포커스 색상을 indigo로 변경 */}
+            <div className="bg-white border border-gray-300 flex items-center mb-6 shadow-sm focus-within:border-indigo-500 transition-all rounded-sm max-w-4xl w-full">
+              <input
+                type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                className="flex-1 py-4 px-6 text-lg outline-none font-medium text-gray-900"
+                placeholder="분석할 키워드를 입력하세요"
               />
-              <button onClick={() => handleSearch()} disabled={isSearching} 
-                className={`px-12 py-5 font-bold transition-all disabled:opacity-60 ${isCompleted ? 'bg-green-600 hover:bg-green-700' : 'bg-[#1a73e8] hover:bg-blue-700'} text-white`}
+              {/* 🌟 수정 3: 메인 액션 버튼을 파란색에서 브랜드 컬러인 보라색(indigo)으로 변경 */}
+              <button onClick={() => handleSearch()} disabled={isSearching}
+                className="px-12 py-5 font-bold transition-all disabled:opacity-60 bg-[#5244e8] hover:bg-[#4336c9] text-white"
               >
                 {isSearching ? "분석 중..." : isCompleted ? "키워드 분석 완료" : "키워드 분석 실행"}
               </button>
             </div>
 
-            <div className="max-w-3xl mx-auto w-full mb-10 min-h-[100px] flex items-center justify-center">
+            {/* 🌟 수정 4: 연관 키워드 영역도 좌측 정렬(justify-start)로 맞춤 */}
+            <div className="max-w-4xl w-full mb-10 min-h-[40px] flex items-center justify-start">
               {isSearching ? (
-                <div className="flex gap-2">
-                  <div className="w-2.5 h-2.5 bg-blue-200 rounded-full animate-bounce"></div>
-                  <div className="w-2.5 h-2.5 bg-blue-300 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                  <div className="w-2.5 h-2.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                <div className="flex gap-2 ml-2">
+                  <div className="w-2.5 h-2.5 bg-[#5244e8]/30 rounded-full animate-bounce"></div>
+                  <div className="w-2.5 h-2.5 bg-[#5244e8]/60 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                  <div className="w-2.5 h-2.5 bg-[#5244e8] rounded-full animate-bounce [animation-delay:0.4s]"></div>
                 </div>
               ) : relatedKeywords.length > 0 ? (
-                <div className="flex flex-wrap gap-2 justify-center">
+                <div className="flex flex-wrap gap-2 justify-start">
                   {relatedKeywords.map((kw, idx) => (
                     <button
                       key={idx}
                       onClick={() => handleSearch(kw)}
-                      className="text-[13px] px-4 py-1.5 bg-white border border-gray-200 rounded-full !text-slate-600 !font-bold hover:!border-blue-500 hover:!text-blue-600 transition-all shadow-sm"
+                      className="text-[13px] px-4 py-1.5 bg-white border border-gray-200 rounded-full !text-slate-600 !font-bold hover:!border-violet-500 hover:!text-violet-600 transition-all shadow-sm"
                     >
                       #{kw}
                     </button>
                   ))}
                 </div>
               ) : (
-                <div className="text-gray-400 text-sm font-bold">검색 결과에 연관 키워드가 있으면 이곳에 노출됩니다.</div>
+                <div className="text-gray-400 text-sm font-bold ml-2">검색 결과에 연관 키워드가 있으면 이곳에 노출됩니다.</div>
               )}
             </div>
 
@@ -255,20 +257,20 @@ function AnalysisContent() {
 
                 <div>
                   <h2 className="text-xl font-bold text-gray-900 mb-4">키워드 성격 및 섹션</h2>
-                  
+
                   <div className="grid grid-cols-3 gap-8 items-start">
                     <div className="col-span-1">
                       <KeywordStrategy stats={stats} />
                     </div>
                     <div className="col-span-2">
-                      <SectionOrder 
-                        keyword={keyword} 
+                      <SectionOrder
+                        keyword={keyword}
                         onKeywordsFound={setRelatedKeywords}
                       />
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-10 items-start">
                   <RelatedKeywords data={data} onKeywordClick={handleSearch} />
                   <div className="space-y-10">
@@ -281,12 +283,11 @@ function AnalysisContent() {
         </main>
       </div>
 
-      {/* 🌟 추가: 저장된 목록 서랍 컴포넌트 렌더링 */}
-      <SavedSearchesDrawer 
-        isOpen={isDrawerOpen} 
-        onClose={() => setIsDrawerOpen(false)} 
-        pageType="ANALYSIS" 
-        onSelect={handleApplySavedSetting} 
+      <SavedSearchesDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        pageType="ANALYSIS"
+        onSelect={handleApplySavedSetting}
       />
     </>
   );

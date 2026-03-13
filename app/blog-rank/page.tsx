@@ -5,7 +5,6 @@ import { checkNaverRank } from './actions';
 import Sidebar from '@/components/Sidebar';
 import RankTabs from '@/components/RankTabs';
 
-// 🌟 DB 및 서랍 컴포넌트 불러오기
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
@@ -28,9 +27,8 @@ export default function BlogRankPage() {
   const [progress, setProgress] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // 서랍 열림 상태
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // 매개변수(override)를 받아서 서랍에서 클릭 시 자동 검색이 가능하도록 업그레이드
   const handleCheck = async (overrideNickname?: string, overrideKeyword?: string) => {
     const nickToSearch = overrideNickname !== undefined ? overrideNickname : targetNickname;
     const kwToSearch = overrideKeyword !== undefined ? overrideKeyword : keywordInput;
@@ -94,7 +92,6 @@ export default function BlogRankPage() {
     if (e.key === 'Enter') handleCheck();
   };
 
-  // 1. 현재 설정 저장 로직
   const handleSaveCurrentSetting = async () => {
     if (!targetNickname || !keywordInput) {
       alert("닉네임과 키워드를 모두 입력한 후 저장해주세요.");
@@ -103,7 +100,7 @@ export default function BlogRankPage() {
     const supabase = createClient();
     const { error } = await supabase.from('saved_searches').insert({
       user_id: user?.id,
-      page_type: 'TOTAL', // 통검 페이지 명시
+      page_type: 'TOTAL', 
       nickname: targetNickname,
       keyword: keywordInput
     });
@@ -112,17 +109,14 @@ export default function BlogRankPage() {
     else alert("저장 중 오류가 발생했습니다.");
   };
 
-  // 2. 저장된 데이터 불러오기 + 자동 검색 로직
   const handleApplySavedSetting = (item: any) => {
-    setIsDrawerOpen(false); // 서랍 닫기
+    setIsDrawerOpen(false); 
     
-    // 최대 10개까지만 잘라내기
     const slicedKeywords = item.keyword.split(',').map((k: string) => k.trim()).filter(Boolean).slice(0, 10).join(', ');
 
     setTargetNickname(item.nickname);
     setKeywordInput(slicedKeywords);
     
-    // 자동 검색 실행
     handleCheck(item.nickname, slicedKeywords);
   };
 
@@ -142,13 +136,11 @@ export default function BlogRankPage() {
 
             <div className="flex justify-between items-start mb-8">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-3">
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
                   N 모바일 통검 순위 확인
                 </h1>
-                <div className="text-gray-600 space-y-1 font-medium">
-                  <p>* "사이트", "뉴스", "플레이스"는 순위에서 제외 됩니다.</p>
-                  <p>* "지식인"이 순위에 노출 될 경우 제목에 내용이 길게 표시 됩니다.</p>
-                </div>
+                <p className="text-sm text-slate-500 mt-1">* "사이트", "뉴스", "플레이스"는 순위에서 제외 됩니다.</p>
+                <p className="text-sm text-slate-500 mt-1">* "지식인"이 순위에 노출 될 경우 제목에 내용이 길게 표시 됩니다.</p>
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <button 
@@ -168,7 +160,7 @@ export default function BlogRankPage() {
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-10">
+            <div className="bg-white p-6 rounded-sm border border-gray-200 shadow-sm mb-8">
               <div className="flex gap-4 items-end">
                 <div className="w-1/4 min-w-[200px]">
                   <label className="block text-sm font-bold mb-2 text-gray-600">
@@ -178,8 +170,7 @@ export default function BlogRankPage() {
                     value={targetNickname}
                     onChange={e => setTargetNickname(e.target.value)}
                     placeholder="예: 연세베스트치과"
-                    className="w-full h-[50px] p-3 rounded bg-white border border-gray-300
-                               focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-all shadow-sm"
+                    className="w-full h-[50px] p-3 rounded-sm bg-white border border-gray-300 focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
                   />
                 </div>
 
@@ -192,8 +183,7 @@ export default function BlogRankPage() {
                     onChange={e => setKeywordInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="부천교정, 부천치과"
-                    className="w-full h-[50px] p-3 rounded bg-white border border-gray-300
-                               focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-all shadow-sm"
+                    className="w-full h-[50px] p-3 rounded-sm bg-white border border-gray-300 focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
                   />
                 </div>
 
@@ -201,12 +191,7 @@ export default function BlogRankPage() {
                   <button
                     onClick={() => handleCheck()}
                     disabled={loading}
-                    className={`h-[50px] px-6 rounded font-bold text-white whitespace-nowrap transition-all shadow-md
-                      ${
-                        loading
-                          ? 'bg-gray-400'
-                          : 'bg-[#1a73e8] hover:bg-[#1557b0] hover:shadow-lg'
-                      }`}
+                    className={`h-[50px] px-6 rounded-sm font-bold text-white whitespace-nowrap transition-all shadow-sm ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9]'}`}
                   >
                     {loading ? `분석 중... ${progress}` : '순위 확인하기'}
                   </button>
@@ -215,9 +200,9 @@ export default function BlogRankPage() {
             </div>
 
             {results.length > 0 && (
-              <div className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-sm border border-gray-200 shadow-sm overflow-hidden">
                 <table className="w-full text-sm text-left border-collapse">
-                  <thead className="bg-gray-50 text-gray-500 uppercase text-xs font-bold tracking-wider">
+                  <thead className="bg-gray-50 text-gray-500 uppercase text-xs font-bold tracking-wider border-b border-gray-200">
                     <tr>
                       <th className="px-6 py-4 text-center w-40">키워드</th>
                       <th className="px-6 py-4 text-center w-24">순위</th>
@@ -227,13 +212,13 @@ export default function BlogRankPage() {
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {results.map((r, i) => (
-                      <tr key={i} className="hover:bg-blue-50/30 transition-colors">
+                      <tr key={i} className="hover:bg-[#5244e8]/5 transition-colors">
                         <td className="px-6 py-4 font-bold text-gray-900 text-center">{r.keyword}</td>
                         <td className="px-6 py-4 text-center">
                           {r.rank === 'Auth Error' ? (
                               <span className="text-sm text-red-500 font-bold">인증 실패</span>
                           ) : r.rank !== 'X' && r.rank !== 'Err' && r.rank !== 0 ? (
-                            <span className="text-lg font-extrabold text-[#1a73e8]">{r.rank}</span>
+                            <span className="text-lg font-extrabold text-[#5244e8]">{r.rank}</span>
                           ) : (
                             <span className="text-sm text-gray-400 font-medium">-</span>
                           )}

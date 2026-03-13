@@ -18,8 +18,9 @@ interface SearchResultRow {
   isSuccess: boolean;
 }
 
+// 🌟 수정: 내 블로그(1순위 매칭) 색상을 브랜드 컬러로 변경
 const AUTHOR_COLORS = [
-  'text-blue-600',
+  'text-[#5244e8]',
   'text-green-600',
   'text-amber-600',
   'text-pink-600',
@@ -141,11 +142,16 @@ export default function BlogRankPage() {
           <div className="max-w-7xl mx-auto">
             <RankTabs />
 
-            <div className="flex justify-between items-center mb-8">
-              <h1 className="text-2xl font-bold text-gray-900">
-                N 모바일 블로그 탭 순위 확인
-              </h1>
-              <div className="flex items-center gap-2">
+            <div className="flex justify-between items-start mb-8">
+              {/* 🌟 수정: 타이틀 하단에 가이드 설명글 추가 */}
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                  N 모바일 블로그 탭 순위 확인
+                </h1>
+                <p className="text-sm text-slate-500 mt-1">* 블로그 닉네임과 키워드를 입력하여 N 모바일 블로그 탭의 노출 순위를 확인하세요.</p>
+                <p className="text-sm text-slate-500 mt-1">* 여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다.</p>
+              </div>
+              <div className="flex items-center gap-2 mt-1 shrink-0">
                 <button 
                   onClick={handleSaveCurrentSetting}
                   className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
@@ -163,14 +169,15 @@ export default function BlogRankPage() {
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm mb-8">
+            {/* 🌟 수정: 둥근 모서리(rounded-lg)를 직각(rounded-sm)으로 변경하고 포커스 색상을 #5244e8로 맞춤 */}
+            <div className="bg-white p-6 rounded-sm border border-gray-200 shadow-sm mb-8">
               <div className="flex gap-4 items-end">
                 <div className="w-1/4 min-w-[200px]">
                   <label className="block text-sm font-bold mb-2 text-gray-600">블로그 닉네임</label>
                   <input
                     value={targetNickname}
                     onChange={e => setTargetNickname(e.target.value)}
-                    className="w-full p-3 h-[50px] border border-gray-300 rounded focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-all shadow-sm"
+                    className="w-full p-3 h-[50px] border border-gray-300 rounded-sm focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
                     placeholder="예: 연세베스트치과"
                   />
                 </div>
@@ -181,7 +188,7 @@ export default function BlogRankPage() {
                     value={keywordInput}
                     onChange={e => setKeywordInput(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="w-full p-3 h-[50px] border border-gray-300 rounded focus:outline-none focus:border-[#1a73e8] focus:ring-1 focus:ring-[#1a73e8] transition-all shadow-sm"
+                    className="w-full p-3 h-[50px] border border-gray-300 rounded-sm focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
                     placeholder="부천교정, 부천치과"
                   />
                 </div>
@@ -190,7 +197,7 @@ export default function BlogRankPage() {
                   <button
                     onClick={() => handleCheck()}
                     disabled={loading}
-                    className={`h-[50px] px-6 rounded font-bold text-white transition-all shadow-md ${loading ? 'bg-gray-400' : 'bg-[#1a73e8] hover:bg-[#1557b0] hover:shadow-lg'}`}
+                    className={`h-[50px] px-6 rounded-sm font-bold text-white transition-all shadow-sm ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9]'}`}
                   >
                     {loading ? progress : '순위 확인하기'}
                   </button>
@@ -201,22 +208,23 @@ export default function BlogRankPage() {
             {results.length > 0 && (
               <div>
                 <h2 className="text-lg font-bold mb-4 text-gray-700">검색 결과 ({results.length}건)</h2>
-                <div className="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                {/* 🌟 수정: 표 외곽선 직각(rounded-sm) 처리 */}
+                <div className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
                   <table className="w-full border-collapse text-left">
-                    <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-bold tracking-wider">
+                    <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-bold tracking-wider border-b border-gray-200">
                       <tr>
-                        <th className="p-4 border-b w-32">키워드</th>
-                        <th className="p-4 border-b w-24 text-center">순위</th>
-                        {/* 🌟 [수정됨] 작성일 칼럼 추가 */}
-                        <th className="p-4 border-b w-32 text-center">작성일</th>
-                        <th className="p-4 border-b">제목</th>
+                        <th className="p-4 w-32">키워드</th>
+                        <th className="p-4 w-24 text-center">순위</th>
+                        <th className="p-4 w-32 text-center">작성일</th>
+                        <th className="p-4">제목</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {uniqueKeywords.map((kw, i) => {
                         const rows = results.filter(r => r.keyword === kw);
                         return (
-                          <tr key={i} className="hover:bg-blue-50/30 transition-colors">
+                          // 🌟 수정: hover 시 브랜드 컬러가 살짝 묻어나도록 변경
+                          <tr key={i} className="hover:bg-[#5244e8]/5 transition-colors">
                             <td className="p-4 font-bold text-gray-900">{kw}</td>
                             <td className="p-4 text-center">
                               {rows.map((r, j) => (
@@ -225,7 +233,6 @@ export default function BlogRankPage() {
                                 </div>
                               ))}
                             </td>
-                            {/* 🌟 [수정됨] 작성일 데이터 분리 */}
                             <td className="p-4 text-center text-sm text-gray-400 font-medium">
                               {rows.map((r, j) => (
                                 <div key={j} className="mb-1 last:mb-0">
@@ -233,7 +240,6 @@ export default function BlogRankPage() {
                                 </div>
                               ))}
                             </td>
-                            {/* 🌟 [수정됨] 제목에서 괄호 안의 작성일 제거 */}
                             <td className="p-4 text-sm text-gray-700 font-medium">
                               {rows.map((r, j) => (
                                 <div key={j} className="mb-1 last:mb-0">

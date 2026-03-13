@@ -1,3 +1,4 @@
+// components/RankTabs.tsx
 'use client';
 
 import Link from 'next/link';
@@ -9,10 +10,10 @@ export default function RankTabs() {
   const tabs = [
     { name: '키워드 정밀 분석', href: '/analysis' },
     { name: '연관 키워드 조회', href: '/related-fast' },
-    { name: "키워드 생성기", href: "/keyword-generator" },    
     { name: 'N 모바일 블로그', href: '/blog-rank-b' },
     { name: 'N 모바일 지식인', href: '/kin-rank' },
     { name: 'N 모바일 통검 노출/순위 확인', href: '/blog-rank' },
+    { name: "키워드 생성기", href: "/keyword-generator" },
   ];
 
   return (
@@ -23,9 +24,10 @@ export default function RankTabs() {
           <Link
             key={tab.href}
             href={tab.href}
+            // 🌟 수정: 활성화된 탭 밑줄과 글자색을 #5244e8 컬러로 적용
             className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-[2px] ${
               isActive
-                ? 'border-[#1a73e8] text-[#1a73e8]'
+                ? 'border-[#5244e8] text-[#5244e8]'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >

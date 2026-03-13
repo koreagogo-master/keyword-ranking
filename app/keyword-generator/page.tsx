@@ -141,7 +141,8 @@ function KeywordGeneratorContent() {
     if (sortField !== field) return (
       <span className="flex flex-col ml-1.5 opacity-20 text-[10px] leading-tight group-hover:opacity-40 transition-opacity"><span className="-mb-0.5">▲</span><span className="-mt-0.5">▼</span></span>
     );
-    return sortOrder === 'desc' ? <span className="text-blue-600 ml-1.5 text-xs font-extrabold">▼</span> : <span className="text-blue-600 ml-1.5 text-xs font-extrabold">▲</span>;
+    // 🌟 수정: 아이콘 색상을 파란색에서 브랜드 컬러로 변경
+    return sortOrder === 'desc' ? <span className="text-[#5244e8] ml-1.5 text-xs font-extrabold">▼</span> : <span className="text-[#5244e8] ml-1.5 text-xs font-extrabold">▲</span>;
   };
 
   const sortedList = useMemo(() => {
@@ -176,7 +177,6 @@ function KeywordGeneratorContent() {
     navigator.clipboard.writeText(textToCopy).then(() => alert("담은 키워드 목록이 복사되었습니다.")).catch(err => console.error('복사 실패:', err));
   };
 
-  // 🌟 [추가됨] 전체 비우기 함수: 확인 창을 띄우고 빈 배열로 싹 지워줍니다.
   const clearPickedKeywords = () => {
     if (pickedKeywords.length === 0) return;
     if (window.confirm("담은 키워드를 모두 비우시겠습니까?")) {
@@ -196,9 +196,11 @@ function KeywordGeneratorContent() {
 
             <div className="mb-6 mt-6">
               <h1 className="text-2xl font-bold !text-black">키워드 생성기</h1>
+              {/* 🌟 수정: 안내 문구의 색상을 파란색에서 브랜드 컬러로 변경 */}
+              <p className="text-[14px] font-extrabold text-[#5244e8] mt-3 mb-2">💡 본 메뉴는 포인트 차감 없이 무제한으로 이용 가능한 무료 도구입니다.</p>
               <p className="text-sm text-slate-500 mt-1">* 여러 단어들을 조합하여 수많은 키워드 경우의 수를 생성합니다. (최대 500개 생성)</p>
               <p className="text-sm text-slate-500 mt-1">* 안정적인 데이터 조회를 위해, 세부 조회는 1개씩 0.2초 간격으로 순차 진행됩니다.</p>
-              <p className="text-sm text-blue-600 font-bold mt-1">* 각 단어장에 들어갈 단어들은 엔터(줄바꿈)로 구분하여 한 줄에 하나씩 입력해 주세요.</p>
+              <p className="text-sm text-[#5244e8] font-bold mt-1">* 각 단어장에 들어갈 단어들은 엔터(줄바꿈)로 구분하여 한 줄에 하나씩 입력해 주세요.</p>
             </div>
 
             <KeywordInput 
@@ -216,7 +218,6 @@ function KeywordGeneratorContent() {
                   handleSort={handleSort} renderSortIcon={renderSortIcon} copyGeneratedToClipboard={copyGeneratedToClipboard}
                 />
                 
-                {/* 🌟 [추가됨] 우측 보관함에 clearPickedKeywords 기능 전달 */}
                 <SelectedCart 
                   pickedKeywords={pickedKeywords} combinedList={combinedList} totalPickedVolume={totalPickedVolume}
                   togglePick={togglePick} copyPickedToClipboard={copyPickedToClipboard} clearPickedKeywords={clearPickedKeywords}
