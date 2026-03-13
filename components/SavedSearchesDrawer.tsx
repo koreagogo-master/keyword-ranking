@@ -4,10 +4,11 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from "@/app/contexts/AuthContext";
 
+// 🌟 수정 1: GOOGLE과 YOUTUBE 타입 허용
 interface SavedSearchesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  pageType: 'BLOG' | 'JISIKIN' | 'TOTAL' | 'ANALYSIS' | 'RELATED';
+  pageType: 'BLOG' | 'JISIKIN' | 'TOTAL' | 'ANALYSIS' | 'RELATED' | 'GOOGLE' | 'YOUTUBE';
   onSelect: (item: any) => void;          
 }
 
@@ -55,13 +56,15 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
     return `${year}.${month}.${day}`;
   };
 
-  // 🌟 수정: 분석과 연관 키워드 페이지 이름 추가
+  // 🌟 수정 2: 구글과 유튜브 페이지 이름 분기 추가
   const getPageName = () => {
     if (pageType === 'BLOG') return 'N 모바일 블로그';
     if (pageType === 'JISIKIN') return 'N 모바일 지식인';
     if (pageType === 'TOTAL') return 'N 통검 노출/순위';
     if (pageType === 'ANALYSIS') return '키워드 정밀 분석';
     if (pageType === 'RELATED') return '연관 키워드 조회';
+    if (pageType === 'GOOGLE') return '구글 키워드 분석';
+    if (pageType === 'YOUTUBE') return '유튜브 트렌드';
     return '';
   };
 
@@ -74,7 +77,7 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
           <h2 className="text-lg font-black text-gray-800 flex items-center gap-2">
             📂 저장된 설정 불러오기
           </h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-gray-200 rounded-full transition-colors text-gray-500">
+          <button onClick={onClose} className="p-1.5 hover:bg-gray-200 rounded-sm transition-colors text-gray-500">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
@@ -87,25 +90,27 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
           ) : (
             <div className="space-y-3">
               {list.map((item) => (
-                <div key={item.id} className="group flex flex-col p-4 bg-white border border-gray-200 rounded-lg hover:border-blue-400 hover:shadow-md transition-all">
+                // 🌟 수정 3: 카드 둥근 모서리를 직각(rounded-sm)으로 바꾸고, 호버 테두리 색상도 브랜드 컬러로 변경
+                <div key={item.id} className="group flex flex-col p-4 bg-white border border-gray-200 rounded-sm hover:border-[#5244e8] hover:shadow-md transition-all">
                   
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-1.5 text-[11px] text-gray-400 font-medium">
                       <span>{formatDate(item.created_at)}</span>
                       <span>|</span>
-                      <span className="text-blue-500 font-bold">{getPageName()}</span>
+                      {/* 🌟 수정 4: 카테고리 텍스트 색상을 파란색에서 브랜드 컬러로 변경 */}
+                      <span className="text-[#5244e8] font-bold">{getPageName()}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      <button onClick={() => onSelect(item)} title="이 설정으로 바로 검색" className="p-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors shadow-sm">
+                      {/* 🌟 수정 5: 불러오기 버튼 색상을 브랜드 컬러로 변경 */}
+                      <button onClick={() => onSelect(item)} title="이 설정으로 바로 검색" className="p-1.5 bg-[#5244e8] hover:bg-[#4336c9] text-white rounded-sm transition-colors shadow-sm">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
                       </button>
-                      <button onClick={() => handleDelete(item.id)} title="기록 삭제" className="p-1.5 bg-red-400 hover:bg-red-500 text-white rounded transition-colors shadow-sm">
+                      <button onClick={() => handleDelete(item.id)} title="기록 삭제" className="p-1.5 bg-red-400 hover:bg-red-500 text-white rounded-sm transition-colors shadow-sm">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                       </button>
                     </div>
                   </div>
 
-                  {/* 🌟 수정: 페이지 종류에 따라 서랍 텍스트 내용 완벽 분기 처리 */}
                   {pageType === 'BLOG' || pageType === 'TOTAL' ? (
                     <>
                       <div className="text-[12px] text-gray-500 mb-1">닉네임: <span className="font-bold text-gray-800">{item.nickname}</span></div>
@@ -118,6 +123,7 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
                       {item.jisikin_data?.map((d: any) => d.keyword).join(', ')}
                     </span></div>
                   ) : (
+                    // GOOGLE, YOUTUBE, ANALYSIS, RELATED 페이지는 모두 키워드만 보여줍니다.
                     <div className="text-[12px] text-gray-500 mb-1">키워드: <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
                       {item.keyword}
                     </span></div>
