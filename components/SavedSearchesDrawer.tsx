@@ -7,7 +7,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 interface SavedSearchesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  pageType: 'BLOG' | 'JISIKIN' | 'TOTAL'; 
+  pageType: 'BLOG' | 'JISIKIN' | 'TOTAL' | 'ANALYSIS' | 'RELATED';
   onSelect: (item: any) => void;          
 }
 
@@ -55,10 +55,13 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
     return `${year}.${month}.${day}`;
   };
 
+  // 🌟 수정: 분석과 연관 키워드 페이지 이름 추가
   const getPageName = () => {
     if (pageType === 'BLOG') return 'N 모바일 블로그';
     if (pageType === 'JISIKIN') return 'N 모바일 지식인';
     if (pageType === 'TOTAL') return 'N 통검 노출/순위';
+    if (pageType === 'ANALYSIS') return '키워드 정밀 분석';
+    if (pageType === 'RELATED') return '연관 키워드 조회';
     return '';
   };
 
@@ -102,18 +105,22 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
                     </div>
                   </div>
 
-                  {/* 🌟 [수정됨] 페이지 종류에 따라 서랍에 보여지는 텍스트 내용 분기 처리 */}
-                  {pageType !== 'JISIKIN' ? (
+                  {/* 🌟 수정: 페이지 종류에 따라 서랍 텍스트 내용 완벽 분기 처리 */}
+                  {pageType === 'BLOG' || pageType === 'TOTAL' ? (
                     <>
                       <div className="text-[12px] text-gray-500 mb-1">닉네임: <span className="font-bold text-gray-800">{item.nickname}</span></div>
                       <div className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
                         {item.keyword}
                       </div>
                     </>
-                  ) : (
-                    <div className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
+                  ) : pageType === 'JISIKIN' ? (
+                    <div className="text-[12px] text-gray-500 mb-1">키워드: <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
                       {item.jisikin_data?.map((d: any) => d.keyword).join(', ')}
-                    </div>
+                    </span></div>
+                  ) : (
+                    <div className="text-[12px] text-gray-500 mb-1">키워드: <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
+                      {item.keyword}
+                    </span></div>
                   )}
                 </div>
               ))}

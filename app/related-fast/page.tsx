@@ -3,11 +3,17 @@
 import { useState, Suspense, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
-import SaveSnapshotButton from "@/components/SaveSnapshotButton";
+
+// 🌟 추가: DB 저장 및 서랍 컴포넌트 불러오기 (SaveSnapshotButton은 삭제됨)
+import { createClient } from "@/app/utils/supabase/client";
+import { useAuth } from '@/app/contexts/AuthContext';
+import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
 
 function RelatedFastContent() {
+  const { user } = useAuth(); // 🌟 추가: 로그인 유저 정보
+
   const [keyword, setKeyword] = useState("");
   const [adsList, setAdsList] = useState<any[]>([]); 
   const [isSearching, setIsSearching] = useState(false);
@@ -22,6 +28,8 @@ function RelatedFastContent() {
   // 콤보박스 상태 관리
   const [cpcOption, setCpcOption] = useState('MOBILE_3');
   const [isCpcUpdating, setIsCpcUpdating] = useState(false);
+
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // 🌟 추가: 서랍 열림 상태
 
   const totalSelectedVolume = useMemo(() => {
     return selectedKeywords.reduce((acc, cur) => acc + (cur.total || 0), 0);
@@ -159,6 +167,34 @@ function RelatedFastContent() {
     }
   };
 
+  // 🌟 1. 현재 설정 저장 로직 (연관 키워드 조회 페이지용)
+  const handleSaveCurrentSetting = async () => {
+    if (!keyword) {
+      alert("키워드를 입력한 후 저장해주세요.");
+      return;
+    }
+    if (!user) {
+        alert('로그인 정보가 만료되었거나 확인할 수 없습니다. 다시 로그인해주세요.');
+        return;
+    }
+    const supabase = createClient();
+    const { error } = await supabase.from('saved_searches').insert({
+      user_id: user?.id,
+      page_type: 'RELATED', // 연관 키워드 페이지 명시
+      nickname: '', // 닉네임 불필요
+      keyword: keyword
+    });
+
+    if (!error) alert("현재 설정이 안전하게 저장되었습니다.");
+    else alert("저장 중 오류가 발생했습니다.");
+  };
+
+  // 🌟 2. 저장된 데이터 불러오기 로직
+  const handleApplySavedSetting = (item: any) => {
+    setIsDrawerOpen(false); // 서랍 닫기
+    handleSearch(item.keyword); // 저장된 키워드로 검색
+  };
+
   const mainKeywordData = useMemo(() => {
     if (adsList.length === 0) return null;
     const searchKey = keyword.replace(/\s+/g, '');
@@ -199,29 +235,42 @@ function RelatedFastContent() {
 
   return (
     <>
-      {/* 🌟 1. 나눔스퀘어 폰트 불러오기 (다른 페이지들과 동일) */}
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
 
-      {/* 🌟 2. 폰트 스타일(fontFamily)과 자간(tracking-tight) 적용 */}
       <div 
         className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" 
         style={{ fontFamily: "'NanumSquare', sans-serif" }}
       >
         <Sidebar />
 
-        {/* 🌟 추가: 현재 페이지 이름을 "연관 키워드 조회"로 달아서 버튼을 배치합니다. */}
-        {/* 주의: resultData={data} 의 'data' 부분은 대표님 코드에서 실제 검색 결과를 담고 있는 변수명(예: results, keywords 등)과 똑같이 맞춰주시면 됩니다. */}
-        <SaveSnapshotButton keyword={keyword} resultData={keyword} pageName="연관 키워드 조회" />
-
         <main className="flex-1 ml-64 p-10">
           <div className="max-w-7xl mx-auto">
             <RankTabs />
           
-          <div className="mb-8">
-            <h1 className="text-2xl font-bold !text-black">연관 키워드 조회</h1>
-            <p className="text-sm text-slate-500 mt-1">* 포스팅 시 적용 가능한 연관 키워드를 네이버 API 기반으로 추천합니다. 조회 후 리스트에서 키워드를 선택 하면 좌측 [선택된 키워드]의 리스트가 생성 됩니다.</p>
-            <p className="text-sm text-slate-500 mt-1">* 최종 선택 된 키워드를 복사하여 메모장에 붙여넣기가 가능 합니다. 선택된 키워드는 조회 키워드를 변경 하여도 남아 있습니다.</p>
-            <p className="text-sm text-slate-500 mt-1">* CPC 단가 : 우측 상단의 순위를 조정 하면 조회 시점 기준으로 업데이트 됩니다.</p>
+          {/* 🌟 수정: 타이틀과 버튼 영역 분리 (SaveSnapshotButton 대체) */}
+          <div className="flex justify-between items-start mb-8">
+            <div>
+              <h1 className="text-2xl font-bold !text-black mb-2">연관 키워드 조회</h1>
+              <p className="text-sm text-slate-500 mt-1">* 포스팅 시 적용 가능한 연관 키워드를 네이버 API 기반으로 추천합니다. 조회 후 리스트에서 키워드를 선택 하면 좌측 [선택된 키워드]의 리스트가 생성 됩니다.</p>
+              <p className="text-sm text-slate-500 mt-1">* 최종 선택 된 키워드를 복사하여 메모장에 붙여넣기가 가능 합니다. 선택된 키워드는 조회 키워드를 변경 하여도 남아 있습니다.</p>
+              <p className="text-sm text-slate-500 mt-1">* CPC 단가 : 우측 상단의 순위를 조정 하면 조회 시점 기준으로 업데이트 됩니다.</p>
+            </div>
+            <div className="flex items-center gap-2 mt-1 shrink-0">
+              <button 
+                onClick={handleSaveCurrentSetting}
+                className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                현재 설정 저장
+              </button>
+              <button 
+                onClick={() => setIsDrawerOpen(true)}
+                className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
+                저장된 목록 보기
+              </button>
+            </div>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 items-start relative">
@@ -301,7 +350,6 @@ function RelatedFastContent() {
             <div className="flex-1 w-full">
               {adsList.length > 0 && (
                 <div className="flex flex-col gap-3">
-                  {/* 🌟 콤보박스를 표 우측 상단으로 독립시켰습니다. */}
                   <div className="flex justify-end items-center gap-2">
                     <span className="text-[12px] font-bold text-slate-500">단가 조회 기준 :</span>
                     <select 
@@ -327,7 +375,6 @@ function RelatedFastContent() {
                           <th className="px-4 py-4 font-bold text-slate-500 text-center w-16">순위</th>
                           <th className="px-4 py-4 font-bold text-slate-500">연관 키워드</th>
                           
-                          {/* 🌟 예상 CPC 헤더가 드디어 완벽한 수평 라인을 찾았습니다! */}
                           <th className="px-4 py-4 text-right cursor-pointer hover:bg-orange-50 group font-bold text-orange-600 w-28 align-middle" onClick={() => handleSort('cpc')}>
                             <div className="flex items-center justify-end" title="선택된 기준 예상 평균 클릭 비용">
                               *예상 CPC{renderSortIcon('cpc')}
@@ -413,6 +460,14 @@ function RelatedFastContent() {
           </div>
         </div>
       </main>
+
+      {/* 🌟 추가: 저장된 목록 서랍 컴포넌트 렌더링 */}
+      <SavedSearchesDrawer 
+        isOpen={isDrawerOpen} 
+        onClose={() => setIsDrawerOpen(false)} 
+        pageType="RELATED" 
+        onSelect={handleApplySavedSetting} 
+      />
     </div>
     </>
   );
