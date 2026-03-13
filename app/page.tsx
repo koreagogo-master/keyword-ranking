@@ -197,7 +197,7 @@ export default function Home() {
                 <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
                   <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                 </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">쇼핑 경쟁강도</h3>
+                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">쇼핑 인사이트</h3>
               </Link>
 
               {/* 박스 10 */}

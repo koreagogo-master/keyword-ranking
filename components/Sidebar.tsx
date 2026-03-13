@@ -50,7 +50,7 @@ export default function Sidebar() {
     {
       title: "Seller Tools",
       items: [
-        { name: "쇼핑 경쟁강도", href: "/shopping-insight" },
+        { name: "쇼핑 인사이트", href: "/shopping-insight" },
         { name: "수익률 계산기", href: "/calculator" },
       ]
     },
