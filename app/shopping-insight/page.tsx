@@ -24,18 +24,19 @@ const highlightKeyword = (text: string, keyword: string) => {
 
 export default function ShoppingInsightPage() {
   const { user } = useAuth();
-  
+
   // 서랍 상태 추가
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [keyword, setKeyword] = useState("");
   const [isSearching, setIsSearching] = useState(false);
-  const [isDetailsLoading, setIsDetailsLoading] = useState(false); 
+  const [isDetailsLoading, setIsDetailsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
   const [summaryData, setSummaryData] = useState<any>(null);
-  const [advancedStats, setAdvancedStats] = useState<any>(null); 
+  const [advancedStats, setAdvancedStats] = useState<any>(null);
   const [topItems, setTopItems] = useState<any[]>([]);
+  const [autoCompleteWords, setAutoCompleteWords] = useState<string[]>([]);
 
   // 검색 함수 (서랍에서 클릭한 키워드도 받을 수 있게 수정됨)
   const handleSearch = async (overrideKeyword?: any) => {
@@ -47,17 +48,24 @@ export default function ShoppingInsightPage() {
     setHasSearched(false);
     setIsDetailsLoading(false);
     setSummaryData(null);
-    setAdvancedStats(null); 
+    setAdvancedStats(null);
     setTopItems([]);
+    setAutoCompleteWords([]);
 
     try {
-      const [shoppingRes, adRes] = await Promise.all([
+      const [shoppingRes, adRes, autoCompleteRes] = await Promise.all([
         fetch(`/api/naver-shopping?keyword=${encodeURIComponent(kwToSearch)}`),
-        fetch(`/api/naver-ad?keyword=${encodeURIComponent(kwToSearch)}`)
+        fetch(`/api/naver-ad?keyword=${encodeURIComponent(kwToSearch)}`),
+        fetch(`/api/naver-autocomplete?keyword=${encodeURIComponent(kwToSearch)}`) // 🌟 추가됨
       ]);
 
       const shoppingData = await shoppingRes.json();
       const adData = await adRes.json();
+      const autoCompleteData = await autoCompleteRes.json(); // 🌟 추가됨
+
+      if (autoCompleteData.success) {
+        setAutoCompleteWords(autoCompleteData.keywords || []);
+      }
 
       if (!shoppingData.success) {
         alert("쇼핑 데이터를 불러오지 못했습니다: " + shoppingData.error);
@@ -147,7 +155,7 @@ export default function ShoppingInsightPage() {
               reviews: detail.reviews,
               purchases: detail.purchases,
               regDate: detail.regDate,
-              rating: detail.rating, 
+              rating: detail.rating,
               isDetailLoaded: true
             };
           }
@@ -175,7 +183,7 @@ export default function ShoppingInsightPage() {
     const supabase = createClient();
     const { error } = await supabase.from('saved_searches').insert({
       user_id: user?.id,
-      page_type: 'SHOPPING', 
+      page_type: 'SHOPPING',
       keyword: keyword
     });
 
@@ -185,8 +193,8 @@ export default function ShoppingInsightPage() {
 
   // 서랍에서 클릭 시 실행될 함수
   const handleApplySavedSetting = (item: any) => {
-    setIsDrawerOpen(false); 
-    handleSearch(item.keyword); 
+    setIsDrawerOpen(false);
+    handleSearch(item.keyword);
   };
 
   return (
@@ -204,7 +212,7 @@ export default function ShoppingInsightPage() {
                 <p className="text-sm text-slate-500 mt-1">* 네이버 쇼핑 데이터 기반으로 상품 키워드의 경쟁력과 트렌드를 분석합니다.</p>
               </div>
               <div className="flex items-center gap-2 mt-1 shrink-0">
-                <button 
+                <button
                   onClick={handleSaveCurrentSetting}
                   disabled={!hasSearched || !user}
                   className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
@@ -213,7 +221,7 @@ export default function ShoppingInsightPage() {
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                   현재 설정 저장
                 </button>
-                <button 
+                <button
                   onClick={() => setIsDrawerOpen(true)}
                   className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
                 >
@@ -242,13 +250,32 @@ export default function ShoppingInsightPage() {
                 </button>
               </div>
 
+              {hasSearched && autoCompleteWords.length > 0 && (
+                <div className="flex items-center gap-2 mt-2.5 px-1 animate-in fade-in duration-300">
+                  <span className="text-[13px] font-bold text-slate-500 shrink-0 whitespace-nowrap">자동 완성 키워드 :</span>
+                  {/* w-full 제한과 스크롤 속성을 모두 제거하여 오른쪽으로 무한정 뻗어 나가게 합니다 */}
+                  <div className="flex flex-nowrap gap-1.5">
+                    {autoCompleteWords.map((word: string, idx: number) => (
+                      <button 
+                        key={idx} 
+                        onClick={() => handleSearch(word)}
+                        title="이 키워드로 바로 검색"
+                        className="shrink-0 px-2.5 py-1 !bg-blue-50 hover:!bg-blue-100 !text-blue-600 text-[12px] font-bold rounded-sm border border-blue-200 transition-colors shadow-sm"
+                      >
+                        {word}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {hasSearched && advancedStats?.topWords?.length > 0 && (
                 <div className="flex items-center gap-2 mt-2.5 px-1 animate-in fade-in duration-300">
                   <span className="text-[13px] font-bold text-slate-500">상위노출 핵심 태그 :</span>
                   <div className="flex flex-wrap gap-1.5">
                     {advancedStats.topWords.map((word: string, idx: number) => (
-                      <span 
-                        key={idx} 
+                      <span
+                        key={idx}
                         className="px-2.5 py-1 bg-yellow-100 text-yellow-800 text-[12px] font-bold rounded-sm border border-yellow-200"
                       >
                         #{word}
@@ -257,6 +284,8 @@ export default function ShoppingInsightPage() {
                   </div>
                 </div>
               )}
+
+
             </div>
 
             {hasSearched && summaryData && (
@@ -312,9 +341,9 @@ export default function ShoppingInsightPage() {
                       <svg className="w-4 h-4 text-[#5244e8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                       TOP 40 심층 분석 (1페이지 기준)
                     </h3>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 divide-y md:divide-y-0 md:divide-x divide-gray-100">
-                      
+
                       <div className="pt-4 md:pt-0 md:px-4 first:pl-0">
                         <span className="text-xs font-bold text-slate-500 mb-3 block">가격대 형성</span>
                         <div className="space-y-2">
@@ -343,8 +372,8 @@ export default function ShoppingInsightPage() {
                           <div className="bg-[#5244e8] h-1.5 rounded-full" style={{ width: `${advancedStats.catalogRatio}%` }}></div>
                         </div>
                         <p className={`text-[11px] mt-2 leading-tight font-bold ${advancedStats.catalogRatio >= 50 ? 'text-red-500' : 'text-blue-500'}`}>
-                          {advancedStats.catalogRatio >= 50 
-                            ? "카탈로그 비중이 높아 초보 셀러 진입이 까다롭습니다." 
+                          {advancedStats.catalogRatio >= 50
+                            ? "카탈로그 비중이 높아 초보 셀러 진입이 까다롭습니다."
                             : "일반 스마트스토어 비중이 높아 진입해 볼 만합니다."}
                         </p>
                       </div>
@@ -443,11 +472,11 @@ export default function ShoppingInsightPage() {
       </div>
 
       {/* 서랍 연동 완료 부분 */}
-      <SavedSearchesDrawer 
-        isOpen={isDrawerOpen} 
-        onClose={() => setIsDrawerOpen(false)} 
-        pageType="SHOPPING" 
-        onSelect={handleApplySavedSetting} 
+      <SavedSearchesDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        pageType="SHOPPING"
+        onSelect={handleApplySavedSetting}
       />
     </>
   );
