@@ -191,9 +191,11 @@ function AnalysisContent() {
                 <p className="text-sm text-slate-500">* 분석할 키워드를 입력하여 네이버 검색량 및 상세 지표를 확인하세요.</p>
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <button
+                <button 
                   onClick={handleSaveCurrentSetting}
-                  className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
+                  disabled={!keyword || !user}
+                  className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
+                    ${(!keyword || !user) ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                   현재 설정 저장

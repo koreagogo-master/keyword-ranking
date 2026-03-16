@@ -4,11 +4,10 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from "@/app/contexts/AuthContext";
 
-// 🌟 수정 1: GOOGLE과 YOUTUBE 타입 허용
 interface SavedSearchesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  pageType: 'BLOG' | 'JISIKIN' | 'TOTAL' | 'ANALYSIS' | 'RELATED' | 'GOOGLE' | 'YOUTUBE';
+  pageType: 'BLOG' | 'JISIKIN' | 'TOTAL' | 'ANALYSIS' | 'RELATED' | 'GOOGLE' | 'YOUTUBE' | 'SHOPPING';
   onSelect: (item: any) => void;          
 }
 
@@ -56,7 +55,6 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
     return `${year}.${month}.${day}`;
   };
 
-  // 🌟 수정 2: 구글과 유튜브 페이지 이름 분기 추가
   const getPageName = () => {
     if (pageType === 'BLOG') return 'N 모바일 블로그';
     if (pageType === 'JISIKIN') return 'N 모바일 지식인';
@@ -65,6 +63,7 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
     if (pageType === 'RELATED') return '연관 키워드 조회';
     if (pageType === 'GOOGLE') return '구글 키워드 분석';
     if (pageType === 'YOUTUBE') return '유튜브 트렌드';
+    if (pageType === 'SHOPPING') return '쇼핑 인사이트';
     return '';
   };
 
@@ -90,18 +89,15 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
           ) : (
             <div className="space-y-3">
               {list.map((item) => (
-                // 🌟 수정 3: 카드 둥근 모서리를 직각(rounded-sm)으로 바꾸고, 호버 테두리 색상도 브랜드 컬러로 변경
                 <div key={item.id} className="group flex flex-col p-4 bg-white border border-gray-200 rounded-sm hover:border-[#5244e8] hover:shadow-md transition-all">
                   
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-1.5 text-[11px] text-gray-400 font-medium">
                       <span>{formatDate(item.created_at)}</span>
                       <span>|</span>
-                      {/* 🌟 수정 4: 카테고리 텍스트 색상을 파란색에서 브랜드 컬러로 변경 */}
                       <span className="text-[#5244e8] font-bold">{getPageName()}</span>
                     </div>
                     <div className="flex items-center gap-1.5">
-                      {/* 🌟 수정 5: 불러오기 버튼 색상을 브랜드 컬러로 변경 */}
                       <button onClick={() => onSelect(item)} title="이 설정으로 바로 검색" className="p-1.5 bg-[#5244e8] hover:bg-[#4336c9] text-white rounded-sm transition-colors shadow-sm">
                         <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" /></svg>
                       </button>
@@ -123,7 +119,6 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
                       {item.jisikin_data?.map((d: any) => d.keyword).join(', ')}
                     </span></div>
                   ) : (
-                    // GOOGLE, YOUTUBE, ANALYSIS, RELATED 페이지는 모두 키워드만 보여줍니다.
                     <div className="text-[12px] text-gray-500 mb-1">키워드: <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
                       {item.keyword}
                     </span></div>
