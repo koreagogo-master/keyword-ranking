@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link'; // 🌟 이 줄을 추가해 주세요!
 import Sidebar from "@/components/Sidebar";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { createClient } from "@/app/utils/supabase/client";
@@ -206,6 +207,23 @@ export default function ShoppingInsightPage() {
         <main className="flex-1 ml-64 p-10 relative">
           <div className="max-w-7xl mx-auto">
 
+            {/* 🌟 상단 탭 메뉴 시작 */}
+            <div className="flex border-b border-gray-200 mb-8">
+              <Link 
+                href="/shopping-insight" 
+                className="px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-[2px] border-[#5244e8] text-[#5244e8]"
+              >
+                키워드 인사이트
+              </Link>
+              <Link 
+                href="/shopping-rank" 
+                className="px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-[2px] border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+              >
+                내 상품 순위 확인
+              </Link>
+            </div>
+            {/* 🌟 상단 탭 메뉴 끝 */}
+
             <div className="flex justify-between items-start mb-8">
               <div>
                 <h1 className="text-2xl font-bold !text-black mb-2">쇼핑 인사이트</h1>
@@ -256,8 +274,8 @@ export default function ShoppingInsightPage() {
                   {/* w-full 제한과 스크롤 속성을 모두 제거하여 오른쪽으로 무한정 뻗어 나가게 합니다 */}
                   <div className="flex flex-nowrap gap-1.5">
                     {autoCompleteWords.map((word: string, idx: number) => (
-                      <button 
-                        key={idx} 
+                      <button
+                        key={idx}
                         onClick={() => handleSearch(word)}
                         title="이 키워드로 바로 검색"
                         className="shrink-0 px-2.5 py-1 !bg-blue-50 hover:!bg-blue-100 !text-blue-600 text-[12px] font-bold rounded-sm border border-blue-200 transition-colors shadow-sm"

@@ -51,7 +51,7 @@ export default function Sidebar() {
       title: "Seller Tools",
       items: [
         { name: "쇼핑 인사이트", href: "/shopping-insight" },
-        { name: "수익률 계산기", href: "/calculator" },
+        { name: "상품 노출 순위 분석", href: "/shopping-rank" }
       ]
     },
     {
