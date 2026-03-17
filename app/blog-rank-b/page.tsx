@@ -18,7 +18,6 @@ interface SearchResultRow {
   isSuccess: boolean;
 }
 
-// 🌟 수정: 내 블로그(1순위 매칭) 색상을 브랜드 컬러로 변경
 const AUTHOR_COLORS = [
   'text-[#5244e8]',
   'text-green-600',
@@ -45,8 +44,8 @@ export default function BlogRankPage() {
     .map(s => s.trim())
     .filter(Boolean);
 
-  const getAuthorColorClass = (author: string) => {
-    if (!author || author === '-') return 'text-gray-400';
+  const getMatchedNicknameIndex = (author: string) => {
+    if (!author || author === '-') return -1;
     let best = -1;
     let len = 0;
     nicknames.forEach((nick, i) => {
@@ -55,7 +54,7 @@ export default function BlogRankPage() {
         len = nick.length;
       }
     });
-    return best >= 0 ? AUTHOR_COLORS[best % AUTHOR_COLORS.length] : 'text-gray-500';
+    return best;
   };
 
   const handleCheck = async (overrideNickname?: string, overrideKeyword?: string) => {
@@ -122,12 +121,9 @@ export default function BlogRankPage() {
 
   const handleApplySavedSetting = (item: any) => {
     setIsDrawerOpen(false);
-    
     const slicedKeywords = item.keyword.split(',').map((k: string) => k.trim()).filter(Boolean).slice(0, 10).join(', ');
-
     setTargetNickname(item.nickname);
     setKeywordInput(slicedKeywords);
-    
     handleCheck(item.nickname, slicedKeywords);
   };
 
@@ -143,7 +139,6 @@ export default function BlogRankPage() {
             <RankTabs />
 
             <div className="flex justify-between items-start mb-8">
-              {/* 🌟 수정: 타이틀 하단에 가이드 설명글 추가 */}
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">
                   N 모바일 블로그 탭 순위 확인
@@ -171,7 +166,6 @@ export default function BlogRankPage() {
               </div>
             </div>
 
-            {/* 🌟 수정: 둥근 모서리(rounded-lg)를 직각(rounded-sm)으로 변경하고 포커스 색상을 #5244e8로 맞춤 */}
             <div className="bg-white p-6 rounded-sm border border-gray-200 shadow-sm mb-8">
               <div className="flex gap-4 items-end">
                 <div className="w-1/4 min-w-[200px]">
@@ -205,58 +199,86 @@ export default function BlogRankPage() {
                   </button>
                 </div>
               </div>
+
+              {nicknames.length > 0 && (
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  {nicknames.map((nick, idx) => (
+                    <span
+                      key={idx}
+                      className={`text-[13px] font-extrabold px-2.5 py-1 bg-gray-50 border border-gray-200 rounded-md ${AUTHOR_COLORS[idx % AUTHOR_COLORS.length]}`}
+                    >
+                      {nick}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
 
             {results.length > 0 && (
               <div>
-                <h2 className="text-lg font-bold mb-4 text-gray-700">검색 결과 ({results.length}건)</h2>
-                {/* 🌟 수정: 표 외곽선 직각(rounded-sm) 처리 */}
-                <div className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
-                  <table className="w-full border-collapse text-left">
-                    <thead className="bg-gray-50 text-xs uppercase text-gray-500 font-bold tracking-wider border-b border-gray-200">
-                      <tr>
-                        <th className="p-4 w-32">키워드</th>
-                        <th className="p-4 w-24 text-center">순위</th>
-                        <th className="p-4 w-32 text-center">작성일</th>
-                        <th className="p-4">제목</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {uniqueKeywords.map((kw, i) => {
-                        const rows = results.filter(r => r.keyword === kw);
-                        return (
-                          // 🌟 수정: hover 시 브랜드 컬러가 살짝 묻어나도록 변경
-                          <tr key={i} className="hover:bg-[#5244e8]/5 transition-colors">
-                            <td className="p-4 font-bold text-gray-900">{kw}</td>
-                            <td className="p-4 text-center">
-                              {rows.map((r, j) => (
-                                <div key={j} className={`mb-1 last:mb-0 font-extrabold text-lg ${getAuthorColorClass(r.author)}`}>
-                                  {r.rank}
-                                </div>
-                              ))}
-                            </td>
-                            <td className="p-4 text-center text-sm text-gray-400 font-medium">
-                              {rows.map((r, j) => (
-                                <div key={j} className="mb-1 last:mb-0">
-                                  {r.date}
-                                </div>
-                              ))}
-                            </td>
-                            <td className="p-4 text-sm text-gray-700 font-medium">
-                              {rows.map((r, j) => (
-                                <div key={j} className="mb-1 last:mb-0">
-                                  {r.title}
-                                </div>
-                              ))}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                <h2 className="text-lg font-bold mb-4 text-gray-700">검색 결과 ({uniqueKeywords.length}개 키워드)</h2>
+                
+                <div className="space-y-8 animate-in fade-in duration-500">
+                  {nicknames.map((nick, idx) => {
+                    const colorClass = AUTHOR_COLORS[idx % AUTHOR_COLORS.length];
+                    
+                    return (
+                      <div key={idx} className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
+                        {/* 🌟 수정 1: 헤더 영역에 텍스트 대신 상단과 동일한 디자인의 '뱃지'를 넣어 직관성 극대화 */}
+                        <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center gap-3">
+                          <span className={`text-[13px] font-extrabold px-3 py-1.5 bg-white border border-gray-200 rounded-md shadow-sm ${colorClass}`}>
+                            {nick}
+                          </span>
+                          <span className="text-sm font-bold text-gray-500">
+                            블로그 노출 순위
+                          </span>
+                        </div>
+                        <table className="w-full border-collapse text-left">
+                          <thead className="bg-white text-xs uppercase text-gray-500 font-bold tracking-wider border-b border-gray-200">
+                            <tr>
+                              <th className="p-3 w-40 text-center">키워드</th>
+                              <th className="p-3 w-28 text-center">순위</th>
+                              <th className="p-3 w-32 text-center">작성일</th>
+                              <th className="p-3">제목</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {uniqueKeywords.map((kw, i) => {
+                              const kwRows = results.filter(r => r.keyword === kw);
+                              const matchedRow = kwRows.find(r => getMatchedNicknameIndex(r.author) === idx);
+                              const displayRow = matchedRow || kwRows.find(r => r.author === '-') || {
+                                keyword: kw, rank: 'X', date: '-', title: '순위 내 없음', author: '-'
+                              };
+                              
+                              const isRanked = displayRow.rank !== 'X' && displayRow.rank !== 'Err';
+
+                              return (
+                                <tr key={i} className="hover:bg-gray-50 transition-colors">
+                                  <td className="p-3 font-bold text-gray-900 text-center">{kw}</td>
+                                  <td className="p-3 text-center">
+                                    {/* 🌟 수정 2: 알록달록했던 순위 색상을 모두 제거하고, 찾은 경우 통일된 브랜드 컬러(#5244e8) 적용 */}
+                                    <span className={`font-extrabold text-lg ${isRanked ? 'text-[#5244e8]' : 'text-gray-300'}`}>
+                                      {displayRow.rank}
+                                    </span>
+                                  </td>
+                                  <td className="p-3 text-center text-[13px] font-medium text-gray-500 whitespace-nowrap">
+                                    {displayRow.date}
+                                  </td>
+                                  <td className="p-3 text-[14px] font-medium text-gray-700 pr-4">
+                                    {displayRow.title}
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
+            
           </div>
         </main>
       </div>
