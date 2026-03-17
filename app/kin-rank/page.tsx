@@ -8,6 +8,8 @@ import RankTabs from '@/components/RankTabs';
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from "@/app/contexts/AuthContext";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+// 🌟 1. 마법의 포인트 스위치 가져오기
+import { usePoint } from '@/app/hooks/usePoint'; 
 
 interface SearchResult {
   keyword: string;
@@ -25,6 +27,9 @@ interface InputRow {
 
 export default function KinRankPage() {
   const { user } = useAuth();
+  // 🌟 2. 스위치 장착하기
+  const { deductPoints } = usePoint(); 
+  
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [inputs, setInputs] = useState<InputRow[]>([
@@ -66,12 +71,17 @@ export default function KinRankPage() {
 
   const handleCheck = async (overrideInputs?: InputRow[]) => {
     const inputsToUse = overrideInputs || inputs;
+    // 빈칸이 아닌 유효한 입력값(키워드)만 걸러내기
     const validInputs = inputsToUse.filter(input => input.keyword.trim() !== '' && input.targetTitle.trim() !== '');
 
     if (validInputs.length === 0) {
       alert('최소 하나의 키워드와 찾을 제목을 입력해주세요.');
       return;
     }
+
+    // 🌟 3. 스위치 켜기: 입력된 키워드 개수(validInputs.length)만큼 10P씩 계산해서 차감 요청!
+    const isPaySuccess = await deductPoints(user?.id, 10 * validInputs.length, validInputs.length);
+    if (!isPaySuccess) return; // 포인트가 부족하거나 로그인이 안 되어있으면 여기서 즉시 멈춤!
 
     setLoading(true);
     setResults([]);
@@ -168,7 +178,6 @@ export default function KinRankPage() {
 
             <RankTabs />
 
-            {/* 🌟 수정: 헤더 영역을 블로그/분석 페이지와 동일한 구조로 맞춤 */}
             <div className="flex justify-between items-start mb-8">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -197,7 +206,6 @@ export default function KinRankPage() {
               </div>
             </div>
 
-            {/* 🌟 수정: 둥근 모서리를 직각(rounded-sm)으로 통일 */}
             <div className="bg-white p-6 rounded-sm border border-gray-200 shadow-sm mb-10">
               <div className="flex flex-col gap-3">
                 {inputs.map((row, index) => {
@@ -213,7 +221,6 @@ export default function KinRankPage() {
                           !isFull ? (
                             <button
                               onClick={handleAddRow}
-                              // 🌟 수정: !text-white 로 important 속성 부여
                               className="w-full h-[45px] rounded-sm bg-[#5244e8] hover:bg-[#4336c9] !text-white font-bold text-xl flex items-center justify-center transition-colors shadow-sm"
                               title="입력창 추가"
                             >
@@ -247,7 +254,6 @@ export default function KinRankPage() {
                           onChange={(e) => handleInputChange(index, 'keyword', e.target.value)}
                           onKeyDown={handleKeyDown}
                           placeholder={`키워드 ${index + 1}`}
-                          // 🌟 수정: 입력창 포커스 색상을 브랜드 컬러로 변경
                           className="w-full p-3 h-[45px] rounded-sm bg-white border border-gray-300 focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] text-gray-900 text-sm font-medium transition-all shadow-sm"
                         />
                       </div>
@@ -270,7 +276,6 @@ export default function KinRankPage() {
                   <button
                     onClick={() => handleCheck()}
                     disabled={loading}
-                    // 🌟 수정: 메인 검색 버튼 색상을 브랜드 컬러로 변경
                     className={`w-full py-3 rounded-sm font-bold text-white transition-all shadow-md
                       ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9]'}`}
                   >
@@ -284,7 +289,6 @@ export default function KinRankPage() {
               <div>
                 <h2 className="text-lg font-bold mb-4 text-gray-700">검색 결과 ({results.length}건)</h2>
 
-                {/* 🌟 수정: 표 외곽선을 직각(rounded-sm)으로 변경 */}
                 <div className="bg-white rounded-sm border border-gray-200 shadow-sm overflow-hidden">
                   <table className="w-full text-left border-collapse">
                     <thead className="bg-gray-50 text-gray-500 text-xs uppercase font-bold tracking-wider border-b border-gray-200">
@@ -298,13 +302,11 @@ export default function KinRankPage() {
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {results.map((res, index) => (
-                        // 🌟 수정: 호버 색상을 은은한 브랜드 컬러 배경으로 변경
                         <tr key={index} className="hover:bg-[#5244e8]/5 transition-colors">
                           <td className="p-4 text-center font-bold text-gray-900 truncate">{res.keyword}</td>
 
                           <td className="p-4 text-center">
                             {res.isMainExposed === true ? (
-                              // 🌟 수정: 노출O 뱃지 색상을 브랜드 컬러로 변경
                               <span className="px-2 py-1 rounded-sm bg-[#5244e8]/10 text-[#5244e8] text-xs font-bold border border-[#5244e8]/20">노출 O</span>
                             ) : res.isMainExposed === false ? (
                               <span className="text-gray-400 text-xs font-medium">X</span>
@@ -315,7 +317,6 @@ export default function KinRankPage() {
 
                           <td className="p-4 text-center">
                             {res.tabRank !== 'X' && res.tabRank !== 'Err' ? (
-                              // 🌟 수정: 탭 순위 텍스트 색상을 브랜드 컬러로 변경
                               <span className="text-lg font-extrabold text-[#5244e8]">{res.tabRank}</span>
                             ) : (
                               <span className="text-sm text-red-400 font-medium">{res.tabRank}</span>

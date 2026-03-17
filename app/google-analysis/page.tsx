@@ -9,10 +9,15 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
+// 🌟 1. 마법의 포인트 스위치 가져오기
+import { usePoint } from '@/app/hooks/usePoint'; 
+
 const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
 
 export default function GoogleAnalysisPage() {
   const { user } = useAuth(); // 🌟 추가: 유저 정보 가져오기
+  // 🌟 2. 스위치 장착하기
+  const { deductPoints } = usePoint(); 
 
   const [keyword, setKeyword] = useState("");
   const [isSearching, setIsSearching] = useState(false);
@@ -33,6 +38,10 @@ export default function GoogleAnalysisPage() {
   const handleSearch = async (targetKeyword?: string) => {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
+
+    // 🌟 3. 스위치 켜기: 구글 키워드 분석은 1회 검색당 10P 차감 (1건)
+    const isPaySuccess = await deductPoints(user?.id, 10, 1);
+    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤!
 
     setKeyword(k);
     setIsSearching(true);
@@ -105,7 +114,7 @@ export default function GoogleAnalysisPage() {
   const handleApplySavedSetting = (item: any) => {
     setIsDrawerOpen(false);
     setKeyword(item.keyword);
-    handleSearch(item.keyword);
+    handleSearch(item.keyword); // 여기서도 동일하게 10P 차감 로직을 탑니다!
   };
 
   const mainKeywordData = useMemo(() => {
@@ -383,7 +392,6 @@ export default function GoogleAnalysisPage() {
                               <td className="px-5 py-3 text-right font-bold text-orange-600 text-[13px]">
                                 {item.cpcHigh > 0 ? `${formatNum(item.cpcHigh)}원` : '-'}
                               </td>
-                              {/* 🌟 가장 얇고 세련된 하얀색 선(border-b border-white)으로 최종 적용 */}
                               <td className="px-5 py-3 text-right font-extrabold text-[#5244e8] text-[14px] bg-[#5244e8]/5 border-b border-white">
                                 {formatNum(item.searchVolume)}
                               </td>

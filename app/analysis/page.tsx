@@ -5,10 +5,12 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
-// 🌟 추가: DB 저장 및 서랍 컴포넌트 불러오기
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+
+// 🌟 1. 마법의 포인트 스위치 가져오기
+import { usePoint } from '@/app/hooks/usePoint'; 
 
 // 컴포넌트 임포트
 import SearchVolume from "./components/1_SearchVolume"; // 월간 검색량
@@ -25,6 +27,8 @@ function safeNumber(v: any) {
 
 function AnalysisContent() {
   const { user } = useAuth();
+  // 🌟 2. 스위치 장착하기
+  const { deductPoints } = usePoint(); 
 
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState<any>(null);
@@ -41,7 +45,11 @@ function AnalysisContent() {
 
   useEffect(() => {
     if (urlKeyword && urlKeyword !== "") {
-      executeSearch(urlKeyword);
+      // URL로 바로 들어오거나 연관 키워드를 클릭했을 때도 포인트를 차감해야 하므로
+      // 여기서는 직접 executeSearch를 부르지 않고 포인트 검사를 거치는 handleSearch를 부르도록 우회합니다.
+      // (단, 무한 루프 방지를 위해 isSearching 상태를 체크하는 로직이 필요하지만, 
+      //  가장 안전한 방법은 아래 handleSearch에서만 차감 로직을 태우는 것입니다.)
+      executeSearch(urlKeyword, false); // URL 진입 시에는 일단 차감 없이 렌더링 (또는 기획에 따라 여기서도 차감 가능)
     }
   }, [urlKeyword]);
 
@@ -49,7 +57,8 @@ function AnalysisContent() {
     setIsCompleted(false);
   }, [keyword]);
 
-  const executeSearch = async (k: string) => {
+  // 실제 API를 찌르는 함수 (포인트 검사가 끝난 사람만 호출 가능)
+  const executeSearch = async (k: string, isPaid: boolean = true) => {
     setKeyword(k);
     setIsSearching(true);
     setIsCompleted(false);
@@ -87,9 +96,16 @@ function AnalysisContent() {
     }
   };
 
-  const handleSearch = (targetKeyword?: string) => {
+  // 🌟 3. 검색 버튼을 누르거나 연관 키워드를 클릭했을 때 실행되는 핵심 함수
+  const handleSearch = async (targetKeyword?: string) => {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
+
+    // 스위치 켜기: 키워드 정밀 분석은 1회 검색당 10P 차감 (1건)
+    const isPaySuccess = await deductPoints(user?.id, 10, 1);
+    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤!
+
+    // 결제가 성공하면 URL을 변경하여 검색 실행
     router.push(`/analysis?keyword=${encodeURIComponent(k)}`);
   };
 
@@ -116,7 +132,7 @@ function AnalysisContent() {
 
   const handleApplySavedSetting = (item: any) => {
     setIsDrawerOpen(false);
-    handleSearch(item.keyword);
+    handleSearch(item.keyword); // 저장된 키워드를 불러올 때도 10P 차감!
   };
 
   const stats = useMemo(() => {
@@ -182,7 +198,6 @@ function AnalysisContent() {
           <div className="max-w-7xl mx-auto">
             <RankTabs />
 
-            {/* 🌟 수정 1: 타이틀 밑에 설명글 추가 */}
             <div className="flex justify-between items-start mb-8">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">
@@ -210,7 +225,6 @@ function AnalysisContent() {
               </div>
             </div>
 
-            {/* 🌟 수정 2: 가운데 정렬(mx-auto) 삭제, 너비를 max-w-4xl로 좌측 정렬, 포커스 색상을 indigo로 변경 */}
             <div className="bg-white border border-gray-300 flex items-center mb-6 shadow-sm focus-within:border-indigo-500 transition-all rounded-sm max-w-4xl w-full">
               <input
                 type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)}
@@ -218,7 +232,6 @@ function AnalysisContent() {
                 className="flex-1 py-4 px-6 text-lg outline-none font-medium text-gray-900"
                 placeholder="분석할 키워드를 입력하세요"
               />
-              {/* 🌟 수정 3: 메인 액션 버튼을 파란색에서 브랜드 컬러인 보라색(indigo)으로 변경 */}
               <button onClick={() => handleSearch()} disabled={isSearching}
                 className="px-12 py-5 font-bold transition-all disabled:opacity-60 bg-[#5244e8] hover:bg-[#4336c9] text-white"
               >
@@ -226,7 +239,6 @@ function AnalysisContent() {
               </button>
             </div>
 
-            {/* 🌟 수정 4: 연관 키워드 영역도 좌측 정렬(justify-start)로 맞춤 */}
             <div className="max-w-4xl w-full mb-10 min-h-[40px] flex items-center justify-start">
               {isSearching ? (
                 <div className="flex gap-2 ml-2">

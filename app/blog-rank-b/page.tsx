@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // 🌟 라우터 추가
 import Sidebar from '@/components/Sidebar';
 import RankTabs from '@/components/RankTabs';
 import { checkNaverBlogRank } from './actions';
@@ -9,6 +8,9 @@ import { checkNaverBlogRank } from './actions';
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from "@/app/contexts/AuthContext";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+
+// 🌟 1. 마법의 포인트 스위치 가져오기 (useRouter 등 지저분한 코드 삭제!)
+import { usePoint } from '@/app/hooks/usePoint'; 
 
 interface SearchResultRow {
   keyword: string;
@@ -26,7 +28,8 @@ const AUTHOR_COLORS = [
 
 export default function BlogRankPage() {
   const { user } = useAuth();
-  const router = useRouter(); // 🌟 라우터 초기화
+  // 🌟 2. 스위치 장착하기
+  const { deductPoints } = usePoint(); 
   
   const [targetNickname, setTargetNickname] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
@@ -61,33 +64,9 @@ export default function BlogRankPage() {
 
     const keywords = kwToSearch.split(',').map(k => k.trim()).filter(Boolean);
 
-    // 🌟🌟 업그레이드된 포인트 차감 로직 🌟🌟
-    if (!user) {
-      alert("로그인이 필요한 서비스입니다. 로그인 후 이용해주세요.");
-      return;
-    }
-
-    // 키워드 1개당 10P 차감 (3개 검색하면 30P 차감)
-    const requiredPoints = 10 * keywords.length; 
-    const supabase = createClient();
-    
-    // DB의 스마트 차감 엔진 호출
-    const { data: isSuccess, error: rpcError } = await supabase.rpc('deduct_points', {
-      user_id_param: user?.id,
-      deduct_amount: requiredPoints
-    });
-
-    // 포인트가 부족하면 '결제 유도 모달' 띄우기
-    if (rpcError || !isSuccess) {
-      const goCharge = window.confirm(
-        `잔여 포인트가 부족합니다. (키워드 1개당 10P 차감)\n\n현재 총 ${keywords.length}개의 키워드를 조회하려면 ${requiredPoints}P가 필요합니다.\n포인트 충전 페이지로 이동하시겠습니까?`
-      );
-      if (goCharge) {
-        router.push('/mypage'); // 마이페이지로 이동
-      }
-      return;
-    }
-    // 🌟🌟 포인트 차감 로직 끝 🌟🌟
+    // 🌟 3. 스위치 켜기: 키워드 1개당 10P 차감! (기존의 복잡한 로직이 단 한 줄로 끝납니다)
+    const isPaySuccess = await deductPoints(user?.id, 10 * keywords.length, keywords.length);
+    if (!isPaySuccess) return;
 
     setLoading(true);
     setResults([]);
@@ -114,9 +93,6 @@ export default function BlogRankPage() {
 
     setLoading(false);
     setProgress('완료');
-    
-    // 🌟 팁: 검색이 완료되면 헤더/사이드바의 포인트를 새로고침하기 위해 페이지를 살짝 리프레시 하거나 이벤트를 보낼 수 있습니다.
-    // 여기서는 자연스러운 흐름을 위해 그대로 둡니다 (새로고침 시 포인트 변경 확인 가능)
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

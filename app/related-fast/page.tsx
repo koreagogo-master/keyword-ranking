@@ -8,10 +8,15 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
+// 🌟 1. 마법의 포인트 스위치 가져오기
+import { usePoint } from '@/app/hooks/usePoint'; 
+
 const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
 
 function RelatedFastContent() {
   const { user } = useAuth();
+  // 🌟 2. 스위치 장착하기
+  const { deductPoints } = usePoint(); 
 
   const [keyword, setKeyword] = useState("");
   const [adsList, setAdsList] = useState<any[]>([]); 
@@ -68,6 +73,10 @@ function RelatedFastContent() {
   const handleSearch = async (targetKeyword?: string) => {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
+
+    // 🌟 3. 스위치 켜기: 새로운 키워드를 검색할 때마다 10P 차감!
+    const isPaySuccess = await deductPoints(user?.id, 10, 1);
+    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤 (아래 로직 실행 안 됨)
 
     setKeyword(k);
     setIsSearching(true);

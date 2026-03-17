@@ -7,6 +7,9 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
+// 🌟 1. 마법의 포인트 스위치 가져오기
+import { usePoint } from '@/app/hooks/usePoint'; 
+
 // 🔥 에러 원인 차단: Next.js 서버 충돌을 방지하기 위해 안전한 정규식 방식으로 변경했습니다.
 const stripHtml = (html: string) => {
   if (!html) return "";
@@ -22,6 +25,8 @@ interface KeywordGroup {
 
 export default function ShoppingRankPage() {
   const { user } = useAuth();
+  // 🌟 2. 스위치 장착하기
+  const { deductPoints } = usePoint(); 
   
   const [storeName, setStoreName] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -40,12 +45,17 @@ export default function ShoppingRankPage() {
       return;
     }
     
+    // 키워드 개수 계산을 먼저 수행합니다.
+    const keywordArray = targetKeyword.split(',').map(k => k.trim()).filter(k => k.length > 0);
+
+    // 🌟 3. 스위치 켜기: 입력한 키워드 개수 × 10P 차감!
+    const isPaySuccess = await deductPoints(user?.id, 10 * keywordArray.length, keywordArray.length);
+    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤 (아래 로직 실행 안 됨)
+
     setIsSearching(true);
     setHasSearched(false);
     setResults([]);
     setSortConfig({});
-
-    const keywordArray = targetKeyword.split(',').map(k => k.trim()).filter(k => k.length > 0);
 
     try {
       const fetchPromises = keywordArray.map(async (kw) => {
@@ -126,7 +136,7 @@ export default function ShoppingRankPage() {
     setStoreName(applyStore);
     setKeyword(applyKeyword);
     
-    // 🔥 세팅된 값으로 즉시 검색 실행
+    // 🔥 세팅된 값으로 즉시 검색 실행 (포인트 차감 포함)
     performSearch(applyStore, applyKeyword);
   };
 

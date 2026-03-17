@@ -9,6 +9,9 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
+// 🌟 1. 마법의 포인트 스위치 가져오기
+import { usePoint } from '@/app/hooks/usePoint'; 
+
 interface SearchResult {
   keyword: string;
   success: boolean;
@@ -20,6 +23,8 @@ interface SearchResult {
 
 export default function BlogRankPage() {
   const { user } = useAuth();
+  // 🌟 2. 스위치 장착하기
+  const { deductPoints } = usePoint(); 
 
   const [targetNickname, setTargetNickname] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
@@ -47,6 +52,10 @@ export default function BlogRankPage() {
       .split(',')
       .map(k => k.trim())
       .filter(Boolean);
+
+    // 🌟 3. 스위치 켜기: 입력한 키워드 개수 × 10P 차감!
+    const isPaySuccess = await deductPoints(user?.id, 10 * keywords.length, keywords.length);
+    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤
 
     setLoading(true);
     setResults([]);

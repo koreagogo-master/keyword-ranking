@@ -1,11 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link'; // 🌟 이 줄을 추가해 주세요!
+import Link from 'next/link';
 import Sidebar from "@/components/Sidebar";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+
+// 🌟 1. 마법의 포인트 스위치 가져오기
+import { usePoint } from '@/app/hooks/usePoint'; 
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
 
@@ -25,6 +28,8 @@ const highlightKeyword = (text: string, keyword: string) => {
 
 export default function ShoppingInsightPage() {
   const { user } = useAuth();
+  // 🌟 2. 스위치 장착하기
+  const { deductPoints } = usePoint(); 
 
   // 서랍 상태 추가
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -44,6 +49,10 @@ export default function ShoppingInsightPage() {
     const kwToSearch = typeof overrideKeyword === 'string' ? overrideKeyword : keyword;
     if (!kwToSearch.trim()) return;
 
+    // 🌟 3. 스위치 켜기: 쇼핑 인사이트 검색 1회당 10P 차감!
+    const isPaySuccess = await deductPoints(user?.id, 10, 1);
+    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤
+
     setKeyword(kwToSearch);
     setIsSearching(true);
     setHasSearched(false);
@@ -57,12 +66,12 @@ export default function ShoppingInsightPage() {
       const [shoppingRes, adRes, autoCompleteRes] = await Promise.all([
         fetch(`/api/naver-shopping?keyword=${encodeURIComponent(kwToSearch)}`),
         fetch(`/api/naver-ad?keyword=${encodeURIComponent(kwToSearch)}`),
-        fetch(`/api/naver-autocomplete?keyword=${encodeURIComponent(kwToSearch)}`) // 🌟 추가됨
+        fetch(`/api/naver-autocomplete?keyword=${encodeURIComponent(kwToSearch)}`)
       ]);
 
       const shoppingData = await shoppingRes.json();
       const adData = await adRes.json();
-      const autoCompleteData = await autoCompleteRes.json(); // 🌟 추가됨
+      const autoCompleteData = await autoCompleteRes.json(); 
 
       if (autoCompleteData.success) {
         setAutoCompleteWords(autoCompleteData.keywords || []);
@@ -170,7 +179,6 @@ export default function ShoppingInsightPage() {
     }
   };
 
-  // 심플하게 변경된 저장 함수
   const handleSaveCurrentSetting = async () => {
     if (!keyword) {
       alert("키워드를 입력한 후 저장해주세요.");
@@ -192,7 +200,6 @@ export default function ShoppingInsightPage() {
     else alert("저장 중 오류가 발생했습니다.");
   };
 
-  // 서랍에서 클릭 시 실행될 함수
   const handleApplySavedSetting = (item: any) => {
     setIsDrawerOpen(false);
     handleSearch(item.keyword);
@@ -207,7 +214,6 @@ export default function ShoppingInsightPage() {
         <main className="flex-1 ml-64 p-10 relative">
           <div className="max-w-7xl mx-auto">
 
-            {/* 🌟 상단 탭 메뉴 시작 */}
             <div className="flex border-b border-gray-200 mb-8">
               <Link 
                 href="/shopping-insight" 
@@ -222,7 +228,6 @@ export default function ShoppingInsightPage() {
                 내 상품 순위 확인
               </Link>
             </div>
-            {/* 🌟 상단 탭 메뉴 끝 */}
 
             <div className="flex justify-between items-start mb-8">
               <div>
@@ -260,7 +265,7 @@ export default function ShoppingInsightPage() {
                   placeholder="분석할 쇼핑 키워드 입력 (예: 캠핑의자)"
                 />
                 <button
-                  onClick={handleSearch}
+                  onClick={() => handleSearch()}
                   disabled={isSearching}
                   className="px-10 py-3.5 font-bold bg-[#5244e8] hover:bg-[#4336c9] text-white transition-colors text-base whitespace-nowrap border-l border-gray-200 disabled:opacity-70"
                 >
@@ -271,7 +276,6 @@ export default function ShoppingInsightPage() {
               {hasSearched && autoCompleteWords.length > 0 && (
                 <div className="flex items-center gap-2 mt-2.5 px-1 animate-in fade-in duration-300">
                   <span className="text-[13px] font-bold text-slate-500 shrink-0 whitespace-nowrap">자동 완성 키워드 :</span>
-                  {/* w-full 제한과 스크롤 속성을 모두 제거하여 오른쪽으로 무한정 뻗어 나가게 합니다 */}
                   <div className="flex flex-nowrap gap-1.5">
                     {autoCompleteWords.map((word: string, idx: number) => (
                       <button
@@ -302,7 +306,6 @@ export default function ShoppingInsightPage() {
                   </div>
                 </div>
               )}
-
 
             </div>
 
@@ -489,7 +492,6 @@ export default function ShoppingInsightPage() {
         </main>
       </div>
 
-      {/* 서랍 연동 완료 부분 */}
       <SavedSearchesDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
