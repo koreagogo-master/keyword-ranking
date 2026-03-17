@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'; // 🌟 라우터 추가
 import Sidebar from '@/components/Sidebar';
 import RankTabs from '@/components/RankTabs';
 import { checkNaverBlogRank } from './actions';
@@ -19,30 +20,22 @@ interface SearchResultRow {
 }
 
 const AUTHOR_COLORS = [
-  'text-[#5244e8]',
-  'text-green-600',
-  'text-amber-600',
-  'text-pink-600',
-  'text-purple-600',
-  'text-orange-600',
-  'text-cyan-600',
-  'text-red-600',
+  'text-[#5244e8]', 'text-green-600', 'text-amber-600', 'text-pink-600',
+  'text-purple-600', 'text-orange-600', 'text-cyan-600', 'text-red-600',
 ];
 
 export default function BlogRankPage() {
   const { user } = useAuth();
+  const router = useRouter(); // 🌟 라우터 초기화
+  
   const [targetNickname, setTargetNickname] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState('');
   const [results, setResults] = useState<SearchResultRow[]>([]);
-  
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  const nicknames = targetNickname
-    .split(',')
-    .map(s => s.trim())
-    .filter(Boolean);
+  const nicknames = targetNickname.split(',').map(s => s.trim()).filter(Boolean);
 
   const getMatchedNicknameIndex = (author: string) => {
     if (!author || author === '-') return -1;
@@ -66,10 +59,35 @@ export default function BlogRankPage() {
       return;
     }
 
-    const keywords = kwToSearch
-      .split(',')
-      .map(k => k.trim())
-      .filter(Boolean);
+    const keywords = kwToSearch.split(',').map(k => k.trim()).filter(Boolean);
+
+    // 🌟🌟 업그레이드된 포인트 차감 로직 🌟🌟
+    if (!user) {
+      alert("로그인이 필요한 서비스입니다. 로그인 후 이용해주세요.");
+      return;
+    }
+
+    // 키워드 1개당 10P 차감 (3개 검색하면 30P 차감)
+    const requiredPoints = 10 * keywords.length; 
+    const supabase = createClient();
+    
+    // DB의 스마트 차감 엔진 호출
+    const { data: isSuccess, error: rpcError } = await supabase.rpc('deduct_points', {
+      user_id_param: user?.id,
+      deduct_amount: requiredPoints
+    });
+
+    // 포인트가 부족하면 '결제 유도 모달' 띄우기
+    if (rpcError || !isSuccess) {
+      const goCharge = window.confirm(
+        `잔여 포인트가 부족합니다. (키워드 1개당 10P 차감)\n\n현재 총 ${keywords.length}개의 키워드를 조회하려면 ${requiredPoints}P가 필요합니다.\n포인트 충전 페이지로 이동하시겠습니까?`
+      );
+      if (goCharge) {
+        router.push('/mypage'); // 마이페이지로 이동
+      }
+      return;
+    }
+    // 🌟🌟 포인트 차감 로직 끝 🌟🌟
 
     setLoading(true);
     setResults([]);
@@ -96,6 +114,9 @@ export default function BlogRankPage() {
 
     setLoading(false);
     setProgress('완료');
+    
+    // 🌟 팁: 검색이 완료되면 헤더/사이드바의 포인트를 새로고침하기 위해 페이지를 살짝 리프레시 하거나 이벤트를 보낼 수 있습니다.
+    // 여기서는 자연스러운 흐름을 위해 그대로 둡니다 (새로고침 시 포인트 변경 확인 가능)
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -224,7 +245,6 @@ export default function BlogRankPage() {
                     
                     return (
                       <div key={idx} className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
-                        {/* 🌟 수정 1: 헤더 영역에 텍스트 대신 상단과 동일한 디자인의 '뱃지'를 넣어 직관성 극대화 */}
                         <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center gap-3">
                           <span className={`text-[13px] font-extrabold px-3 py-1.5 bg-white border border-gray-200 rounded-md shadow-sm ${colorClass}`}>
                             {nick}
@@ -256,7 +276,6 @@ export default function BlogRankPage() {
                                 <tr key={i} className="hover:bg-gray-50 transition-colors">
                                   <td className="p-3 font-bold text-gray-900 text-center">{kw}</td>
                                   <td className="p-3 text-center">
-                                    {/* 🌟 수정 2: 알록달록했던 순위 색상을 모두 제거하고, 찾은 경우 통일된 브랜드 컬러(#5244e8) 적용 */}
                                     <span className={`font-extrabold text-lg ${isRanked ? 'text-[#5244e8]' : 'text-gray-300'}`}>
                                       {displayRow.rank}
                                     </span>
