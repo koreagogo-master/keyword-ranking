@@ -3,6 +3,8 @@
 import { createClient } from "@/app/utils/supabase/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import Sidebar from "@/components/Sidebar"; 
 
 export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([]);
@@ -95,7 +97,6 @@ export default function AdminPage() {
     }
   };
 
-  // 날짜를 보기 좋게 변환하는 함수 (최종 접속일용)
   const formatDateTime = (dateString?: string) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
@@ -106,101 +107,126 @@ export default function AdminPage() {
   };
 
   if (status === 'checking' || status === 'redirecting') {
-    return <div className="min-h-screen bg-gray-900"></div>;
+    return <div className="min-h-screen bg-[#f8f9fa]"></div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-10 pt-24">
-      <div className="max-w-[1400px] mx-auto">
-        <h1 className="text-3xl font-bold mb-8 text-blue-400">👑 관리자 전용 대시보드</h1>
-        <div className="bg-gray-800 rounded-xl border border-gray-700 overflow-x-auto shadow-2xl">
-          <table className="w-full text-left border-collapse min-w-[1100px]">
-            <thead className="bg-gray-700/50 text-gray-300 text-[13px] uppercase tracking-wider">
-              <tr>
-                {/* 🌟 No. 추가 */}
-                <th className="p-4 border-b border-gray-700 text-center w-16">No.</th>
-                <th className="p-4 border-b border-gray-700">이메일</th>
-                <th className="p-4 border-b border-gray-700 text-center">가입일</th>
-                {/* 🌟 최종 접속일 추가 */}
-                <th className="p-4 border-b border-gray-700 text-center text-blue-300">최종 접속일</th>
-                <th className="p-4 border-b border-gray-700 text-center">등급 관리</th>
-                <th className="p-4 border-b border-gray-700 text-right">누적 결제 P</th>
-                <th className="p-4 border-b border-gray-700 text-right text-indigo-300">결제 잔여 P</th>
-                <th className="p-4 border-b border-gray-700 text-right text-emerald-300">보너스 P</th>
-                <th className="p-4 border-b border-gray-700 text-right font-black text-white">총 사용가능</th>
-              </tr>
-            </thead>
-            <tbody className="text-[14px]">
-              {users.map((u, index) => {
-                const totalPoints = (u.purchased_points || 0) + (u.bonus_points || 0);
-                // 🌟 최신 가입자가 1번이 되도록 역순 넘버링
-                const userNumber = users.length - index;
+    <>
+      <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
+      <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
+        
+        <Sidebar />
 
-                return (
-                  <tr key={u.id} className="border-b border-gray-700/50 hover:bg-gray-750 transition-colors">
-                    <td className="p-4 text-center font-bold text-gray-500">{userNumber}</td>
-                    <td className="p-4 font-medium text-gray-200">{u.email}</td>
-                    <td className="p-4 text-center text-gray-400 text-sm">{new Date(u.created_at).toLocaleDateString()}</td>
+        <main className="flex-1 ml-64 p-10 relative">
+          <div className="max-w-[1400px] mx-auto">
+            
+            {/* 🌟 수정: 이모티콘과 파란색을 빼고, 화살표를 좌측으로 바꾼 단아한 버튼 */}
+            <Link 
+              href="/admin/points" 
+              className="inline-flex items-center gap-1.5 text-[14px] font-bold text-slate-500 hover:text-[#5244e8] mb-6 transition-colors bg-white px-4 py-2 rounded-sm border border-gray-200 shadow-sm"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+              서비스 포인트 단가 설정
+            </Link>
+
+            <div className="mb-8 border-b border-gray-200 pb-4">
+              {/* 🌟 수정: 이모티콘 제거 */}
+              <h1 className="text-3xl font-extrabold text-gray-900 mb-2 flex items-center gap-2">
+                관리자 전용 대시보드
+              </h1>
+              <p className="text-sm text-slate-500">
+                가입한 유저들의 목록을 확인하고, 등급 및 보유 포인트를 직접 관리할 수 있습니다.
+              </p>
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
+              <table className="w-full text-left border-collapse min-w-[1100px]">
+                <thead className="bg-slate-50 text-slate-600 text-[13px] uppercase tracking-wider font-bold">
+                  <tr>
+                    <th className="p-4 border-b border-gray-200 text-center w-16">No.</th>
+                    <th className="p-4 border-b border-gray-200">이메일</th>
+                    <th className="p-4 border-b border-gray-200 text-center">가입일</th>
+                    <th className="p-4 border-b border-gray-200 text-center text-blue-600">최종 접속일</th>
+                    <th className="p-4 border-b border-gray-200 text-center">등급 관리</th>
                     
-                    {/* 🌟 최종 접속일 표시 */}
-                    <td className="p-4 text-center text-blue-200/70 text-sm">{formatDateTime(u.last_login_at)}</td>
-                    
-                    <td className="p-4 text-center">
-                      {/* 🌟 4단계 등급(Free, Starter, Pro, Agency) 적용 */}
-                      <select 
-                        className={`bg-gray-900 border border-gray-600 rounded-lg py-1.5 px-3 text-sm font-bold focus:border-blue-500 focus:outline-none cursor-pointer
-                          ${u.grade === 'agency' ? 'text-purple-400' : 
-                            u.grade === 'pro' ? 'text-blue-400' : 
-                            u.grade === 'starter' ? 'text-green-400' : 'text-gray-300'}`}
-                        value={u.grade || 'free'}
-                        onChange={(e) => updateGrade(u.id, e.target.value)}
-                      >
-                        <option value="free">Free</option>
-                        <option value="starter">Starter</option>
-                        <option value="pro">Pro</option>
-                        <option value="agency">Agency</option>
-                      </select>
-                    </td>
-                    
-                    <td className="p-4 text-right">
-                      <button 
-                        onClick={() => handleUpdatePoint(u.id, 'total_purchased_points', u.total_purchased_points, '누적 결제 포인트')}
-                        className="hover:bg-gray-600 px-2 py-1 rounded transition-colors text-gray-400 hover:text-white"
-                      >
-                        {(u.total_purchased_points || 0).toLocaleString()}
-                      </button>
-                    </td>
-
-                    <td className="p-4 text-right">
-                      <button 
-                        onClick={() => handleUpdatePoint(u.id, 'purchased_points', u.purchased_points, '결제 잔여 포인트')}
-                        className="hover:bg-indigo-900/50 px-2 py-1 rounded transition-colors font-bold text-indigo-300 hover:text-indigo-200"
-                      >
-                        {(u.purchased_points || 0).toLocaleString()}
-                      </button>
-                    </td>
-
-                    <td className="p-4 text-right">
-                      <button 
-                        onClick={() => handleUpdatePoint(u.id, 'bonus_points', u.bonus_points, '보너스 포인트')}
-                        className="hover:bg-emerald-900/50 px-2 py-1 rounded transition-colors font-bold text-emerald-400 hover:text-emerald-300"
-                      >
-                        {(u.bonus_points || 0).toLocaleString()}
-                      </button>
-                    </td>
-
-                    <td className="p-4 text-right">
-                      <span className="font-black text-white bg-gray-900 px-3 py-1.5 rounded-lg border border-gray-600">
-                        {totalPoints.toLocaleString()} <span className="text-[11px] font-normal text-gray-400">P</span>
-                      </span>
-                    </td>
+                    <th className="p-4 border-b border-gray-200 text-right text-slate-500">누적 결제 P</th>
+                    <th className="p-4 border-b border-gray-200 text-right text-slate-500">결제 잔여 P</th>
+                    <th className="p-4 border-b border-gray-200 text-right text-slate-500">보너스 P</th>
+                    <th className="p-4 border-b border-gray-200 text-right font-black text-slate-800">총 사용가능</th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody className="text-[14px]">
+                  {users.map((u, index) => {
+                    const totalPoints = (u.purchased_points || 0) + (u.bonus_points || 0);
+                    const userNumber = users.length - index;
+
+                    return (
+                      <tr key={u.id} className="border-b border-gray-100 hover:bg-slate-50 transition-colors">
+                        <td className="p-4 text-center font-bold text-slate-400">{userNumber}</td>
+                        <td className="p-4 font-bold text-gray-800">{u.email}</td>
+                        <td className="p-4 text-center text-slate-500 text-sm">{new Date(u.created_at).toLocaleDateString()}</td>
+                        
+                        <td className="p-4 text-center text-blue-500 font-medium text-sm">{formatDateTime(u.last_login_at)}</td>
+                        
+                        <td className="p-4 text-center">
+                          <select 
+                            className={`bg-white border border-gray-300 rounded-md py-1.5 px-3 text-sm font-bold focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] cursor-pointer shadow-sm
+                              ${u.grade === 'agency' ? 'text-purple-600' : 
+                                u.grade === 'pro' ? 'text-blue-600' : 
+                                u.grade === 'starter' ? 'text-green-600' : 'text-slate-600'}`}
+                            value={u.grade || 'free'}
+                            onChange={(e) => updateGrade(u.id, e.target.value)}
+                          >
+                            <option value="free" className="text-slate-600">Free</option>
+                            <option value="starter" className="text-green-600">Starter</option>
+                            <option value="pro" className="text-blue-600">Pro</option>
+                            <option value="agency" className="text-purple-600">Agency</option>
+                          </select>
+                        </td>
+                        
+                        {/* 🌟 수정: !text-slate-800 등 !important 속성으로 강제 색상 부여 */}
+                        <td className="p-4 text-right">
+                          <button 
+                            onClick={() => handleUpdatePoint(u.id, 'total_purchased_points', u.total_purchased_points, '누적 결제 포인트')}
+                            className="hover:bg-slate-200 px-2 py-1.5 rounded transition-colors font-extrabold !text-slate-700"
+                          >
+                            {(u.total_purchased_points || 0).toLocaleString()}
+                          </button>
+                        </td>
+
+                        <td className="p-4 text-right">
+                          <button 
+                            onClick={() => handleUpdatePoint(u.id, 'purchased_points', u.purchased_points, '결제 잔여 포인트')}
+                            className="hover:bg-indigo-100 px-2 py-1.5 rounded transition-colors font-extrabold !text-indigo-700"
+                          >
+                            {(u.purchased_points || 0).toLocaleString()}
+                          </button>
+                        </td>
+
+                        <td className="p-4 text-right">
+                          <button 
+                            onClick={() => handleUpdatePoint(u.id, 'bonus_points', u.bonus_points, '보너스 포인트')}
+                            className="hover:bg-emerald-100 px-2 py-1.5 rounded transition-colors font-extrabold !text-emerald-700"
+                          >
+                            {(u.bonus_points || 0).toLocaleString()}
+                          </button>
+                        </td>
+
+                        <td className="p-4 text-right">
+                          <span className="font-black !text-gray-900 bg-slate-100 px-3 py-1.5 rounded-md border border-gray-200 inline-block">
+                            {totalPoints.toLocaleString()} <span className="text-[11px] font-bold text-slate-500 ml-0.5">P</span>
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+          </div>
+        </main>
       </div>
-    </div>
+    </>
   );
 }
