@@ -5,17 +5,47 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useAuth } from "@/app/contexts/AuthContext";
+import { createClient } from "@/app/utils/supabase/client";
+
+// 🌟 URL 경로에 맞는 DB 단가표 ID 매핑
+const URL_TO_PAGE_TYPE: Record<string, string> = {
+  '/analysis': 'ANALYSIS',
+  '/related-fast': 'RELATED',
+  '/blog-rank-b': 'BLOG',
+  '/kin-rank': 'JISIKIN',
+  '/blog-rank': 'TOTAL',
+  '/google-analysis': 'GOOGLE',
+  '/youtube-trend': 'YOUTUBE',
+  '/shopping-insight': 'SHOPPING',
+  '/shopping-rank': 'SHOPPING_RANK'
+};
 
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, profile, isLoading } = useAuth();
   
   const [clientIp, setClientIp] = useState<string | null>(null);
+  const [pointPolicies, setPointPolicies] = useState<Record<string, number>>({});
+
   useEffect(() => {
     fetch('https://api.ipify.org?format=json')
       .then(res => res.json())
       .then(data => setClientIp(data.ip))
       .catch(() => setClientIp('확인 불가'));
+
+    const fetchPolicies = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from('point_policies').select('page_type, point_cost');
+      if (data) {
+        const policyMap: Record<string, number> = {};
+        data.forEach(item => {
+          policyMap[item.page_type] = item.point_cost;
+        });
+        setPointPolicies(policyMap);
+      }
+    };
+    
+    fetchPolicies();
   }, []);
 
   const menuGroups = [
@@ -31,7 +61,8 @@ export default function Sidebar() {
           name: (
             <div className="flex items-center">
               키워드 생성기
-              <span className="ml-1.5 px-1.5 py-0.5 bg-[#5244e8]/10 text-[#5244e8] rounded text-[10px] font-black">FREE</span>
+              {/* 🌟 하드코딩된 무료 메뉴도 뱃지 스타일 통일 */}
+              <span className="ml-1.5 px-1.5 py-[2px] bg-[#5244e8]/10 text-[#5244e8] rounded-sm text-[10px] font-black tracking-wide border border-[#5244e8]/20">FREE</span>
             </div>
           ),
           href: "/keyword-generator"
@@ -70,7 +101,6 @@ export default function Sidebar() {
             <span className="text-xs text-gray-400 font-bold">정보 불러오는 중...</span>
           </div>
         ) : user ? (
-          /* 🌟 수정: 상단 휑한 여백(pt-4)을 과감히 줄여서(pt-2.5) 헤더 아래로 바짝 붙임 */
           <div className="px-4 pt-0 pb-4 border-b border-gray-100 bg-gray-50/30">
             
             <div className="flex items-center gap-1.5 mb-2.5 px-1">
@@ -140,6 +170,10 @@ export default function Sidebar() {
                 <ul className="mt-0.5">
                   {group.items.map((item, itemIdx) => {
                     const isActive = pathname === item.href;
+                    
+                    const pageType = URL_TO_PAGE_TYPE[item.href as string];
+                    const pointCost = pageType && pointPolicies[pageType] !== undefined ? pointPolicies[pageType] : null;
+
                     return (
                       <li key={itemIdx}>
                         <Link href={item.href} className={`
@@ -148,8 +182,31 @@ export default function Sidebar() {
                             ? 'bg-[#5244e8]/10 text-[#5244e8] border-r-[3px] border-[#5244e8] font-semibold'
                             : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
                       `}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${isActive ? 'bg-[#5244e8]' : 'bg-gray-200'}`}></span>
-                          {item.name}
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-[#5244e8]' : 'bg-gray-200'}`}></span>
+                          
+                          <div className="flex items-center">
+                            {typeof item.name === 'string' ? item.name : item.name}
+                            
+                            {/* 🌟 동적 포인트 뱃지 디자인 업그레이드 */}
+                            {typeof item.name === 'string' && pointCost !== null && (
+                              pointCost === 0 ? (
+                                // 🌟 무료일 때: 메인 컬러 뱃지
+                                <span className="ml-2 px-1.5 py-[2px] bg-[#5244e8]/10 text-[#5244e8] rounded-sm text-[10px] font-black tracking-wide border border-[#5244e8]/20 shadow-sm">
+                                  FREE
+                                </span>
+                              ) : (
+                                // 🌟 유료일 때: 깔끔한 그레이톤 뱃지
+                                <span className={`ml-2 px-1.5 py-[2px] rounded-sm text-[10px] font-bold tracking-wide border shadow-sm transition-colors ${
+                                  isActive 
+                                    ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20' 
+                                    : 'bg-slate-50 text-slate-500 border-slate-200'
+                                }`}>
+                                  {pointCost}P
+                                </span>
+                              )
+                            )}
+                          </div>
+
                         </Link>
                       </li>
                     );
