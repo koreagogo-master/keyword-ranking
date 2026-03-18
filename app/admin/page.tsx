@@ -3,13 +3,13 @@
 import { createClient } from "@/app/utils/supabase/client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import Sidebar from "@/components/Sidebar"; 
+import Sidebar from "@/components/Sidebar";
+import AdminTabs from '@/components/AdminTabs';
 
 export default function AdminPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [status, setStatus] = useState<'checking' | 'admin' | 'redirecting'>('checking');
-  
+
   const router = useRouter();
   const supabase = createClient();
 
@@ -22,7 +22,7 @@ export default function AdminPage() {
 
         if (error || !user || user.email !== 'a01091944465@gmail.com') {
           if (isMounted) {
-            setStatus('redirecting'); 
+            setStatus('redirecting');
             window.location.replace("/");
           }
           return;
@@ -42,7 +42,7 @@ export default function AdminPage() {
 
     safeAuthCheck();
     return () => { isMounted = false; };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchUsers = async () => {
@@ -68,14 +68,13 @@ export default function AdminPage() {
     }
   };
 
-  // 🌟 업그레이드: 포인트 변경 시 사유를 묻고 히스토리 장부에 남기는 로직
   const handleUpdatePoint = async (userId: string, column: string, currentVal: number, label: string) => {
     const input = window.prompt(
-      `[${label}] 값을 수정합니다.\n지급하거나 차감할 '최종 숫자'를 입력하세요.\n(현재: ${currentVal || 0} P)`, 
+      `[${label}] 값을 수정합니다.\n지급하거나 차감할 '최종 숫자'를 입력하세요.\n(현재: ${currentVal || 0} P)`,
       String(currentVal || 0)
     );
-    
-    if (input === null) return; 
+
+    if (input === null) return;
 
     const newVal = parseInt(input.replace(/,/g, ''), 10);
     if (isNaN(newVal) || newVal < 0) {
@@ -84,9 +83,8 @@ export default function AdminPage() {
     }
 
     const diff = newVal - currentVal;
-    if (diff === 0) return; // 변경사항이 없으면 조용히 종료
+    if (diff === 0) return;
 
-    // 🌟 사유 입력받기 (CS 로그용)
     const memo = window.prompt(
       `[히스토리 기록용]\n유저에게 지급/차감하는 사유를 입력해주세요.\n(예: CS 보상, 오류 복구, 이벤트 당첨 등)\n*취소를 눌러도 포인트는 변경되지만 '사유 없음'으로 기록됩니다.`
     );
@@ -97,19 +95,45 @@ export default function AdminPage() {
       .eq('id', userId);
 
     if (!error) {
-      // 🌟 히스토리 테이블에 관리자 조작 증거 남기기!
       await supabase.from('point_history').insert({
         user_id: userId,
         change_type: 'ADMIN',
-        change_amount: diff, // +면 지급, -면 차감으로 정확하게 저장됨
+        change_amount: diff,
         page_type: 'MANUAL',
-        description: `[관리자 수동변경] ${label} 변경: ${currentVal} ➡️ ${newVal} | 사유: ${memo || '사유 없음'}`
+        description: `${label} : ${currentVal.toLocaleString()} -> ${newVal.toLocaleString()} | ${memo || '사유 없음'}`
       });
 
       alert("포인트가 변경되고 히스토리에 안전하게 기록되었습니다.");
-      fetchUsers(); 
+      fetchUsers();
     } else {
       alert("포인트 수정 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 🌟 강제 탈퇴 처리 함수 추가
+  const handleDeleteUser = async (userId: string, email: string) => {
+    const confirmDelete = window.confirm(`⚠️ 정말 ${email} 유저를 강제 탈퇴시키겠습니까?\n(이 작업은 절대 되돌릴 수 없으며, 남은 포인트와 이용 내역이 모두 소멸됩니다.)`);
+
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch('/api/admin/delete-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert('강제 탈퇴 처리가 완료되었습니다.');
+        fetchUsers(); // 🌟 삭제 성공 시 목록 새로고침
+      } else {
+        alert(`탈퇴 실패: ${result.error}`);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('서버와의 통신에 실패했습니다. (API 라우트를 확인해주세요.)');
     }
   };
 
@@ -131,18 +155,12 @@ export default function AdminPage() {
         <Sidebar />
 
         <main className="flex-1 ml-64 p-10 relative">
-          <div className="max-w-[1400px] mx-auto">
-            
-            <Link 
-              href="/admin/points" 
-              className="inline-flex items-center gap-1.5 text-[14px] font-bold text-slate-500 hover:text-[#5244e8] mb-6 transition-colors bg-white px-4 py-2 rounded-sm border border-gray-200 shadow-sm"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-              서비스 포인트 단가 설정
-            </Link>
+          <div className="max-w-[1200px] mx-auto">
 
-            <div className="mb-8 border-b border-gray-200 pb-4">
-              <h1 className="text-3xl font-extrabold text-gray-900 mb-2 flex items-center gap-2">
+            <AdminTabs />
+
+            <div className="mb-8 text-center">
+              <h1 className="text-3xl font-extrabold text-gray-900 mb-2 flex items-center justify-center gap-2">
                 관리자 전용 대시보드
               </h1>
               <p className="text-sm text-slate-500">
@@ -159,11 +177,13 @@ export default function AdminPage() {
                     <th className="p-4 border-b border-gray-200 text-center">가입일</th>
                     <th className="p-4 border-b border-gray-200 text-center text-blue-600">최종 접속일</th>
                     <th className="p-4 border-b border-gray-200 text-center">등급 관리</th>
-                    
+
                     <th className="p-4 border-b border-gray-200 text-right text-slate-500">누적 결제 P</th>
                     <th className="p-4 border-b border-gray-200 text-right text-slate-500">결제 잔여 P</th>
                     <th className="p-4 border-b border-gray-200 text-right text-slate-500">보너스 P</th>
                     <th className="p-4 border-b border-gray-200 text-right font-black text-slate-800">총 사용가능</th>
+                    {/* 🌟 관리 칼럼 추가 */}
+                    <th className="p-4 border-b border-gray-200 text-center text-slate-500 w-24">관리</th>
                   </tr>
                 </thead>
                 <tbody className="text-[14px]">
@@ -178,11 +198,11 @@ export default function AdminPage() {
                         <td className="p-4 text-center text-slate-500 text-sm">{new Date(u.created_at).toLocaleDateString()}</td>
                         <td className="p-4 text-center text-blue-500 font-medium text-sm">{formatDateTime(u.last_login_at)}</td>
                         <td className="p-4 text-center">
-                          <select 
+                          <select
                             className={`bg-white border border-gray-300 rounded-md py-1.5 px-3 text-sm font-bold focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] cursor-pointer shadow-sm
-                              ${u.grade === 'agency' ? 'text-purple-600' : 
-                                u.grade === 'pro' ? 'text-blue-600' : 
-                                u.grade === 'starter' ? 'text-green-600' : 'text-slate-600'}`}
+                              ${u.grade === 'agency' ? 'text-purple-600' :
+                                u.grade === 'pro' ? 'text-blue-600' :
+                                  u.grade === 'starter' ? 'text-green-600' : 'text-slate-600'}`}
                             value={u.grade || 'free'}
                             onChange={(e) => updateGrade(u.id, e.target.value)}
                           >
@@ -192,9 +212,9 @@ export default function AdminPage() {
                             <option value="agency" className="text-purple-600">Agency</option>
                           </select>
                         </td>
-                        
+
                         <td className="p-4 text-right">
-                          <button 
+                          <button
                             onClick={() => handleUpdatePoint(u.id, 'total_purchased_points', u.total_purchased_points, '누적 결제 포인트')}
                             className="hover:bg-slate-200 px-2 py-1.5 rounded transition-colors font-extrabold !text-slate-700"
                           >
@@ -203,7 +223,7 @@ export default function AdminPage() {
                         </td>
 
                         <td className="p-4 text-right">
-                          <button 
+                          <button
                             onClick={() => handleUpdatePoint(u.id, 'purchased_points', u.purchased_points, '결제 잔여 포인트')}
                             className="hover:bg-indigo-100 px-2 py-1.5 rounded transition-colors font-extrabold !text-indigo-700"
                           >
@@ -212,7 +232,7 @@ export default function AdminPage() {
                         </td>
 
                         <td className="p-4 text-right">
-                          <button 
+                          <button
                             onClick={() => handleUpdatePoint(u.id, 'bonus_points', u.bonus_points, '보너스 포인트')}
                             className="hover:bg-emerald-100 px-2 py-1.5 rounded transition-colors font-extrabold !text-emerald-700"
                           >
@@ -224,6 +244,18 @@ export default function AdminPage() {
                           <span className="font-black !text-gray-900 bg-slate-100 px-3 py-1.5 rounded-md border border-gray-200 inline-block">
                             {totalPoints.toLocaleString()} <span className="text-[11px] font-bold text-slate-500 ml-0.5">P</span>
                           </span>
+                        </td>
+
+                        {/* 🌟 강퇴 버튼 수정 (글씨색 강제 지정 !important 적용) */}
+                        <td className="p-4 text-center">
+                          {u.email !== 'a01091944465@gmail.com' && (
+                            <button
+                              onClick={() => handleDeleteUser(u.id, u.email)}
+                              className="text-xs font-black !text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 hover:!text-red-700 px-3 py-1.5 rounded transition-colors shadow-sm"
+                            >
+                              강퇴
+                            </button>
+                          )}
                         </td>
                       </tr>
                     );

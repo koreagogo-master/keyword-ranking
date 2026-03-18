@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  // 1. 원본 키워드 받기
   const { keyword: rawKeyword } = await request.json();
 
   if (!rawKeyword) return NextResponse.json({ error: '키워드가 없습니다.' }, { status: 400 });
 
-  // ✅ 띄어쓰기를 강제로 붙이는(모든 공백 제거) 처리 추가
-  // "치아 교정" -> "치아교정"으로 변환됩니다.
+  // 띄어쓰기를 강제로 붙이는(모든 공백 제거) 처리 
   const keyword = rawKeyword.replace(/\s+/g, '').trim();
 
   const customerId = process.env.GOOGLE_ADS_CUSTOMER_ID?.replace(/-/g, '').trim();
@@ -27,15 +25,20 @@ export async function POST(request: Request) {
         grant_type: 'refresh_token',
       }),
     });
-
+    
     const tokenData = await tokenResponse.json();
     const accessToken = tokenData.access_token;
 
-    // 🔍 로그에서도 변환된 키워드를 확인합니다.
-    console.log(`🔍 구글 API 최종 호출: URL(${customerId}), Keyword(${keyword})`);
+    if (!accessToken) {
+      console.error("❌ 구글 API 토큰 발급 실패:", tokenData);
+      return NextResponse.json({ error: '토큰 발급 실패' }, { status: 401 });
+    }
+
+    console.log(`🔍 구글 API 최종 호출 (v19): URL(${customerId}), Keyword(${keyword})`);
     
+    // 🌟 핵심 해결: 최신 v19 버전 + 정확한 /keywordPlanIdeas 경로 적용!
     const response = await fetch(
-      `https://googleads.googleapis.com/v19/customers/${customerId}:generateKeywordIdeas`,
+      `https://googleads.googleapis.com/v19/customers/${customerId}/keywordPlanIdeas:generateKeywordIdeas`,
       {
         method: 'POST',
         headers: {
@@ -67,12 +70,12 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ 
       source: 'Google Ads',
-      keyword: keyword,
-      monthlySearchVolume: Number(searchVolume) || 0 
+      keyword,
+      monthlySearchVolume: searchVolume || 0
     });
 
-  } catch (error: any) {
-    console.error('❌ 서버 에러:', error.message);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  } catch (error) {
+    console.error('❌ 구글 서버 통신 에러:', error);
+    return NextResponse.json({ error: '서버 에러 발생' }, { status: 500 });
   }
 }

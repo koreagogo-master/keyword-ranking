@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link'; // 🌟 추가: 링크 이동을 위한 컴포넌트
 import Sidebar from '@/components/Sidebar';
 import { createClient } from '@/app/utils/supabase/client';
+import AdminTabs from '@/components/AdminTabs'; 
 
 interface PointPolicy {
   page_type: string;
@@ -104,20 +104,14 @@ export default function AdminPointsPage() {
         <Sidebar />
         
         <main className="flex-1 ml-64 p-10 relative">
-          <div className="max-w-5xl mx-auto">
+          <div className="max-w-[1200px] mx-auto">
             
-            {/* 🌟 추가: 관리자 홈으로 돌아가기 버튼 */}
-            <Link 
-              href="/admin" 
-              className="inline-flex items-center gap-1 text-[13px] font-bold text-slate-500 hover:text-[#5244e8] mb-6 transition-colors bg-white px-3 py-1.5 rounded-sm border border-gray-200 shadow-sm"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
-              관리자 홈으로 돌아가기
-            </Link>
+            <AdminTabs />
 
-            <div className="mb-8 border-b border-gray-200 pb-4">
-              <h1 className="text-3xl font-extrabold text-gray-900 mb-2 flex items-center gap-2">
-                ⚙️ 서비스 포인트 설정
+            {/* 🌟 중앙 정렬 및 이모티콘 제거 */}
+            <div className="mb-8 text-center">
+              <h1 className="text-3xl font-extrabold text-gray-900 mb-2 flex items-center justify-center gap-2">
+                서비스 포인트 설정
               </h1>
               <p className="text-sm text-slate-500">
                 각 분석 페이지에서 1건(또는 1회) 검색 시 차감될 포인트를 개별적으로 설정할 수 있습니다.<br/>
@@ -128,86 +122,91 @@ export default function AdminPointsPage() {
             {loading ? (
               <div className="text-center py-20 text-gray-500 font-bold">단가표를 불러오는 중입니다...</div>
             ) : (
-              <div className="space-y-8 animate-in fade-in duration-500">
+              <div className="space-y-10 animate-in fade-in duration-500">
                 {MENU_GROUPS.map((group, groupIndex) => (
-                  <div key={groupIndex} className="bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+                  <div key={groupIndex} className="mb-4">
                     
-                    <div className="bg-slate-100/80 px-6 py-3 border-b border-gray-200 flex items-center gap-2">
+                    {/* 🌟 그룹 제목을 테이블 박스 밖으로 분리 */}
+                    <div className="flex items-center gap-2 mb-3 ml-1">
                       <div className="w-1.5 h-4 bg-[#5244e8] rounded-full"></div>
-                      <h2 className="font-extrabold text-gray-800 text-[15px] tracking-wide">{group.title}</h2>
+                      <h2 className="font-extrabold text-gray-800 text-[16px] tracking-wide">{group.title}</h2>
                     </div>
 
-                    <table className="w-full text-left border-collapse table-fixed">
-                      <thead className="bg-slate-50 border-b border-gray-200 text-slate-600 font-bold text-[13px]">
-                        <tr>
-                          <th className="px-6 py-3 w-[45%]">페이지 이름 및 경로</th>
-                          <th className="px-6 py-3 w-[55%] text-right">설정 포인트</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-gray-100">
-                        {group.items.map((pageType) => {
-                          const policy = policies.find(p => p.page_type === pageType);
-                          if (!policy) return null;
+                    <div className="bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
+                      <table className="w-full text-left border-collapse table-fixed">
+                        <thead className="bg-slate-50 border-b border-gray-200 text-slate-600 font-bold text-[13px]">
+                          <tr>
+                            <th className="px-6 py-3 w-[50%]">페이지 이름 및 경로</th>
+                            {/* 🌟 칼럼 이름 추가 및 정렬 맞춤 */}
+                            <th className="px-6 py-3 w-[20%] text-center">기존 포인트</th>
+                            <th className="px-6 py-3 w-[30%] text-right pr-28">수정 포인트</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {group.items.map((pageType) => {
+                            const policy = policies.find(p => p.page_type === pageType);
+                            if (!policy) return null;
 
-                          const meta = PAGE_META[policy.page_type];
-                          const displayName = meta?.name || policy.page_name;
-                          const displayUrl = meta?.url || '';
+                            const meta = PAGE_META[policy.page_type];
+                            const displayName = meta?.name || policy.page_name;
+                            const displayUrl = meta?.url || '';
 
-                          const isChanged = policy.point_cost !== policy.original_cost;
-                          const isSavingThis = savingId === policy.page_type;
+                            const isChanged = policy.point_cost !== policy.original_cost;
+                            const isSavingThis = savingId === policy.page_type;
 
-                          return (
-                            <tr key={policy.page_type} className={`transition-colors ${isChanged ? 'bg-orange-50/30' : 'hover:bg-slate-50'}`}>
-                              <td className="px-6 py-4">
-                                <div className="flex items-baseline gap-2">
-                                  <span className="font-bold text-gray-800 text-[14px]">
-                                    {displayName}
-                                  </span>
-                                  <span className="text-slate-400 font-medium text-[12px]">
-                                    {displayUrl}
-                                  </span>
-                                </div>
-                              </td>
-                              <td className="px-6 py-4 flex justify-end items-center gap-3">
+                            return (
+                              <tr key={policy.page_type} className={`transition-colors ${isChanged ? 'bg-orange-50/30' : 'hover:bg-slate-50'}`}>
+                                <td className="px-6 py-4">
+                                  <div className="flex items-baseline gap-2">
+                                    <span className="font-bold text-gray-800 text-[14px]">
+                                      {displayName}
+                                    </span>
+                                    <span className="text-slate-400 font-medium text-[12px]">
+                                      {displayUrl}
+                                    </span>
+                                  </div>
+                                </td>
                                 
-                                <div className="flex items-center gap-1.5 text-slate-400">
-                                  <span className="text-[11px] font-medium border border-slate-200 bg-white px-1.5 py-0.5 rounded-sm shadow-sm">기존</span>
-                                  <span className="font-extrabold text-slate-500">{policy.original_cost}P</span>
-                                  <svg className={`w-3.5 h-3.5 ml-1 transition-colors ${isChanged ? 'text-orange-400' : 'text-slate-300'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                </div>
+                                {/* 🌟 칼럼 1: 기존 포인트 */}
+                                <td className="px-6 py-4 text-center">
+                                  <span className="font-extrabold text-slate-500 text-[15px]">{policy.original_cost}P</span>
+                                </td>
 
-                                <div className="flex items-center">
-                                  <input 
-                                    type="text"
-                                    pattern="[0-9]*"
-                                    value={policy.point_cost}
-                                    onChange={(e) => handleCostChange(policy.page_type, e.target.value)}
-                                    className={`w-24 px-3 py-2 text-right border rounded-md focus:outline-none focus:ring-1 font-extrabold text-[15px] transition-colors ${
-                                      isChanged 
-                                      ? 'border-orange-400 focus:border-orange-500 focus:ring-orange-500 text-orange-600 bg-white shadow-inner' 
-                                      : 'border-gray-300 focus:border-[#5244e8] focus:ring-[#5244e8] text-[#5244e8] bg-gray-50'
+                                {/* 🌟 칼럼 2: 수정 포인트 & 저장버튼 */}
+                                <td className="px-6 py-4 flex justify-end items-center gap-3">
+                                  <div className="flex items-center">
+                                    <input 
+                                      type="text"
+                                      pattern="[0-9]*"
+                                      value={policy.point_cost}
+                                      onChange={(e) => handleCostChange(policy.page_type, e.target.value)}
+                                      className={`w-24 px-3 py-2 text-right border rounded-md focus:outline-none focus:ring-1 font-extrabold text-[15px] transition-colors ${
+                                        isChanged 
+                                        ? 'border-orange-400 focus:border-orange-500 focus:ring-orange-500 text-orange-600 bg-white shadow-inner' 
+                                        : 'border-gray-300 focus:border-[#5244e8] focus:ring-[#5244e8] text-[#5244e8] bg-gray-50'
+                                      }`}
+                                    />
+                                    <span className={`ml-1.5 font-bold ${isChanged ? 'text-orange-500' : 'text-slate-500'}`}>P</span>
+                                  </div>
+
+                                  <button 
+                                    onClick={() => handleSaveSingle(policy)}
+                                    disabled={!isChanged || isSavingThis}
+                                    className={`ml-2 w-16 py-2 font-bold text-[13px] rounded-md transition-all whitespace-nowrap shadow-sm flex items-center justify-center ${
+                                      isSavingThis ? 'bg-slate-400 text-white cursor-wait' :
+                                      isChanged ? 'bg-[#5244e8] hover:bg-[#4336c9] text-white ring-2 ring-[#5244e8]/30' : 
+                                      'bg-slate-600 text-white opacity-40 cursor-not-allowed hover:opacity-40' 
                                     }`}
-                                  />
-                                  <span className={`ml-1.5 font-bold ${isChanged ? 'text-orange-500' : 'text-slate-500'}`}>P</span>
-                                </div>
-
-                                <button 
-                                  onClick={() => handleSaveSingle(policy)}
-                                  disabled={!isChanged || isSavingThis}
-                                  className={`ml-2 w-16 py-2 font-bold text-[13px] rounded-md transition-all whitespace-nowrap shadow-sm flex items-center justify-center ${
-                                    isSavingThis ? 'bg-slate-400 text-white cursor-wait' :
-                                    isChanged ? 'bg-[#5244e8] hover:bg-[#4336c9] text-white ring-2 ring-[#5244e8]/30' : 
-                                    'bg-slate-600 text-white opacity-40 cursor-not-allowed hover:opacity-40' 
-                                  }`}
-                                >
-                                  {isSavingThis ? '...' : '저장'}
-                                </button>
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                                  >
+                                    {isSavingThis ? '...' : '저장'}
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 ))}
               </div>

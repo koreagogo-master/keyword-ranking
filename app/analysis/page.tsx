@@ -8,18 +8,15 @@ import RankTabs from "@/components/RankTabs";
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
-
-// 🌟 1. 마법의 포인트 스위치 가져오기
 import { usePoint } from '@/app/hooks/usePoint'; 
 
-// 컴포넌트 임포트
-import SearchVolume from "./components/1_SearchVolume"; // 월간 검색량
-import ContentStats from "./components/2_ContentStats"; // 콘텐츠 분석
-import TrendCharts from "./components/3_TrendCharts"; // 검색 트렌드
-import RelatedKeywords from "./components/4_RelatedKeywords"; // 연관 키워드
-import SimilarityAnalysis from "./components/5_SimilarityAnalysis"; // 유사 키워드
-import KeywordStrategy from "./components/6_KeywordStrategy"; // 키워드 성격
-import SectionOrder from "./components/7_SectionOrder"; // 섹션 순서
+import SearchVolume from "./components/1_SearchVolume";
+import ContentStats from "./components/2_ContentStats";
+import TrendCharts from "./components/3_TrendCharts";
+import RelatedKeywords from "./components/4_RelatedKeywords";
+import SimilarityAnalysis from "./components/5_SimilarityAnalysis";
+import KeywordStrategy from "./components/6_KeywordStrategy";
+import SectionOrder from "./components/7_SectionOrder";
 
 function safeNumber(v: any) {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
@@ -30,8 +27,9 @@ function AnalysisContent() {
   const { deductPoints } = usePoint(); 
 
   const [keyword, setKeyword] = useState("");
+  const [searchedKeyword, setSearchedKeyword] = useState(""); 
+  
   const [data, setData] = useState<any>(null);
-  const [googleVolume, setGoogleVolume] = useState<number>(0);
   const [isSearching, setIsSearching] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
@@ -54,33 +52,20 @@ function AnalysisContent() {
 
   const executeSearch = async (k: string, isPaid: boolean = true) => {
     setKeyword(k);
+    setSearchedKeyword(k); 
     setIsSearching(true);
     setIsCompleted(false);
     setData(null);
     setRelatedKeywords([]);
-    setGoogleVolume(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     try {
-      const [naverRes, googleRes] = await Promise.all([
-        fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`),
-        fetch('/api/google-ads', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ keyword: k }),
-        })
-      ]);
-
+      // 🌟 핵심 변경: 구글 API 호출 코드를 완전히 삭제하고 네이버에만 집중합니다!
+      const naverRes = await fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`);
       const naverData = await naverRes.json();
+      
       if (!naverRes.ok) throw new Error(naverData?.error || "네이버 데이터 로드 실패");
 
-      let gVolume = 0;
-      if (googleRes.ok) {
-        const gData = await googleRes.json();
-        gVolume = gData.monthlySearchVolume || 0;
-      }
-
-      setGoogleVolume(gVolume);
       setData({ ...naverData });
       setIsCompleted(true);
     } catch (e: any) {
@@ -94,7 +79,6 @@ function AnalysisContent() {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
 
-    // 🌟 핵심 업그레이드: 키워드(k) 변수를 끝에 추가로 던져서 DB에 기록을 남깁니다!
     const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
     if (!isPaySuccess) return; 
 
@@ -102,7 +86,7 @@ function AnalysisContent() {
   };
 
   const handleSaveCurrentSetting = async () => {
-    if (!keyword) {
+    if (!searchedKeyword) {
       alert("키워드를 입력한 후 저장해주세요.");
       return;
     }
@@ -115,7 +99,7 @@ function AnalysisContent() {
       user_id: user?.id,
       page_type: 'ANALYSIS',
       nickname: '',
-      keyword: keyword
+      keyword: searchedKeyword
     });
 
     if (!error) alert("현재 설정이 안전하게 저장되었습니다.");
@@ -143,7 +127,7 @@ function AnalysisContent() {
     const cTotal = safeNumber(data.contentCount?.total);
 
     return {
-      keyword: keyword,
+      keyword: searchedKeyword, 
       search: {
         total: safeNumber(data.searchCount?.total),
         pc: safeNumber(data.searchCount?.pc),
@@ -172,9 +156,9 @@ function AnalysisContent() {
       },
       weeklyTrend: data.weeklyTrend,
       monthlyTrend: data.monthlyTrend,
-      googleVolume: googleVolume
+      googleVolume: 0 // 🌟 하위 컴포넌트(KeywordStrategy) 에러 방지를 위해 0으로 고정
     };
-  }, [data, googleVolume, keyword]);
+  }, [data, searchedKeyword]);
 
   return (
     <>
@@ -193,16 +177,16 @@ function AnalysisContent() {
             <div className="flex justify-between items-start mb-8">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  {keyword ? `"${keyword}" 키워드 정밀 분석` : "키워드 정밀 분석"}
+                  {searchedKeyword ? `"${searchedKeyword}" 키워드 정밀 분석` : "키워드 정밀 분석"}
                 </h1>
                 <p className="text-sm text-slate-500">* 분석할 키워드를 입력하여 네이버 검색량 및 상세 지표를 확인하세요.</p>
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <button 
                   onClick={handleSaveCurrentSetting}
-                  disabled={!keyword || !user}
+                  disabled={!searchedKeyword || !user}
                   className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
-                    ${(!keyword || !user) ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
+                    ${(!searchedKeyword || !user) ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                   현재 설정 저장
@@ -270,7 +254,7 @@ function AnalysisContent() {
                     </div>
                     <div className="col-span-2">
                       <SectionOrder
-                        keyword={keyword}
+                        keyword={searchedKeyword}
                         onKeywordsFound={setRelatedKeywords}
                       />
                     </div>
@@ -280,7 +264,7 @@ function AnalysisContent() {
                 <div className="grid grid-cols-2 gap-10 items-start">
                   <RelatedKeywords data={data} onKeywordClick={handleSearch} />
                   <div className="space-y-10">
-                    <SimilarityAnalysis data={data} mainKeyword={keyword} onKeywordClick={handleSearch} />
+                    <SimilarityAnalysis data={data} mainKeyword={searchedKeyword} onKeywordClick={handleSearch} />
                   </div>
                 </div>
               </div>
