@@ -211,12 +211,12 @@ export default function Home() {
               </Link>
 
               {/* 박스 11 */}
-              <Link href="/history" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
+              <div className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400">
                 <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
                   <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 </div>
                 <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">분석 히스토리</h3>
-              </Link>
+              </div>
 
               {/* 🚀 신규 박스 12: 검색 키워드 저장 */}
               <Link href="#" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
@@ -234,13 +234,14 @@ export default function Home() {
                 <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">전용 웹 메모장</h3>
               </Link>
 
-              {/* 박스 14: 사용자 설정 */}
-              <Link href="/settings" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
+              {/* 박스 14: 사용자 설정 (임시 숨김 처리) */}
+              {/* <Link href="/settings" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
                 <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
                   <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </div>
                 <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">사용자 설정</h3>
               </Link>
+              */}
 
             </div>
           </FadeInUp>

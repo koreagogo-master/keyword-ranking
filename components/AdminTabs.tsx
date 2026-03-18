@@ -8,9 +8,9 @@ export default function AdminTabs() {
   const pathname = usePathname();
 
   const tabs = [
-    { name: '대시보드 홈', href: '/admin' },
-    { name: '포인트 단가 설정', href: '/admin/points' },
-    { name: '유저 사용 히스토리', href: '/admin/history' },
+    { name: '홈 (회원관리)', href: '/admin' },
+    { name: '포인트 (단가 설정)', href: '/admin/points' },
+    { name: '히스토리 (포인트)', href: '/admin/history' },
   ];
 
   return (

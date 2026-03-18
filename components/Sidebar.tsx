@@ -61,7 +61,6 @@ export default function Sidebar() {
           name: (
             <div className="flex items-center">
               키워드 생성기
-              {/* 🌟 하드코딩된 무료 메뉴도 뱃지 스타일 통일 */}
               <span className="ml-1.5 px-1.5 py-[2px] bg-[#5244e8]/10 text-[#5244e8] rounded-sm text-[10px] font-black tracking-wide border border-[#5244e8]/20">FREE</span>
             </div>
           ),
@@ -86,8 +85,8 @@ export default function Sidebar() {
     {
       title: "System",
       items: [
-        { name: "분석 히스토리", href: "/history" },
-        { name: "사용자 설정", href: "/settings" },
+        // 🌟 사용자 설정 삭제 완료, 분석 히스토리는 준비중 처리
+        { name: "분석 히스토리", href: "#", isPreparing: true },
       ]
     }
   ];
@@ -170,32 +169,39 @@ export default function Sidebar() {
                 <ul className="mt-0.5">
                   {group.items.map((item, itemIdx) => {
                     const isActive = pathname === item.href;
-                    
                     const pageType = URL_TO_PAGE_TYPE[item.href as string];
                     const pointCost = pageType && pointPolicies[pageType] !== undefined ? pointPolicies[pageType] : null;
 
                     return (
                       <li key={itemIdx}>
-                        <Link href={item.href} className={`
-                        px-6 py-2 flex items-center gap-3 transition-all text-[13.5px]
-                        ${isActive
-                            ? 'bg-[#5244e8]/10 text-[#5244e8] border-r-[3px] border-[#5244e8] font-semibold'
-                            : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
-                      `}>
+                        <Link 
+                          href={item.href} 
+                          // 🌟 준비 중인 메뉴 클릭 시 이동을 막고 알림 띄우기
+                          onClick={(e) => {
+                            if ((item as any).isPreparing) {
+                              e.preventDefault();
+                              alert('해당 기능은 현재 준비 중입니다! 곧 멋진 모습으로 찾아뵙겠습니다. 🚀');
+                            }
+                          }}
+                          className={`
+                            px-6 py-2 flex items-center gap-3 transition-all text-[13.5px]
+                            ${isActive
+                                ? 'bg-[#5244e8]/10 text-[#5244e8] border-r-[3px] border-[#5244e8] font-semibold'
+                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
+                            ${(item as any).isPreparing ? 'opacity-60 cursor-not-allowed' : ''}
+                          `}
+                        >
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-[#5244e8]' : 'bg-gray-200'}`}></span>
                           
                           <div className="flex items-center">
                             {typeof item.name === 'string' ? item.name : item.name}
                             
-                            {/* 🌟 동적 포인트 뱃지 디자인 업그레이드 */}
                             {typeof item.name === 'string' && pointCost !== null && (
                               pointCost === 0 ? (
-                                // 🌟 무료일 때: 메인 컬러 뱃지
                                 <span className="ml-2 px-1.5 py-[2px] bg-[#5244e8]/10 text-[#5244e8] rounded-sm text-[10px] font-black tracking-wide border border-[#5244e8]/20 shadow-sm">
                                   FREE
                                 </span>
                               ) : (
-                                // 🌟 유료일 때: 깔끔한 그레이톤 뱃지
                                 <span className={`ml-2 px-1.5 py-[2px] rounded-sm text-[10px] font-bold tracking-wide border shadow-sm transition-colors ${
                                   isActive 
                                     ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20' 
@@ -206,7 +212,6 @@ export default function Sidebar() {
                               )
                             )}
                           </div>
-
                         </Link>
                       </li>
                     );
