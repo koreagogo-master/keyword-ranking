@@ -4,7 +4,6 @@
 import { useRouter, usePathname } from 'next/navigation';
 import { createClient } from '@/app/utils/supabase/client';
 
-// 🌟 URL 경로와 관리자 단가표(page_type) 자동 매핑표
 const PATH_TO_PAGE_TYPE: Record<string, string> = {
   '/analysis': 'ANALYSIS',
   '/related-fast': 'RELATED',
@@ -19,18 +18,16 @@ const PATH_TO_PAGE_TYPE: Record<string, string> = {
 
 export const usePoint = () => {
   const router = useRouter();
-  const pathname = usePathname(); // 현재 유저가 접속해 있는 페이지의 URL을 알아냅니다.
+  const pathname = usePathname();
   const supabase = createClient();
 
-  // 기존 9개 페이지에 적어둔 코드(userId, 10*키워드수, 키워드수)를 건드리지 않기 위해 파라미터는 그대로 받습니다.
-  // 대신 두 번째 값(10*키워드수)은 무시하고, 무조건 DB 단가를 불러와서 적용합니다!
-  const deductPoints = async (userId: string | undefined, fallbackPoints: number, itemCount: number = 1) => {
+  // 🌟 키워드(keyword)를 선택적으로 받을 수 있도록 통로 개방!
+  const deductPoints = async (userId: string | undefined, fallbackPoints: number, itemCount: number = 1, keyword: string = "") => {
     if (!userId) {
       alert("로그인이 필요한 서비스입니다. 로그인 후 이용해주세요.");
       return false;
     }
 
-    // 1. 내가 지금 어떤 서비스 페이지에 있는지 확인
     const pageType = PATH_TO_PAGE_TYPE[pathname];
 
     if (!pageType) {
@@ -39,29 +36,28 @@ export const usePoint = () => {
        return false;
     }
 
-    // 2. 관리자 설정 단가표와 연동된 스마트 차감 엔진 V2 호출
+    // 🌟 히스토리 장부에 남길 문구 생성 (키워드가 넘어오면 키워드 포함, 아니면 N건 검색으로 통일)
+    const description = keyword ? `[${keyword}] 검색 (${itemCount}건)` : `${itemCount}건 조회`;
+
     const { data, error } = await supabase.rpc('deduct_points_dynamic', {
       p_user_id: userId,
       p_page_type: pageType,
-      p_item_count: itemCount
+      p_item_count: itemCount,
+      p_description: description // 새로 만든 통로로 텍스트 전달
     });
 
-    // 3. 에러 발생 또는 포인트가 부족할 때 결제 모달 띄우기
     if (error || !data || data.success === false) {
-      // DB에서 단가를 성공적으로 가져왔다면 진짜 단가를, 아니면 기존 10P를 알림창에 띄워줍니다.
       const costPerItem = data?.cost_per_item || (fallbackPoints / itemCount);
       const totalRequired = data?.required || fallbackPoints;
       
       const goCharge = window.confirm(
         `잔여 포인트가 부족합니다. (1건당 ${costPerItem}P 차감)\n\n현재 총 ${itemCount}건을 조회하려면 ${totalRequired}P가 필요합니다.\n포인트 충전 페이지로 이동하시겠습니까?`
       );
-      if (goCharge) {
-        router.push('/mypage');
-      }
-      return false; // 차감 실패 (검색 중단)
+      if (goCharge) router.push('/mypage');
+      
+      return false; 
     }
 
-    // 4. 결제 성공! 검색 허용!
     return true; 
   };
 

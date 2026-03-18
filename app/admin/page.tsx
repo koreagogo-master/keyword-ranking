@@ -41,10 +41,7 @@ export default function AdminPage() {
     };
 
     safeAuthCheck();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -71,6 +68,7 @@ export default function AdminPage() {
     }
   };
 
+  // 🌟 업그레이드: 포인트 변경 시 사유를 묻고 히스토리 장부에 남기는 로직
   const handleUpdatePoint = async (userId: string, column: string, currentVal: number, label: string) => {
     const input = window.prompt(
       `[${label}] 값을 수정합니다.\n지급하거나 차감할 '최종 숫자'를 입력하세요.\n(현재: ${currentVal || 0} P)`, 
@@ -85,12 +83,30 @@ export default function AdminPage() {
       return;
     }
 
+    const diff = newVal - currentVal;
+    if (diff === 0) return; // 변경사항이 없으면 조용히 종료
+
+    // 🌟 사유 입력받기 (CS 로그용)
+    const memo = window.prompt(
+      `[히스토리 기록용]\n유저에게 지급/차감하는 사유를 입력해주세요.\n(예: CS 보상, 오류 복구, 이벤트 당첨 등)\n*취소를 눌러도 포인트는 변경되지만 '사유 없음'으로 기록됩니다.`
+    );
+
     const { error } = await supabase
       .from('profiles')
       .update({ [column]: newVal })
       .eq('id', userId);
 
     if (!error) {
+      // 🌟 히스토리 테이블에 관리자 조작 증거 남기기!
+      await supabase.from('point_history').insert({
+        user_id: userId,
+        change_type: 'ADMIN',
+        change_amount: diff, // +면 지급, -면 차감으로 정확하게 저장됨
+        page_type: 'MANUAL',
+        description: `[관리자 수동변경] ${label} 변경: ${currentVal} ➡️ ${newVal} | 사유: ${memo || '사유 없음'}`
+      });
+
+      alert("포인트가 변경되고 히스토리에 안전하게 기록되었습니다.");
       fetchUsers(); 
     } else {
       alert("포인트 수정 중 오류가 발생했습니다.");
@@ -106,21 +122,17 @@ export default function AdminPage() {
     });
   };
 
-  if (status === 'checking' || status === 'redirecting') {
-    return <div className="min-h-screen bg-[#f8f9fa]"></div>;
-  }
+  if (status === 'checking' || status === 'redirecting') return <div className="min-h-screen bg-[#f8f9fa]"></div>;
 
   return (
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
       <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-        
         <Sidebar />
 
         <main className="flex-1 ml-64 p-10 relative">
           <div className="max-w-[1400px] mx-auto">
             
-            {/* 🌟 수정: 이모티콘과 파란색을 빼고, 화살표를 좌측으로 바꾼 단아한 버튼 */}
             <Link 
               href="/admin/points" 
               className="inline-flex items-center gap-1.5 text-[14px] font-bold text-slate-500 hover:text-[#5244e8] mb-6 transition-colors bg-white px-4 py-2 rounded-sm border border-gray-200 shadow-sm"
@@ -130,7 +142,6 @@ export default function AdminPage() {
             </Link>
 
             <div className="mb-8 border-b border-gray-200 pb-4">
-              {/* 🌟 수정: 이모티콘 제거 */}
               <h1 className="text-3xl font-extrabold text-gray-900 mb-2 flex items-center gap-2">
                 관리자 전용 대시보드
               </h1>
@@ -165,9 +176,7 @@ export default function AdminPage() {
                         <td className="p-4 text-center font-bold text-slate-400">{userNumber}</td>
                         <td className="p-4 font-bold text-gray-800">{u.email}</td>
                         <td className="p-4 text-center text-slate-500 text-sm">{new Date(u.created_at).toLocaleDateString()}</td>
-                        
                         <td className="p-4 text-center text-blue-500 font-medium text-sm">{formatDateTime(u.last_login_at)}</td>
-                        
                         <td className="p-4 text-center">
                           <select 
                             className={`bg-white border border-gray-300 rounded-md py-1.5 px-3 text-sm font-bold focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] cursor-pointer shadow-sm
@@ -184,7 +193,6 @@ export default function AdminPage() {
                           </select>
                         </td>
                         
-                        {/* 🌟 수정: !text-slate-800 등 !important 속성으로 강제 색상 부여 */}
                         <td className="p-4 text-right">
                           <button 
                             onClick={() => handleUpdatePoint(u.id, 'total_purchased_points', u.total_purchased_points, '누적 결제 포인트')}

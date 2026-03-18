@@ -9,7 +9,6 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from "@/app/contexts/AuthContext";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
-// 🌟 1. 마법의 포인트 스위치 가져오기 (useRouter 등 지저분한 코드 삭제!)
 import { usePoint } from '@/app/hooks/usePoint'; 
 
 interface SearchResultRow {
@@ -28,7 +27,6 @@ const AUTHOR_COLORS = [
 
 export default function BlogRankPage() {
   const { user } = useAuth();
-  // 🌟 2. 스위치 장착하기
   const { deductPoints } = usePoint(); 
   
   const [targetNickname, setTargetNickname] = useState('');
@@ -63,9 +61,10 @@ export default function BlogRankPage() {
     }
 
     const keywords = kwToSearch.split(',').map(k => k.trim()).filter(Boolean);
+    // 🌟 핵심 업그레이드: 입력한 여러 개의 키워드를 쉼표로 예쁘게 묶어서 넘겨줍니다!
+    const keywordString = keywords.join(', ');
 
-    // 🌟 3. 스위치 켜기: 키워드 1개당 10P 차감! (기존의 복잡한 로직이 단 한 줄로 끝납니다)
-    const isPaySuccess = await deductPoints(user?.id, 10 * keywords.length, keywords.length);
+    const isPaySuccess = await deductPoints(user?.id, 10 * keywords.length, keywords.length, keywordString);
     if (!isPaySuccess) return;
 
     setLoading(true);

@@ -44,9 +44,9 @@ export default function YouTubeTrendPage() {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
 
-    // 🌟 3. 스위치 켜기: 유튜브 트렌드 분석은 1회 검색당 10P 차감 (1건)
-    const isPaySuccess = await deductPoints(user?.id, 10, 1);
-    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤!
+    // 🌟 3. 핵심 업그레이드: k(검색어) 변수를 넘겨서 어떤 유튜브 키워드를 검색했는지 DB에 남깁니다!
+    const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
+    if (!isPaySuccess) return; 
     
     setKeyword(k);
     setIsSearching(true);
@@ -122,7 +122,7 @@ export default function YouTubeTrendPage() {
   const handleApplySavedSetting = (item: any) => {
     setIsDrawerOpen(false); 
     setKeyword(item.keyword);
-    handleSearch(item.keyword); // 저장된 키워드 불러와서 검색할 때도 포인트 차감!
+    handleSearch(item.keyword); 
   };
 
   return (

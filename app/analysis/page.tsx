@@ -27,7 +27,6 @@ function safeNumber(v: any) {
 
 function AnalysisContent() {
   const { user } = useAuth();
-  // 🌟 2. 스위치 장착하기
   const { deductPoints } = usePoint(); 
 
   const [keyword, setKeyword] = useState("");
@@ -45,11 +44,7 @@ function AnalysisContent() {
 
   useEffect(() => {
     if (urlKeyword && urlKeyword !== "") {
-      // URL로 바로 들어오거나 연관 키워드를 클릭했을 때도 포인트를 차감해야 하므로
-      // 여기서는 직접 executeSearch를 부르지 않고 포인트 검사를 거치는 handleSearch를 부르도록 우회합니다.
-      // (단, 무한 루프 방지를 위해 isSearching 상태를 체크하는 로직이 필요하지만, 
-      //  가장 안전한 방법은 아래 handleSearch에서만 차감 로직을 태우는 것입니다.)
-      executeSearch(urlKeyword, false); // URL 진입 시에는 일단 차감 없이 렌더링 (또는 기획에 따라 여기서도 차감 가능)
+      executeSearch(urlKeyword, false); 
     }
   }, [urlKeyword]);
 
@@ -57,7 +52,6 @@ function AnalysisContent() {
     setIsCompleted(false);
   }, [keyword]);
 
-  // 실제 API를 찌르는 함수 (포인트 검사가 끝난 사람만 호출 가능)
   const executeSearch = async (k: string, isPaid: boolean = true) => {
     setKeyword(k);
     setIsSearching(true);
@@ -96,16 +90,14 @@ function AnalysisContent() {
     }
   };
 
-  // 🌟 3. 검색 버튼을 누르거나 연관 키워드를 클릭했을 때 실행되는 핵심 함수
   const handleSearch = async (targetKeyword?: string) => {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
 
-    // 스위치 켜기: 키워드 정밀 분석은 1회 검색당 10P 차감 (1건)
-    const isPaySuccess = await deductPoints(user?.id, 10, 1);
-    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤!
+    // 🌟 핵심 업그레이드: 키워드(k) 변수를 끝에 추가로 던져서 DB에 기록을 남깁니다!
+    const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
+    if (!isPaySuccess) return; 
 
-    // 결제가 성공하면 URL을 변경하여 검색 실행
     router.push(`/analysis?keyword=${encodeURIComponent(k)}`);
   };
 
@@ -132,7 +124,7 @@ function AnalysisContent() {
 
   const handleApplySavedSetting = (item: any) => {
     setIsDrawerOpen(false);
-    handleSearch(item.keyword); // 저장된 키워드를 불러올 때도 10P 차감!
+    handleSearch(item.keyword); 
   };
 
   const stats = useMemo(() => {

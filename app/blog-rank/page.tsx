@@ -9,7 +9,6 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
-// 🌟 1. 마법의 포인트 스위치 가져오기
 import { usePoint } from '@/app/hooks/usePoint'; 
 
 interface SearchResult {
@@ -23,7 +22,6 @@ interface SearchResult {
 
 export default function BlogRankPage() {
   const { user } = useAuth();
-  // 🌟 2. 스위치 장착하기
   const { deductPoints } = usePoint(); 
 
   const [targetNickname, setTargetNickname] = useState('');
@@ -53,9 +51,12 @@ export default function BlogRankPage() {
       .map(k => k.trim())
       .filter(Boolean);
 
-    // 🌟 3. 스위치 켜기: 입력한 키워드 개수 × 10P 차감!
-    const isPaySuccess = await deductPoints(user?.id, 10 * keywords.length, keywords.length);
-    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤
+    // 🌟 핵심 업그레이드: 배열로 된 키워드들을 쉼표 문자열로 묶어줍니다!
+    const keywordString = keywords.join(', ');
+
+    // 🌟 스위치 켜기: 키워드 문자열도 함께 DB로 전송하여 히스토리에 남깁니다!
+    const isPaySuccess = await deductPoints(user?.id, 10 * keywords.length, keywords.length, keywordString);
+    if (!isPaySuccess) return; 
 
     setLoading(true);
     setResults([]);
@@ -151,7 +152,7 @@ export default function BlogRankPage() {
                 <p className="text-sm text-slate-500 mt-1">* "사이트", "뉴스", "플레이스"는 순위에서 제외 됩니다.</p>
                 <p className="text-sm text-slate-500 mt-1">* "지식인"이 순위에 노출 될 경우 제목에 내용이 길게 표시 됩니다.</p>
               </div>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2 mt-1 shrink-0">
                 <button 
                   onClick={handleSaveCurrentSetting}
                   disabled={results.length === 0 || !user}

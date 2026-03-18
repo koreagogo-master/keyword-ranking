@@ -8,7 +8,6 @@ import RankTabs from '@/components/RankTabs';
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from "@/app/contexts/AuthContext";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
-// 🌟 1. 마법의 포인트 스위치 가져오기
 import { usePoint } from '@/app/hooks/usePoint'; 
 
 interface SearchResult {
@@ -27,7 +26,6 @@ interface InputRow {
 
 export default function KinRankPage() {
   const { user } = useAuth();
-  // 🌟 2. 스위치 장착하기
   const { deductPoints } = usePoint(); 
   
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -71,7 +69,6 @@ export default function KinRankPage() {
 
   const handleCheck = async (overrideInputs?: InputRow[]) => {
     const inputsToUse = overrideInputs || inputs;
-    // 빈칸이 아닌 유효한 입력값(키워드)만 걸러내기
     const validInputs = inputsToUse.filter(input => input.keyword.trim() !== '' && input.targetTitle.trim() !== '');
 
     if (validInputs.length === 0) {
@@ -79,9 +76,12 @@ export default function KinRankPage() {
       return;
     }
 
-    // 🌟 3. 스위치 켜기: 입력된 키워드 개수(validInputs.length)만큼 10P씩 계산해서 차감 요청!
-    const isPaySuccess = await deductPoints(user?.id, 10 * validInputs.length, validInputs.length);
-    if (!isPaySuccess) return; // 포인트가 부족하거나 로그인이 안 되어있으면 여기서 즉시 멈춤!
+    // 🌟 핵심 업그레이드: 입력된 여러 개의 지식인 키워드들을 쉼표로 묶어줍니다!
+    const keywordString = validInputs.map(input => input.keyword).join(', ');
+
+    // 🌟 묶인 키워드를 포인트 차감 엔진(DB)으로 전달!
+    const isPaySuccess = await deductPoints(user?.id, 10 * validInputs.length, validInputs.length, keywordString);
+    if (!isPaySuccess) return; 
 
     setLoading(true);
     setResults([]);

@@ -47,10 +47,12 @@ export default function ShoppingRankPage() {
     
     // 키워드 개수 계산을 먼저 수행합니다.
     const keywordArray = targetKeyword.split(',').map(k => k.trim()).filter(k => k.length > 0);
+    // 🌟 핵심 업그레이드: 여러 개의 키워드를 쉼표로 묶어줍니다!
+    const keywordString = keywordArray.join(', ');
 
-    // 🌟 3. 스위치 켜기: 입력한 키워드 개수 × 10P 차감!
-    const isPaySuccess = await deductPoints(user?.id, 10 * keywordArray.length, keywordArray.length);
-    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤 (아래 로직 실행 안 됨)
+    // 🌟 3. 스위치 켜기: 입력한 키워드 개수 × 10P 차감 및 키워드 히스토리 기록!
+    const isPaySuccess = await deductPoints(user?.id, 10 * keywordArray.length, keywordArray.length, keywordString);
+    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤
 
     setIsSearching(true);
     setHasSearched(false);
@@ -89,7 +91,6 @@ export default function ShoppingRankPage() {
     }
   };
 
-  // 🌟 기본 검색 버튼 클릭 시
   const handleSearch = () => {
     performSearch(storeName, keyword);
   };
@@ -121,7 +122,6 @@ export default function ShoppingRankPage() {
     else alert("저장 중 오류가 발생했습니다.");
   };
 
-  // 🌟 저장된 설정 불러오기 시 원클릭 자동 실행
   const handleApplySavedSetting = (item: any) => {
     setIsDrawerOpen(false);
     let applyStore = storeName;
@@ -136,7 +136,6 @@ export default function ShoppingRankPage() {
     setStoreName(applyStore);
     setKeyword(applyKeyword);
     
-    // 🔥 세팅된 값으로 즉시 검색 실행 (포인트 차감 포함)
     performSearch(applyStore, applyKeyword);
   };
 

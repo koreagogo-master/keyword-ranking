@@ -31,7 +31,6 @@ export default function ShoppingInsightPage() {
   // 🌟 2. 스위치 장착하기
   const { deductPoints } = usePoint(); 
 
-  // 서랍 상태 추가
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [keyword, setKeyword] = useState("");
@@ -44,14 +43,13 @@ export default function ShoppingInsightPage() {
   const [topItems, setTopItems] = useState<any[]>([]);
   const [autoCompleteWords, setAutoCompleteWords] = useState<string[]>([]);
 
-  // 검색 함수 (서랍에서 클릭한 키워드도 받을 수 있게 수정됨)
   const handleSearch = async (overrideKeyword?: any) => {
     const kwToSearch = typeof overrideKeyword === 'string' ? overrideKeyword : keyword;
     if (!kwToSearch.trim()) return;
 
-    // 🌟 3. 스위치 켜기: 쇼핑 인사이트 검색 1회당 10P 차감!
-    const isPaySuccess = await deductPoints(user?.id, 10, 1);
-    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤
+    // 🌟 3. 핵심 업그레이드: kwToSearch 변수를 넘겨서 히스토리 장부에 검색어를 기록합니다!
+    const isPaySuccess = await deductPoints(user?.id, 10, 1, kwToSearch);
+    if (!isPaySuccess) return; 
 
     setKeyword(kwToSearch);
     setIsSearching(true);

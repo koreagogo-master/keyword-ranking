@@ -4,19 +4,16 @@ import { useState, useMemo } from "react";
 import Sidebar from "@/components/Sidebar";
 import GoogleTabs from "@/components/GoogleTabs";
 
-// 🌟 추가: DB 및 서랍 컴포넌트 불러오기
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
-// 🌟 1. 마법의 포인트 스위치 가져오기
 import { usePoint } from '@/app/hooks/usePoint'; 
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
 
 export default function GoogleAnalysisPage() {
-  const { user } = useAuth(); // 🌟 추가: 유저 정보 가져오기
-  // 🌟 2. 스위치 장착하기
+  const { user } = useAuth();
   const { deductPoints } = usePoint(); 
 
   const [keyword, setKeyword] = useState("");
@@ -33,15 +30,15 @@ export default function GoogleAnalysisPage() {
   const [sortField, setSortField] = useState<'searchVolume' | 'cpcLow' | 'cpcHigh' | 'competitionIndex' | null>(null);
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc' | null>(null);
 
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // 🌟 추가: 서랍 열림 상태
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); 
 
   const handleSearch = async (targetKeyword?: string) => {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
 
-    // 🌟 3. 스위치 켜기: 구글 키워드 분석은 1회 검색당 10P 차감 (1건)
-    const isPaySuccess = await deductPoints(user?.id, 10, 1);
-    if (!isPaySuccess) return; // 포인트 부족 시 여기서 멈춤!
+    // 🌟 핵심 업그레이드: k(검색어) 변수를 던져서 구글 분석도 히스토리에 남깁니다!
+    const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
+    if (!isPaySuccess) return; 
 
     setKeyword(k);
     setIsSearching(true);
@@ -88,7 +85,6 @@ export default function GoogleAnalysisPage() {
     }
   };
 
-  // 🌟 추가 1: 현재 설정 저장 로직
   const handleSaveCurrentSetting = async () => {
     if (!keyword) {
       alert("키워드를 입력한 후 저장해주세요.");
@@ -101,8 +97,8 @@ export default function GoogleAnalysisPage() {
     const supabase = createClient();
     const { error } = await supabase.from('saved_searches').insert({
       user_id: user?.id,
-      page_type: 'GOOGLE', // 구글 페이지 명시
-      nickname: '', // 구글은 닉네임이 없으므로 빈 문자열
+      page_type: 'GOOGLE',
+      nickname: '', 
       keyword: keyword
     });
 
@@ -110,11 +106,10 @@ export default function GoogleAnalysisPage() {
     else alert("저장 중 오류가 발생했습니다.");
   };
 
-  // 🌟 추가 2: 저장된 데이터 불러오기 및 자동 검색 로직
   const handleApplySavedSetting = (item: any) => {
     setIsDrawerOpen(false);
     setKeyword(item.keyword);
-    handleSearch(item.keyword); // 여기서도 동일하게 10P 차감 로직을 탑니다!
+    handleSearch(item.keyword); 
   };
 
   const mainKeywordData = useMemo(() => {
@@ -191,7 +186,6 @@ export default function GoogleAnalysisPage() {
 
             <GoogleTabs />
 
-            {/* 🌟 수정: 헤더 영역에 버튼 추가 및 레이아웃 정리 */}
             <div className="flex justify-between items-start mb-8">
               <div>
                 <h1 className="text-2xl font-bold !text-black mb-2">구글 키워드 분석</h1>
@@ -454,7 +448,6 @@ export default function GoogleAnalysisPage() {
         </main>
       </div>
 
-      {/* 🌟 추가: 저장된 목록 서랍 컴포넌트 렌더링 */}
       <SavedSearchesDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
