@@ -1,4 +1,3 @@
-// components/AdminTabs.tsx
 'use client';
 
 import Link from 'next/link';
@@ -8,14 +7,15 @@ export default function AdminTabs() {
   const pathname = usePathname();
 
   const tabs = [
-    { name: '홈 (회원관리)', href: '/admin' },
-    { name: '포인트 (단가 설정)', href: '/admin/points' },
-    { name: '히스토리 (포인트)', href: '/admin/history' },
+    { name: '종합 대시보드', href: '/admin' },
+    { name: '회원 관리', href: '/admin/users' },
+    { name: '포인트 설정', href: '/admin/points' },
+    { name: '포인트 히스토리', href: '/admin/history' },
   ];
 
   return (
-    // 🌟 flex에 justify-center를 추가하여 화면 중앙에 고정되게 만들었습니다.
-    <div className="flex justify-center border-b border-gray-200 mb-8">
+    // 🌟 대표님께서 세팅하신 중앙 정렬을 그대로 살렸습니다!
+    <div className="flex justify-center border-b border-gray-200 mb-8 mt-4">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
         return (

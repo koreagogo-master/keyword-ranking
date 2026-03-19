@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect, Suspense } from "react";
+import { useMemo, useState, useEffect, Suspense, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
@@ -23,7 +23,8 @@ function safeNumber(v: any) {
 }
 
 function AnalysisContent() {
-  const { user } = useAuth();
+  // 🌟 isLoading 추가 (로그인 정보가 완전히 로드된 후 결제를 시도해야 안전함)
+  const { user, isLoading } = useAuth();
   const { deductPoints } = usePoint(); 
 
   const [keyword, setKeyword] = useState("");
@@ -36,21 +37,32 @@ function AnalysisContent() {
   const [relatedKeywords, setRelatedKeywords] = useState<string[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
+  // 🌟 중복 결제 및 중복 실행 방지를 위한 방어막
+  const lastProcessedKeyword = useRef<string | null>(null);
+
   const searchParams = useSearchParams();
   const router = useRouter();
   const urlKeyword = searchParams.get("keyword");
 
+  // 🌟 핵심 파이프라인 1: URL에 키워드가 잡히면 무조건 여기를 거칩니다. (메인에서 오든, 여기서 검색하든)
   useEffect(() => {
-    if (urlKeyword && urlKeyword !== "") {
-      executeSearch(urlKeyword, false); 
+    // 로그인 정보 로딩이 끝났고, URL에 키워드가 있을 때만 실행
+    if (!isLoading && urlKeyword && urlKeyword !== "") {
+      // 이미 방금 결제하고 검색한 키워드라면 중복 실행 안 함
+      if (lastProcessedKeyword.current !== urlKeyword) {
+        executePaidSearch(urlKeyword); 
+      }
     }
-  }, [urlKeyword]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlKeyword, isLoading]);
 
   useEffect(() => {
     setIsCompleted(false);
   }, [keyword]);
 
-  const executeSearch = async (k: string, isPaid: boolean = true) => {
+  // 🌟 핵심 파이프라인 2: "결제"와 "검색"이 무조건 한 세트로 묶인 단일 함수!
+  const executePaidSearch = async (k: string) => {
+    lastProcessedKeyword.current = k; // 결제 시도 진입 표시 (중복 방지)
     setKeyword(k);
     setSearchedKeyword(k); 
     setIsSearching(true);
@@ -59,8 +71,17 @@ function AnalysisContent() {
     setRelatedKeywords([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
+    // 🛑 [결제 톨게이트] 
+    // 여기서 결제가 실패하면 (포인트 부족 등) 더 이상 아래로 넘어가지 못함!
+    const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
+    if (!isPaySuccess) {
+      setIsSearching(false);
+      lastProcessedKeyword.current = null; // 실패했으니 다음에 다시 버튼 누르면 실행되게 리셋
+      return;
+    }
+
     try {
-      // 🌟 핵심 변경: 구글 API 호출 코드를 완전히 삭제하고 네이버에만 집중합니다!
+      // ✅ 결제 통과 시 네이버 데이터 가져오기
       const naverRes = await fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`);
       const naverData = await naverRes.json();
       
@@ -75,14 +96,21 @@ function AnalysisContent() {
     }
   };
 
+  // 🌟 수동으로 검색 버튼을 눌렀을 때의 동작
   const handleSearch = async (targetKeyword?: string) => {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
 
-    const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
-    if (!isPaySuccess) return; 
-
-    router.push(`/analysis?keyword=${encodeURIComponent(k)}`);
+    if (urlKeyword === k) {
+      // 이미 "다이어트" 검색 결과에 있는데 또 "다이어트"를 검색 누른 경우
+      // URL이 안 변하므로 useEffect가 안 돎 -> 강제로 리셋하고 결제 함수 실행
+      lastProcessedKeyword.current = null;
+      executePaidSearch(k);
+    } else {
+      // 새로운 키워드라면 단순히 URL만 바꿔줌. 
+      // (URL이 바뀌면 위의 useEffect가 냄새를 맡고 알아서 결제 파이프라인을 태움!)
+      router.push(`/analysis?keyword=${encodeURIComponent(k)}`);
+    }
   };
 
   const handleSaveCurrentSetting = async () => {
@@ -156,7 +184,7 @@ function AnalysisContent() {
       },
       weeklyTrend: data.weeklyTrend,
       monthlyTrend: data.monthlyTrend,
-      googleVolume: 0 // 🌟 하위 컴포넌트(KeywordStrategy) 에러 방지를 위해 0으로 고정
+      googleVolume: 0 
     };
   }, [data, searchedKeyword]);
 

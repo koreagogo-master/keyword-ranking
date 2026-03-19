@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
 import Sidebar from "@/components/Sidebar";
@@ -20,11 +20,26 @@ const PAGE_META: Record<string, string> = {
   'MANUAL': '관리자 조정 포인트'
 };
 
+// 🌟 날짜 계산 유틸리티 함수
+const getPastDate = (months: number) => {
+  const d = new Date();
+  d.setMonth(d.getMonth() - months);
+  return d.toISOString().split('T')[0];
+};
+const getToday = () => new Date().toISOString().split('T')[0];
+
 export default function MyPage() {
   const { user, profile, isLoading } = useAuth();
   const router = useRouter();
 
+  // 🌟 필터 및 서버 사이드 페이지네이션 상태 추가
+  const [filterMonths, setFilterMonths] = useState<number>(1);
+  const [startDate, setStartDate] = useState(getPastDate(1));
+  const [endDate, setEndDate] = useState(getToday());
+  const [searchTrigger, setSearchTrigger] = useState(0);
+
   const [history, setHistory] = useState<any[]>([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -32,33 +47,80 @@ export default function MyPage() {
   useEffect(() => {
     if (!isLoading && !user) {
       router.push("/"); 
-    } else if (user && profile) {
+    }
+  }, [user, isLoading, router]);
+
+  // 🌟 currentPage 또는 searchTrigger가 바뀔 때마다 실행 (서버 사이드 통신)
+  useEffect(() => {
+    if (user && profile) {
       fetchUserHistory();
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, isLoading, profile, router]);
+  }, [user, profile, currentPage, searchTrigger]);
 
   const fetchUserHistory = async () => {
     setLoadingHistory(true);
     const supabase = createClient();
     
-    const { data } = await supabase
-      .from('point_history')
-      .select('*')
+    // 1. 선택된 기간의 전체 데이터 개수(Count) 가져오기
+    let countQuery = supabase.from('point_history').select('*', { count: 'exact', head: true }).eq('user_id', user?.id);
+    if (startDate) countQuery = countQuery.gte('created_at', `${startDate}T00:00:00`);
+    if (endDate) countQuery = countQuery.lte('created_at', `${endDate}T23:59:59`);
+    
+    const { count } = await countQuery;
+    setTotalCount(count || 0);
+
+    // 2. 현재 페이지에 보여줄 딱 10개의 데이터만 가져오기
+    const from = (currentPage - 1) * itemsPerPage;
+    const to = from + itemsPerPage - 1;
+
+    let dataQuery = supabase.from('point_history').select('*')
       .eq('user_id', user?.id)
       .order('created_at', { ascending: false })
-      .limit(500); 
+      .range(from, to);
 
-    if (data && profile) {
-      let currentBalance = (profile.purchased_points || 0) + (profile.bonus_points || 0);
+    if (startDate) dataQuery = dataQuery.gte('created_at', `${startDate}T00:00:00`);
+    if (endDate) dataQuery = dataQuery.lte('created_at', `${endDate}T23:59:59`);
+
+    const { data } = await dataQuery;
+
+    if (data && data.length > 0 && profile) {
+      let pageStartBalance = (profile.purchased_points || 0) + (profile.bonus_points || 0);
+      const firstItemDate = data[0].created_at;
+
+      // 3. (핵심) 현재 페이지의 '잔여 포인트'를 정확히 계산하기 위해, 이보다 나중에 발생한 변동 내역의 합산 구하기
+      const { data: newerChanges } = await supabase
+        .from('point_history')
+        .select('change_amount')
+        .eq('user_id', user?.id)
+        .gt('created_at', firstItemDate);
+
+      const sumNewer = newerChanges?.reduce((acc, curr) => acc + curr.change_amount, 0) || 0;
+      pageStartBalance -= sumNewer; // 현재 잔액에서 나중에 발생한 변동분을 빼면 당시의 잔액이 나옴
+
       const historyWithBalance = data.map((item) => {
-        const displayBalance = currentBalance;
-        currentBalance -= item.change_amount; 
+        const displayBalance = pageStartBalance;
+        pageStartBalance -= item.change_amount; 
         return { ...item, running_balance: displayBalance };
       });
       setHistory(historyWithBalance);
+    } else {
+      setHistory([]);
     }
     setLoadingHistory(false);
+  };
+
+  const handleFilterChange = (months: number) => {
+    setFilterMonths(months);
+    setStartDate(getPastDate(months));
+    setEndDate(getToday());
+    setCurrentPage(1);
+    setSearchTrigger(prev => prev + 1);
+  };
+
+  const handleManualSearch = () => {
+    setCurrentPage(1);
+    setSearchTrigger(prev => prev + 1);
   };
 
   if (isLoading || !profile) {
@@ -83,9 +145,7 @@ export default function MyPage() {
   };
 
   const totalPoints = (profile?.bonus_points || 0) + (profile?.purchased_points || 0);
-
-  const totalPages = Math.max(1, Math.ceil(history.length / itemsPerPage));
-  const paginatedHistory = history.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
 
   return (
     <div className="flex bg-gray-50 min-h-[calc(100vh-4rem)]">
@@ -127,12 +187,6 @@ export default function MyPage() {
                 </div>
               </div>
             </div>
-
-            {profile.grade !== 'agency' && (
-              <div className="mt-8 p-4 bg-blue-50 border border-blue-100 rounded-xl text-sm text-blue-700 font-medium flex items-center gap-2">
-                <span className="font-bold">💡</span> 상위 등급으로 업그레이드 하시면 다중 IP 접속 등 더 많은 혜택을 누리실 수 있습니다.
-              </div>
-            )}
           </div>
 
           {/* ----- 2. 포인트 잔액 정보 ----- */}
@@ -172,20 +226,40 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* ----- 🌟 3. 포인트 이용 내역 (영수증) 위치 변경 ----- */}
+          {/* ----- 3. 포인트 이용 내역 (영수증) ----- */}
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-6">
-            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5 mb-6">
+            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5 mb-5">
               <div className="w-1 h-5 bg-[#5244e8] rounded-sm"></div>
               포인트 이용 내역
             </h2>
 
-            <div className="border border-gray-200 rounded-lg overflow-hidden">
+            {/* 🌟 날짜 필터 영역 추가 */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
+              <div className="flex items-center gap-2">
+                {/* 🌟 수정 1: 글씨색이 날아가지 않도록 !text-white 와 !text-gray-600 강제 적용 */}
+                <button onClick={() => handleFilterChange(1)} className={`px-4 py-1.5 text-[12px] font-bold rounded-md border transition-colors ${filterMonths === 1 ? 'bg-indigo-600 !text-white border-indigo-600' : 'bg-white !text-gray-600 border-gray-200 hover:bg-gray-50'}`}>1개월</button>
+                <button onClick={() => handleFilterChange(3)} className={`px-4 py-1.5 text-[12px] font-bold rounded-md border transition-colors ${filterMonths === 3 ? 'bg-indigo-600 !text-white border-indigo-600' : 'bg-white !text-gray-600 border-gray-200 hover:bg-gray-50'}`}>3개월</button>
+                <button onClick={() => handleFilterChange(6)} className={`px-4 py-1.5 text-[12px] font-bold rounded-md border transition-colors ${filterMonths === 6 ? 'bg-indigo-600 !text-white border-indigo-600' : 'bg-white !text-gray-600 border-gray-200 hover:bg-gray-50'}`}>6개월</button>
+              </div>
+              <div className="flex items-center gap-2">
+                <input type="date" value={startDate} onChange={e => {setStartDate(e.target.value); setFilterMonths(0);}} className="border border-gray-300 rounded-md px-3 py-1.5 text-[12px] font-medium text-gray-700 outline-none focus:border-indigo-500" />
+                <span className="text-gray-400 font-bold">~</span>
+                <input type="date" value={endDate} onChange={e => {setEndDate(e.target.value); setFilterMonths(0);}} className="border border-gray-300 rounded-md px-3 py-1.5 text-[12px] font-medium text-gray-700 outline-none focus:border-indigo-500" />
+                <button onClick={handleManualSearch} className="bg-slate-700 hover:bg-slate-800 !text-white px-4 py-1.5 rounded-md text-[12px] font-bold transition-colors shadow-sm">
+                  조회
+                </button>
+              </div>
+            </div>
+
+            {/* 🌟 수정 2: 로딩 중 화면이 튀지 않게 min-h-[480px]로 최소 높이 고정 */}
+            <div className="border border-gray-200 rounded-lg overflow-hidden min-h-[480px]">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50 text-slate-600 text-[13px] font-bold border-b border-gray-200">
                   <tr>
                     <th className="px-5 py-3.5 text-center w-20">유형</th>
                     <th className="px-5 py-3.5">상세 내용</th>
-                    <th className="px-5 py-3.5 w-55 text-center">이용 일시</th>
+                    {/* 🌟 너비 조정 완료 */}
+                    <th className="px-5 py-3.5 w-[180px] text-center">이용 일시</th>
                     <th className="px-5 py-3.5 text-right w-28">포인트</th>
                     <th className="px-5 py-3.5 text-right w-28 bg-slate-100/50">잔여</th>
                   </tr>
@@ -193,16 +267,17 @@ export default function MyPage() {
                 <tbody className="divide-y divide-gray-100 text-[14px]">
                   {loadingHistory ? (
                     <tr><td colSpan={5} className="text-center py-10 text-slate-500 font-medium">이용 내역을 불러오는 중입니다...</td></tr>
-                  ) : paginatedHistory.length === 0 ? (
-                    <tr><td colSpan={5} className="text-center py-10 text-slate-500 font-medium">포인트 이용 내역이 없습니다.</td></tr>
+                  ) : history.length === 0 ? (
+                    <tr><td colSpan={5} className="text-center py-10 text-slate-500 font-medium">해당 기간의 이용 내역이 없습니다.</td></tr>
                   ) : (
-                    paginatedHistory.map((item) => {
+                    history.map((item) => {
                       const isUse = item.change_amount < 0;
                       const isSignup = item.page_type === 'SIGNUP';
                       const displayPage = PAGE_META[item.page_type] || item.page_type;
 
                       return (
                         <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                          {/* 🌟 상하 여백 py-2 로 타이트하게 수정 완료 */}
                           <td className="px-5 py-2 text-center">
                             <span className={`inline-block px-2 py-1 rounded-md text-[11px] font-bold border
                               ${isSignup ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
@@ -222,7 +297,6 @@ export default function MyPage() {
                             {formatDate(item.created_at)}
                           </td>
                           <td className="px-5 py-2 text-right">
-                            {/* 🌟 수정: font-black -> font-bold로 굵기 한 단계 낮춤 */}
                             <span className={`font-bold text-[14px] ${isUse ? 'text-rose-600' : 'text-indigo-600'}`}>
                               {isUse ? '' : '+'}{item.change_amount.toLocaleString()}
                             </span>
@@ -239,24 +313,22 @@ export default function MyPage() {
             </div>
 
             {/* 페이지네이션 */}
-            {!loadingHistory && history.length > 0 && (
+            {!loadingHistory && totalCount > 0 && (
               <div className="flex justify-center items-center gap-2 mt-6">
-                {/* 🌟 수정: !text-slate-600 추가하여 버튼 글씨색 강제 적용 */}
                 <button 
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
-                  className="px-3 py-1.5 rounded border border-gray-200 bg-white !text-slate-600 text-sm font-bold disabled:opacity-30 hover:bg-slate-50"
+                  className="px-3 py-1.5 rounded border border-gray-200 bg-white !text-slate-600 text-[13px] font-bold disabled:opacity-30 hover:bg-slate-50 transition-colors"
                 >
                   이전
                 </button>
-                <span className="text-sm font-bold text-slate-600 px-2">
-                  {currentPage} / {totalPages}
+                <span className="text-[13px] font-bold text-slate-500 px-3">
+                  <span className="text-indigo-600">{currentPage}</span> / {totalPages}
                 </span>
-                {/* 🌟 수정: !text-slate-600 추가하여 버튼 글씨색 강제 적용 */}
                 <button 
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-3 py-1.5 rounded border border-gray-200 bg-white !text-slate-600 text-sm font-bold disabled:opacity-30 hover:bg-slate-50"
+                  className="px-3 py-1.5 rounded border border-gray-200 bg-white !text-slate-600 text-[13px] font-bold disabled:opacity-30 hover:bg-slate-50 transition-colors"
                 >
                   다음
                 </button>
@@ -264,7 +336,7 @@ export default function MyPage() {
             )}
           </div>
 
-          {/* ----- 4. 내 메모 위치 변경 (맨 아래로) ----- */}
+          {/* ----- 4. 내 메모 ----- */}
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5">

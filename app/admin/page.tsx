@@ -1,156 +1,263 @@
 'use client';
 
-import { createClient } from "@/app/utils/supabase/client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import Sidebar from "@/components/Sidebar";
+import { useEffect, useState, useMemo } from 'react';
+import Sidebar from '@/components/Sidebar';
+import { createClient } from '@/app/utils/supabase/client';
 import AdminTabs from '@/components/AdminTabs';
 
-export default function AdminPage() {
-  const [users, setUsers] = useState<any[]>([]);
-  const [status, setStatus] = useState<'checking' | 'admin' | 'redirecting'>('checking');
+interface PointHistory {
+  id: string;
+  created_at: string;
+  change_type: 'USE' | 'CHARGE' | 'ADMIN';
+  change_amount: number;
+  page_type: string;
+  description: string;
+  running_balance?: number;
+  profiles: {
+    email: string;
+    purchased_points: number;
+    bonus_points: number;
+  } | null;
+}
 
-  const router = useRouter();
-  const supabase = createClient();
+const TYPE_LABELS: Record<string, { text: string, color: string }> = {
+  'USE': { text: 'S', color: 'bg-rose-100 text-rose-700 border-rose-200' },
+  'CHARGE': { text: 'P', color: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
+  'ADMIN': { text: 'A', color: 'bg-amber-100 text-amber-700 border-amber-200' }
+};
+
+const PAGE_META: Record<string, { name: string; url: string }> = {
+  'SIGNUP': { name: '신규 가입', url: '' },
+  'ANALYSIS': { name: '키워드 정밀 분석', url: '/analysis' },
+  'RELATED': { name: '연관 키워드 조회', url: '/related-fast' },
+  'BLOG': { name: '블로그 순위 확인', url: '/blog-rank-b' },
+  'JISIKIN': { name: '지식인 순위 확인', url: '/kin-rank' },
+  'TOTAL': { name: '통검 노출/순위 확인', url: '/blog-rank' },
+  'GOOGLE': { name: '구글 키워드 분석', url: '/google-analysis' },
+  'YOUTUBE': { name: '유튜브 트렌드', url: '/youtube-trend' },
+  'SHOPPING': { name: '쇼핑 인사이트', url: '/shopping-insight' },
+  'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
+  'MANUAL': { name: '관리자 수동 조작', url: '/admin' }
+};
+
+const NAVER_SEARCH_TYPES = ['RELATED', 'BLOG', 'JISIKIN', 'TOTAL', 'SHOPPING_RANK'];
+const NAVER_DATALAB_TYPES = ['ANALYSIS', 'SHOPPING'];
+const GOOGLE_TYPES = ['GOOGLE', 'YOUTUBE'];
+
+export default function AdminDashboardPage() {
+  const [history, setHistory] = useState<PointHistory[]>([]);
+  const [totalUsablePoints, setTotalUsablePoints] = useState<number>(0);
+  // 🌟 탈퇴 회원(withdrawn) 상태 추가
+  const [userStats, setUserStats] = useState({ total: 0, paid: 0, free: 0, newToday: 0, withdrawn: 0 });
+  const [loading, setLoading] = useState(true);
+
+  const [apiTab, setApiTab] = useState<'naverSearch' | 'naverDatalab' | 'google'>('naverSearch');
+  const [apiChartOffset, setApiChartOffset] = useState(0);
 
   useEffect(() => {
-    let isMounted = true;
-
-    const safeAuthCheck = async () => {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-
-        if (error || !user || user.email !== 'a01091944465@gmail.com') {
-          if (isMounted) {
-            setStatus('redirecting');
-            window.location.replace("/");
-          }
-          return;
-        }
-
-        if (isMounted) {
-          setStatus('admin');
-          fetchUsers();
-        }
-      } catch (error) {
-        if (isMounted) {
-          setStatus('redirecting');
-          window.location.replace("/");
-        }
-      }
-    };
-
-    safeAuthCheck();
-    return () => { isMounted = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    fetchHistoryAndStats();
   }, []);
 
-  const fetchUsers = async () => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
-
-    if (!error) setUsers(data || []);
+  const getTodayString = () => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
 
-  const updateGrade = async (userId: string, newGrade: string) => {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ grade: newGrade })
-      .eq('id', userId);
+  const fetchHistoryAndStats = async () => {
+    setLoading(true);
+    const supabase = createClient();
+    const todayStr = getTodayString();
 
-    if (!error) {
-      alert("등급이 성공적으로 변경되었습니다!");
-      fetchUsers();
-    } else {
-      alert("등급 변경 중 오류가 발생했습니다.");
+    const { data: historyData } = await supabase
+      .from('point_history')
+      .select(`*, profiles ( email, purchased_points, bonus_points )`)
+      .order('created_at', { ascending: false })
+      .limit(5000);
+
+    if (historyData) setHistory(historyData as any);
+
+    // 🌟 수정: 이메일(email) 컬럼을 추가로 불러옵니다.
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('email, purchased_points, bonus_points, created_at');
+
+    if (profilesData) {
+      // 🌟 핵심: 통계에서 제외할 관리자/테스트 이메일을 여기에 입력해 주세요!
+      const adminEmails = ['a01091944465@gmail.com', 'lboll@naver.com', 'qairs@nate.com']; // <-- 대표님 이메일로 변경해 주세요!
+
+      // 관리자 이메일을 제외한 '순수 일반 유저'만 걸러냅니다.
+      const normalUsers = profilesData.filter(p => !adminEmails.includes(p.email));
+
+      // 순수 일반 유저들의 잔여 포인트만 합산
+      const sum = normalUsers.reduce((acc, profile) => acc + (profile.purchased_points || 0) + (profile.bonus_points || 0), 0);
+      setTotalUsablePoints(sum);
+
+      // 순수 일반 유저 기준 통계 계산
+      const total = normalUsers.length;
+      const paid = normalUsers.filter(p => (p.purchased_points || 0) > 0).length;
+      const free = total - paid;
+      const newToday = normalUsers.filter(p => p.created_at.includes(todayStr)).length;
+      const withdrawn = 0; // 탈퇴 로직 구현 후 연결
+
+      setUserStats({ total, paid, free, newToday, withdrawn });
     }
+
+    setLoading(false);
   };
 
-  const handleUpdatePoint = async (userId: string, column: string, currentVal: number, label: string) => {
-    const input = window.prompt(
-      `[${label}] 값을 수정합니다.\n지급하거나 차감할 '최종 숫자'를 입력하세요.\n(현재: ${currentVal || 0} P)`,
-      String(currentVal || 0)
-    );
-
-    if (input === null) return;
-
-    const newVal = parseInt(input.replace(/,/g, ''), 10);
-    if (isNaN(newVal) || newVal < 0) {
-      alert("0 이상의 올바른 숫자를 입력해주세요.");
-      return;
-    }
-
-    const diff = newVal - currentVal;
-    if (diff === 0) return;
-
-    const memo = window.prompt(
-      `[히스토리 기록용]\n유저에게 지급/차감하는 사유를 입력해주세요.\n(예: CS 보상, 오류 복구, 이벤트 당첨 등)\n*취소를 눌러도 포인트는 변경되지만 '사유 없음'으로 기록됩니다.`
-    );
-
-    const { error } = await supabase
-      .from('profiles')
-      .update({ [column]: newVal })
-      .eq('id', userId);
-
-    if (!error) {
-      await supabase.from('point_history').insert({
-        user_id: userId,
-        change_type: 'ADMIN',
-        change_amount: diff,
-        page_type: 'MANUAL',
-        description: `${label} : ${currentVal.toLocaleString()} -> ${newVal.toLocaleString()} | ${memo || '사유 없음'}`
-      });
-
-      alert("포인트가 변경되고 히스토리에 안전하게 기록되었습니다.");
-      fetchUsers();
-    } else {
-      alert("포인트 수정 중 오류가 발생했습니다.");
-    }
+  const formatDateTime = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
 
-  // 🌟 강제 탈퇴 처리 함수 추가
-  const handleDeleteUser = async (userId: string, email: string) => {
-    const confirmDelete = window.confirm(`⚠️ 정말 ${email} 유저를 강제 탈퇴시키겠습니까?\n(이 작업은 절대 되돌릴 수 없으며, 남은 포인트와 이용 내역이 모두 소멸됩니다.)`);
+  const todayStats = useMemo(() => {
+    const todayStr = getTodayString();
+    let used = 0, charged = 0, signup = 0;
 
-    if (!confirmDelete) return;
-
-    try {
-      const response = await fetch('/api/admin/delete-user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        alert('강제 탈퇴 처리가 완료되었습니다.');
-        fetchUsers(); // 🌟 삭제 성공 시 목록 새로고침
-      } else {
-        alert(`탈퇴 실패: ${result.error}`);
+    history.forEach(item => {
+      if (item.created_at.startsWith(todayStr)) {
+        if (item.change_type === 'USE') {
+          used += Math.abs(item.change_amount);
+        } else if (item.page_type === 'SIGNUP') {
+          signup += item.change_amount;
+        } else if (item.change_type === 'CHARGE' || (item.change_type === 'ADMIN' && item.change_amount > 0)) {
+          charged += item.change_amount;
+        }
       }
-    } catch (error) {
-      console.error(error);
-      alert('서버와의 통신에 실패했습니다. (API 라우트를 확인해주세요.)');
-    }
-  };
-
-  const formatDateTime = (dateString?: string) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit'
     });
-  };
 
-  if (status === 'checking' || status === 'redirecting') return <div className="min-h-screen bg-[#f8f9fa]"></div>;
+    const net = charged + signup - used;
+    return { used, charged, signup, net };
+  }, [history]);
+
+  const recent28Days = useMemo(() => {
+    return Array.from({ length: 28 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    });
+  }, []);
+
+  const apiRecent28Days = useMemo(() => {
+    return Array.from({ length: 28 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - i - (apiChartOffset * 7));
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    });
+  }, [apiChartOffset]);
+
+  const NAVER_SEARCH_LIMIT = 25000;
+  const NAVER_DATALAB_LIMIT = 1000;
+  const GOOGLE_LIMIT = 100;
+
+  const api28Stats = useMemo(() => {
+    return apiRecent28Days.map(date => {
+      const dayHistory = history.filter(h => h.created_at.startsWith(date) && h.change_type === 'USE');
+      const naverSearchCount = dayHistory.filter(h => NAVER_SEARCH_TYPES.includes(h.page_type)).length;
+      const naverDatalabCount = dayHistory.filter(h => NAVER_DATALAB_TYPES.includes(h.page_type)).length;
+      const googleCount = dayHistory.filter(h => GOOGLE_TYPES.includes(h.page_type)).length;
+
+      const isToday = date === getTodayString();
+      const displayDate = date.substring(2).replace(/-/g, '/');
+
+      return {
+        fullDate: date,
+        displayDate,
+        naverSearchCount,
+        naverSearchPercent: ((naverSearchCount / NAVER_SEARCH_LIMIT) * 100).toFixed(1),
+        naverDatalabCount,
+        naverDatalabPercent: ((naverDatalabCount / NAVER_DATALAB_LIMIT) * 100).toFixed(1),
+        googleCount,
+        googlePercent: ((googleCount / GOOGLE_LIMIT) * 100).toFixed(1),
+        isToday
+      };
+    });
+  }, [history, apiRecent28Days]);
+
+  const topPages = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const recent7Days = recent28Days.slice(0, 7);
+    history.forEach(item => {
+      const itemDate = item.created_at.split('T')[0];
+      if (recent7Days.includes(itemDate) && item.change_type === 'USE' && item.page_type && item.page_type !== 'MANUAL') {
+        counts[item.page_type] = (counts[item.page_type] || 0) + 1;
+      }
+    });
+    return Object.entries(counts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([type, count]) => ({ name: PAGE_META[type]?.name || type, count }));
+  }, [history, recent28Days]);
+
+  const topKeywords = useMemo(() => {
+    const counts: Record<string, number> = {};
+    const recent7Days = recent28Days.slice(0, 7);
+    history.forEach(item => {
+      const itemDate = item.created_at.split('T')[0];
+      if (recent7Days.includes(itemDate) && item.change_type === 'USE' && item.description && item.page_type !== 'MANUAL') {
+        counts[item.description] = (counts[item.description] || 0) + 1;
+      }
+    });
+    return Object.entries(counts)
+      .filter(([, count]) => count > 1)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+  }, [history, recent28Days]);
+
+  const weeklyStats = useMemo(() => {
+    const stats: Record<string, { used: number, charged: number, signup: number, net: number }> = {};
+    const recent7DaysRev = [...recent28Days.slice(0, 7)].reverse();
+
+    recent7DaysRev.forEach(date => {
+      stats[date] = { used: 0, charged: 0, signup: 0, net: 0 };
+    });
+
+    history.forEach(item => {
+      const itemDate = item.created_at.split('T')[0];
+      if (stats[itemDate]) {
+        if (item.change_type === 'USE') {
+          stats[itemDate].used += Math.abs(item.change_amount);
+        } else if (item.page_type === 'SIGNUP') {
+          stats[itemDate].signup += item.change_amount;
+        } else if (item.change_type === 'CHARGE' || (item.change_type === 'ADMIN' && item.change_amount > 0)) {
+          stats[itemDate].charged += item.change_amount;
+        }
+      }
+    });
+
+    return recent7DaysRev.map(date => {
+      const net = stats[date].charged + stats[date].signup - stats[date].used;
+      return [date, { ...stats[date], net }] as const;
+    });
+  }, [history, recent28Days]);
+
+  const historyWithBalances = useMemo(() => {
+    const userTrackedBalances: Record<string, number> = {};
+
+    return history.map((item) => {
+      const email = item.profiles?.email;
+      if (!email) return { ...item, running_balance: 0 };
+
+      if (userTrackedBalances[email] === undefined) {
+        userTrackedBalances[email] = (item.profiles?.purchased_points || 0) + (item.profiles?.bonus_points || 0);
+      }
+
+      const displayBalance = userTrackedBalances[email];
+      userTrackedBalances[email] -= item.change_amount;
+
+      return {
+        ...item,
+        running_balance: displayBalance
+      };
+    });
+  }, [history]);
+
+  const recentHistoryList = historyWithBalances.slice(0, 10);
 
   return (
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
+
       <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
         <Sidebar />
 
@@ -159,107 +266,380 @@ export default function AdminPage() {
 
             <AdminTabs />
 
-            <div className="mb-8 text-center">
-              <h1 className="text-3xl font-extrabold text-gray-900 mb-2 flex items-center justify-center gap-2">
-                관리자 전용 대시보드
+            <div className="mb-10 text-center relative max-w-xl mx-auto">
+              <h1 className="text-3xl font-extrabold text-gray-900 mb-2">
+                종합 대시보드
               </h1>
               <p className="text-sm text-slate-500">
-                가입한 유저들의 목록을 확인하고, 등급 및 보유 포인트를 직접 관리할 수 있습니다.
+                서비스 전체 가입자 현황 및 실시간 포인트 흐름을 한눈에 모니터링합니다.
               </p>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto shadow-sm">
-              <table className="w-full text-left border-collapse min-w-[1100px]">
-                <thead className="bg-slate-50 text-slate-600 text-[13px] uppercase tracking-wider font-bold">
-                  <tr>
-                    <th className="p-4 border-b border-gray-200 text-center w-16">No.</th>
-                    <th className="p-4 border-b border-gray-200">이메일</th>
-                    <th className="p-4 border-b border-gray-200 text-center">가입일</th>
-                    <th className="p-4 border-b border-gray-200 text-center text-blue-600">최종 접속일</th>
-                    <th className="p-4 border-b border-gray-200 text-center">등급 관리</th>
+            {/* 금일 포인트 & 전체 누적 */}
+            <div className="flex gap-4 mb-8 items-stretch">
+              <div className="flex-[3] flex flex-col">
+                <div className="h-9 flex items-center justify-between mb-2 ml-1">
+                  <h3 className="text-[15px] font-extrabold text-slate-800">금일 포인트</h3>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex-1 flex flex-col justify-center">
+                  <div className="flex items-center justify-between divide-x divide-gray-100">
+                    <div className="flex-1 px-4 first:pl-0">
+                      <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">충전</p>
+                      <p className="text-[20px] font-black text-indigo-600 text-right">+{todayStats.charged.toLocaleString()} <span className="text-[11px] text-indigo-400 font-bold">P</span></p>
+                    </div>
+                    <div className="flex-1 px-4">
+                      <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">가입</p>
+                      <p className="text-[20px] font-black text-emerald-600 text-right">+{todayStats.signup.toLocaleString()} <span className="text-[11px] text-emerald-400 font-bold">P</span></p>
+                    </div>
+                    <div className="flex-1 px-4">
+                      <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">소진</p>
+                      <p className="text-[20px] font-black text-rose-600 text-right">-{todayStats.used.toLocaleString()} <span className="text-[11px] text-rose-400 font-bold">P</span></p>
+                    </div>
+                    <div className="flex-1 px-4 last:pr-0">
+                      <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">잔여</p>
+                      <p className={`text-[20px] font-black text-right ${todayStats.net > 0 ? 'text-indigo-600' : todayStats.net < 0 ? 'text-rose-600' : 'text-slate-600'}`}>
+                        {todayStats.net > 0 ? '+' : ''}{todayStats.net.toLocaleString()} <span className="text-[11px] font-bold opacity-70">P</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
-                    <th className="p-4 border-b border-gray-200 text-right text-slate-500">누적 결제 P</th>
-                    <th className="p-4 border-b border-gray-200 text-right text-slate-500">결제 잔여 P</th>
-                    <th className="p-4 border-b border-gray-200 text-right text-slate-500">보너스 P</th>
-                    <th className="p-4 border-b border-gray-200 text-right font-black text-slate-800">총 사용가능</th>
-                    {/* 🌟 관리 칼럼 추가 */}
-                    <th className="p-4 border-b border-gray-200 text-center text-slate-500 w-24">관리</th>
+              <div className="flex-[1] flex flex-col">
+                <div className="h-9 flex justify-between items-center mb-2 ml-1">
+                  <h3 className="text-[15px] font-extrabold text-slate-800">전체 누적</h3>
+                  <button
+                    onClick={fetchHistoryAndStats}
+                    disabled={loading}
+                    className="px-3 py-1.5 rounded-md border border-slate-700 bg-slate-800 hover:bg-slate-900 transition-colors shadow-sm disabled:opacity-30 disabled:cursor-wait flex items-center gap-1.5"
+                  >
+                    <svg className={`w-3.5 h-3.5 text-white opacity-80 ${loading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
+                    <span className="text-[12px] font-bold !text-white">{loading ? '...' : '새로고침'}</span>
+                  </button>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex-1 flex flex-col justify-center">
+                  {/* 🌟 수정: 전체 잔여 -> 잔여 포인트 */}
+                  <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">잔여 포인트</p>
+                  <p className="text-[20px] font-black text-slate-800 text-right">{totalUsablePoints.toLocaleString()} <span className="text-[11px] text-slate-400 font-bold">P</span></p>
+                </div>
+              </div>
+            </div>
+
+            {/* 🌟 수정: 회원 현황 통계 (금일 포인트와 완벽하게 동일한 3:1 박스 구조 적용) */}
+            <div className="flex gap-4 mb-8 items-stretch">
+              {/* 박스 1 (비율 3) */}
+              <div className="flex-[3] flex flex-col">
+                <div className="h-9 flex items-center justify-between mb-2 ml-1">
+                  <h3 className="text-[15px] font-extrabold text-slate-800">회원 현황</h3>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex-1 flex flex-col justify-center">
+                  <div className="flex items-center justify-between divide-x divide-gray-100">
+                    <div className="flex-1 px-4 first:pl-0">
+                      <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">유료 회원 (누적)</p>
+                      <p className="text-[20px] font-black text-indigo-600 text-right">{userStats.paid.toLocaleString()} <span className="text-[11px] text-indigo-400 font-bold">명</span></p>
+                    </div>
+                    <div className="flex-1 px-4">
+                      <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">신규 회원 (금일)</p>
+                      <p className="text-[20px] font-black text-emerald-600 text-right">+{userStats.newToday.toLocaleString()} <span className="text-[11px] text-emerald-400 font-bold">명</span></p>
+                    </div>
+                    <div className="flex-1 px-4">
+                      <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">무료 회원 (누적)</p>
+                      <p className="text-[20px] font-black text-slate-700 text-right">{userStats.free.toLocaleString()} <span className="text-[11px] text-slate-400 font-bold">명</span></p>
+                    </div>
+                    <div className="flex-1 px-4 last:pr-0">
+                      <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">탈퇴 회원 (누적)</p>
+                      <p className="text-[20px] font-black text-rose-600 text-right">-{userStats.withdrawn.toLocaleString()} <span className="text-[11px] text-rose-400 font-bold">명</span></p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 박스 2 (비율 1) */}
+              <div className="flex-[1] flex flex-col">
+                <div className="h-9 flex justify-between items-center mb-2 ml-1">
+                  <h3 className="text-[15px] font-extrabold text-slate-800">전체 회원</h3>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex-1 flex flex-col justify-center">
+                  <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">가입 회원 (누적)</p>
+                  <p className="text-[20px] font-black text-slate-800 text-right">{userStats.total.toLocaleString()} <span className="text-[11px] text-slate-400 font-bold">명</span></p>
+                </div>
+              </div>
+            </div>
+
+            {/* 구분선 */}
+            <div className="w-[80%] mx-auto border-t border-slate-200 mb-8"></div>
+
+            {/* API 호출량 모니터링 */}
+            <div className="flex flex-col mb-8">
+              <div className="h-9 flex items-center justify-between mb-1 ml-1">
+                <h3 className="text-[15px] font-extrabold text-slate-800 flex items-center gap-2">
+                  최근 28일 API 호출량 모니터링
+                </h3>
+                <div className="flex bg-slate-100 p-1 rounded-md border border-slate-200">
+                  <button
+                    onClick={() => setApiTab('naverSearch')}
+                    className={`px-3 py-1.5 text-[12px] font-bold rounded-sm transition-colors ${apiTab === 'naverSearch' ? 'bg-white !text-emerald-600 shadow-sm border border-slate-200/50' : '!text-slate-500 hover:!text-slate-800'}`}
+                  >
+                    네이버 검색 ({NAVER_SEARCH_LIMIT.toLocaleString()}/일)
+                  </button>
+                  <button
+                    onClick={() => setApiTab('naverDatalab')}
+                    className={`px-3 py-1.5 text-[12px] font-bold rounded-sm transition-colors ${apiTab === 'naverDatalab' ? 'bg-white !text-teal-600 shadow-sm border border-slate-200/50' : '!text-slate-500 hover:!text-slate-800'}`}
+                  >
+                    네이버 데이터랩 ({NAVER_DATALAB_LIMIT.toLocaleString()}/일)
+                  </button>
+                  <button
+                    onClick={() => setApiTab('google')}
+                    className={`px-3 py-1.5 text-[12px] font-bold rounded-sm transition-colors ${apiTab === 'google' ? 'bg-white !text-indigo-600 shadow-sm border border-slate-200/50' : '!text-slate-500 hover:!text-slate-800'}`}
+                  >
+                    구글 ({GOOGLE_LIMIT.toLocaleString()}/일)
+                  </button>
+                </div>
+              </div>
+
+              <p className="text-[12px] font-bold text-slate-400 mb-3 ml-1 tracking-tight">
+                <span className="text-emerald-600/80">N검색</span> : 연관 키워드, 블로그 순위, 지식인 순위, 통검 노출, 상품 순위 <span className="mx-2 text-slate-200">|</span>
+                <span className="text-teal-600/80">N데이터랩</span> : 키워드 정밀 분석, 쇼핑 인사이트 <span className="mx-2 text-slate-200">|</span>
+                <span className="text-indigo-600/80">구글</span> : 구글 키워드 분석, 유튜브 트렌드
+              </p>
+
+              <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex items-center gap-2">
+                <button
+                  onClick={() => setApiChartOffset(prev => Math.max(0, prev - 1))}
+                  disabled={apiChartOffset === 0}
+                  className={`shrink-0 p-1 transition-colors ${apiChartOffset === 0 ? '!text-slate-200 cursor-not-allowed' : '!text-slate-400 hover:!text-[#5244e8]'}`}
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+
+                <div className="grid grid-cols-4 gap-4 flex-1 px-2">
+                  {[0, 1, 2, 3].map(colIdx => (
+                    <div key={colIdx} className="flex flex-col space-y-2">
+                      {api28Stats.slice(colIdx * 7, (colIdx + 1) * 7).map(stat => {
+                        let count = 0, percent = "0.0", limit = 100;
+                        let themeColor = 'text-emerald-700';
+                        let todayBgColor = 'bg-emerald-500/15 border-emerald-300/60 shadow-sm';
+
+                        if (apiTab === 'naverSearch') {
+                          count = stat.naverSearchCount; percent = stat.naverSearchPercent; limit = NAVER_SEARCH_LIMIT;
+                          themeColor = 'text-emerald-700'; todayBgColor = 'bg-emerald-500/15 border-emerald-300/60 shadow-sm';
+                        } else if (apiTab === 'naverDatalab') {
+                          count = stat.naverDatalabCount; percent = stat.naverDatalabPercent; limit = NAVER_DATALAB_LIMIT;
+                          themeColor = 'text-teal-700'; todayBgColor = 'bg-teal-500/15 border-teal-300/60 shadow-sm';
+                        } else {
+                          count = stat.googleCount; percent = stat.googlePercent; limit = GOOGLE_LIMIT;
+                          themeColor = 'text-indigo-700'; todayBgColor = 'bg-indigo-500/15 border-indigo-300/60 shadow-sm';
+                        }
+
+                        const isDanger = count >= limit * 0.8;
+                        if (isDanger) {
+                          themeColor = 'text-rose-600';
+                          todayBgColor = 'bg-rose-500/15 border-rose-300/60 shadow-sm';
+                        }
+
+                        return (
+                          <div
+                            key={stat.fullDate}
+                            className={`flex items-center justify-between py-2 px-3 rounded-md border transition-colors ${stat.isToday ? todayBgColor : (isDanger ? 'bg-rose-50/50 border-rose-200 hover:bg-rose-100/50 hover:border-rose-300' : 'bg-slate-50/50 border-slate-100 hover:bg-white hover:border-slate-200')}`}
+                          >
+                            <span className={`text-[12px] tracking-wide ${stat.isToday || isDanger ? `font-black ${themeColor}` : 'font-bold text-slate-500'}`}>
+                              {stat.displayDate}
+                            </span>
+                            <span className={`text-[12px] font-bold font-mono tracking-tight ${isDanger ? 'text-rose-600' : 'text-slate-700'}`}>
+                              <span className={stat.isToday || isDanger ? themeColor : ''}>{count.toLocaleString()}</span>
+                              <span className={isDanger ? "text-rose-300 mx-1" : "text-slate-300 mx-1"}>/</span>
+                              <span className={isDanger ? "text-rose-400" : "text-slate-400"}>{limit.toLocaleString()}</span>
+                              <span className={`ml-1.5 font-sans text-[11px] ${isDanger ? "text-rose-500" : "text-slate-400"}`}>({percent}%)</span>
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setApiChartOffset(prev => prev + 1)}
+                  className="shrink-0 p-1 !text-slate-400 hover:!text-[#5244e8] transition-colors"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" /></svg>
+                </button>
+
+              </div>
+            </div>
+
+            {/* 기능 및 키워드 순위 */}
+            <div className="flex gap-4 mb-8 items-stretch">
+              <div className="flex-1 flex flex-col">
+                <div className="h-9 flex items-center justify-between mb-2 ml-1">
+                  <h3 className="text-[15px] font-extrabold text-slate-800">최근 7일 많이 사용된 기능 TOP 5</h3>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex-1 flex flex-col justify-center">
+                  <div className="flex flex-col gap-1">
+                    {topPages.length === 0 ? (
+                      <p className="text-[13px] text-slate-400 font-bold w-full text-center py-4">데이터 수집 중입니다.</p>
+                    ) : (
+                      topPages.map((page, idx) => (
+                        <div key={page.name} className="flex items-center justify-between w-full text-[13px] py-1.5 border-b border-gray-50 last:border-0">
+                          <div className="flex items-center gap-3">
+                            <span className={`font-black w-4 text-center ${idx < 3 ? 'text-[#5244e8]' : 'text-slate-400'}`}>{idx + 1}</span>
+                            <span className="font-bold text-slate-700">{page.name}</span>
+                          </div>
+                          <span className="font-bold text-slate-400">{page.count.toLocaleString()} <span className="text-[11px]">회</span></span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 flex flex-col">
+                <div className="h-9 flex items-center justify-between mb-2 ml-1">
+                  <h3 className="text-[15px] font-extrabold text-slate-800 flex items-center gap-2">
+                    최근 7일 트렌드 키워드 TOP 5
+                    <span className="text-[11px] font-bold text-slate-400 font-normal">(2회 이상 중복 검색)</span>
+                  </h3>
+                </div>
+                <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex-1 flex flex-col justify-center">
+                  <div className="flex flex-col gap-1">
+                    {topKeywords.length === 0 ? (
+                      <p className="text-[13px] text-slate-400 font-bold w-full text-center py-4">트렌드 키워드 분석 중입니다.</p>
+                    ) : (
+                      topKeywords.map(([kw, count], idx) => (
+                        <div key={kw} className="flex items-center justify-between w-full text-[13px] py-1.5 border-b border-gray-50 last:border-0">
+                          <div className="flex items-center gap-3">
+                            <span className={`font-black w-4 text-center ${idx < 3 ? 'text-rose-500' : 'text-slate-400'}`}>{idx + 1}</span>
+                            <span className="font-bold text-slate-700">{kw}</span>
+                          </div>
+                          <span className="font-bold text-slate-400">{count.toLocaleString()} <span className="text-[11px]">회</span></span>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 최근 포인트 변동 */}
+            <div className="flex items-center justify-between mb-3 ml-1">
+              <h3 className="text-[15px] font-extrabold text-slate-800">최근 포인트 변동</h3>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm mb-8">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse table-fixed min-w-[700px]">
+                  <thead className="bg-slate-50 text-slate-600 text-[13px] uppercase tracking-wider font-bold border-b border-gray-200">
+                    <tr>
+                      <th className="py-4 px-6 text-center w-[16%]">날짜</th>
+                      <th className="py-4 px-6 text-center w-[21%]">충전 (+)</th>
+                      <th className="py-4 px-6 text-center w-[21%]">가입 (+)</th>
+                      <th className="py-4 px-6 text-center w-[21%]">사용 (-)</th>
+                      <th className="py-4 px-6 text-center w-[21%]">잔여 (변동)</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100 text-[14px]">
+                    {weeklyStats.map(([date, stats]) => {
+                      const isToday = date === getTodayString();
+                      const displayDate = date.substring(2).replace(/-/g, '/');
+
+                      return (
+                        <tr key={date} className={`transition-colors ${isToday ? 'bg-[#5244e8]/10' : 'hover:bg-slate-50/50'}`}>
+                          <td className={`py-4 px-6 text-center ${isToday ? 'text-indigo-700 font-black' : 'text-slate-500 font-medium'}`}>
+                            {displayDate}
+                          </td>
+                          <td className="py-4 px-6 text-center text-indigo-600 font-black">
+                            +{stats.charged.toLocaleString()} <span className="text-xs font-medium opacity-50">P</span>
+                          </td>
+                          <td className="py-4 px-6 text-center text-emerald-700 font-black">
+                            +{stats.signup.toLocaleString()} <span className="text-xs font-medium opacity-50">P</span>
+                          </td>
+                          <td className="py-4 px-6 text-center text-rose-600 font-black">
+                            -{stats.used.toLocaleString()} <span className="text-xs font-medium opacity-50">P</span>
+                          </td>
+                          <td className={`py-4 px-6 text-center font-extrabold ${stats.net < 0 ? 'text-rose-600' : 'text-indigo-600'}`}>
+                            {stats.net > 0 ? '+' : ''}{stats.net.toLocaleString()} <span className="text-xs font-medium opacity-50">P</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* 최근 포인트 히스토리 */}
+            <div className="flex items-center justify-between mb-3 ml-1 mt-10">
+              <h3 className="text-[15px] font-extrabold text-slate-800">최근 포인트 히스토리</h3>
+            </div>
+
+            <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm mb-16">
+              <table className="w-full text-left border-collapse">
+                <thead className="bg-slate-50 text-slate-600 text-[13px] uppercase tracking-wider font-bold border-b border-gray-200">
+                  <tr>
+                    <th className="px-6 py-4 w-40">날짜</th>
+                    <th className="px-6 py-4 w-44">e-mail / ID</th>
+                    <th className="px-6 py-4 text-center w-20">분류</th>
+                    <th className="px-6 py-4 text-center w-36">사용처</th>
+                    <th className="px-6 py-4">상세 내역 (검색어 / 사유)</th>
+                    <th className="px-6 py-4 text-right w-32">추가/소진</th>
+                    <th className="px-6 py-4 text-right w-32 bg-slate-100/50">포인트</th>
                   </tr>
                 </thead>
-                <tbody className="text-[14px]">
-                  {users.map((u, index) => {
-                    const totalPoints = (u.purchased_points || 0) + (u.bonus_points || 0);
-                    const userNumber = users.length - index;
+                <tbody className="divide-y divide-gray-100 text-[14px]">
+                  {loading ? (
+                    <tr><td colSpan={7} className="text-center py-10 text-slate-500 font-bold">데이터를 불러오는 중입니다...</td></tr>
+                  ) : recentHistoryList.length === 0 ? (
+                    <tr><td colSpan={7} className="text-center py-10 text-slate-500 font-bold">최근 내역이 없습니다.</td></tr>
+                  ) : (
+                    recentHistoryList.map((item) => {
+                      const label = item.page_type === 'SIGNUP'
+                        ? { text: 'N', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
+                        : TYPE_LABELS[item.change_type] || { text: '?', color: 'bg-gray-100 text-gray-500' };
 
-                    return (
-                      <tr key={u.id} className="border-b border-gray-100 hover:bg-slate-50 transition-colors">
-                        <td className="p-4 text-center font-bold text-slate-400">{userNumber}</td>
-                        <td className="p-4 font-bold text-gray-800">{u.email}</td>
-                        <td className="p-4 text-center text-slate-500 text-sm">{new Date(u.created_at).toLocaleDateString()}</td>
-                        <td className="p-4 text-center text-blue-500 font-medium text-sm">{formatDateTime(u.last_login_at)}</td>
-                        <td className="p-4 text-center">
-                          <select
-                            className={`bg-white border border-gray-300 rounded-md py-1.5 px-3 text-sm font-bold focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] cursor-pointer shadow-sm
-                              ${u.grade === 'agency' ? 'text-purple-600' :
-                                u.grade === 'pro' ? 'text-blue-600' :
-                                  u.grade === 'starter' ? 'text-green-600' : 'text-slate-600'}`}
-                            value={u.grade || 'free'}
-                            onChange={(e) => updateGrade(u.id, e.target.value)}
-                          >
-                            <option value="free" className="text-slate-600">Free</option>
-                            <option value="starter" className="text-green-600">Starter</option>
-                            <option value="pro" className="text-blue-600">Pro</option>
-                            <option value="agency" className="text-purple-600">Agency</option>
-                          </select>
-                        </td>
+                      const isMinus = item.change_amount < 0;
 
-                        <td className="p-4 text-right">
-                          <button
-                            onClick={() => handleUpdatePoint(u.id, 'total_purchased_points', u.total_purchased_points, '누적 결제 포인트')}
-                            className="hover:bg-slate-200 px-2 py-1.5 rounded transition-colors font-extrabold !text-slate-700"
-                          >
-                            {(u.total_purchased_points || 0).toLocaleString()}
-                          </button>
-                        </td>
+                      const meta = PAGE_META[item.page_type];
+                      const displayPageName = meta ? meta.name : (item.page_type || '-');
+                      const displayPageUrl = meta ? meta.url : '';
 
-                        <td className="p-4 text-right">
-                          <button
-                            onClick={() => handleUpdatePoint(u.id, 'purchased_points', u.purchased_points, '결제 잔여 포인트')}
-                            className="hover:bg-indigo-100 px-2 py-1.5 rounded transition-colors font-extrabold !text-indigo-700"
-                          >
-                            {(u.purchased_points || 0).toLocaleString()}
-                          </button>
-                        </td>
-
-                        <td className="p-4 text-right">
-                          <button
-                            onClick={() => handleUpdatePoint(u.id, 'bonus_points', u.bonus_points, '보너스 포인트')}
-                            className="hover:bg-emerald-100 px-2 py-1.5 rounded transition-colors font-extrabold !text-emerald-700"
-                          >
-                            {(u.bonus_points || 0).toLocaleString()}
-                          </button>
-                        </td>
-
-                        <td className="p-4 text-right">
-                          <span className="font-black !text-gray-900 bg-slate-100 px-3 py-1.5 rounded-md border border-gray-200 inline-block">
-                            {totalPoints.toLocaleString()} <span className="text-[11px] font-bold text-slate-500 ml-0.5">P</span>
-                          </span>
-                        </td>
-
-                        {/* 🌟 강퇴 버튼 수정 (글씨색 강제 지정 !important 적용) */}
-                        <td className="p-4 text-center">
-                          {u.email !== 'a01091944465@gmail.com' && (
-                            <button
-                              onClick={() => handleDeleteUser(u.id, u.email)}
-                              className="text-xs font-black !text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 hover:!text-red-700 px-3 py-1.5 rounded transition-colors shadow-sm"
+                      return (
+                        <tr key={item.id} className="hover:bg-slate-50 transition-colors">
+                          <td className="px-6 py-4 text-slate-500 font-medium text-[13px]">
+                            {formatDateTime(item.created_at)}
+                          </td>
+                          <td className="px-6 py-4 font-bold text-slate-800 truncate" title={item.profiles?.email}>
+                            {item.profiles?.email || '탈퇴한 유저'}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span className={`inline-flex items-center justify-center w-7 h-7 rounded-md text-[13px] font-black border shadow-sm ${label.color}`}>
+                              {label.text}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            <span
+                              className={`font-bold ${item.page_type === 'SIGNUP' ? 'text-emerald-600 bg-emerald-50' : 'text-slate-600 bg-slate-100'} text-[13px] px-2 py-1.5 rounded-sm cursor-help whitespace-nowrap`}
+                              title={displayPageUrl ? `페이지 경로: ${displayPageUrl}` : ''}
                             >
-                              강퇴
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                              {displayPageName}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-slate-700 font-medium">
+                            {item.description || '-'}
+                          </td>
+                          <td className="px-6 py-4 text-right">
+                            <span className={`font-black text-[15px] ${isMinus ? 'text-rose-600' : 'text-indigo-600'}`}>
+                              {isMinus ? '' : '+'}{item.change_amount.toLocaleString()} P
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-right bg-slate-50/50">
+                            <span className="font-extrabold text-[14px] text-slate-600">
+                              {(item.running_balance || 0).toLocaleString()} <span className="text-[12px] font-bold text-slate-400">P</span>
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
                 </tbody>
               </table>
             </div>
