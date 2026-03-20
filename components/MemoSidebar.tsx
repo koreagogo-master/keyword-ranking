@@ -1,9 +1,10 @@
-// components/MemoSidebar.tsx
 'use client';
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from "@/app/contexts/AuthContext";
+
+type SaveState = 'IDLE' | 'SAVING' | 'SAVED';
 
 export default function MemoSidebar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,7 +12,8 @@ export default function MemoSidebar() {
   const textRef = useRef<HTMLTextAreaElement>(null);
   const [charCount, setCharCount] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  
+  const [saveState, setSaveState] = useState<SaveState>('IDLE');
 
   const { user, profile } = useAuth();
 
@@ -25,14 +27,14 @@ export default function MemoSidebar() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault(); 
-        if (isOpen) {
+        if (isOpen && saveState === 'IDLE') {
           handleSave(); 
         }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]); 
+  }, [isOpen, saveState]); 
 
   useEffect(() => {
     if (profile && !isLoaded) {
@@ -42,6 +44,8 @@ export default function MemoSidebar() {
       }
       setCharCount(initialText.length); 
       setIsLoaded(true);
+      // 데이터를 처음 불러오면 무조건 '저장 완료' 상태로 둡니다.
+      setSaveState('SAVED');
     }
   }, [profile, isLoaded]);
 
@@ -52,8 +56,10 @@ export default function MemoSidebar() {
   500;
 
   const handleSave = async () => {
-    if (!user) return;
-    setIsSaving(true);
+    if (!user || saveState !== 'IDLE') return;
+    
+    setSaveState('SAVING');
+
     try {
       const supabase = createClient();
       const currentContent = textRef.current?.value || ""; 
@@ -64,11 +70,21 @@ export default function MemoSidebar() {
       
       if (error) throw error;
       
-      setTimeout(() => setIsSaving(false), 500);
-      alert("저장되었습니다.");
+      // 타이머를 없애고, 텍스트가 수정되기 전까지는 계속 '저장 완료' 상태를 유지합니다.
+      setSaveState('SAVED'); 
+
     } catch (err) {
-      alert("저장에 실패했습니다.");
-      setIsSaving(false);
+      console.error("메모 저장 실패:", err);
+      alert("저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+      setSaveState('IDLE');
+    }
+  };
+
+  const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setCharCount(e.target.value.length);
+    // 텍스트를 한 글자라도 수정하면 즉시 '저장' 버튼(IDLE)으로 활성화됩니다.
+    if (saveState !== 'IDLE') {
+      setSaveState('IDLE');
     }
   };
 
@@ -81,6 +97,43 @@ export default function MemoSidebar() {
   const containerClasses = isBottomMode
     ? `fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-6xl h-80 ${isOpen ? 'translate-y-0 opacity-100' : 'translate-y-[120%] opacity-0 pointer-events-none'}`
     : `fixed top-[15%] bottom-[15%] right-6 w-[500px] ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-[120%] opacity-0 pointer-events-none'}`;
+
+  const renderSaveButton = () => {
+    switch (saveState) {
+      case 'SAVING':
+        return (
+          <button 
+            disabled
+            className="px-6 py-2.5 flex items-center gap-2 bg-emerald-500 text-white rounded-lg font-black shadow-sm text-[13px] cursor-not-allowed"
+          >
+            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            저장 중...
+          </button>
+        );
+      case 'SAVED':
+        return (
+          <button 
+            disabled
+            className="px-6 py-2.5 bg-gray-400 text-white rounded-lg font-black shadow-sm text-[13px] cursor-not-allowed transition-all duration-300"
+          >
+            저장 완료
+          </button>
+        );
+      case 'IDLE':
+      default:
+        return (
+          <button 
+            onClick={handleSave}
+            className="px-7 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white rounded-lg font-black transition-all shadow-sm active:scale-95 text-[14px]"
+          >
+            저장
+          </button>
+        );
+    }
+  };
 
   return (
     <>
@@ -120,7 +173,7 @@ export default function MemoSidebar() {
               </div>
             </div>
             
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
 
               <button 
                 onClick={() => setIsBottomMode(!isBottomMode)}
@@ -140,13 +193,8 @@ export default function MemoSidebar() {
                 )}
               </button>
               
-              <button 
-                onClick={handleSave}
-                disabled={isSaving}
-                className="px-7 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white rounded-lg font-black transition-all shadow-sm active:scale-95 disabled:bg-gray-300 text-[14px]"
-              >
-                {isSaving ? "..." : "저장"}
-              </button>
+              {renderSaveButton()}
+
             </div>
           </div>
 
@@ -157,7 +205,7 @@ export default function MemoSidebar() {
               [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400"
               placeholder="여기에 메모를 입력하세요 (Ctrl + S 로 빠른 저장)"
               maxLength={charLimit}
-              onChange={(e) => setCharCount(e.target.value.length)}
+              onChange={handleTextChange}
             />
           </div>
         </div>

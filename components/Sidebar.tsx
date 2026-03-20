@@ -83,7 +83,7 @@ export default function Sidebar() {
     {
       title: "System",
       items: [
-        { name: "분석 히스토리", href: "#", isPreparing: true },
+        { name: "저장된 목록 보기", href: "/history" },
         { name: "고객센터 (FAQ)", href: "/contact" },
         { name: "공지사항", href: "/notice" } 
       ]
