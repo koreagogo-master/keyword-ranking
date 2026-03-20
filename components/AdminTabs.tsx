@@ -44,6 +44,7 @@ export default function AdminTabs() {
     { name: '포인트 설정', href: '/admin/points' },
     { name: '포인트 히스토리', href: '/admin/history' },
     { name: '고객센터 관리', href: '/admin/cs', hasBadge: true },
+    { name: '공지사항 관리', href: '/admin/notice' },
   ];
 
   return (

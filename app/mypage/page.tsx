@@ -20,7 +20,6 @@ const PAGE_META: Record<string, string> = {
   'MANUAL': '관리자 조정 포인트'
 };
 
-// 🌟 날짜 계산 유틸리티 함수
 const getPastDate = (months: number) => {
   const d = new Date();
   d.setMonth(d.getMonth() - months);
@@ -32,7 +31,8 @@ export default function MyPage() {
   const { user, profile, isLoading } = useAuth();
   const router = useRouter();
 
-  // 🌟 필터 및 서버 사이드 페이지네이션 상태 추가
+  const [activeTab, setActiveTab] = useState<'ALL' | 'CHARGE' | 'USE'>('ALL');
+
   const [filterMonths, setFilterMonths] = useState<number>(1);
   const [startDate, setStartDate] = useState(getPastDate(1));
   const [endDate, setEndDate] = useState(getToday());
@@ -50,7 +50,6 @@ export default function MyPage() {
     }
   }, [user, isLoading, router]);
 
-  // 🌟 currentPage 또는 searchTrigger가 바뀔 때마다 실행 (서버 사이드 통신)
   useEffect(() => {
     if (user && profile) {
       fetchUserHistory();
@@ -62,15 +61,15 @@ export default function MyPage() {
     setLoadingHistory(true);
     const supabase = createClient();
     
-    // 1. 선택된 기간의 전체 데이터 개수(Count) 가져오기
     let countQuery = supabase.from('point_history').select('*', { count: 'exact', head: true }).eq('user_id', user?.id);
     if (startDate) countQuery = countQuery.gte('created_at', `${startDate}T00:00:00`);
     if (endDate) countQuery = countQuery.lte('created_at', `${endDate}T23:59:59`);
+    if (activeTab === 'CHARGE') countQuery = countQuery.gt('change_amount', 0);
+    if (activeTab === 'USE') countQuery = countQuery.lt('change_amount', 0);
     
     const { count } = await countQuery;
     setTotalCount(count || 0);
 
-    // 2. 현재 페이지에 보여줄 딱 10개의 데이터만 가져오기
     const from = (currentPage - 1) * itemsPerPage;
     const to = from + itemsPerPage - 1;
 
@@ -81,6 +80,8 @@ export default function MyPage() {
 
     if (startDate) dataQuery = dataQuery.gte('created_at', `${startDate}T00:00:00`);
     if (endDate) dataQuery = dataQuery.lte('created_at', `${endDate}T23:59:59`);
+    if (activeTab === 'CHARGE') dataQuery = dataQuery.gt('change_amount', 0);
+    if (activeTab === 'USE') dataQuery = dataQuery.lt('change_amount', 0);
 
     const { data } = await dataQuery;
 
@@ -88,7 +89,6 @@ export default function MyPage() {
       let pageStartBalance = (profile.purchased_points || 0) + (profile.bonus_points || 0);
       const firstItemDate = data[0].created_at;
 
-      // 3. (핵심) 현재 페이지의 '잔여 포인트'를 정확히 계산하기 위해, 이보다 나중에 발생한 변동 내역의 합산 구하기
       const { data: newerChanges } = await supabase
         .from('point_history')
         .select('change_amount')
@@ -96,11 +96,14 @@ export default function MyPage() {
         .gt('created_at', firstItemDate);
 
       const sumNewer = newerChanges?.reduce((acc, curr) => acc + curr.change_amount, 0) || 0;
-      pageStartBalance -= sumNewer; // 현재 잔액에서 나중에 발생한 변동분을 빼면 당시의 잔액이 나옴
+      pageStartBalance -= sumNewer; 
 
       const historyWithBalance = data.map((item) => {
-        const displayBalance = pageStartBalance;
-        pageStartBalance -= item.change_amount; 
+        let displayBalance = 0;
+        if (activeTab === 'ALL') {
+          displayBalance = pageStartBalance;
+          pageStartBalance -= item.change_amount; 
+        }
         return { ...item, running_balance: displayBalance };
       });
       setHistory(historyWithBalance);
@@ -108,6 +111,12 @@ export default function MyPage() {
       setHistory([]);
     }
     setLoadingHistory(false);
+  };
+
+  const handleTabChange = (tab: 'ALL' | 'CHARGE' | 'USE') => {
+    setActiveTab(tab);
+    setCurrentPage(1);
+    setSearchTrigger(prev => prev + 1);
   };
 
   const handleFilterChange = (months: number) => {
@@ -136,16 +145,12 @@ export default function MyPage() {
     });
   };
 
-  // 🌟 추가된 부분: 회원 탈퇴(Soft Delete) 처리 함수
   const handleWithdraw = async () => {
-    // 1. 실수로 누르는 것을 방지하기 위해 한 번 더 물어봅니다.
     const isConfirm = window.confirm("정말로 탈퇴하시겠습니까? 탈퇴 시 서비스 이용이 제한됩니다.");
     if (!isConfirm) return;
 
     try {
       const supabase = createClient();
-      
-      // 2. profiles 테이블에 '탈퇴 상태'를 업데이트합니다 (Soft Delete 핵심)
       const { error } = await supabase
         .from('profiles')
         .update({ 
@@ -160,7 +165,6 @@ export default function MyPage() {
         return;
       }
 
-      // 3. 탈퇴 처리가 완료되면 로그아웃 시키고 메인 화면으로 보냅니다.
       await supabase.auth.signOut();
       alert("성공적으로 탈퇴 처리되었습니다. 그동안 이용해주셔서 감사합니다.");
       router.push("/");
@@ -187,18 +191,23 @@ export default function MyPage() {
       <Sidebar />
       <div className="flex-1 ml-64 p-6 md:p-10">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-2xl font-bold mb-6 text-gray-900">
+          
+          {/* 🌟 1. 타이틀 수정: text-center 추가 */}
+          <h1 className="text-2xl font-bold mb-6 text-gray-900 text-center">
             마이페이지
           </h1>
           
-          {/* ----- 1. 기본 정보 ----- */}
+          {/* 기본 정보 */}
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-6">
             <div className="flex flex-col gap-4">
+              <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5 mb-6">
+              <div className="w-1 h-5 bg-[#5244e8] rounded-sm"></div>
+              기본 정보
+            </h2>
               <div className="flex items-center">
                 <label className="text-gray-500 text-sm font-semibold w-28">ID (이메일)</label>
                 <p className="text-base font-medium text-gray-900">{profile.email}</p>
               </div>
-              
               <div className="flex items-center">
                 <label className="text-gray-500 text-sm font-semibold w-28">내 등급</label>
                 <span className={`text-base font-bold uppercase ${
@@ -210,7 +219,6 @@ export default function MyPage() {
                   {profile.grade || 'FREE'}
                 </span>
               </div>
-
               <div className="flex items-center gap-8 pt-4 mt-2 border-t border-gray-100">
                 <div className="flex items-center gap-3">
                   <label className="text-gray-400 text-sm font-semibold">가입일</label>
@@ -224,11 +232,11 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* ----- 2. 포인트 잔액 정보 ----- */}
+          {/* 포인트 잔액 정보 */}
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-6">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5 mb-6">
               <div className="w-1 h-5 bg-[#5244e8] rounded-sm"></div>
-              내 포인트 및 결제 관리
+              포인트 및 결제
             </h2>
 
             <div className="flex flex-col md:flex-row gap-6">
@@ -261,12 +269,40 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* ----- 3. 포인트 이용 내역 (영수증) ----- */}
+          {/* 포인트 이용 내역 */}
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-6">
             <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5 mb-5">
               <div className="w-1 h-5 bg-[#5244e8] rounded-sm"></div>
               포인트 이용 내역
             </h2>
+
+            {/* 🌟 2. 탭 영역 수정 */}
+            <div className="flex justify-center border-b border-gray-200 mb-6 relative">
+              <button
+                onClick={() => handleTabChange('ALL')}
+                className={`pb-3 px-6 text-sm font-bold border-b-2 transition-colors ${
+                  activeTab === 'ALL' ? 'border-[#5244e8] !text-[#5244e8]' : 'border-transparent !text-slate-600 hover:!text-gray-800'
+                }`}
+              >
+                전체 내역
+              </button>
+              <button
+                onClick={() => handleTabChange('CHARGE')}
+                className={`pb-3 px-6 text-sm font-bold border-b-2 transition-colors ${
+                  activeTab === 'CHARGE' ? 'border-[#5244e8] !text-[#5244e8]' : 'border-transparent !text-slate-600 hover:!text-gray-800'
+                }`}
+              >
+                충전 내역 (+)
+              </button>
+              <button
+                onClick={() => handleTabChange('USE')}
+                className={`pb-3 px-6 text-sm font-bold border-b-2 transition-colors ${
+                  activeTab === 'USE' ? 'border-[#5244e8] !text-[#5244e8]' : 'border-transparent !text-slate-600 hover:!text-gray-800'
+                }`}
+              >
+                사용 내역 (-)
+              </button>
+            </div>
 
             {/* 날짜 필터 영역 */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
@@ -293,14 +329,14 @@ export default function MyPage() {
                     <th className="px-5 py-3.5">상세 내용</th>
                     <th className="px-5 py-3.5 w-[180px] text-center">이용 일시</th>
                     <th className="px-5 py-3.5 text-right w-28">포인트</th>
-                    <th className="px-5 py-3.5 text-right w-28 bg-slate-100/50">잔여</th>
+                    {activeTab === 'ALL' && <th className="px-5 py-3.5 text-right w-28 bg-slate-100/50">잔여</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-[14px]">
                   {loadingHistory ? (
-                    <tr><td colSpan={5} className="text-center py-10 text-slate-500 font-medium">이용 내역을 불러오는 중입니다...</td></tr>
+                    <tr><td colSpan={activeTab === 'ALL' ? 5 : 4} className="text-center py-10 text-slate-500 font-medium">이용 내역을 불러오는 중입니다...</td></tr>
                   ) : history.length === 0 ? (
-                    <tr><td colSpan={5} className="text-center py-10 text-slate-500 font-medium">해당 기간의 이용 내역이 없습니다.</td></tr>
+                    <tr><td colSpan={activeTab === 'ALL' ? 5 : 4} className="text-center py-10 text-slate-500 font-medium">해당 내역이 없습니다.</td></tr>
                   ) : (
                     history.map((item) => {
                       const isUse = item.change_amount < 0;
@@ -332,9 +368,11 @@ export default function MyPage() {
                               {isUse ? '' : '+'}{item.change_amount.toLocaleString()}
                             </span>
                           </td>
-                          <td className="px-5 py-2 text-right bg-slate-50/50 font-bold text-slate-600 text-[13px]">
-                            {item.running_balance.toLocaleString()}
-                          </td>
+                          {activeTab === 'ALL' && (
+                            <td className="px-5 py-2 text-right bg-slate-50/50 font-bold text-slate-600 text-[13px]">
+                              {item.running_balance.toLocaleString()}
+                            </td>
+                          )}
                         </tr>
                       );
                     })
@@ -354,7 +392,7 @@ export default function MyPage() {
                   이전
                 </button>
                 <span className="text-[13px] font-bold text-slate-500 px-3">
-                  <span className="text-indigo-600">{currentPage}</span> / {totalPages}
+                  <span className="text-[#5244e8]">{currentPage}</span> / {totalPages}
                 </span>
                 <button 
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
@@ -367,7 +405,7 @@ export default function MyPage() {
             )}
           </div>
 
-          {/* ----- 4. 내 메모 ----- */}
+          {/* 내 메모 */}
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-10">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5">
@@ -394,7 +432,7 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* 🌟 추가된 부분: 5. 회원 탈퇴 */}
+          {/* 회원 탈퇴 */}
           <div className="flex justify-center mb-10 mt-4">
             <button
               onClick={handleWithdraw}
