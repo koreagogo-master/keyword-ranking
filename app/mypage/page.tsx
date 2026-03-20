@@ -123,14 +123,6 @@ export default function MyPage() {
     setSearchTrigger(prev => prev + 1);
   };
 
-  if (isLoading || !profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <span className="text-gray-500 font-bold">내 정보를 불러오는 중입니다...</span>
-      </div>
-    );
-  }
-
   const handleOpenMemo = () => {
     window.dispatchEvent(new Event('open-memo-sidebar'));
   };
@@ -143,6 +135,49 @@ export default function MyPage() {
       hour: '2-digit', minute: '2-digit'
     });
   };
+
+  // 🌟 추가된 부분: 회원 탈퇴(Soft Delete) 처리 함수
+  const handleWithdraw = async () => {
+    // 1. 실수로 누르는 것을 방지하기 위해 한 번 더 물어봅니다.
+    const isConfirm = window.confirm("정말로 탈퇴하시겠습니까? 탈퇴 시 서비스 이용이 제한됩니다.");
+    if (!isConfirm) return;
+
+    try {
+      const supabase = createClient();
+      
+      // 2. profiles 테이블에 '탈퇴 상태'를 업데이트합니다 (Soft Delete 핵심)
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          is_deleted: true, 
+          deleted_at: new Date().toISOString() 
+        })
+        .eq('id', user?.id);
+
+      if (error) {
+        console.error("탈퇴 처리 중 오류 발생:", error);
+        alert("탈퇴 처리 중 문제가 발생했습니다. 다시 시도해주세요.");
+        return;
+      }
+
+      // 3. 탈퇴 처리가 완료되면 로그아웃 시키고 메인 화면으로 보냅니다.
+      await supabase.auth.signOut();
+      alert("성공적으로 탈퇴 처리되었습니다. 그동안 이용해주셔서 감사합니다.");
+      router.push("/");
+      
+    } catch (err) {
+      console.error(err);
+      alert("오류가 발생했습니다.");
+    }
+  };
+
+  if (isLoading || !profile) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <span className="text-gray-500 font-bold">내 정보를 불러오는 중입니다...</span>
+      </div>
+    );
+  }
 
   const totalPoints = (profile?.bonus_points || 0) + (profile?.purchased_points || 0);
   const totalPages = Math.max(1, Math.ceil(totalCount / itemsPerPage));
@@ -233,10 +268,9 @@ export default function MyPage() {
               포인트 이용 내역
             </h2>
 
-            {/* 🌟 날짜 필터 영역 추가 */}
+            {/* 날짜 필터 영역 */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 bg-gray-50/50 p-4 rounded-xl border border-gray-100">
               <div className="flex items-center gap-2">
-                {/* 🌟 수정 1: 글씨색이 날아가지 않도록 !text-white 와 !text-gray-600 강제 적용 */}
                 <button onClick={() => handleFilterChange(1)} className={`px-4 py-1.5 text-[12px] font-bold rounded-md border transition-colors ${filterMonths === 1 ? 'bg-indigo-600 !text-white border-indigo-600' : 'bg-white !text-gray-600 border-gray-200 hover:bg-gray-50'}`}>1개월</button>
                 <button onClick={() => handleFilterChange(3)} className={`px-4 py-1.5 text-[12px] font-bold rounded-md border transition-colors ${filterMonths === 3 ? 'bg-indigo-600 !text-white border-indigo-600' : 'bg-white !text-gray-600 border-gray-200 hover:bg-gray-50'}`}>3개월</button>
                 <button onClick={() => handleFilterChange(6)} className={`px-4 py-1.5 text-[12px] font-bold rounded-md border transition-colors ${filterMonths === 6 ? 'bg-indigo-600 !text-white border-indigo-600' : 'bg-white !text-gray-600 border-gray-200 hover:bg-gray-50'}`}>6개월</button>
@@ -251,14 +285,12 @@ export default function MyPage() {
               </div>
             </div>
 
-            {/* 🌟 수정 2: 로딩 중 화면이 튀지 않게 min-h-[480px]로 최소 높이 고정 */}
             <div className="border border-gray-200 rounded-lg overflow-hidden min-h-[480px]">
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50 text-slate-600 text-[13px] font-bold border-b border-gray-200">
                   <tr>
                     <th className="px-5 py-3.5 text-center w-20">유형</th>
                     <th className="px-5 py-3.5">상세 내용</th>
-                    {/* 🌟 너비 조정 완료 */}
                     <th className="px-5 py-3.5 w-[180px] text-center">이용 일시</th>
                     <th className="px-5 py-3.5 text-right w-28">포인트</th>
                     <th className="px-5 py-3.5 text-right w-28 bg-slate-100/50">잔여</th>
@@ -277,7 +309,6 @@ export default function MyPage() {
 
                       return (
                         <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                          {/* 🌟 상하 여백 py-2 로 타이트하게 수정 완료 */}
                           <td className="px-5 py-2 text-center">
                             <span className={`inline-block px-2 py-1 rounded-md text-[11px] font-bold border
                               ${isSignup ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
@@ -361,6 +392,16 @@ export default function MyPage() {
                 <span className="text-gray-400 italic">저장된 메모가 없습니다. 우측 수정하기 버튼을 눌러 메모를 작성해보세요!</span>
               )}
             </div>
+          </div>
+
+          {/* 🌟 추가된 부분: 5. 회원 탈퇴 */}
+          <div className="flex justify-center mb-10 mt-4">
+            <button
+              onClick={handleWithdraw}
+              className="!text-gray-500 hover:!text-rose-500 text-[14px] font-bold underline underline-offset-4 transition-colors cursor-pointer"
+            >
+              회원 탈퇴하기
+            </button>
           </div>
 
         </div>

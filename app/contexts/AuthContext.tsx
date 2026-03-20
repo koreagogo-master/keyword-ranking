@@ -24,6 +24,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', currentUser.id)
           .single();
         
+        // 🌟 추가된 부분: 만약 데이터베이스에 is_deleted가 true(탈퇴함)로 되어있다면?
+        if (data?.is_deleted) {
+          alert("탈퇴한 계정입니다."); // 안내창 띄우기
+          await supabase.auth.signOut(); // 강제 로그아웃 처리
+          if (typeof window !== 'undefined') {
+            window.location.replace("/"); // 메인 화면으로 쫓아내기
+          }
+          return; // 더 이상 아래 코드를 실행하지 않고 멈춤
+        }
+
         if (isMounted) setProfile(data || null);
       } catch (err) {
         console.error("프로필 로드 실패:", err);

@@ -32,7 +32,11 @@ export default function MemoSidebar() {
     }
   }, [profile, isLoaded]);
 
-  const charLimit = profile?.grade === 'premium' ? 10000 : 1000;
+  const charLimit = 
+  profile?.grade === 'agency' ? 10_000 : 
+  profile?.grade === 'pro' ? 5_000 : 
+  profile?.grade === 'starter' ? 1_000 : 
+  500;
 
   const handleSave = async () => {
     if (!user) return;
@@ -98,7 +102,7 @@ export default function MemoSidebar() {
               <div className="flex items-center gap-2 mt-0.5">
                 <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
                 <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider">
-                  {profile?.grade || 'STANDARD'} · {charCount}/{charLimit}자
+                  {profile?.grade || 'STANDARD'} · {charCount.toLocaleString()}/{charLimit.toLocaleString()}자
                 </p>
               </div>
             </div>
