@@ -206,9 +206,10 @@ export default function AdminDashboardPage() {
 
   const weeklyStats = useMemo(() => {
     const stats: Record<string, { used: number, charged: number, signup: number, net: number }> = {};
-    const recent7DaysRev = [...recent28Days.slice(0, 7)].reverse();
+    // 🌟 수정된 부분: .reverse()를 삭제하고 변수명을 recent7Days로 정리했습니다.
+    const recent7Days = recent28Days.slice(0, 7);
 
-    recent7DaysRev.forEach(date => {
+    recent7Days.forEach(date => {
       stats[date] = { used: 0, charged: 0, signup: 0, net: 0 };
     });
 
@@ -225,7 +226,7 @@ export default function AdminDashboardPage() {
       }
     });
 
-    return recent7DaysRev.map(date => {
+    return recent7Days.map(date => {
       const net = stats[date].charged + stats[date].signup - stats[date].used;
       return [date, { ...stats[date], net }] as const;
     });

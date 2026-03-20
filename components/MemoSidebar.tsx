@@ -22,6 +22,19 @@ export default function MemoSidebar() {
   }, []);
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault(); 
+        if (isOpen) {
+          handleSave(); 
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen]); 
+
+  useEffect(() => {
     if (profile && !isLoaded) {
       const initialText = profile.memo_content || "";
       if (textRef.current) {
@@ -74,7 +87,7 @@ export default function MemoSidebar() {
       {!isOpen && (
         <button 
           onClick={() => setIsOpen(true)}
-          className={`${triggerClasses} z-[10000] bg-indigo-600 text-white transition-all duration-300 font-black flex items-center gap-2 group`}
+          className={`${triggerClasses} z-[10000] bg-[#5244e8] hover:bg-[#4035ba] text-white transition-all duration-300 font-black flex items-center gap-2 group`}
         >
           <svg className="w-5 h-5 transition-transform group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
@@ -87,7 +100,7 @@ export default function MemoSidebar() {
         
         <button 
           onClick={() => setIsOpen(false)}
-          className={`absolute ${isBottomMode ? 'top-[-36px] left-1/2 -translate-x-1/2 rounded-t-xl' : 'left-[-46px] top-1/2 -translate-y-1/2 rounded-l-xl'} bg-indigo-600 text-white p-2.5 shadow-md hover:bg-indigo-700 transition-all flex items-center gap-1.5 group`}
+          className={`absolute ${isBottomMode ? 'top-[-34px] left-1/2 -translate-x-1/2 rounded-t-xl px-3 py-1.5' : 'right-full top-1/2 -translate-y-1/2 rounded-l-xl flex-col p-2.5'} bg-[#5244e8] text-white shadow-md hover:bg-[#4035ba] transition-all flex items-center justify-center gap-1.5 group`}
         >
           <svg className={`w-5 h-5 transition-transform group-hover:scale-110 ${isBottomMode ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
@@ -107,29 +120,45 @@ export default function MemoSidebar() {
               </div>
             </div>
             
-            <button 
-              onClick={() => setIsBottomMode(!isBottomMode)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition-all shadow-sm font-black text-[10px]"
-            >
-              {isBottomMode ? "우측 모드" : "하단 모드"}
-            </button>
+            <div className="flex items-center gap-2">
+
+              <button 
+                onClick={() => setIsBottomMode(!isBottomMode)}
+                className="flex items-center justify-center p-0.5 hover:bg-gray-100/70 text-gray-700 rounded-lg transition-all"
+                title={isBottomMode ? "우측 모드로 전환" : "하단 모드로 전환"}
+              >
+                {isBottomMode ? (
+                  <svg className="w-10 h-10" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" stroke="#4B5563" strokeWidth="1.5"/>
+                    <rect x="15" y="4.5" width="5.5" height="15" rx="1.5" fill="#4B5563"/>
+                  </svg>
+                ) : (
+                  <svg className="w-10 h-10" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" stroke="#4B5563" strokeWidth="1.5"/>
+                    <rect x="3.5" y="14" width="17" height="5.5" rx="1.5" fill="#4B5563"/>
+                  </svg>
+                )}
+              </button>
+              
+              <button 
+                onClick={handleSave}
+                disabled={isSaving}
+                className="px-7 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white rounded-lg font-black transition-all shadow-sm active:scale-95 disabled:bg-gray-300 text-[14px]"
+              >
+                {isSaving ? "..." : "저장"}
+              </button>
+            </div>
           </div>
 
-          <div className={`flex flex-1 gap-3 px-5 py-4 ${isBottomMode ? 'flex-row' : 'flex-col'}`}>
+          <div className="flex flex-1 px-5 py-4">
             <textarea
               ref={textRef}
-              className="flex-1 p-4 bg-gray-50 rounded-xl border border-gray-100 outline-none text-gray-700 resize-none text-sm leading-relaxed focus:ring-2 focus:ring-indigo-50 focus:bg-white transition-all placeholder:text-gray-300"
-              placeholder="여기에 메모를 입력하세요..."
+              className="flex-1 p-4 bg-gray-50 rounded-xl border border-gray-100 outline-none text-gray-700 resize-none text-sm leading-relaxed focus:ring-2 focus:ring-indigo-50 focus:bg-white transition-all placeholder:text-gray-300 
+              [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-gray-400"
+              placeholder="여기에 메모를 입력하세요 (Ctrl + S 로 빠른 저장)"
               maxLength={charLimit}
               onChange={(e) => setCharCount(e.target.value.length)}
             />
-            <button 
-              onClick={handleSave}
-              disabled={isSaving}
-              className={`${isBottomMode ? 'w-32' : 'w-full'} bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-black transition-all shadow-md active:scale-95 disabled:bg-gray-300 text-sm`}
-            >
-              {isSaving ? "..." : "저장"}
-            </button>
           </div>
         </div>
       </div>
