@@ -1,4 +1,3 @@
-// components/Sidebar.tsx
 'use client';
 
 import Link from 'next/link';
@@ -7,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { useAuth } from "@/app/contexts/AuthContext";
 import { createClient } from "@/app/utils/supabase/client";
 
-// 🌟 URL 경로에 맞는 DB 단가표 ID 매핑
 const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/analysis': 'ANALYSIS',
   '/related-fast': 'RELATED',
@@ -85,8 +83,8 @@ export default function Sidebar() {
     {
       title: "System",
       items: [
-        // 🌟 사용자 설정 삭제 완료, 분석 히스토리는 준비중 처리
         { name: "분석 히스토리", href: "#", isPreparing: true },
+        { name: "고객센터", href: "/contact" }
       ]
     }
   ];
@@ -176,7 +174,6 @@ export default function Sidebar() {
                       <li key={itemIdx}>
                         <Link 
                           href={item.href} 
-                          // 🌟 준비 중인 메뉴 클릭 시 이동을 막고 알림 띄우기
                           onClick={(e) => {
                             if ((item as any).isPreparing) {
                               e.preventDefault();

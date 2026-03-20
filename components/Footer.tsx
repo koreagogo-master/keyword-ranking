@@ -30,7 +30,7 @@ export default function Footer() {
           <span className="text-gray-200 text-xs">|</span>
           <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[13px] font-medium text-gray-500 hover:text-gray-800 transition-colors">개인정보처리방침</Link>
           <span className="text-gray-200 text-xs">|</span>
-          <Link href="/contact" target="_blank" rel="noopener noreferrer" className="text-[13px] font-medium text-gray-500 hover:text-gray-800 transition-colors">고객센터</Link>
+          <Link href="/contact" rel="noopener noreferrer" className="text-[13px] font-medium text-gray-500 hover:text-gray-800 transition-colors">고객센터</Link>
         </div>
 
         <p className="text-gray-300 text-xs tracking-wider">
