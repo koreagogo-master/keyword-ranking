@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import Sidebar from '@/components/Sidebar';
 import RankTabs from '@/components/RankTabs';
 import { checkNaverBlogRank } from './actions';
@@ -27,7 +27,8 @@ const AUTHOR_COLORS = [
   'text-purple-600', 'text-orange-600', 'text-cyan-600', 'text-red-600',
 ];
 
-export default function BlogRankPage() {
+// 🌟 메인 로직을 별도의 컴포넌트로 분리 (Suspense로 감싸기 위함)
+function BlogRankContent() {
   const { user } = useAuth();
   const { deductPoints } = usePoint(); 
   
@@ -153,155 +154,144 @@ export default function BlogRankPage() {
 
   return (
     <>
-      <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
-      <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-        <Sidebar />
-        <main className="flex-1 ml-64 p-10">
-          <div className="max-w-7xl mx-auto">
-            <RankTabs />
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            N 모바일 블로그 탭 순위 확인
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">* 블로그 닉네임과 키워드를 입력하여 N 모바일 블로그 탭의 노출 순위를 확인하세요.</p>
+          <p className="text-sm text-slate-500 mt-1">* 여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다.</p>
+        </div>
+        <div className="flex items-center gap-2 mt-1 shrink-0">
+          <button 
+            onClick={handleSaveCurrentSetting}
+            disabled={results.length === 0 || !user}
+            className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
+              ${(results.length === 0 || !user) ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+            현재 설정 저장
+          </button>
+          <button 
+            onClick={() => setIsDrawerOpen(true)}
+            className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
+            저장된 목록 보기
+          </button>
+        </div>
+      </div>
 
-            <div className="flex justify-between items-start mb-8">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                  N 모바일 블로그 탭 순위 확인
-                </h1>
-                <p className="text-sm text-slate-500 mt-1">* 블로그 닉네임과 키워드를 입력하여 N 모바일 블로그 탭의 노출 순위를 확인하세요.</p>
-                <p className="text-sm text-slate-500 mt-1">* 여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다.</p>
-              </div>
-              <div className="flex items-center gap-2 mt-1 shrink-0">
-                <button 
-                  onClick={handleSaveCurrentSetting}
-                  disabled={results.length === 0 || !user}
-                  className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
-                    ${(results.length === 0 || !user) ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-                  현재 설정 저장
-                </button>
-                <button 
-                  onClick={() => setIsDrawerOpen(true)}
-                  className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
-                  저장된 목록 보기
-                </button>
-              </div>
-            </div>
+      <div className="bg-white p-6 rounded-sm border border-gray-200 shadow-sm mb-8">
+        <div className="flex gap-4 items-end">
+          <div className="w-1/4 min-w-[200px]">
+            <label className="block text-sm font-bold mb-2 text-gray-600">블로그 닉네임</label>
+            <input
+              value={targetNickname}
+              onChange={e => setTargetNickname(e.target.value)}
+              className="w-full p-3 h-[50px] border border-gray-300 rounded-sm focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
+              placeholder="예: 연세베스트치과"
+            />
+          </div>
 
-            <div className="bg-white p-6 rounded-sm border border-gray-200 shadow-sm mb-8">
-              <div className="flex gap-4 items-end">
-                <div className="w-1/4 min-w-[200px]">
-                  <label className="block text-sm font-bold mb-2 text-gray-600">블로그 닉네임</label>
-                  <input
-                    value={targetNickname}
-                    onChange={e => setTargetNickname(e.target.value)}
-                    className="w-full p-3 h-[50px] border border-gray-300 rounded-sm focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
-                    placeholder="예: 연세베스트치과"
-                  />
-                </div>
+          <div className="flex-1">
+            <label className="block text-sm font-bold mb-2 text-gray-600">키워드 (쉼표 구분)</label>
+            <input
+              value={keywordInput}
+              onChange={e => setKeywordInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              className="w-full p-3 h-[50px] border border-gray-300 rounded-sm focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
+              placeholder="부천교정, 부천치과"
+            />
+          </div>
 
-                <div className="flex-1">
-                  <label className="block text-sm font-bold mb-2 text-gray-600">키워드 (쉼표 구분)</label>
-                  <input
-                    value={keywordInput}
-                    onChange={e => setKeywordInput(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full p-3 h-[50px] border border-gray-300 rounded-sm focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
-                    placeholder="부천교정, 부천치과"
-                  />
-                </div>
+          <div>
+            <button
+              onClick={() => handleCheck()}
+              disabled={loading}
+              className={`h-[50px] px-6 rounded-sm font-bold text-white transition-all shadow-sm ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9]'}`}
+            >
+              {loading ? progress : '순위 확인하기'}
+            </button>
+          </div>
+        </div>
 
-                <div>
-                  <button
-                    onClick={() => handleCheck()}
-                    disabled={loading}
-                    className={`h-[50px] px-6 rounded-sm font-bold text-white transition-all shadow-sm ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9]'}`}
-                  >
-                    {loading ? progress : '순위 확인하기'}
-                  </button>
-                </div>
-              </div>
+        {nicknames.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {nicknames.map((nick, idx) => (
+              <span
+                key={idx}
+                className={`text-[13px] font-extrabold px-2.5 py-1 bg-gray-50 border border-gray-200 rounded-md ${AUTHOR_COLORS[idx % AUTHOR_COLORS.length]}`}
+              >
+                {nick}
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
 
-              {nicknames.length > 0 && (
-                <div className="mt-4 flex flex-wrap items-center gap-2">
-                  {nicknames.map((nick, idx) => (
-                    <span
-                      key={idx}
-                      className={`text-[13px] font-extrabold px-2.5 py-1 bg-gray-50 border border-gray-200 rounded-md ${AUTHOR_COLORS[idx % AUTHOR_COLORS.length]}`}
-                    >
+      {results.length > 0 && (
+        <div>
+          <h2 className="text-lg font-bold mb-4 text-gray-700">검색 결과 ({uniqueKeywords.length}개 키워드)</h2>
+          
+          <div className="space-y-8 animate-in fade-in duration-500">
+            {nicknames.map((nick, idx) => {
+              const colorClass = AUTHOR_COLORS[idx % AUTHOR_COLORS.length];
+              
+              return (
+                <div key={idx} className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
+                  <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center gap-3">
+                    <span className={`text-[13px] font-extrabold px-3 py-1.5 bg-white border border-gray-200 rounded-md shadow-sm ${colorClass}`}>
                       {nick}
                     </span>
-                  ))}
-                </div>
-              )}
-            </div>
+                    <span className="text-sm font-bold text-gray-500">
+                      블로그 노출 순위
+                    </span>
+                  </div>
+                  <table className="w-full border-collapse text-left">
+                    <thead className="bg-white text-xs uppercase text-gray-500 font-bold tracking-wider border-b border-gray-200">
+                      <tr>
+                        <th className="p-3 w-40 text-center">키워드</th>
+                        <th className="p-3 w-28 text-center">순위</th>
+                        <th className="p-3 w-32 text-center">작성일</th>
+                        <th className="p-3">제목</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {uniqueKeywords.map((kw, i) => {
+                        const kwRows = results.filter(r => r.keyword === kw);
+                        const matchedRow = kwRows.find(r => getMatchedNicknameIndex(r.author) === idx);
+                        const displayRow = matchedRow || kwRows.find(r => r.author === '-') || {
+                          keyword: kw, rank: 'X', date: '-', title: '순위 내 없음', author: '-'
+                        };
+                        
+                        const isRanked = displayRow.rank !== 'X' && displayRow.rank !== 'Err';
 
-            {results.length > 0 && (
-              <div>
-                <h2 className="text-lg font-bold mb-4 text-gray-700">검색 결과 ({uniqueKeywords.length}개 키워드)</h2>
-                
-                <div className="space-y-8 animate-in fade-in duration-500">
-                  {nicknames.map((nick, idx) => {
-                    const colorClass = AUTHOR_COLORS[idx % AUTHOR_COLORS.length];
-                    
-                    return (
-                      <div key={idx} className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
-                        <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center gap-3">
-                          <span className={`text-[13px] font-extrabold px-3 py-1.5 bg-white border border-gray-200 rounded-md shadow-sm ${colorClass}`}>
-                            {nick}
-                          </span>
-                          <span className="text-sm font-bold text-gray-500">
-                            블로그 노출 순위
-                          </span>
-                        </div>
-                        <table className="w-full border-collapse text-left">
-                          <thead className="bg-white text-xs uppercase text-gray-500 font-bold tracking-wider border-b border-gray-200">
-                            <tr>
-                              <th className="p-3 w-40 text-center">키워드</th>
-                              <th className="p-3 w-28 text-center">순위</th>
-                              <th className="p-3 w-32 text-center">작성일</th>
-                              <th className="p-3">제목</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-100">
-                            {uniqueKeywords.map((kw, i) => {
-                              const kwRows = results.filter(r => r.keyword === kw);
-                              const matchedRow = kwRows.find(r => getMatchedNicknameIndex(r.author) === idx);
-                              const displayRow = matchedRow || kwRows.find(r => r.author === '-') || {
-                                keyword: kw, rank: 'X', date: '-', title: '순위 내 없음', author: '-'
-                              };
-                              
-                              const isRanked = displayRow.rank !== 'X' && displayRow.rank !== 'Err';
-
-                              return (
-                                <tr key={i} className="hover:bg-gray-50 transition-colors">
-                                  <td className="p-3 font-bold text-gray-900 text-center">{kw}</td>
-                                  <td className="p-3 text-center">
-                                    <span className={`font-extrabold text-lg ${isRanked ? 'text-[#5244e8]' : 'text-gray-300'}`}>
-                                      {displayRow.rank}
-                                    </span>
-                                  </td>
-                                  <td className="p-3 text-center text-[13px] font-medium text-gray-500 whitespace-nowrap">
-                                    {displayRow.date}
-                                  </td>
-                                  <td className="p-3 text-[14px] font-medium text-gray-700 pr-4">
-                                    {displayRow.title}
-                                  </td>
-                                </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    );
-                  })}
+                        return (
+                          <tr key={i} className="hover:bg-gray-50 transition-colors">
+                            <td className="p-3 font-bold text-gray-900 text-center">{kw}</td>
+                            <td className="p-3 text-center">
+                              <span className={`font-extrabold text-lg ${isRanked ? 'text-[#5244e8]' : 'text-gray-300'}`}>
+                                {displayRow.rank}
+                              </span>
+                            </td>
+                            <td className="p-3 text-center text-[13px] font-medium text-gray-500 whitespace-nowrap">
+                              {displayRow.date}
+                            </td>
+                            <td className="p-3 text-[14px] font-medium text-gray-700 pr-4">
+                              {displayRow.title}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
-              </div>
-            )}
-            
+              );
+            })}
           </div>
-        </main>
-      </div>
+        </div>
+      )}
       
       <SavedSearchesDrawer 
         isOpen={isDrawerOpen} 
@@ -309,6 +299,29 @@ export default function BlogRankPage() {
         pageType="BLOG" 
         onSelect={handleApplySavedSetting} 
       />
+    </>
+  );
+}
+
+// 🌟 메인 페이지 컴포넌트: Suspense로 감싸서 배포 에러 방지
+export default function BlogRankPage() {
+  return (
+    <>
+      <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
+      <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
+        <Sidebar />
+        <main className="flex-1 ml-64 p-10">
+          <div className="max-w-7xl mx-auto">
+            <RankTabs />
+            
+            {/* 🌟 URL 파라미터를 읽는 컴포넌트를 Suspense로 감싸기 */}
+            <Suspense fallback={<div className="p-10 text-center text-gray-500 font-bold">로딩 중...</div>}>
+              <BlogRankContent />
+            </Suspense>
+
+          </div>
+        </main>
+      </div>
     </>
   );
 }
