@@ -1,6 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+// 🌟 useEffect와 useRef 추가
+import { useState, useEffect, useRef } from 'react';
+// 🌟 URL 파라미터를 읽기 위해 추가
+import { useSearchParams } from 'next/navigation';
+
 import { checkNaverKinRank } from './actions';
 import Sidebar from '@/components/Sidebar';
 import RankTabs from '@/components/RankTabs';
@@ -28,6 +32,11 @@ export default function KinRankPage() {
   const { user } = useAuth();
   const { deductPoints } = usePoint(); 
   
+  // 🌟 URL 파라미터 읽기 (지식인 데이터 전용)
+  const searchParams = useSearchParams();
+  const urlJisikinData = searchParams.get('jisikin_data');
+  const isSearchExecuted = useRef(false);
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   const [inputs, setInputs] = useState<InputRow[]>([
@@ -76,10 +85,8 @@ export default function KinRankPage() {
       return;
     }
 
-    // 🌟 핵심 업그레이드: 입력된 여러 개의 지식인 키워드들을 쉼표로 묶어줍니다!
     const keywordString = validInputs.map(input => input.keyword).join(', ');
 
-    // 🌟 묶인 키워드를 포인트 차감 엔진(DB)으로 전달!
     const isPaySuccess = await deductPoints(user?.id, 10 * validInputs.length, validInputs.length, keywordString);
     if (!isPaySuccess) return; 
 
@@ -125,6 +132,37 @@ export default function KinRankPage() {
     setLoading(false);
     setProgress('완료');
   };
+
+  // 🌟 자동 검색 센서 로직 시작
+  useEffect(() => {
+    if (urlJisikinData && !isSearchExecuted.current) {
+      isSearchExecuted.current = true;
+      try {
+        // 문자열로 넘어온 JSON 데이터를 다시 배열로 변환합니다.
+        const parsedData: InputRow[] = JSON.parse(decodeURIComponent(urlJisikinData));
+        
+        if (Array.isArray(parsedData) && parsedData.length > 0) {
+          const loadedInputs = parsedData.slice(0, 10);
+          
+          // 화면에 보이게 상태를 업데이트 (최소 5줄 유지)
+          const paddedInputs = [...loadedInputs];
+          while (paddedInputs.length < 5) {
+            paddedInputs.push({ keyword: '', targetTitle: '' });
+          }
+          setInputs(paddedInputs);
+
+          // 딜레이를 주고 자동 검색 실행
+          setTimeout(() => {
+            handleCheck(loadedInputs);
+          }, 300);
+        }
+      } catch (e) {
+        console.error("지식인 데이터 파싱 에러:", e);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlJisikinData]);
+
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleCheck();

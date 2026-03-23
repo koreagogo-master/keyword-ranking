@@ -1,6 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+// 🌟 useEffect와 useRef 추가
+import { useState, useEffect, useRef } from 'react';
+// 🌟 URL 파라미터를 읽기 위해 추가
+import { useSearchParams } from 'next/navigation';
+
 import Link from 'next/link';
 import Sidebar from "@/components/Sidebar";
 import { useAuth } from "@/app/contexts/AuthContext";
@@ -27,6 +31,13 @@ export default function ShoppingRankPage() {
   const { user } = useAuth();
   // 🌟 2. 스위치 장착하기
   const { deductPoints } = usePoint(); 
+
+  // 🌟 URL 쿼리 파라미터 읽기
+  const searchParams = useSearchParams();
+  const urlKeyword = searchParams.get('keyword');
+  
+  // 🌟 중복 실행 방지를 위한 Ref
+  const isSearchExecuted = useRef(false);
   
   const [storeName, setStoreName] = useState("");
   const [keyword, setKeyword] = useState("");
@@ -94,6 +105,33 @@ export default function ShoppingRankPage() {
   const handleSearch = () => {
     performSearch(storeName, keyword);
   };
+
+  // 🌟 자동 검색 센서 로직 시작
+  useEffect(() => {
+    // URL 파라미터가 존재하고, 아직 검색이 실행되지 않았을 때만 작동
+    if (urlKeyword && !isSearchExecuted.current) {
+      isSearchExecuted.current = true; // 중복 실행 방지 락 걸기
+
+      // '스토어명|키워드1,키워드2' 형태로 묶여있는 데이터를 분리합니다.
+      let applyStore = "";
+      let applyKeyword = urlKeyword;
+
+      if (urlKeyword.includes('|')) {
+        const parts = urlKeyword.split('|');
+        applyStore = parts[0];
+        applyKeyword = parts[1];
+      }
+
+      setStoreName(applyStore);
+      setKeyword(applyKeyword);
+
+      // 약간의 딜레이를 주어 상태 업데이트가 화면에 반영될 시간을 확보
+      setTimeout(() => {
+        performSearch(applyStore, applyKeyword);
+      }, 300);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlKeyword]);
 
   const handleSort = (kw: string) => {
     setSortConfig(prev => {
@@ -199,15 +237,25 @@ export default function ShoppingRankPage() {
                     className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5244e8] focus:bg-white transition-colors text-sm font-medium"
                   />
                 </div>
-                <button
-                  onClick={handleSearch}
-                  disabled={isSearching}
-                  className="px-8 py-3 bg-[#5244e8] hover:bg-blue-700 text-white font-bold rounded-md transition-colors h-[46px] flex items-center shadow-sm disabled:bg-gray-400 w-32 justify-center shrink-0"
-                >
+                
+                {/* 🌟 버튼 구조 변경: flex 아이템으로 유지하면서 상태에 따라 내용만 바꿈 */}
+                <div className="w-32 shrink-0 h-[46px] flex items-center justify-center">
                   {isSearching ? (
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                  ) : '순위 분석'}
-                </button>
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 border-2 border-[#5244e8] border-t-transparent rounded-full animate-spin"></div>
+                      <span className="text-sm font-bold text-[#5244e8]">분석 중</span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={handleSearch}
+                      disabled={isSearching}
+                      className="w-full h-full px-8 bg-[#5244e8] hover:bg-blue-700 text-white font-bold rounded-md transition-colors shadow-sm disabled:bg-gray-400"
+                    >
+                      순위 분석
+                    </button>
+                  )}
+                </div>
+
               </div>
             </div>
 

@@ -1,6 +1,10 @@
 'use client';
 
-import { useState, Suspense, useMemo } from "react";
+// 🌟 useEffect와 useRef 추가
+import { useState, Suspense, useMemo, useEffect, useRef } from "react";
+// 🌟 URL 파라미터를 읽기 위해 추가
+import { useSearchParams } from 'next/navigation';
+
 import Sidebar from "@/components/Sidebar";
 import RankTabs from "@/components/RankTabs";
 
@@ -15,6 +19,13 @@ const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
 function RelatedFastContent() {
   const { user } = useAuth();
   const { deductPoints } = usePoint(); 
+
+  // 🌟 URL 쿼리 파라미터 읽기
+  const searchParams = useSearchParams();
+  const urlKeyword = searchParams.get('keyword');
+  
+  // 🌟 중복 실행 방지를 위한 Ref
+  const isSearchExecuted = useRef(false);
 
   const [keyword, setKeyword] = useState("");
   const [adsList, setAdsList] = useState<any[]>([]); 
@@ -72,7 +83,6 @@ function RelatedFastContent() {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
 
-    // 🌟 핵심 업그레이드: k 변수를 넘겨서 어떤 연관 키워드를 검색했는지 DB에 남깁니다!
     const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
     if (!isPaySuccess) return; 
 
@@ -138,6 +148,22 @@ function RelatedFastContent() {
       setIsSearching(false);
     }
   };
+
+  // 🌟 자동 검색 센서 로직 시작
+  useEffect(() => {
+    // URL 파라미터가 존재하고, 아직 검색이 실행되지 않았을 때만 작동
+    if (urlKeyword && !isSearchExecuted.current) {
+      isSearchExecuted.current = true; // 중복 실행 방지 락 걸기
+      
+      setKeyword(urlKeyword);
+
+      // 약간의 딜레이를 주어 상태 업데이트가 화면에 반영될 시간을 확보
+      setTimeout(() => {
+        handleSearch(urlKeyword);
+      }, 300);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlKeyword]);
 
   const handleCpcChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newOption = e.target.value;

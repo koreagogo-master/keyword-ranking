@@ -1,6 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+// 🌟 useEffect, useRef, Suspense 추가
+import { useState, useEffect, useRef, Suspense } from 'react';
+// 🌟 URL 파라미터를 읽기 위해 추가
+import { useSearchParams } from 'next/navigation';
+
 import Link from 'next/link';
 import Sidebar from "@/components/Sidebar";
 import { useAuth } from "@/app/contexts/AuthContext";
@@ -26,10 +30,17 @@ const highlightKeyword = (text: string, keyword: string) => {
   );
 };
 
-export default function ShoppingInsightPage() {
+function ShoppingInsightContent() {
   const { user } = useAuth();
   // 🌟 2. 스위치 장착하기
   const { deductPoints } = usePoint(); 
+
+  // 🌟 URL 쿼리 파라미터 읽기
+  const searchParams = useSearchParams();
+  const urlKeyword = searchParams.get('keyword');
+  
+  // 🌟 중복 실행 방지를 위한 Ref
+  const isSearchExecuted = useRef(false);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -145,6 +156,22 @@ export default function ShoppingInsightPage() {
       setIsSearching(false);
     }
   };
+
+  // 🌟 자동 검색 센서 로직 시작
+  useEffect(() => {
+    // URL 파라미터가 존재하고, 아직 검색이 실행되지 않았을 때만 작동
+    if (urlKeyword && !isSearchExecuted.current) {
+      isSearchExecuted.current = true; // 중복 실행 방지 락 걸기
+      
+      setKeyword(urlKeyword);
+
+      // 약간의 딜레이를 주어 상태 업데이트가 화면에 반영될 시간을 확보
+      setTimeout(() => {
+        handleSearch(urlKeyword);
+      }, 300);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlKeyword]);
 
   const fetchDetailedStats = async (searchKeyword: string, currentItems: any[]) => {
     setIsDetailsLoading(true);
@@ -498,4 +525,13 @@ export default function ShoppingInsightPage() {
       />
     </>
   );
+}
+
+// 🌟 Suspense 래퍼 추가 (Next.js 오류 방지)
+export default function ShoppingInsightPage() { 
+  return ( 
+    <Suspense fallback={<div className="min-h-screen bg-[#f8f9fa]"></div>}>
+      <ShoppingInsightContent />
+    </Suspense> 
+  ); 
 }

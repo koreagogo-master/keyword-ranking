@@ -1,6 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+// 🌟 useEffect와 useRef 추가
+import { useState, useEffect, useRef } from 'react';
+// 🌟 URL 파라미터를 읽기 위해 추가
+import { useSearchParams } from 'next/navigation';
 import { checkNaverRank } from './actions';
 import Sidebar from '@/components/Sidebar';
 import RankTabs from '@/components/RankTabs';
@@ -23,6 +26,14 @@ interface SearchResult {
 export default function BlogRankPage() {
   const { user } = useAuth();
   const { deductPoints } = usePoint(); 
+
+  // 🌟 URL 쿼리 파라미터 읽기
+  const searchParams = useSearchParams();
+  const urlKeyword = searchParams.get('keyword');
+  const urlNickname = searchParams.get('nickname');
+  
+  // 🌟 중복 실행 방지를 위한 Ref
+  const isSearchExecuted = useRef(false);
 
   const [targetNickname, setTargetNickname] = useState('');
   const [keywordInput, setKeywordInput] = useState('');
@@ -97,6 +108,23 @@ export default function BlogRankPage() {
     setLoading(false);
     setProgress('완료');
   };
+
+  // 🌟 자동 검색 센서 로직 시작
+  useEffect(() => {
+    // URL 파라미터가 모두 존재하고, 아직 검색이 실행되지 않았을 때만 작동
+    if (urlKeyword && urlNickname && !isSearchExecuted.current) {
+      isSearchExecuted.current = true; // 중복 실행 방지 락 걸기
+      
+      setTargetNickname(urlNickname);
+      setKeywordInput(urlKeyword);
+
+      // 약간의 딜레이를 주어 상태 업데이트가 화면에 반영될 시간을 확보
+      setTimeout(() => {
+        handleCheck(urlNickname, urlKeyword);
+      }, 300);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlKeyword, urlNickname]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleCheck();

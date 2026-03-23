@@ -24,6 +24,7 @@ interface SearchHistory {
   keyword: string;
   nickname: string | null;
   created_at: string;
+  jisikin_data?: any; // 🌟 지식인 전용 데이터를 받을 수 있도록 타입 추가
 }
 
 export default function HistoryPage() {
@@ -52,7 +53,8 @@ export default function HistoryPage() {
     
     const { data, error } = await supabase
       .from('saved_searches')
-      .select('id, page_type, keyword, nickname, created_at')
+      // 🌟 DB에서 가져올 때 jisikin_data 컬럼도 함께 가져오도록 추가
+      .select('id, page_type, keyword, nickname, created_at, jisikin_data')
       .eq('user_id', userId) 
       .order('created_at', { ascending: false })
       .limit(100);
@@ -71,11 +73,17 @@ export default function HistoryPage() {
     }
     
     const url = new URL(window.location.origin + info.path);
-    if (item.keyword && item.keyword !== 'NULL') {
-      url.searchParams.append('keyword', item.keyword);
-    }
-    if (item.nickname && item.nickname !== 'EMPTY' && item.nickname !== 'NULL') {
-      url.searchParams.append('nickname', item.nickname);
+    
+    // 🌟 지식인 페이지로 갈 때는 jisikin_data 배열을 통째로 포장해서 보냅니다.
+    if (item.page_type === 'JISIKIN' && item.jisikin_data) {
+      url.searchParams.append('jisikin_data', encodeURIComponent(JSON.stringify(item.jisikin_data)));
+    } else {
+      if (item.keyword && item.keyword !== 'NULL') {
+        url.searchParams.append('keyword', item.keyword);
+      }
+      if (item.nickname && item.nickname !== 'EMPTY' && item.nickname !== 'NULL') {
+        url.searchParams.append('nickname', item.nickname);
+      }
     }
     
     router.push(url.pathname + url.search);
@@ -125,11 +133,21 @@ export default function HistoryPage() {
                 ) : (
                   historyList.map((item) => {
                     const info = PAGE_INFO[item.page_type] || { name: item.page_type, path: '#' };
-                    const hasNickname = item.nickname && item.nickname !== 'EMPTY' && item.nickname !== 'NULL';
-                    const hasKeyword = item.keyword && item.keyword !== 'NULL';
+                    
+                    // 🌟 표에 보여주기 위한 키워드/닉네임 가공 로직
+                    let displayKeyword = item.keyword;
+                    let displayNickname = item.nickname;
+
+                    // 지식인 데이터일 경우, 배열을 풀어서 키워드만 쉼표로 연결해서 보여줍니다.
+                    if (item.page_type === 'JISIKIN' && item.jisikin_data && Array.isArray(item.jisikin_data)) {
+                      displayKeyword = item.jisikin_data.map((d: any) => d.keyword).join(', ');
+                      displayNickname = null; // 지식인은 닉네임 표기 생략
+                    }
+
+                    const hasNickname = displayNickname && displayNickname !== 'EMPTY' && displayNickname !== 'NULL';
+                    const hasKeyword = displayKeyword && displayKeyword !== 'NULL' && displayKeyword !== '';
                     
                     return (
-                      // 🌟 수정 1. 마우스 오버 시 산뜻한 연노랑색으로 변경
                       <tr key={item.id} className="hover:bg-yellow-50 transition-colors duration-200">
                         
                         <td className="px-4 py-2 text-center text-[13px] font-medium text-slate-400">
@@ -145,21 +163,20 @@ export default function HistoryPage() {
                         <td className="px-4 py-2">
                           <div className="flex flex-col gap-0.5">
                             {hasKeyword ? (
-                              <span className="font-bold text-slate-800 text-[13px]">{item.keyword}</span>
+                              <span className="font-bold text-slate-800 text-[13px]">{displayKeyword}</span>
                             ) : (
                               <span className="italic text-slate-400 text-[12px]">키워드 없음</span>
                             )}
                             {hasNickname && (
                               <span className="text-[11px] font-bold text-slate-500 flex items-center gap-1">
                                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                {item.nickname}
+                                {displayNickname}
                               </span>
                             )}
                           </div>
                         </td>
                         
                         <td className="px-4 py-2 text-center">
-                          {/* 🌟 수정 2. 버튼 색상을 부드러운 톤다운 보라색으로 변경 */}
                           <button
                             onClick={() => handleResearch(item)}
                             className="w-[90px] mx-auto py-1.5 bg-[#7a6df4] hover:bg-[#5244e8] text-white text-[12px] font-bold rounded-lg transition-all shadow-sm flex items-center justify-center gap-1"

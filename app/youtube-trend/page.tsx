@@ -1,6 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+// 🌟 useEffect와 useRef 추가
+import { useState, useEffect, useRef } from 'react';
+// 🌟 URL 파라미터를 읽기 위해 추가
+import { useSearchParams } from 'next/navigation';
+
 import Sidebar from "@/components/Sidebar";
 import GoogleTabs from "@/components/GoogleTabs";
 
@@ -8,7 +12,6 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
-// 🌟 1. 마법의 포인트 스위치 가져오기
 import { usePoint } from '@/app/hooks/usePoint'; 
 
 const formatNum = (numStr: string) => {
@@ -24,9 +27,15 @@ const formatDate = (dateStr: string) => {
 
 export default function YouTubeTrendPage() {
   const { user } = useAuth();
-  // 🌟 2. 스위치 장착하기
   const { deductPoints } = usePoint(); 
   
+  // 🌟 URL 쿼리 파라미터 읽기
+  const searchParams = useSearchParams();
+  const urlKeyword = searchParams.get('keyword');
+  
+  // 🌟 중복 실행 방지를 위한 Ref
+  const isSearchExecuted = useRef(false);
+
   const [keyword, setKeyword] = useState("");
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -44,7 +53,6 @@ export default function YouTubeTrendPage() {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
 
-    // 🌟 3. 핵심 업그레이드: k(검색어) 변수를 넘겨서 어떤 유튜브 키워드를 검색했는지 DB에 남깁니다!
     const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
     if (!isPaySuccess) return; 
     
@@ -80,6 +88,22 @@ export default function YouTubeTrendPage() {
       setHasSearched(true);
     }
   };
+
+  // 🌟 자동 검색 센서 로직 시작
+  useEffect(() => {
+    // URL 파라미터가 존재하고, 아직 검색이 실행되지 않았을 때만 작동
+    if (urlKeyword && !isSearchExecuted.current) {
+      isSearchExecuted.current = true; // 중복 실행 방지 락 걸기
+      
+      setKeyword(urlKeyword);
+
+      // 약간의 딜레이를 주어 상태 업데이트가 화면에 반영될 시간을 확보
+      setTimeout(() => {
+        handleSearch(urlKeyword);
+      }, 300);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlKeyword]);
 
   const handleCopyUrls = () => {
     if (videoList.length === 0) return;
