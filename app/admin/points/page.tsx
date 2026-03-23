@@ -1,6 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+// 🌟 useRef 추가
+import { useEffect, useState, useRef } from 'react';
+// 🌟 수문장 역할을 할 모듈 추가
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/contexts/AuthContext';
+
 import Sidebar from '@/components/Sidebar';
 import { createClient } from '@/app/utils/supabase/client';
 import AdminTabs from '@/components/AdminTabs'; 
@@ -40,13 +45,36 @@ const MENU_GROUPS = [
 ];
 
 export default function AdminPointsPage() {
+  // 🌟 권한 확인을 위한 수문장 호출
+  const { user, profile, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
+
+  // 🌟 알림 중복 방지용 기억 장치
+  const alertShown = useRef(false);
+
   const [policies, setPolicies] = useState<PointPolicy[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
 
+  // 🌟 철통 보안 로직 (1회만 알림)
   useEffect(() => {
-    fetchPolicies();
-  }, []);
+    if (!isAuthLoading) {
+      if (!user || profile?.role?.toLowerCase() !== 'admin') {
+        if (!alertShown.current) {
+          alert('접근 권한이 없습니다.');
+          alertShown.current = true;
+          router.replace('/'); 
+        }
+      }
+    }
+  }, [user, profile, isAuthLoading, router]);
+
+  // 🌟 관리자임이 확인되었을 때만 초기 데이터 불러오기
+  useEffect(() => {
+    if (profile?.role?.toLowerCase() === 'admin') {
+      fetchPolicies();
+    }
+  }, [profile?.role]);
 
   const fetchPolicies = async () => {
     const supabase = createClient();
@@ -86,6 +114,14 @@ export default function AdminPointsPage() {
     }
   };
 
+  // 🌟 쫓겨나기 전 찰나의 순간에도 화면을 절대 보여주지 않는 철통 방어!
+  if (isAuthLoading) {
+    return <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">권한 확인 중...</div>;
+  }
+  if (!user || profile?.role?.toLowerCase() !== 'admin') {
+    return null; 
+  }
+
   return (
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
@@ -108,7 +144,6 @@ export default function AdminPointsPage() {
             
             <AdminTabs />
 
-            {/* 🌟 중앙 정렬 및 이모티콘 제거 */}
             <div className="mb-8 text-center">
               <h1 className="text-3xl font-extrabold text-gray-900 mb-2 flex items-center justify-center gap-2">
                 서비스 포인트 설정
@@ -126,7 +161,6 @@ export default function AdminPointsPage() {
                 {MENU_GROUPS.map((group, groupIndex) => (
                   <div key={groupIndex} className="mb-4">
                     
-                    {/* 🌟 그룹 제목을 테이블 박스 밖으로 분리 */}
                     <div className="flex items-center gap-2 mb-3 ml-1">
                       <div className="w-1.5 h-4 bg-[#5244e8] rounded-full"></div>
                       <h2 className="font-extrabold text-gray-800 text-[16px] tracking-wide">{group.title}</h2>
@@ -137,7 +171,6 @@ export default function AdminPointsPage() {
                         <thead className="bg-slate-50 border-b border-gray-200 text-slate-600 font-bold text-[13px]">
                           <tr>
                             <th className="px-6 py-3 w-[50%]">페이지 이름 및 경로</th>
-                            {/* 🌟 칼럼 이름 추가 및 정렬 맞춤 */}
                             <th className="px-6 py-3 w-[20%] text-center">기존 포인트</th>
                             <th className="px-6 py-3 w-[30%] text-right pr-28">수정 포인트</th>
                           </tr>
@@ -167,12 +200,10 @@ export default function AdminPointsPage() {
                                   </div>
                                 </td>
                                 
-                                {/* 🌟 칼럼 1: 기존 포인트 */}
                                 <td className="px-6 py-4 text-center">
                                   <span className="font-extrabold text-slate-500 text-[15px]">{policy.original_cost}P</span>
                                 </td>
 
-                                {/* 🌟 칼럼 2: 수정 포인트 & 저장버튼 */}
                                 <td className="px-6 py-4 flex justify-end items-center gap-3">
                                   <div className="flex items-center">
                                     <input 

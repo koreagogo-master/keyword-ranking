@@ -1,19 +1,27 @@
 'use client';
 
+// 🌟 useRef 추가
+import { useEffect, useState, useMemo, useRef } from "react";
 import { createClient } from "@/app/utils/supabase/client";
-import { useEffect, useState, useMemo } from "react";
+// 🌟 수문장 역할을 할 모듈 추가
 import { useRouter } from "next/navigation";
+import { useAuth } from '@/app/contexts/AuthContext';
+
 import Sidebar from "@/components/Sidebar";
 import AdminTabs from '@/components/AdminTabs';
 
 // 통계 제외용 관리자 이메일
 const adminEmails = ['a01091944465@gmail.com', 'lboll@naver.com', 'qairs@nate.com'];
-// 최고 관리자 이메일 (배경색 하이라이트 & 강퇴 불가)
-const MASTER_ADMIN_EMAIL = 'a01091944465@gmail.com';
 
 export default function AdminUsersPage() {
+  // 🌟 권한 확인을 위한 수문장 호출
+  const { user, profile, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
+
+  // 🌟 알림 중복 방지용 기억 장치
+  const alertShown = useRef(false);
+
   const [users, setUsers] = useState<any[]>([]);
-  const [status, setStatus] = useState<'checking' | 'admin' | 'redirecting'>('checking');
   const [loading, setLoading] = useState(true);
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -28,40 +36,27 @@ export default function AdminUsersPage() {
   
   const itemsPerPage = 20;
 
-  const router = useRouter();
   const supabase = createClient();
 
+  // 🌟 철통 보안 로직 (1회만 알림)
   useEffect(() => {
-    let isMounted = true;
-
-    const safeAuthCheck = async () => {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser();
-
-        if (error || !user || user.email !== MASTER_ADMIN_EMAIL) {
-          if (isMounted) {
-            setStatus('redirecting');
-            window.location.replace("/");
-          }
-          return;
-        }
-
-        if (isMounted) {
-          setStatus('admin');
-          fetchUsers();
-        }
-      } catch (error) {
-        if (isMounted) {
-          setStatus('redirecting');
-          window.location.replace("/");
+    if (!isAuthLoading) {
+      if (!user || profile?.role?.toLowerCase() !== 'admin') {
+        if (!alertShown.current) {
+          alert('접근 권한이 없습니다.');
+          alertShown.current = true;
+          router.replace('/'); 
         }
       }
-    };
+    }
+  }, [user, profile, isAuthLoading, router]);
 
-    safeAuthCheck();
-    return () => { isMounted = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // 🌟 관리자임이 확인되었을 때만 초기 데이터 불러오기
+  useEffect(() => {
+    if (profile?.role?.toLowerCase() === 'admin') {
+      fetchUsers();
+    }
+  }, [profile?.role]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -266,7 +261,13 @@ export default function AdminUsersPage() {
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
 
-  if (status === 'checking' || status === 'redirecting') return <div className="min-h-screen bg-[#f8f9fa]"></div>;
+  // 🌟 쫓겨나기 전 찰나의 순간에도 화면을 절대 보여주지 않는 철통 방어!
+  if (isAuthLoading) {
+    return <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">권한 확인 중...</div>;
+  }
+  if (!user || profile?.role?.toLowerCase() !== 'admin') {
+    return null; 
+  }
 
   return (
     <>
@@ -434,11 +435,11 @@ export default function AdminUsersPage() {
                       const totalPoints = (u.purchased_points || 0) + (u.bonus_points || 0);
                       const userNumber = filteredAndSortedUsers.length - ((currentPage - 1) * itemsPerPage + index);
 
-                      const isMasterAdmin = u.email === MASTER_ADMIN_EMAIL;
+                      const isAdminEmail = adminEmails.includes(u.email);
                       const isPinned = !!u.is_pinned;
 
                       let rowStyle = 'hover:bg-slate-50 border-b border-gray-100';
-                      if (isMasterAdmin) rowStyle = 'bg-amber-50 hover:bg-amber-100 border-b border-amber-200/50';
+                      if (isAdminEmail) rowStyle = 'bg-amber-50 hover:bg-amber-100 border-b border-amber-200/50';
                       else if (isPinned) rowStyle = 'bg-[#5244e8]/5 hover:bg-[#5244e8]/10 border-b border-[#5244e8]/10';
 
                       return (
@@ -447,7 +448,6 @@ export default function AdminUsersPage() {
                             {userNumber}
                           </td>
                           <td className="py-2 px-3 font-bold text-gray-800 text-[13px]">
-                            {/* 🌟 수정: 진한 회색(slate-400)으로 변경 및 크기 증가(18px) */}
                             <div className="flex items-center gap-1.5">
                               <button
                                 onClick={() => handleTogglePin(u.id, isPinned)}
@@ -515,7 +515,7 @@ export default function AdminUsersPage() {
                           </td>
 
                           <td className="py-2 px-3 text-center">
-                            {!isMasterAdmin && (
+                            {!isAdminEmail && (
                               <button
                                 onClick={() => handleDeleteUser(u.id, u.email)}
                                 className="text-[11px] font-black !text-red-600 bg-red-50 border border-red-200 hover:bg-red-100 hover:!text-red-700 px-2 py-1 rounded transition-colors shadow-sm"

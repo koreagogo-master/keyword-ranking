@@ -1,6 +1,11 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+// 🌟 useRef 추가
+import React, { useEffect, useState, useRef } from 'react';
+// 🌟 수문장 역할을 할 모듈 추가
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/contexts/AuthContext';
+
 import Sidebar from '@/components/Sidebar';
 import AdminTabs from '@/components/AdminTabs';
 import { createClient } from '@/app/utils/supabase/client';
@@ -15,6 +20,13 @@ interface Notice {
 }
 
 export default function AdminNoticePage() {
+  // 🌟 권한 확인을 위한 수문장 호출
+  const { user, profile, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
+
+  // 🌟 알림 중복 방지용 기억 장치
+  const alertShown = useRef(false);
+
   const [notices, setNotices] = useState<Notice[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,13 +36,28 @@ export default function AdminNoticePage() {
   const [content, setContent] = useState('');
   const [isPinned, setIsPinned] = useState(false);
   
-  // 🌟 날짜 수정을 위한 상태 추가
   const [createdDate, setCreatedDate] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 🌟 철통 보안 로직 (1회만 알림)
   useEffect(() => {
-    fetchNotices();
-  }, []);
+    if (!isAuthLoading) {
+      if (!user || profile?.role?.toLowerCase() !== 'admin') {
+        if (!alertShown.current) {
+          alert('접근 권한이 없습니다.');
+          alertShown.current = true;
+          router.replace('/'); 
+        }
+      }
+    }
+  }, [user, profile, isAuthLoading, router]);
+
+  // 🌟 관리자임이 확인되었을 때만 초기 데이터 불러오기
+  useEffect(() => {
+    if (profile?.role?.toLowerCase() === 'admin') {
+      fetchNotices();
+    }
+  }, [profile?.role]);
 
   const fetchNotices = async () => {
     setLoading(true);
@@ -53,7 +80,6 @@ export default function AdminNoticePage() {
     setTitle('');
     setContent('');
     setIsPinned(false);
-    // 🌟 새 글 작성 시 기본값을 오늘 날짜로 세팅
     setCreatedDate(formatDate(new Date().toISOString()));
     setIsEditing(true);
   };
@@ -63,7 +89,6 @@ export default function AdminNoticePage() {
     setTitle(notice.title);
     setContent(notice.content);
     setIsPinned(notice.is_pinned || false);
-    // 🌟 수정 시 기존 글의 날짜를 세팅
     setCreatedDate(formatDate(notice.created_at));
     setIsEditing(true);
   };
@@ -99,13 +124,11 @@ export default function AdminNoticePage() {
     const supabase = createClient();
 
     try {
-      // 🌟 입력받은 YYYY-MM-DD 날짜를 DB에 저장할 수 있는 표준 시간(ISO) 형식으로 변환
       const submitDate = new Date(createdDate).toISOString();
 
       if (editId) {
         const { error } = await supabase
           .from('notices')
-          // 🌟 created_at (날짜) 업데이트 포함
           .update({ title, content, is_pinned: isPinned, created_at: submitDate }) 
           .eq('id', editId);
         if (error) throw error;
@@ -113,7 +136,6 @@ export default function AdminNoticePage() {
       } else {
         const { error } = await supabase
           .from('notices')
-          // 🌟 created_at (날짜) 등록 포함
           .insert({ title, content, is_pinned: isPinned, created_at: submitDate }); 
         if (error) throw error;
         alert('새 공지사항이 등록되었습니다.');
@@ -129,11 +151,18 @@ export default function AdminNoticePage() {
     }
   };
 
-  // 날짜 형식 포맷터 (YYYY-MM-DD)
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
+
+  // 🌟 쫓겨나기 전 찰나의 순간에도 화면을 절대 보여주지 않는 철통 방어!
+  if (isAuthLoading) {
+    return <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">권한 확인 중...</div>;
+  }
+  if (!user || profile?.role?.toLowerCase() !== 'admin') {
+    return null; 
+  }
 
   return (
     <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043]">
@@ -144,20 +173,14 @@ export default function AdminNoticePage() {
           
           <AdminTabs />
 
-          <div className="mb-10 relative text-center">
-            <h1 className="text-3xl font-extrabold text-gray-900 mb-2">공지사항 관리</h1>
-            <p className="text-sm text-slate-500">고객에게 안내할 시스템 점검, 업데이트 등의 공지사항을 작성합니다.</p>
-          </div>
-
           {isEditing ? (
-            <div className="bg-white p-8 rounded-xl border border-[#5244e8]/30 shadow-md mb-10">
+            <div className="bg-white p-8 rounded-xl border border-[#5244e8]/30 shadow-md mb-10 mt-6">
               <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                 <span className="w-1.5 h-6 bg-[#5244e8] rounded-full"></span>
                 {editId ? '공지사항 수정' : '새 공지사항 작성'}
               </h2>
               <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                 
-                {/* 🌟 옵션 설정 영역 (맨 위 고정 & 날짜 선택) */}
                 <div className="flex flex-wrap items-center gap-4 bg-indigo-50/50 p-4 rounded-lg border border-indigo-100">
                   <div className="flex items-center gap-2">
                     <input
@@ -225,7 +248,11 @@ export default function AdminNoticePage() {
             </div>
           ) : (
             <>
-              <div className="flex justify-end mb-4">
+              <div className="mb-6 relative flex justify-between items-end mt-4">
+                <div>
+                  <h1 className="text-3xl font-extrabold text-gray-900 mb-2">공지사항 관리</h1>
+                  <p className="text-sm text-slate-500">고객에게 안내할 시스템 점검, 업데이트 등의 공지사항을 작성합니다.</p>
+                </div>
                 <button
                   onClick={handleWriteClick}
                   className="px-5 py-2.5 bg-[#5244e8] !text-white text-[13px] font-bold rounded-lg shadow-sm hover:bg-[#4035ba] transition-colors flex items-center gap-2"
@@ -238,7 +265,6 @@ export default function AdminNoticePage() {
                 <table className="w-full text-left border-collapse">
                   <thead className="bg-slate-50 text-slate-600 text-[13px] tracking-wider font-bold border-b border-gray-200">
                     <tr>
-                      {/* 🌟 No. 칸을 w-20 에서 w-24 로 넓혔습니다 */}
                       <th className="px-6 py-4 w-24 text-center">No.</th>
                       <th className="px-6 py-4">제목</th>
                       <th className="px-6 py-4 w-32 text-center">조회수</th>

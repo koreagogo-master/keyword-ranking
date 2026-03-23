@@ -1,13 +1,17 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+// 🌟 useRef 추가
+import React, { useEffect, useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/contexts/AuthContext';
+
 import Sidebar from '@/components/Sidebar';
 import AdminTabs from '@/components/AdminTabs';
 import { createClient } from '@/app/utils/supabase/client';
 
 interface Inquiry {
   id: string;
-  no: number; // 🌟 넘버링을 위한 번호 추가
+  no: number;
   user_id: string;
   title: string;
   content: string;
@@ -19,6 +23,12 @@ interface Inquiry {
 }
 
 export default function AdminCSPage() {
+  const { user, profile, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
+
+  // 🌟 알림 중복 방지용 기억 장치
+  const alertShown = useRef(false);
+
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -26,9 +36,24 @@ export default function AdminCSPage() {
   const [answerText, setAnswerText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // 🌟 철통 보안 로직 (1회만 알림)
   useEffect(() => {
-    fetchInquiries();
-  }, []);
+    if (!isAuthLoading) {
+      if (!user || profile?.role?.toLowerCase() !== 'admin') {
+        if (!alertShown.current) {
+          alert('접근 권한이 없습니다.');
+          alertShown.current = true;
+          router.replace('/'); 
+        }
+      }
+    }
+  }, [user, profile, isAuthLoading, router]);
+
+  useEffect(() => {
+    if (profile?.role?.toLowerCase() === 'admin') {
+      fetchInquiries();
+    }
+  }, [profile?.role]);
 
   const fetchInquiries = async () => {
     setLoading(true);
@@ -51,7 +76,6 @@ export default function AdminCSPage() {
       .select('id, email')
       .in('id', userIds);
 
-    // 🌟 데이터를 합칠 때 '전체 개수 - 현재 순서' 공식으로 넘버링(no) 부여
     const combinedData = inquiryData.map((inq, idx) => {
       const profile = profilesData?.find((p) => p.id === inq.user_id);
       return { 
@@ -99,10 +123,8 @@ export default function AdminCSPage() {
 
       alert('답변이 성공적으로 등록되었습니다.');
       
-      // 🌟 신호 발송: "탭아! 숫자 1개 지워라!"
       window.dispatchEvent(new Event('inquiryAnswered'));
       
-      // 즉시 상태 변경 (이때 화면이 대기 -> 완료 영역으로 자동으로 쓱 이동함)
       setInquiries((prev) =>
         prev.map((inq) =>
           inq.id === inquiryId
@@ -125,11 +147,9 @@ export default function AdminCSPage() {
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
 
-  // 🌟 데이터를 대기중 / 답변완료 두 그룹으로 쪼개기
   const pendingInquiries = inquiries.filter(inq => inq.status === '대기중');
   const completedInquiries = inquiries.filter(inq => inq.status === '답변완료');
 
-  // 리스트를 그려주는 공통 함수 (반복되는 코드를 줄임)
   const renderTableRows = (list: Inquiry[], isPending: boolean) => {
     if (list.length === 0) {
       return (
@@ -163,20 +183,17 @@ export default function AdminCSPage() {
           <td className="px-6 py-4 font-bold text-slate-800 truncate" title={inq.user_email}>{inq.user_email}</td>
           <td className="px-6 py-4 text-slate-800 font-bold truncate max-w-xs">{inq.title}</td>
           <td className="px-6 py-4 text-center">
-            {/* 🌟 안 보이던 글씨를 !text-slate-900 으로 강제 적용하여 진하게 만듦 */}
             <button className="text-[12px] font-black !text-slate-900 hover:underline">
               {expandedId === inq.id ? '닫기 ▲' : '열기 ▼'}
             </button>
           </td>
         </tr>
 
-        {/* 펼쳐지는 상세 내용 영역 */}
         {expandedId === inq.id && (
           <tr className="bg-slate-50 border-b border-gray-200">
             <td colSpan={6} className="px-8 py-6">
               <div className="flex flex-col gap-6">
                 
-                {/* 고객 질문 */}
                 <div className="bg-white p-5 rounded-lg border border-gray-200 shadow-sm">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="w-6 h-6 rounded-full bg-slate-800 text-white flex items-center justify-center text-[12px] font-black">Q</span>
@@ -185,7 +202,6 @@ export default function AdminCSPage() {
                   <p className="text-slate-600 text-[14px] leading-relaxed whitespace-pre-wrap pl-8">{inq.content}</p>
                 </div>
 
-                {/* 관리자 답변 */}
                 <div className={`${isPending ? 'bg-rose-50 border-rose-100' : 'bg-indigo-50/50 border-indigo-100'} p-5 rounded-lg border shadow-sm`}>
                   <div className="flex items-center gap-2 mb-3">
                     <span className={`w-6 h-6 rounded-full text-white flex items-center justify-center text-[12px] font-black ${isPending ? 'bg-rose-500' : 'bg-[#5244e8]'}`}>A</span>
@@ -226,6 +242,13 @@ export default function AdminCSPage() {
     ));
   };
 
+  if (isAuthLoading) {
+    return <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">권한 확인 중...</div>;
+  }
+  if (!user || profile?.role?.toLowerCase() !== 'admin') {
+    return null; 
+  }
+
   return (
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
@@ -247,7 +270,6 @@ export default function AdminCSPage() {
               <div className="text-center py-20 text-slate-500 font-bold">데이터를 불러오는 중입니다...</div>
             ) : (
               <>
-                {/* 🚨 상단: 답변 대기 리스트 (미처리) */}
                 <div className="mb-2 flex items-center justify-between ml-1">
                   <h3 className="text-[16px] font-black text-rose-600 flex items-center gap-2">
                     🚨 답변 대기 <span className="bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full text-[12px]">{pendingInquiries.length}</span>
@@ -271,7 +293,6 @@ export default function AdminCSPage() {
                   </table>
                 </div>
 
-                {/* ✅ 하단: 답변 완료 리스트 (처리됨) */}
                 <div className="mb-2 flex items-center justify-between ml-1">
                   <h3 className="text-[16px] font-extrabold text-slate-700 flex items-center gap-2">
                     ✅ 답변 완료 <span className="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full text-[12px]">{completedInquiries.length}</span>

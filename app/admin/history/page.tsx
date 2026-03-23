@@ -1,6 +1,11 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+// 🌟 useRef 추가
+import { useEffect, useState, useMemo, useRef } from 'react';
+// 🌟 수문장 역할을 할 모듈 추가
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/contexts/AuthContext';
+
 import Sidebar from '@/components/Sidebar';
 import { createClient } from '@/app/utils/supabase/client';
 import AdminTabs from '@/components/AdminTabs'; 
@@ -41,6 +46,13 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
 };
 
 export default function AdminHistoryPage() {
+  // 🌟 권한 확인을 위한 수문장 호출
+  const { user, profile, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
+
+  // 🌟 알림 중복 방지용 기억 장치
+  const alertShown = useRef(false);
+
   const [history, setHistory] = useState<PointHistory[]>([]);
   const [totalUsablePoints, setTotalUsablePoints] = useState<number>(0); 
   const [loading, setLoading] = useState(true);
@@ -55,9 +67,25 @@ export default function AdminHistoryPage() {
   const itemsPerPage = 20; 
   const [chartOffset, setChartOffset] = useState(0);
 
+  // 🌟 철통 보안 로직 (1회만 알림)
   useEffect(() => {
-    fetchHistoryAndStats();
-  }, []);
+    if (!isAuthLoading) {
+      if (!user || profile?.role?.toLowerCase() !== 'admin') {
+        if (!alertShown.current) {
+          alert('접근 권한이 없습니다.');
+          alertShown.current = true;
+          router.replace('/'); 
+        }
+      }
+    }
+  }, [user, profile, isAuthLoading, router]);
+
+  // 🌟 관리자임이 확인되었을 때만 초기 데이터 불러오기
+  useEffect(() => {
+    if (profile?.role?.toLowerCase() === 'admin') {
+      fetchHistoryAndStats();
+    }
+  }, [profile?.role]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -174,7 +202,6 @@ export default function AdminHistoryPage() {
 
   const filteredHistory = useMemo(() => {
     return historyWithBalances.filter(item => {
-      // 🌟 신규가입 필터 로직 추가 (충전과 가입 분리)
       let matchType = false;
       if (filterType === 'ALL') {
         matchType = true;
@@ -211,6 +238,14 @@ export default function AdminHistoryPage() {
     return Array.from({ length: end - start + 1 }, (_, i) => start + i);
   };
 
+  // 🌟 쫓겨나기 전 찰나의 순간에도 화면을 절대 보여주지 않는 철통 방어!
+  if (isAuthLoading) {
+    return <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">권한 확인 중...</div>;
+  }
+  if (!user || profile?.role?.toLowerCase() !== 'admin') {
+    return null; 
+  }
+
   return (
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
@@ -239,9 +274,7 @@ export default function AdminHistoryPage() {
               </div>
             </div>
 
-            {/* 🌟 수정: 2개의 큰 박스(오늘, 전체 누적)로 통합 및 정렬 최적화 */}
             <div className="flex gap-4 mb-6">
-              {/* 1. [오늘] 박스 */}
               <div className="flex-[3] bg-white border border-slate-200 rounded-lg p-5 shadow-sm">
                 <p className="text-[14px] font-extrabold text-slate-700 mb-4 text-left">오늘</p>
                 <div className="flex items-center justify-between divide-x divide-gray-100">
@@ -266,7 +299,6 @@ export default function AdminHistoryPage() {
                 </div>
               </div>
 
-              {/* 2. [전체 누적] 박스 */}
               <div className="flex-[1] bg-white border border-slate-200 rounded-lg p-5 shadow-sm flex flex-col justify-between">
                 <p className="text-[14px] font-extrabold text-slate-700 mb-4 text-left">전체 누적</p>
                 <div className="mt-auto">
@@ -294,9 +326,7 @@ export default function AdminHistoryPage() {
               </div>
               
               <div className="flex gap-2">
-                {/* 🌟 맨 왼쪽 범례 (우측 데이터 영역과 글자 크기 및 구조를 동기화하여 완벽한 줄맞춤) */}
                 <div className="w-12 flex flex-col items-end justify-center py-3">
-                  {/* 우측의 날짜 공간(mb-2)과 동일하게 밀어주기 위한 투명 텍스트 배치 */}
                   <span className="text-[12px] font-bold mb-2 opacity-0">날짜</span>
                   
                   <div className="w-full flex flex-col space-y-2 text-[13px] font-extrabold pr-2">
@@ -343,7 +373,6 @@ export default function AdminHistoryPage() {
                     <option value="ALL">전체 보기</option>
                     <option value="USE">S (사용)</option>
                     <option value="CHARGE">P (충전/결제)</option>
-                    {/* 🌟 신규 가입 옵션 추가됨 */}
                     <option value="SIGNUP">N (신규 가입)</option>
                     <option value="ADMIN">A (관리자)</option>
                   </select>

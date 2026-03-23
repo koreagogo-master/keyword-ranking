@@ -1,6 +1,10 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+// 🌟 useRef 추가
+import { useEffect, useState, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/contexts/AuthContext';
+
 import Sidebar from '@/components/Sidebar';
 import { createClient } from '@/app/utils/supabase/client';
 import AdminTabs from '@/components/AdminTabs';
@@ -45,18 +49,38 @@ const NAVER_DATALAB_TYPES = ['ANALYSIS', 'SHOPPING'];
 const GOOGLE_TYPES = ['GOOGLE', 'YOUTUBE'];
 
 export default function AdminDashboardPage() {
+  const { user, profile, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
+  
+  // 🌟 알림 중복 방지용 기억 장치
+  const alertShown = useRef(false);
+
   const [history, setHistory] = useState<PointHistory[]>([]);
   const [totalUsablePoints, setTotalUsablePoints] = useState<number>(0);
-  // 🌟 탈퇴 회원(withdrawn) 상태 추가
   const [userStats, setUserStats] = useState({ total: 0, paid: 0, free: 0, newToday: 0, withdrawn: 0 });
   const [loading, setLoading] = useState(true);
 
   const [apiTab, setApiTab] = useState<'naverSearch' | 'naverDatalab' | 'google'>('naverSearch');
   const [apiChartOffset, setApiChartOffset] = useState(0);
 
+  // 🌟 철통 보안 로직 (1회만 알림)
   useEffect(() => {
-    fetchHistoryAndStats();
-  }, []);
+    if (!isAuthLoading) {
+      if (!user || profile?.role?.toLowerCase() !== 'admin') {
+        if (!alertShown.current) {
+          alert('접근 권한이 없습니다.');
+          alertShown.current = true;
+          router.replace('/'); 
+        }
+      }
+    }
+  }, [user, profile, isAuthLoading, router]);
+
+  useEffect(() => {
+    if (profile?.role?.toLowerCase() === 'admin') {
+      fetchHistoryAndStats();
+    }
+  }, [profile?.role]);
 
   const getTodayString = () => {
     const d = new Date();
@@ -76,28 +100,22 @@ export default function AdminDashboardPage() {
 
     if (historyData) setHistory(historyData as any);
 
-    // 🌟 수정: 이메일(email) 컬럼을 추가로 불러옵니다.
     const { data: profilesData } = await supabase
       .from('profiles')
       .select('email, purchased_points, bonus_points, created_at');
 
     if (profilesData) {
-      // 🌟 핵심: 통계에서 제외할 관리자/테스트 이메일을 여기에 입력해 주세요!
-      const adminEmails = ['a01091944465@gmail.com', 'lboll@naver.com', 'qairs@nate.com']; // <-- 대표님 이메일로 변경해 주세요!
-
-      // 관리자 이메일을 제외한 '순수 일반 유저'만 걸러냅니다.
+      const adminEmails = ['a01091944465@gmail.com', 'lboll@naver.com', 'qairs@nate.com']; 
       const normalUsers = profilesData.filter(p => !adminEmails.includes(p.email));
 
-      // 순수 일반 유저들의 잔여 포인트만 합산
       const sum = normalUsers.reduce((acc, profile) => acc + (profile.purchased_points || 0) + (profile.bonus_points || 0), 0);
       setTotalUsablePoints(sum);
 
-      // 순수 일반 유저 기준 통계 계산
       const total = normalUsers.length;
       const paid = normalUsers.filter(p => (p.purchased_points || 0) > 0).length;
       const free = total - paid;
       const newToday = normalUsers.filter(p => p.created_at.includes(todayStr)).length;
-      const withdrawn = 0; // 탈퇴 로직 구현 후 연결
+      const withdrawn = 0; 
 
       setUserStats({ total, paid, free, newToday, withdrawn });
     }
@@ -206,7 +224,6 @@ export default function AdminDashboardPage() {
 
   const weeklyStats = useMemo(() => {
     const stats: Record<string, { used: number, charged: number, signup: number, net: number }> = {};
-    // 🌟 수정된 부분: .reverse()를 삭제하고 변수명을 recent7Days로 정리했습니다.
     const recent7Days = recent28Days.slice(0, 7);
 
     recent7Days.forEach(date => {
@@ -254,6 +271,13 @@ export default function AdminDashboardPage() {
   }, [history]);
 
   const recentHistoryList = historyWithBalances.slice(0, 10);
+
+  if (isAuthLoading) {
+    return <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">권한 확인 중...</div>;
+  }
+  if (!user || profile?.role?.toLowerCase() !== 'admin') {
+    return null; 
+  }
 
   return (
     <>
@@ -319,16 +343,14 @@ export default function AdminDashboardPage() {
                   </button>
                 </div>
                 <div className="bg-white border border-slate-200 rounded-lg p-6 shadow-sm flex-1 flex flex-col justify-center">
-                  {/* 🌟 수정: 전체 잔여 -> 잔여 포인트 */}
                   <p className="text-[12px] font-bold text-slate-500 mb-1 text-left">잔여 포인트</p>
                   <p className="text-[20px] font-black text-slate-800 text-right">{totalUsablePoints.toLocaleString()} <span className="text-[11px] text-slate-400 font-bold">P</span></p>
                 </div>
               </div>
             </div>
 
-            {/* 🌟 수정: 회원 현황 통계 (금일 포인트와 완벽하게 동일한 3:1 박스 구조 적용) */}
+            {/* 회원 현황 통계 */}
             <div className="flex gap-4 mb-8 items-stretch">
-              {/* 박스 1 (비율 3) */}
               <div className="flex-[3] flex flex-col">
                 <div className="h-9 flex items-center justify-between mb-2 ml-1">
                   <h3 className="text-[15px] font-extrabold text-slate-800">회원 현황</h3>
@@ -355,7 +377,6 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* 박스 2 (비율 1) */}
               <div className="flex-[1] flex flex-col">
                 <div className="h-9 flex justify-between items-center mb-2 ml-1">
                   <h3 className="text-[15px] font-extrabold text-slate-800">전체 회원</h3>
@@ -367,7 +388,6 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {/* 구분선 */}
             <div className="w-[80%] mx-auto border-t border-slate-200 mb-8"></div>
 
             {/* API 호출량 모니터링 */}
