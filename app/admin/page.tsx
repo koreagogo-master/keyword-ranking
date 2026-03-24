@@ -12,7 +12,8 @@ import AdminTabs from '@/components/AdminTabs';
 interface PointHistory {
   id: string;
   created_at: string;
-  change_type: 'USE' | 'CHARGE' | 'ADMIN';
+  // 🌟 한글 호환 타입 추가
+  change_type: 'USE' | 'CHARGE' | 'ADMIN' | '사용' | '충전' | '관리자'; 
   change_amount: number;
   page_type: string;
   description: string;
@@ -24,10 +25,14 @@ interface PointHistory {
   } | null;
 }
 
+// 🌟 대시보드에도 한글 라벨 완벽 호환되도록 수정!
 const TYPE_LABELS: Record<string, { text: string, color: string }> = {
   'USE': { text: 'S', color: 'bg-rose-100 text-rose-700 border-rose-200' },
+  '사용': { text: 'S', color: 'bg-rose-100 text-rose-700 border-rose-200' },
   'CHARGE': { text: 'P', color: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-  'ADMIN': { text: 'A', color: 'bg-amber-100 text-amber-700 border-amber-200' }
+  '충전': { text: 'P', color: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
+  'ADMIN': { text: 'A', color: 'bg-amber-100 text-amber-700 border-amber-200' },
+  '관리자': { text: 'A', color: 'bg-amber-100 text-amber-700 border-amber-200' }
 };
 
 const PAGE_META: Record<string, { name: string; url: string }> = {
@@ -41,7 +46,9 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'YOUTUBE': { name: '유튜브 트렌드', url: '/youtube-trend' },
   'SHOPPING': { name: '쇼핑 인사이트', url: '/shopping-insight' },
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
-  'MANUAL': { name: '관리자 수동 조작', url: '/admin' }
+  'MANUAL': { name: '관리자 수동 조작', url: '/admin' },
+  // 🌟 사용처에 '포인트 자동 충전' 추가!
+  'CHARGE': { name: '포인트 자동 충전', url: '/charge' } 
 };
 
 const NAVER_SEARCH_TYPES = ['RELATED', 'BLOG', 'JISIKIN', 'TOTAL', 'SHOPPING_RANK'];
@@ -52,7 +59,6 @@ export default function AdminDashboardPage() {
   const { user, profile, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   
-  // 🌟 알림 중복 방지용 기억 장치
   const alertShown = useRef(false);
 
   const [history, setHistory] = useState<PointHistory[]>([]);
@@ -63,7 +69,6 @@ export default function AdminDashboardPage() {
   const [apiTab, setApiTab] = useState<'naverSearch' | 'naverDatalab' | 'google'>('naverSearch');
   const [apiChartOffset, setApiChartOffset] = useState(0);
 
-  // 🌟 철통 보안 로직 (1회만 알림)
   useEffect(() => {
     if (!isAuthLoading) {
       if (!user || profile?.role?.toLowerCase() !== 'admin') {
@@ -134,11 +139,11 @@ export default function AdminDashboardPage() {
 
     history.forEach(item => {
       if (item.created_at.startsWith(todayStr)) {
-        if (item.change_type === 'USE') {
+        if (item.change_type === 'USE' || item.change_type === '사용') {
           used += Math.abs(item.change_amount);
         } else if (item.page_type === 'SIGNUP') {
           signup += item.change_amount;
-        } else if (item.change_type === 'CHARGE' || (item.change_type === 'ADMIN' && item.change_amount > 0)) {
+        } else if (item.change_type === 'CHARGE' || item.change_type === '충전' || ((item.change_type === 'ADMIN' || item.change_type === '관리자') && item.change_amount > 0)) {
           charged += item.change_amount;
         }
       }
@@ -170,7 +175,7 @@ export default function AdminDashboardPage() {
 
   const api28Stats = useMemo(() => {
     return apiRecent28Days.map(date => {
-      const dayHistory = history.filter(h => h.created_at.startsWith(date) && h.change_type === 'USE');
+      const dayHistory = history.filter(h => h.created_at.startsWith(date) && (h.change_type === 'USE' || h.change_type === '사용'));
       const naverSearchCount = dayHistory.filter(h => NAVER_SEARCH_TYPES.includes(h.page_type)).length;
       const naverDatalabCount = dayHistory.filter(h => NAVER_DATALAB_TYPES.includes(h.page_type)).length;
       const googleCount = dayHistory.filter(h => GOOGLE_TYPES.includes(h.page_type)).length;
@@ -197,7 +202,7 @@ export default function AdminDashboardPage() {
     const recent7Days = recent28Days.slice(0, 7);
     history.forEach(item => {
       const itemDate = item.created_at.split('T')[0];
-      if (recent7Days.includes(itemDate) && item.change_type === 'USE' && item.page_type && item.page_type !== 'MANUAL') {
+      if (recent7Days.includes(itemDate) && (item.change_type === 'USE' || item.change_type === '사용') && item.page_type && item.page_type !== 'MANUAL') {
         counts[item.page_type] = (counts[item.page_type] || 0) + 1;
       }
     });
@@ -212,7 +217,7 @@ export default function AdminDashboardPage() {
     const recent7Days = recent28Days.slice(0, 7);
     history.forEach(item => {
       const itemDate = item.created_at.split('T')[0];
-      if (recent7Days.includes(itemDate) && item.change_type === 'USE' && item.description && item.page_type !== 'MANUAL') {
+      if (recent7Days.includes(itemDate) && (item.change_type === 'USE' || item.change_type === '사용') && item.description && item.page_type !== 'MANUAL') {
         counts[item.description] = (counts[item.description] || 0) + 1;
       }
     });
@@ -233,11 +238,11 @@ export default function AdminDashboardPage() {
     history.forEach(item => {
       const itemDate = item.created_at.split('T')[0];
       if (stats[itemDate]) {
-        if (item.change_type === 'USE') {
+        if (item.change_type === 'USE' || item.change_type === '사용') {
           stats[itemDate].used += Math.abs(item.change_amount);
         } else if (item.page_type === 'SIGNUP') {
           stats[itemDate].signup += item.change_amount;
-        } else if (item.change_type === 'CHARGE' || (item.change_type === 'ADMIN' && item.change_amount > 0)) {
+        } else if (item.change_type === 'CHARGE' || item.change_type === '충전' || ((item.change_type === 'ADMIN' || item.change_type === '관리자') && item.change_amount > 0)) {
           stats[itemDate].charged += item.change_amount;
         }
       }
@@ -271,6 +276,44 @@ export default function AdminDashboardPage() {
   }, [history]);
 
   const recentHistoryList = historyWithBalances.slice(0, 10);
+
+  // 🌟 (신규) 트렌드 키워드 렌더링 헬퍼 (1줄 인라인 유지 & 줄임표 방어)
+  const renderTrendKeyword = (kw: string) => {
+    const match = kw.match(/^(.*?)(\s*검색\s*\(\d+건\)?)$/);
+    if (match) {
+      const body = match[1];
+      const tail = match[2];
+      // 좁은 영역에 맞춰 70자 이상이면 2줄로 강제 절삭하여 꼬리표 공간 확보
+      const truncatedBody = body.length > 70 ? body.slice(0, 70) + '...' : body;
+      return (
+        <div className="break-all leading-snug" title={kw}>
+          <span>{truncatedBody}</span>
+          <span className="text-[11px] text-slate-500 ml-1 whitespace-nowrap">{tail}</span>
+        </div>
+      );
+    }
+    // 일반 텍스트일 경우
+    return <div className="line-clamp-2 break-all leading-snug" title={kw}>{kw}</div>;
+  };
+
+  // 🌟 (신규) 포인트 히스토리 렌더링 헬퍼 (폭 넓게 유지 & 줄임표 방어)
+  const renderHistoryDescription = (desc: string) => {
+    const match = desc.match(/^(.*?)(\s*검색\s*\(\d+건\)?)$/);
+    if (match) {
+      const body = match[1];
+      const tail = match[2];
+      // 넓은 영역에 맞춰 130자 이상이면 2줄로 강제 절삭하여 꼬리표 공간 확보
+      const truncatedBody = body.length > 130 ? body.slice(0, 130) + '...' : body;
+      return (
+        <div className="break-all leading-snug" title={desc}>
+          <span>{truncatedBody}</span>
+          <span className="text-[11px] text-slate-500 ml-1 whitespace-nowrap">{tail}</span>
+        </div>
+      );
+    }
+    // 일반 텍스트일 경우
+    return <div className="line-clamp-2 break-all leading-snug" title={desc}>{desc}</div>;
+  };
 
   if (isAuthLoading) {
     return <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">권한 확인 중...</div>;
@@ -527,12 +570,15 @@ export default function AdminDashboardPage() {
                       <p className="text-[13px] text-slate-400 font-bold w-full text-center py-4">트렌드 키워드 분석 중입니다.</p>
                     ) : (
                       topKeywords.map(([kw, count], idx) => (
-                        <div key={kw} className="flex items-center justify-between w-full text-[13px] py-1.5 border-b border-gray-50 last:border-0">
-                          <div className="flex items-center gap-3">
-                            <span className={`font-black w-4 text-center ${idx < 3 ? 'text-rose-500' : 'text-slate-400'}`}>{idx + 1}</span>
-                            <span className="font-bold text-slate-700">{kw}</span>
+                        <div key={kw} className="flex items-start justify-between w-full text-[13px] py-1.5 border-b border-gray-50 last:border-0 overflow-hidden">
+                          <div className="flex items-start gap-3 flex-1 pr-4">
+                            <span className={`font-black w-4 text-center mt-0.5 ${idx < 3 ? 'text-rose-500' : 'text-slate-400'}`}>{idx + 1}</span>
+                            <div className="font-bold text-slate-700 flex-1">
+                              {/* 🌟 헬퍼 함수를 통해 1줄/2줄 및 줄임표 방어 완벽 처리 */}
+                              {renderTrendKeyword(kw)}
+                            </div>
                           </div>
-                          <span className="font-bold text-slate-400">{count.toLocaleString()} <span className="text-[11px]">회</span></span>
+                          <span className="font-bold text-slate-400 whitespace-nowrap mt-0.5">{count.toLocaleString()} <span className="text-[11px]">회</span></span>
                         </div>
                       ))
                     )}
@@ -645,7 +691,8 @@ export default function AdminDashboardPage() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-slate-700 font-medium">
-                            {item.description || '-'}
+                            {/* 🌟 헬퍼 함수 적용 & 기존의 꽉 막혀있던 max-w-[300px] 제거! */}
+                            {renderHistoryDescription(item.description || '-')}
                           </td>
                           <td className="px-6 py-4 text-right">
                             <span className={`font-black text-[15px] ${isMinus ? 'text-rose-600' : 'text-indigo-600'}`}>

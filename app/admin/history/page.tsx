@@ -27,8 +27,11 @@ interface PointHistory {
 
 const TYPE_LABELS: Record<string, { text: string, color: string }> = {
   'USE': { text: 'S', color: 'bg-rose-100 text-rose-700 border-rose-200' },
+  '사용': { text: 'S', color: 'bg-rose-100 text-rose-700 border-rose-200' }, // 🌟 한글 호환 추가
   'CHARGE': { text: 'P', color: 'bg-indigo-100 text-indigo-700 border-indigo-200' },
-  'ADMIN': { text: 'A', color: 'bg-amber-100 text-amber-700 border-amber-200' }
+  '충전': { text: 'P', color: 'bg-indigo-100 text-indigo-700 border-indigo-200' }, // 🌟 한글 호환 추가
+  'ADMIN': { text: 'A', color: 'bg-amber-100 text-amber-700 border-amber-200' },
+  '관리자': { text: 'A', color: 'bg-amber-100 text-amber-700 border-amber-200' } // 🌟 한글 호환 추가
 };
 
 const PAGE_META: Record<string, { name: string; url: string }> = {
@@ -42,9 +45,9 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'YOUTUBE': { name: '유튜브 트렌드', url: '/youtube-trend' },
   'SHOPPING': { name: '쇼핑 인사이트', url: '/shopping-insight' },
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
-  'MANUAL': { name: '관리자 수동 조작', url: '/admin' }
+  'MANUAL': { name: '관리자 수동 조작', url: '/admin' },
+  'CHARGE': { name: '포인트 자동 충전', url: '/charge' } // 🌟 사용처 이름표 추가
 };
-
 export default function AdminHistoryPage() {
   // 🌟 권한 확인을 위한 수문장 호출
   const { user, profile, isLoading: isAuthLoading } = useAuth();

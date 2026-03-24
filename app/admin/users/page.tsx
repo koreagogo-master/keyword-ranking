@@ -128,15 +128,22 @@ export default function AdminUsersPage() {
       .eq('id', userId);
 
     if (!error) {
-      await supabase.from('point_history').insert({
+      // 🌟 '충전' : '사용' 이었던 부분을 데이터베이스가 아는 'CHARGE' : 'USE' 로 되돌립니다.
+      const { error: historyError } = await supabase.from('point_history').insert({
         user_id: userId,
-        change_type: 'ADMIN',
+        change_type: diff > 0 ? 'CHARGE' : 'USE', 
         change_amount: diff,
         page_type: 'MANUAL',
-        description: `${label} : ${currentVal.toLocaleString()} -> ${newVal.toLocaleString()} | ${memo || '사유 없음'}`
+        description: `[관리자 조정] ${label} : ${currentVal.toLocaleString()} -> ${newVal.toLocaleString()} | ${memo || '사유 없음'}`
       });
 
-      alert("포인트가 변경되고 히스토리에 안전하게 기록되었습니다.");
+      // 🌟 장부 기록이 실패하면 조용히 넘어가지 않고 원인을 알려주도록 수정
+      if (historyError) {
+        alert(`내역 기록에 실패했습니다: ${historyError.message}`);
+      } else {
+        alert("포인트가 변경되고 히스토리에 안전하게 기록되었습니다.");
+      }
+
       fetchUsers();
     } else {
       alert("포인트 수정 중 오류가 발생했습니다.");
