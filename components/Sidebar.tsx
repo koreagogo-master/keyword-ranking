@@ -21,7 +21,7 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
 export default function Sidebar() {
   const pathname = usePathname();
   const { user, profile, isLoading } = useAuth();
-  
+
   const [clientIp, setClientIp] = useState<string | null>(null);
   const [pointPolicies, setPointPolicies] = useState<Record<string, number>>({});
 
@@ -42,7 +42,7 @@ export default function Sidebar() {
         setPointPolicies(policyMap);
       }
     };
-    
+
     fetchPolicies();
   }, []);
 
@@ -85,7 +85,7 @@ export default function Sidebar() {
       items: [
         { name: "저장된 목록 보기", href: "/history" },
         { name: "고객센터 (FAQ)", href: "/contact" },
-        { name: "공지사항", href: "/notice" } 
+        { name: "공지사항", href: "/notice" }
       ]
     }
   ];
@@ -100,7 +100,7 @@ export default function Sidebar() {
           </div>
         ) : user ? (
           <div className="px-4 pt-0 pb-4 border-b border-gray-100 bg-gray-50/30">
-            
+
             <div className="flex items-center gap-1.5 mb-2.5 px-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-[11px] font-bold text-gray-400 tracking-wider">
@@ -111,16 +111,16 @@ export default function Sidebar() {
             <div className="p-3 bg-white border border-[#5244e8]/20 rounded-lg shadow-sm">
               <div className="flex justify-between items-center pb-2 mb-2 border-b border-gray-100">
                 <span className="text-[11px] text-gray-400 font-black tracking-widest uppercase">My Grade</span>
-                
+
                 <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded border uppercase
-                  ${profile?.grade === 'agency' ? 'bg-purple-50 text-purple-600 border-purple-200' : 
-                    profile?.grade === 'pro' ? 'bg-blue-50 text-blue-600 border-blue-200' : 
-                    profile?.grade === 'starter' ? 'bg-green-50 text-green-600 border-green-200' : 
-                    'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                  ${profile?.grade === 'agency' ? 'bg-purple-50 text-purple-600 border-purple-200' :
+                    profile?.grade === 'pro' ? 'bg-blue-50 text-blue-600 border-blue-200' :
+                      profile?.grade === 'starter' ? 'bg-green-50 text-green-600 border-green-200' :
+                        'bg-gray-50 text-gray-600 border-gray-200'}`}>
                   {profile?.grade || 'FREE'}
                 </span>
               </div>
-              
+
               <div className="flex justify-between items-center mb-1.5">
                 <span className="text-[11px] text-gray-500 font-bold tracking-tight">결제한 포인트</span>
                 <span className="text-[11px] font-semibold text-gray-600">{profile?.purchased_points?.toLocaleString() || 0} P</span>
@@ -130,16 +130,16 @@ export default function Sidebar() {
                 <span className="text-[11px] font-semibold text-green-600">{profile?.bonus_points?.toLocaleString() || 0} P</span>
               </div>
               <div className="w-full h-px bg-gray-100 mb-2.5"></div>
-              
+
               <div className="flex justify-between items-center mb-3">
                 <span className="text-[11px] text-[#5244e8] font-bold tracking-tight">사용 가능 포인트</span>
                 <span className="text-[13px] font-bold text-[#5244e8]">
                   {((profile?.bonus_points || 0) + (profile?.purchased_points || 0)).toLocaleString()} <span className="text-[11px]">P</span>
                 </span>
               </div>
-              
-              <Link 
-                href="/mypage" 
+
+              <Link
+                href="/charge"
                 className="w-full flex items-center justify-center gap-1.5 py-2 bg-[#5244e8]/80 hover:bg-[#5244e8] text-white rounded-md text-[12px] font-bold transition-colors shadow-sm"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
@@ -173,8 +173,8 @@ export default function Sidebar() {
 
                     return (
                       <li key={itemIdx}>
-                        <Link 
-                          href={item.href} 
+                        <Link
+                          href={item.href}
                           onClick={(e) => {
                             if ((item as any).isPreparing) {
                               e.preventDefault();
@@ -184,27 +184,26 @@ export default function Sidebar() {
                           className={`
                             px-6 py-2 flex items-center gap-3 transition-all text-[13.5px]
                             ${isActive
-                                ? 'bg-[#5244e8]/10 text-[#5244e8] border-r-[3px] border-[#5244e8] font-semibold'
-                                : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
+                              ? 'bg-[#5244e8]/10 text-[#5244e8] border-r-[3px] border-[#5244e8] font-semibold'
+                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
                             ${(item as any).isPreparing ? 'opacity-60 cursor-not-allowed' : ''}
                           `}
                         >
                           <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-[#5244e8]' : 'bg-gray-200'}`}></span>
-                          
+
                           <div className="flex items-center">
                             {typeof item.name === 'string' ? item.name : item.name}
-                            
+
                             {typeof item.name === 'string' && pointCost !== null && (
                               pointCost === 0 ? (
                                 <span className="ml-2 px-1.5 py-[2px] bg-[#5244e8]/10 text-[#5244e8] rounded-sm text-[10px] font-black tracking-wide border border-[#5244e8]/20 shadow-sm">
                                   FREE
                                 </span>
                               ) : (
-                                <span className={`ml-2 px-1.5 py-[2px] rounded-sm text-[10px] font-bold tracking-wide border shadow-sm transition-colors ${
-                                  isActive 
-                                    ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20' 
+                                <span className={`ml-2 px-1.5 py-[2px] rounded-sm text-[10px] font-bold tracking-wide border shadow-sm transition-colors ${isActive
+                                    ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20'
                                     : 'bg-slate-50 text-slate-500 border-slate-200'
-                                }`}>
+                                  }`}>
                                   {pointCost}P
                                 </span>
                               )

@@ -322,9 +322,12 @@ export default function Home() {
                   <p className="text-lg text-gray-600 font-semibold group-hover:text-gray-800 transition-colors">IP 1개 접속 가능</p>
                 </div>
 
-                {/* 버튼 텍스트 굵기를 font-medium으로 조절하여 부담감 완화 */}
-                <button className="w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all">
-                  선택하기
+                {/* 🌟 1번 버튼: cursor-pointer 추가 완료 */}
+                <button 
+                  onClick={() => window.location.href = '/charge'} 
+                  className="cursor-pointer w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all"
+                >
+                  결제하기
                 </button>
               </div>
 
@@ -348,8 +351,12 @@ export default function Home() {
                   <p className="text-lg text-gray-600 font-semibold group-hover:text-gray-800 transition-colors">IP 1개 접속 가능</p>
                 </div>
 
-                <button className="w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all">
-                  선택하기
+                {/* 🌟 2번 버튼: cursor-pointer 추가 완료 */}
+                <button 
+                  onClick={() => window.location.href = '/charge'} 
+                  className="cursor-pointer w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all"
+                >
+                  결제하기
                 </button>
               </div>
 
@@ -373,8 +380,12 @@ export default function Home() {
                   <p className="text-lg text-gray-600 font-semibold group-hover:text-gray-800 transition-colors">IP 다중 접속 가능</p>
                 </div>
 
-                <button className="w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all">
-                  선택하기
+                {/* 🌟 3번 버튼: cursor-pointer 추가 완료 */}
+                <button 
+                  onClick={() => window.location.href = '/charge'} 
+                  className="cursor-pointer w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all"
+                >
+                  결제하기
                 </button>
               </div>
 

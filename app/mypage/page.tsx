@@ -46,7 +46,7 @@ export default function MyPage() {
 
   useEffect(() => {
     if (!isLoading && !user) {
-      router.push("/"); 
+      router.push("/");
     }
   }, [user, isLoading, router]);
 
@@ -54,19 +54,19 @@ export default function MyPage() {
     if (user && profile) {
       fetchUserHistory();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, profile, currentPage, searchTrigger]);
 
   const fetchUserHistory = async () => {
     setLoadingHistory(true);
     const supabase = createClient();
-    
+
     let countQuery = supabase.from('point_history').select('*', { count: 'exact', head: true }).eq('user_id', user?.id);
     if (startDate) countQuery = countQuery.gte('created_at', `${startDate}T00:00:00`);
     if (endDate) countQuery = countQuery.lte('created_at', `${endDate}T23:59:59`);
     if (activeTab === 'CHARGE') countQuery = countQuery.gt('change_amount', 0);
     if (activeTab === 'USE') countQuery = countQuery.lt('change_amount', 0);
-    
+
     const { count } = await countQuery;
     setTotalCount(count || 0);
 
@@ -96,13 +96,13 @@ export default function MyPage() {
         .gt('created_at', firstItemDate);
 
       const sumNewer = newerChanges?.reduce((acc, curr) => acc + curr.change_amount, 0) || 0;
-      pageStartBalance -= sumNewer; 
+      pageStartBalance -= sumNewer;
 
       const historyWithBalance = data.map((item) => {
         let displayBalance = 0;
         if (activeTab === 'ALL') {
           displayBalance = pageStartBalance;
-          pageStartBalance -= item.change_amount; 
+          pageStartBalance -= item.change_amount;
         }
         return { ...item, running_balance: displayBalance };
       });
@@ -153,9 +153,9 @@ export default function MyPage() {
       const supabase = createClient();
       const { error } = await supabase
         .from('profiles')
-        .update({ 
-          is_deleted: true, 
-          deleted_at: new Date().toISOString() 
+        .update({
+          is_deleted: true,
+          deleted_at: new Date().toISOString()
         })
         .eq('id', user?.id);
 
@@ -168,7 +168,7 @@ export default function MyPage() {
       await supabase.auth.signOut();
       alert("성공적으로 탈퇴 처리되었습니다. 그동안 이용해주셔서 감사합니다.");
       router.push("/");
-      
+
     } catch (err) {
       console.error(err);
       alert("오류가 발생했습니다.");
@@ -191,31 +191,30 @@ export default function MyPage() {
       <Sidebar />
       <div className="flex-1 ml-64 p-6 md:p-10">
         <div className="max-w-4xl mx-auto">
-          
+
           {/* 🌟 1. 타이틀 수정: text-center 추가 */}
           <h1 className="text-2xl font-bold mb-6 text-gray-900 text-center">
             마이페이지
           </h1>
-          
+
           {/* 기본 정보 */}
           <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-6">
             <div className="flex flex-col gap-4">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5 mb-6">
-              <div className="w-1 h-5 bg-[#5244e8] rounded-sm"></div>
-              기본 정보
-            </h2>
+                <div className="w-1 h-5 bg-[#5244e8] rounded-sm"></div>
+                기본 정보
+              </h2>
               <div className="flex items-center">
                 <label className="text-gray-500 text-sm font-semibold w-28">ID (이메일)</label>
                 <p className="text-base font-medium text-gray-900">{profile.email}</p>
               </div>
               <div className="flex items-center">
                 <label className="text-gray-500 text-sm font-semibold w-28">내 등급</label>
-                <span className={`text-base font-bold uppercase ${
-                  profile.grade === 'agency' ? 'text-purple-600' :
+                <span className={`text-base font-bold uppercase ${profile.grade === 'agency' ? 'text-purple-600' :
                   profile.grade === 'pro' ? 'text-blue-600' :
-                  profile.grade === 'starter' ? 'text-green-600' :
-                  'text-gray-600'
-                }`}>
+                    profile.grade === 'starter' ? 'text-green-600' :
+                      'text-gray-600'
+                  }`}>
                   {profile.grade || 'FREE'}
                 </span>
               </div>
@@ -257,10 +256,10 @@ export default function MyPage() {
                   <span className="text-[15px] font-semibold text-green-600">{profile?.bonus_points?.toLocaleString() || 0} P</span>
                 </div>
                 <div className="w-full h-px bg-gray-100 my-2"></div>
-                
-                <button 
-                  onClick={() => alert('추후 토스페이먼츠 / 포트원 등 실제 결제 모듈이 연동될 예정입니다!')}
-                  className="w-full py-3 bg-[#5244e8] hover:bg-[#4336c9] text-white rounded-xl text-[14px] font-bold transition-colors shadow-sm flex items-center justify-center gap-2 mt-1"
+
+                <button
+                  onClick={() => router.push('/charge')}
+                  className="cursor-pointer w-full py-3 bg-[#5244e8] hover:bg-[#4336c9] text-white rounded-xl text-[14px] font-bold transition-colors shadow-sm flex items-center justify-center gap-2 mt-1"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
                   포인트 충전하기
@@ -280,25 +279,22 @@ export default function MyPage() {
             <div className="flex justify-center border-b border-gray-200 mb-6 relative">
               <button
                 onClick={() => handleTabChange('ALL')}
-                className={`pb-3 px-6 text-sm font-bold border-b-2 transition-colors ${
-                  activeTab === 'ALL' ? 'border-[#5244e8] !text-[#5244e8]' : 'border-transparent !text-slate-600 hover:!text-gray-800'
-                }`}
+                className={`pb-3 px-6 text-sm font-bold border-b-2 transition-colors ${activeTab === 'ALL' ? 'border-[#5244e8] !text-[#5244e8]' : 'border-transparent !text-slate-600 hover:!text-gray-800'
+                  }`}
               >
                 전체 내역
               </button>
               <button
                 onClick={() => handleTabChange('CHARGE')}
-                className={`pb-3 px-6 text-sm font-bold border-b-2 transition-colors ${
-                  activeTab === 'CHARGE' ? 'border-[#5244e8] !text-[#5244e8]' : 'border-transparent !text-slate-600 hover:!text-gray-800'
-                }`}
+                className={`pb-3 px-6 text-sm font-bold border-b-2 transition-colors ${activeTab === 'CHARGE' ? 'border-[#5244e8] !text-[#5244e8]' : 'border-transparent !text-slate-600 hover:!text-gray-800'
+                  }`}
               >
                 충전 내역 (+)
               </button>
               <button
                 onClick={() => handleTabChange('USE')}
-                className={`pb-3 px-6 text-sm font-bold border-b-2 transition-colors ${
-                  activeTab === 'USE' ? 'border-[#5244e8] !text-[#5244e8]' : 'border-transparent !text-slate-600 hover:!text-gray-800'
-                }`}
+                className={`pb-3 px-6 text-sm font-bold border-b-2 transition-colors ${activeTab === 'USE' ? 'border-[#5244e8] !text-[#5244e8]' : 'border-transparent !text-slate-600 hover:!text-gray-800'
+                  }`}
               >
                 사용 내역 (-)
               </button>
@@ -312,9 +308,9 @@ export default function MyPage() {
                 <button onClick={() => handleFilterChange(6)} className={`px-4 py-1.5 text-[12px] font-bold rounded-md border transition-colors ${filterMonths === 6 ? 'bg-indigo-600 !text-white border-indigo-600' : 'bg-white !text-gray-600 border-gray-200 hover:bg-gray-50'}`}>6개월</button>
               </div>
               <div className="flex items-center gap-2">
-                <input type="date" value={startDate} onChange={e => {setStartDate(e.target.value); setFilterMonths(0);}} className="border border-gray-300 rounded-md px-3 py-1.5 text-[12px] font-medium text-gray-700 outline-none focus:border-indigo-500" />
+                <input type="date" value={startDate} onChange={e => { setStartDate(e.target.value); setFilterMonths(0); }} className="border border-gray-300 rounded-md px-3 py-1.5 text-[12px] font-medium text-gray-700 outline-none focus:border-indigo-500" />
                 <span className="text-gray-400 font-bold">~</span>
-                <input type="date" value={endDate} onChange={e => {setEndDate(e.target.value); setFilterMonths(0);}} className="border border-gray-300 rounded-md px-3 py-1.5 text-[12px] font-medium text-gray-700 outline-none focus:border-indigo-500" />
+                <input type="date" value={endDate} onChange={e => { setEndDate(e.target.value); setFilterMonths(0); }} className="border border-gray-300 rounded-md px-3 py-1.5 text-[12px] font-medium text-gray-700 outline-none focus:border-indigo-500" />
                 <button onClick={handleManualSearch} className="bg-slate-700 hover:bg-slate-800 !text-white px-4 py-1.5 rounded-md text-[12px] font-bold transition-colors shadow-sm">
                   조회
                 </button>
@@ -348,8 +344,8 @@ export default function MyPage() {
                           <td className="px-5 py-2 text-center">
                             <span className={`inline-block px-2 py-1 rounded-md text-[11px] font-bold border
                               ${isSignup ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
-                                isUse ? 'bg-rose-50 text-rose-600 border-rose-200' : 
-                                'bg-indigo-50 text-indigo-600 border-indigo-200'}
+                                isUse ? 'bg-rose-50 text-rose-600 border-rose-200' :
+                                  'bg-indigo-50 text-indigo-600 border-indigo-200'}
                             `}>
                               {isSignup ? '가입' : isUse ? '사용' : '충전'}
                             </span>
@@ -384,7 +380,7 @@ export default function MyPage() {
             {/* 페이지네이션 */}
             {!loadingHistory && totalCount > 0 && (
               <div className="flex justify-center items-center gap-2 mt-6">
-                <button 
+                <button
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                   className="px-3 py-1.5 rounded border border-gray-200 bg-white !text-slate-600 text-[13px] font-bold disabled:opacity-30 hover:bg-slate-50 transition-colors"
@@ -394,7 +390,7 @@ export default function MyPage() {
                 <span className="text-[13px] font-bold text-slate-500 px-3">
                   <span className="text-[#5244e8]">{currentPage}</span> / {totalPages}
                 </span>
-                <button 
+                <button
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                   className="px-3 py-1.5 rounded border border-gray-200 bg-white !text-slate-600 text-[13px] font-bold disabled:opacity-30 hover:bg-slate-50 transition-colors"
@@ -412,7 +408,7 @@ export default function MyPage() {
                 <div className="w-1 h-5 bg-[#5244e8] rounded-sm"></div>
                 내 메모
               </h2>
-              <button 
+              <button
                 onClick={handleOpenMemo}
                 className="flex items-center gap-2 px-4 py-2 bg-slate-700 text-white text-[13px] font-bold rounded-xl shadow-sm transition-all cursor-pointer hover:bg-slate-800"
               >
@@ -422,7 +418,7 @@ export default function MyPage() {
                 메모 수정하기
               </button>
             </div>
-            
+
             <div className="bg-gray-50 p-5 rounded-xl border border-gray-100 min-h-[150px] whitespace-pre-wrap text-gray-700 text-[14px] leading-relaxed">
               {profile.memo_content ? (
                 profile.memo_content
