@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
 import Sidebar from "@/components/Sidebar";
@@ -28,7 +28,7 @@ const getPastDate = (months: number) => {
 };
 const getToday = () => new Date().toISOString().split('T')[0];
 
-export default function MyPage() {
+function MyPageContent() {
   const { user, profile, isLoading } = useAuth();
   const router = useRouter();
 
@@ -539,5 +539,14 @@ export default function MyPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// 🌟 파일 제일 밑에 이 코드를 통째로 추가합니다.
+export default function MyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-bold text-slate-500">결제 정보 확인 중...</div>}>
+      <MyPageContent />
+    </Suspense>
   );
 }
