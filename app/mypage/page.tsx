@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, useCallback, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
 import Sidebar from "@/components/Sidebar";
 import { createClient } from "@/app/utils/supabase/client";
@@ -17,7 +17,8 @@ const PAGE_META: Record<string, string> = {
   'YOUTUBE': '유튜브 트렌드',
   'SHOPPING': '쇼핑 인사이트',
   'SHOPPING_RANK': '상품 노출 순위 분석',
-  'MANUAL': '관리자 조정 포인트'
+  'MANUAL': '관리자 조정 포인트',
+  'CHARGE': '포인트 자동 충전'
 };
 
 const getPastDate = (months: number) => {
@@ -31,6 +32,12 @@ export default function MyPage() {
   const { user, profile, isLoading } = useAuth();
   const router = useRouter();
 
+  // 🌟 결제 데이터 낚아채기 추가
+  const searchParams = useSearchParams();
+  const paymentKey = searchParams.get('paymentKey');
+  const orderId = searchParams.get('orderId');
+  const amount = searchParams.get('amount');
+
   const [activeTab, setActiveTab] = useState<'ALL' | 'CHARGE' | 'USE'>('ALL');
 
   const [filterMonths, setFilterMonths] = useState<number>(1);
@@ -42,7 +49,98 @@ export default function MyPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
+
   const itemsPerPage = 10;
+
+  // 🌟 방어막 깃발 추가
+  const isProcessingRef = useRef(false);
+
+  // 🌟 여기서부터 추가: 결제 승인 및 포인트 자동 지급 로직
+  useEffect(() => {
+    if (paymentKey && orderId && amount && user && profile) {
+      // 이미 처리 중이면 두 번 실행하지 않고 바로 종료
+      if (isProcessingRef.current) return;
+      isProcessingRef.current = true; // 문 잠그기
+
+      processPayment();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paymentKey, orderId, amount, user, profile]);
+
+  const processPayment = async () => {
+    const supabase = createClient();
+    
+    // 🌟 수정 1: single()을 maybeSingle()로 변경하여 406 에러(경고) 해결
+    const { data: existingPayment } = await supabase
+      .from('payments')
+      .select('id')
+      .eq('order_id', orderId)
+      .maybeSingle();
+
+    if (existingPayment) {
+      router.replace('/mypage'); 
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/payments/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentKey, orderId, amount: Number(amount) })
+      });
+      const result = await res.json();
+
+      if (result.success) {
+        let pointsToAdd = 0;
+        let planId = '';
+        if (Number(amount) === 10000) { pointsToAdd = 10000; planId = 'starter'; }
+        else if (Number(amount) === 30000) { pointsToAdd = 36000; planId = 'pro'; }
+        else if (Number(amount) === 50000) { pointsToAdd = 60000; planId = 'agency'; }
+
+        if (pointsToAdd > 0) {
+          await supabase.from('payments').insert({
+            user_id: user.id,
+            order_id: orderId,
+            payment_key: paymentKey,
+            plan_id: planId,
+            amount: Number(amount),
+            status: 'DONE',
+          });
+
+          const newPoints = (profile.purchased_points || 0) + pointsToAdd;
+          await supabase.from('profiles').update({
+            purchased_points: newPoints,
+            grade: planId
+          }).eq('id', user.id);
+
+          // 🌟 수정 2: change_type: '충전' 이라는 필수 값을 추가하여 에러 완벽 해결!
+          const { error: historyError } = await supabase.from('point_history').insert({
+            user_id: user.id,
+            change_amount: pointsToAdd,
+            page_type: 'CHARGE',
+            change_type: '충전', 
+            description: `${planId.toUpperCase()} 요금제`
+          });
+
+          if (historyError) {
+            console.error('내역 저장 에러:', historyError);
+            alert(`내역 기록 실패 원인: ${historyError.message}`); 
+          } else {
+            alert('결제가 성공적으로 완료되어 포인트가 지급되었습니다!');
+            window.location.href = '/mypage'; 
+          }
+        }
+      } else {
+        alert(`결제 승인 실패: ${result.message}`);
+        router.replace('/mypage');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('결제 처리 중 서버와 연결이 끊어졌습니다.');
+      router.replace('/mypage');
+    }
+  };
+  // 🌟 여기까지 추가 완료
 
   useEffect(() => {
     if (!isLoading && !user) {
