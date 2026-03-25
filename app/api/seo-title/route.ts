@@ -1,19 +1,10 @@
+// app/api/seo-title/route.ts
 import { NextResponse } from 'next/server';
-
-const limitTitleLength = (title: string, maxLength = 45): string => {
-    const words = title.split(/\s+/);
-    let finalTitle = words.join(' ');
-
-    while (finalTitle.length > maxLength && words.length > 1) {
-        words.pop();
-        finalTitle = words.join(' ');
-    }
-    return finalTitle;
-};
 
 export async function POST(request: Request) {
     try {
-        const { keyword, productName, excludeKeyword } = await request.json();
+        // 🌟 프론트엔드에서 분리해서 보내주는 attribute(속성)를 추가로 받습니다.
+        const { keyword, productName, attribute, excludeKeyword } = await request.json();
 
         if (!keyword) {
             return NextResponse.json({ success: false, message: '키워드가 없습니다.' }, { status: 400 });
@@ -48,7 +39,6 @@ export async function POST(request: Request) {
 
         const data = await response.json();
 
-        // 🌟 [수정됨] 10개가 아닌 상위 40개 전체의 상품명을 넘겨줍니다.
         const top40Titles = data.items ? data.items.map((item: any) => item.title.replace(/<[^>]+>/g, '')) : [];
 
         const categoryMap: Record<string, number> = {};
@@ -110,23 +100,42 @@ export async function POST(request: Request) {
         const uniqueKeywords = Array.from(new Set(relatedKeywords)).slice(0, 10);
         const [w1='', w2='', w3='', w4='', w5='', w6='', w7='', w8='', w9=''] = uniqueKeywords;
 
-        const prefix = productName ? `${productName} ` : '';
+        // 🌟 브랜드명, 속성/사양 안전망 구축
+        const safeBrand = productName ? productName.trim() : '';
+        const safeAttribute = attribute ? attribute.trim() : '';
 
+        // 🌟 중간에 들어갈 '키워드 덩어리' 패턴만 생성 (브랜드와 속성은 여기서 제외)
         const rawTitlesData = [
-            { text: `${prefix}${searchKeyword} ${w1} ${w2} ${w3} ${w4}`, pattern: '정석 (메인 수식어형)' },
-            { text: `${prefix}${w1} ${w2} ${searchKeyword} ${w3} ${w4} ${w5}`, pattern: '핵심 수식어 강조형' },
-            { text: `${prefix}${w3} ${w4} ${searchKeyword} ${w1} ${w2}`, pattern: '모바일용 간결형' },
-            { text: `${prefix}${w2} ${w1} ${searchKeyword} ${w5} ${w6}`, pattern: '서브 수식어 변형' },
-            { text: `${prefix}${w4} ${w5} ${w6} ${searchKeyword} ${w1} ${w2}`, pattern: '서브 키워드 강조형' }
+            { text: `${searchKeyword} ${w1} ${w2} ${w3} ${w4}`, pattern: '정석 (메인 수식어형)' },
+            { text: `${w1} ${w2} ${searchKeyword} ${w3} ${w4} ${w5}`, pattern: '핵심 수식어 강조형' },
+            { text: `${w3} ${w4} ${searchKeyword} ${w1} ${w2}`, pattern: '모바일용 간결형' },
+            { text: `${w2} ${w1} ${searchKeyword} ${w5} ${w6}`, pattern: '서브 수식어 변형' },
+            { text: `${w4} ${w5} ${w6} ${searchKeyword} ${w1} ${w2}`, pattern: '서브 키워드 강조형' }
         ];
 
         const generatedTitles = rawTitlesData.map(item => {
-            const words = item.text.split(/\s+/);
-            const uniqueWordsInTitle = Array.from(new Set(words));
-            const uniqueTitle = uniqueWordsInTitle.join(' ').trim();
+            // 중간 키워드들 중복 제거 후 배열로 변환
+            let middleWords = Array.from(new Set(item.text.split(/\s+/).filter(Boolean)));
+            
+            // 조립 공장: [브랜드] + [중간 키워드들] + [속성/사양]
+            const buildTitle = (words: string[]) => {
+                const parts = [];
+                if (safeBrand) parts.push(safeBrand);
+                parts.push(...words);
+                if (safeAttribute) parts.push(safeAttribute);
+                return parts.join(' ').trim();
+            };
+
+            let combinedTitle = buildTitle(middleWords);
+            
+            // 🌟 가운데만 도려내는 안전 절단기 작동 (45자 초과 시)
+            while (combinedTitle.length > 45 && middleWords.length > 1) {
+                middleWords.pop(); // 중간 키워드의 맨 뒷단어 탈락!
+                combinedTitle = buildTitle(middleWords); // 다시 조립해서 검사
+            }
             
             return {
-                title: limitTitleLength(uniqueTitle, 45),
+                title: combinedTitle,
                 pattern: item.pattern
             };
         });
@@ -137,7 +146,7 @@ export async function POST(request: Request) {
             keywordsUsed: uniqueKeywords.slice(0, 8),
             categoryStats: categoryStats,
             tags: recommendedTags,
-            top40Titles: top40Titles // 🌟 프론트엔드로 40개 전송
+            top40Titles: top40Titles
         });
 
     } catch (error: any) {

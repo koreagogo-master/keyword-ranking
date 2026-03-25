@@ -289,7 +289,7 @@ function ShoppingRankContent() {
                       <tr>
                         <th className="px-4 py-2.5 text-center w-[5%]">순번</th>
                         <th className="px-6 py-2.5 text-center w-[11%]">쇼핑몰명</th>
-                        <th className="px-6 py-2.5 text-center w-[8%]">상품 이미지</th>
+                        <th className="px-6 py-2.5 text-center w-[8%]">썸네일</th>
                         <th className="px-6 py-2.5 w-[53%]">상품명</th>
                         
                         <th className="px-6 py-2.5 text-center w-[11%]">

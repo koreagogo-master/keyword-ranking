@@ -78,7 +78,7 @@ export default function Sidebar() {
       title: "Seller Tools",
       items: [
         { name: "쇼핑 키워드 인사이트", href: "/shopping-insight" },
-        { name: "SEO 상품명 조합기", href: "/seo-title" }, // 🌟 2단계 위치에 추가
+        { name: "쇼핑 상품명 최적화", href: "/seo-title" },
         { name: "상품 노출 순위 분석", href: "/shopping-rank" }
       ]
     },

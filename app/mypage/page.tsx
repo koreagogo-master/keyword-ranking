@@ -16,6 +16,7 @@ const PAGE_META: Record<string, string> = {
   'GOOGLE': '구글 키워드 분석',
   'YOUTUBE': '유튜브 트렌드',
   'SHOPPING': '쇼핑 인사이트',
+  'SEO_TITLE': '쇼핑 상품명 최적화',
   'SHOPPING_RANK': '상품 노출 순위 분석',
   'MANUAL': '관리자 조정 포인트',
   'CHARGE': '포인트 자동 충전'
