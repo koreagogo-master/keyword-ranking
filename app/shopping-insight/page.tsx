@@ -10,6 +10,7 @@ import Sidebar from "@/components/Sidebar";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+import SellerTabs from '@/components/SellerTabs';
 
 // 🌟 1. 마법의 포인트 스위치 가져오기
 import { usePoint } from '@/app/hooks/usePoint'; 
@@ -239,24 +240,11 @@ function ShoppingInsightContent() {
         <main className="flex-1 ml-64 p-10 relative">
           <div className="max-w-7xl mx-auto">
 
-            <div className="flex border-b border-gray-200 mb-8">
-              <Link 
-                href="/shopping-insight" 
-                className="px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-[2px] border-[#5244e8] text-[#5244e8]"
-              >
-                키워드 인사이트
-              </Link>
-              <Link 
-                href="/shopping-rank" 
-                className="px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-[2px] border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              >
-                내 상품 순위 확인
-              </Link>
-            </div>
+            <SellerTabs />
 
             <div className="flex justify-between items-start mb-8">
               <div>
-                <h1 className="text-2xl font-bold !text-black mb-2">쇼핑 인사이트</h1>
+                <h1 className="text-2xl font-bold !text-black mb-2">쇼핑 키워드 인사이트</h1>
                 <p className="text-sm text-slate-500 mt-1">* 네이버 쇼핑 데이터 기반으로 상품 키워드의 경쟁력과 트렌드를 분석합니다.</p>
               </div>
               <div className="flex items-center gap-2 mt-1 shrink-0">

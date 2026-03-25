@@ -44,7 +44,7 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'TOTAL': { name: '통검 노출/순위 확인', url: '/blog-rank' },
   'GOOGLE': { name: '구글 키워드 분석', url: '/google-analysis' },
   'YOUTUBE': { name: '유튜브 트렌드', url: '/youtube-trend' },
-  'SHOPPING': { name: '쇼핑 인사이트', url: '/shopping-insight' },
+  'SHOPPING': { name: '쇼핑 키워드 인사이트', url: '/shopping-insight' },
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
   'MANUAL': { name: '관리자 수동 조작', url: '/admin' },
   // 🌟 사용처에 '포인트 자동 충전' 추가!
@@ -463,7 +463,7 @@ export default function AdminDashboardPage() {
 
               <p className="text-[12px] font-bold text-slate-400 mb-3 ml-1 tracking-tight">
                 <span className="text-emerald-600/80">N검색</span> : 연관 키워드, 블로그 순위, 지식인 순위, 통검 노출, 상품 순위 <span className="mx-2 text-slate-200">|</span>
-                <span className="text-teal-600/80">N데이터랩</span> : 키워드 정밀 분석, 쇼핑 인사이트 <span className="mx-2 text-slate-200">|</span>
+                <span className="text-teal-600/80">N데이터랩</span> : 키워드 정밀 분석, 키워드 쇼핑 인사이트 <span className="mx-2 text-slate-200">|</span>
                 <span className="text-indigo-600/80">구글</span> : 구글 키워드 분석, 유튜브 트렌드
               </p>
 

@@ -1,8 +1,6 @@
 'use client';
 
-// 🌟 useRef 추가
 import { useEffect, useState, useRef } from 'react';
-// 🌟 수문장 역할을 할 모듈 추가
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/contexts/AuthContext';
 
@@ -26,6 +24,7 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'GOOGLE': { name: '구글 키워드 분석', url: '/google-analysis' },
   'YOUTUBE': { name: '유튜브 트렌드', url: '/youtube-trend' },
   'SHOPPING': { name: '쇼핑 인사이트', url: '/shopping-insight' },
+  'SEO_TITLE': { name: '쇼핑 상품명 최적화', url: '/seo-title' },
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' }
 };
 
@@ -40,23 +39,20 @@ const MENU_GROUPS = [
   },
   {
     title: 'SELLER TOOLS',
-    items: ['SHOPPING', 'SHOPPING_RANK']
+    items: ['SHOPPING', 'SEO_TITLE', 'SHOPPING_RANK']
   }
 ];
 
 export default function AdminPointsPage() {
-  // 🌟 권한 확인을 위한 수문장 호출
   const { user, profile, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
-  // 🌟 알림 중복 방지용 기억 장치
   const alertShown = useRef(false);
 
   const [policies, setPolicies] = useState<PointPolicy[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
 
-  // 🌟 철통 보안 로직 (1회만 알림)
   useEffect(() => {
     if (!isAuthLoading) {
       if (!user || profile?.role?.toLowerCase() !== 'admin') {
@@ -69,7 +65,6 @@ export default function AdminPointsPage() {
     }
   }, [user, profile, isAuthLoading, router]);
 
-  // 🌟 관리자임이 확인되었을 때만 초기 데이터 불러오기
   useEffect(() => {
     if (profile?.role?.toLowerCase() === 'admin') {
       fetchPolicies();
@@ -98,6 +93,7 @@ export default function AdminPointsPage() {
     setSavingId(policy.page_type);
     const supabase = createClient();
     
+    // 🌟 불필요한 검증 로직 제거 (가장 순수하고 안정적인 업데이트)
     const { error } = await supabase
       .from('point_policies')
       .update({ point_cost: policy.point_cost })
@@ -109,12 +105,14 @@ export default function AdminPointsPage() {
       const metaName = PAGE_META[policy.page_type]?.name || policy.page_name;
       alert(`[${metaName}] 포인트가 ${policy.point_cost}P로 저장되었습니다.`);
       setPolicies(prev => prev.map(p => p.page_type === policy.page_type ? { ...p, original_cost: policy.point_cost } : p));
+      
+      // 🌟 캐시를 날려 사이드바 등을 즉시 동기화합니다.
+      router.refresh();
     } else {
-      alert('저장에 실패했습니다. 관리자에게 문의하세요.');
+      alert(`저장에 실패했습니다. 관리자에게 문의하세요. (${error.message})`);
     }
   };
 
-  // 🌟 쫓겨나기 전 찰나의 순간에도 화면을 절대 보여주지 않는 철통 방어!
   if (isAuthLoading) {
     return <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">권한 확인 중...</div>;
   }

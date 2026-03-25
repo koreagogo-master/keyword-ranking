@@ -45,7 +45,6 @@ export default function Home() {
                 style={{
                   width: isFocused ? '600px' : '400px',
                   maxWidth: '100%',
-                  // 🚀 변경: 기본 테두리를 제공 솔루션과 같은 연보라(#c7d2fe), 포커스 시 진보라(#818cf8)로 변경
                   border: isFocused ? '1px solid #818cf8' : '1px solid #c7d2fe',
                   boxShadow: isFocused ? '0 10px 15px -3px rgba(79, 70, 229, 0.1)' : '0 1px 2px 0 rgba(79, 70, 229, 0.05)'
                 }}
@@ -77,7 +76,7 @@ export default function Home() {
         </FadeInUp>
       </main>
 
-      {/* 🌟 2. 소개 섹션 (호버 모션 제거, 보라색 테두리로 단단하고 정적인 느낌 유지) */}
+      {/* 🌟 2. 소개 섹션 */}
       <section className="bg-white py-24 px-6 border-b border-gray-100">
         <div className="max-w-6xl mx-auto text-center">
           <FadeInUp>
@@ -94,7 +93,6 @@ export default function Home() {
 
           <FadeInUp delay={0.2}>
             <div className="grid md:grid-cols-3 gap-10">
-              {/* 🚀 변경: hover 관련 애니메이션 클래스를 모두 제거하여 클릭 불가능한 정보성 박스임을 명확히 함 */}
               <div className="bg-white p-8 rounded-3xl shadow-sm border border-indigo-200 flex flex-col items-center text-center">
                 <div className="text-indigo-500 mb-5 bg-indigo-50 p-3 rounded-2xl">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
@@ -119,7 +117,7 @@ export default function Home() {
                 <div className="text-indigo-500 mb-5 bg-indigo-50 p-3 rounded-2xl">
                   <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">엔터프라이즈급 우회 시스템</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-3">IP 분산 처리 시스템</h3>
                 <p className="text-gray-500 text-sm leading-relaxed break-keep">
                   독자적인 프록시 네트워크 서버망을 구축하여, 대규모 키워드 분석 시에도 차단 위험 없이 가장 안전하고 안정적인 환경을 보장합니다.
                 </p>
@@ -129,7 +127,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 🌟 3. 제공 솔루션 (신규 기능 2종 추가, 총 14개 박스) */}
+      {/* 🌟 3. 제공 솔루션 (정확히 16개로 맞추어 그리드 붕괴 방지) */}
       <section className="bg-gray-50 py-24 px-6 border-b border-gray-100">
         <div className="max-w-5xl mx-auto">
           <FadeInUp>
@@ -219,7 +217,15 @@ export default function Home() {
                 <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">쇼핑 인사이트</h3>
               </Link>
 
-              {/* 박스 10 */}
+              {/* 🚀 신규 박스 10: 쇼핑 상품명 최적화 (메모장 아이콘 차용하여 전문성 강조) */}
+              <Link href="/seo-title" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
+                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">쇼핑 상품명 최적화</h3>
+              </Link>
+
+              {/* 박스 11 (기존 10) */}
               <Link href="/shopping-rank" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
                 <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
                   <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,31 +235,15 @@ export default function Home() {
                 <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">상품 노출 순위 분석</h3>
               </Link>
 
-              {/* 박스 11: 저장된 목록 보기 (기존 분석 히스토리) */}
-              <Link href="/saved-list" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
+              {/* 🚀 박스 12: 저장된 목록 보기 (링크 /history 로 수정) */}
+              <Link href="/history" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
                 <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
                   <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
                 </div>
                 <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">저장된 목록 보기</h3>
               </Link>
 
-              {/* 🚀 신규 박스 12: 검색 키워드 저장 */}
-              <Link href="#" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">검색 키워드 저장</h3>
-              </Link>
-
-              {/* 🚀 신규 박스 13: 전용 웹 메모장 */}
-              <Link href="#" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">전용 웹 메모장</h3>
-              </Link>
-
-              {/* 🚀 신규 박스 14: 고객센터 (FAQ) */}
+              {/* 박스 14: 고객센터 (FAQ) */}
               <Link href="/contact" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
                 <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
                   <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -261,7 +251,7 @@ export default function Home() {
                 <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">고객센터 (FAQ)</h3>
               </Link>
 
-              {/* 🚀 신규 박스 15: 공지사항 */}
+              {/* 박스 15: 공지사항 */}
               <Link href="/notice" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
                 <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
                   <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
@@ -269,21 +259,28 @@ export default function Home() {
                 <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">공지사항</h3>
               </Link>
 
-              {/* 🚀 신규 박스 16: 대규모 분산 처리 (기존: IP 자동 우회) */}
+              {/* 박스 13: 검색 키워드 저장 */}
               <Link href="#" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
                 <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-                  </svg>
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
                 </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">IP 분산 처리 시스템</h3>
+                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">검색 키워드 저장</h3>
+              </Link>
+
+
+              {/* 🚀 박스 16: 전용 웹 메모장 (IP 분산 처리 시스템 대체) */}
+              <Link href="#" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
+                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
+                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                </div>
+                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">전용 웹 메모장</h3>
               </Link>
             </div>
           </FadeInUp>
         </div>
       </section>
 
-      {/* 🌟 4. 합리적인 포인트 요금제 (포인트 숫자 font-light, 전체적인 무게감 완화) */}
+      {/* 🌟 4. 합리적인 포인트 요금제 */}
       <section className="bg-white py-24 px-6 border-b border-gray-100">
         <div className="max-w-5xl mx-auto">
           <FadeInUp>
@@ -309,7 +306,6 @@ export default function Home() {
                 <p className="text-[15px] text-gray-500 mb-6">개인 및 1인 셀러를 위한 플랜</p>
 
                 <div className="mb-8 w-full">
-                  {/* 숫자 굵기를 font-light로 변경하여 얇고 세련되게 처리 */}
                   <p className="flex items-baseline justify-center gap-1.5 text-5xl font-light text-gray-700 group-hover:text-emerald-500 transition-colors mb-3 tracking-tight">
                     10,000 <span className="text-lg font-medium tracking-wide">Point</span>
                   </p>
@@ -322,9 +318,8 @@ export default function Home() {
                   <p className="text-lg text-gray-600 font-semibold group-hover:text-gray-800 transition-colors">IP 1개 접속 가능</p>
                 </div>
 
-                {/* 🌟 1번 버튼: cursor-pointer 추가 완료 */}
-                <button 
-                  onClick={() => window.location.href = '/charge'} 
+                <button
+                  onClick={() => window.location.href = '/charge'}
                   className="cursor-pointer w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all"
                 >
                   결제하기
@@ -351,9 +346,8 @@ export default function Home() {
                   <p className="text-lg text-gray-600 font-semibold group-hover:text-gray-800 transition-colors">IP 1개 접속 가능</p>
                 </div>
 
-                {/* 🌟 2번 버튼: cursor-pointer 추가 완료 */}
-                <button 
-                  onClick={() => window.location.href = '/charge'} 
+                <button
+                  onClick={() => window.location.href = '/charge'}
                   className="cursor-pointer w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all"
                 >
                   결제하기
@@ -380,9 +374,8 @@ export default function Home() {
                   <p className="text-lg text-gray-600 font-semibold group-hover:text-gray-800 transition-colors">IP 다중 접속 가능</p>
                 </div>
 
-                {/* 🌟 3번 버튼: cursor-pointer 추가 완료 */}
-                <button 
-                  onClick={() => window.location.href = '/charge'} 
+                <button
+                  onClick={() => window.location.href = '/charge'}
                   className="cursor-pointer w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all"
                 >
                   결제하기

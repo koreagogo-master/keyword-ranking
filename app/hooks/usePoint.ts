@@ -13,7 +13,8 @@ const PATH_TO_PAGE_TYPE: Record<string, string> = {
   '/google-analysis': 'GOOGLE',
   '/youtube-trend': 'YOUTUBE',
   '/shopping-insight': 'SHOPPING',
-  '/shopping-rank': 'SHOPPING_RANK'
+  '/shopping-rank': 'SHOPPING_RANK',
+  '/seo-title': 'SEO_TITLE'
 };
 
 export const usePoint = () => {

@@ -7,10 +7,9 @@ import { useAuth } from "@/app/contexts/AuthContext";
 interface SavedSearchesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  pageType: "BLOG" | "JISIKIN" | "TOTAL" | "ANALYSIS" | "RELATED" | "GOOGLE" | "YOUTUBE" | "SHOPPING" | "SHOPPING_RANK";
+  pageType: "BLOG" | "JISIKIN" | "TOTAL" | "ANALYSIS" | "RELATED" | "GOOGLE" | "YOUTUBE" | "SHOPPING" | "SHOPPING_RANK" | "SEO_TITLE";
   onSelect: (item: any) => void;          
 }
-
 export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelect }: SavedSearchesDrawerProps) {
   const { user } = useAuth();
   const [list, setList] = useState<any[]>([]);
@@ -64,6 +63,8 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
     if (pageType === 'GOOGLE') return '구글 키워드 분석';
     if (pageType === 'YOUTUBE') return '유튜브 트렌드';
     if (pageType === 'SHOPPING') return '쇼핑 인사이트';
+    // 🌟 SEO 타이틀 페이지 이름 추가
+    if (pageType === 'SEO_TITLE') return '쇼핑 상품명 최적화';
     return '';
   };
 
@@ -115,13 +116,19 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
                       </div>
                     </>
                   ) : pageType === 'JISIKIN' ? (
+                    // 🌟 [Request 4번 해결 관련] JISIKIN 페이지는 그대로 키워드 유지
                     <div className="text-[12px] text-gray-500 mb-1">키워드: <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
                       {item.jisikin_data?.map((d: any) => d.keyword).join(', ')}
                     </span></div>
                   ) : (
-                    <div className="text-[12px] text-gray-500 mb-1">키워드: <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
-                      {item.keyword}
-                    </span></div>
+                    // 🌟 [Request 4번 해결] 조건부 출력 로직 추가
+                    // 현재 열린 페이지가 SEO_TITLE이면 "핵심 품목명", 아니면 "키워드"로 출력
+                    <div className="text-[12px] text-gray-500 mb-1">
+                      {pageType === 'SEO_TITLE' ? '핵심 품목명:' : '키워드:'} 
+                      <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
+                        {item.keyword}
+                      </span>
+                    </div>
                   )}
                 </div>
               ))}

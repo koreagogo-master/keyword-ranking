@@ -160,33 +160,38 @@ function BlogRankContent() {
   };
 
   return (
-    <div className="flex justify-between items-start mb-8">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          N 모바일 통검 순위 확인
-        </h1>
-        <p className="text-sm text-slate-500 mt-1">* "사이트", "뉴스", "플레이스"는 순위에서 제외 됩니다.</p>
-        <p className="text-sm text-slate-500 mt-1">* "지식인"이 순위에 노출 될 경우 제목에 내용이 길게 표시 됩니다.</p>
-      </div>
-      <div className="flex items-center gap-2 mt-1 shrink-0">
-        <button 
-          onClick={handleSaveCurrentSetting}
-          disabled={results.length === 0 || !user}
-          className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
-            ${(results.length === 0 || !user) ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
-          현재 설정 저장
-        </button>
-        <button 
-          onClick={() => setIsDrawerOpen(true)}
-          className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
-          저장된 목록 보기
-        </button>
-      </div>
+    <> {/* 🌟 오류 수정: 전체를 감싸는 빈 태그 추가 */}
+      
+      {/* 1. 타이틀과 상단 버튼 영역 (여기에만 flex 적용) */}
+      <div className="flex justify-between items-start mb-8">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            N 모바일 통검 순위 확인
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">* "사이트", "뉴스", "플레이스"는 순위에서 제외 됩니다.</p>
+          <p className="text-sm text-slate-500 mt-1">* "지식인"이 순위에 노출 될 경우 제목에 내용이 길게 표시 됩니다.</p>
+        </div>
+        <div className="flex items-center gap-2 mt-1 shrink-0">
+          <button 
+            onClick={handleSaveCurrentSetting}
+            disabled={results.length === 0 || !user}
+            className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
+              ${(results.length === 0 || !user) ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+            현재 설정 저장
+          </button>
+          <button 
+            onClick={() => setIsDrawerOpen(true)}
+            className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
+            저장된 목록 보기
+          </button>
+        </div>
+      </div> {/* flex 영역 닫기 */}
 
+      {/* 2. 메인 검색창 영역 (아래로 분리됨) */}
       <div className="bg-white p-6 rounded-sm border border-gray-200 shadow-sm mb-8">
         <div className="flex gap-4 items-end">
           <div className="w-1/4 min-w-[200px]">
@@ -226,6 +231,7 @@ function BlogRankContent() {
         </div>
       </div>
 
+      {/* 3. 검색 결과 테이블 영역 */}
       {results.length > 0 && (
         <div className="bg-white rounded-sm border border-gray-200 shadow-sm overflow-hidden mt-8">
           <table className="w-full text-sm text-left border-collapse">
@@ -269,7 +275,7 @@ function BlogRankContent() {
         pageType="TOTAL" 
         onSelect={handleApplySavedSetting} 
       />
-    </div>
+    </>
   );
 }
 

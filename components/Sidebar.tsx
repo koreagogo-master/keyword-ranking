@@ -15,7 +15,8 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/google-analysis': 'GOOGLE',
   '/youtube-trend': 'YOUTUBE',
   '/shopping-insight': 'SHOPPING',
-  '/shopping-rank': 'SHOPPING_RANK'
+  '/shopping-rank': 'SHOPPING_RANK',
+  '/seo-title': 'SEO_TITLE'
 };
 
 export default function Sidebar() {
@@ -76,7 +77,8 @@ export default function Sidebar() {
     {
       title: "Seller Tools",
       items: [
-        { name: "쇼핑 인사이트", href: "/shopping-insight" },
+        { name: "쇼핑 키워드 인사이트", href: "/shopping-insight" },
+        { name: "SEO 상품명 조합기", href: "/seo-title" }, // 🌟 2단계 위치에 추가
         { name: "상품 노출 순위 분석", href: "/shopping-rank" }
       ]
     },

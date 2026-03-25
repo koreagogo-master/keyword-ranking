@@ -10,6 +10,7 @@ import Sidebar from "@/components/Sidebar";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+import SellerTabs from '@/components/SellerTabs';
 
 // 🌟 1. 마법의 포인트 스위치 가져오기
 import { usePoint } from '@/app/hooks/usePoint'; 
@@ -180,14 +181,7 @@ function ShoppingRankContent() {
 
   return (
     <>
-      <div className="flex border-b border-gray-200 mb-8">
-        <Link href="/shopping-insight" className="px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-[2px] border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
-          키워드 인사이트
-        </Link>
-        <Link href="/shopping-rank" className="px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-[2px] border-[#5244e8] text-[#5244e8]">
-          상품 노출 순위 분석
-        </Link>
-      </div>
+      <SellerTabs />
 
       <div className="flex justify-between items-start mb-8">
         <div>
