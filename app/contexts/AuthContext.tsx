@@ -1,3 +1,4 @@
+// app/contexts/AuthContext.tsx
 'use client';
 
 import { createContext, useContext, useEffect, useState, useMemo } from 'react';
@@ -12,11 +13,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // 🌟 [추가됨] 언제든지 외부(사이드바 등)에서 포인트를 다시 불러올 수 있는 전용 함수
+  const refreshProfile = async () => {
+    if (!user?.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
+      
+      if (data?.is_deleted) {
+        alert("탈퇴한 계정입니다.");
+        await supabase.auth.signOut();
+        if (typeof window !== 'undefined') window.location.replace("/");
+        return;
+      }
+      setProfile(data || null);
+    } catch (err) {
+      console.error("프로필 로드 실패:", err);
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
 
-    // 1. 프로필 정보 불러오기
-    const fetchProfile = async (currentUser: any) => {
+    // 초기 마운트 시 프로필 로드용 내부 함수
+    const fetchProfileInitial = async (currentUser: any) => {
       try {
         const { data, error } = await supabase
           .from('profiles')
@@ -24,14 +47,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           .eq('id', currentUser.id)
           .single();
         
-        // 🌟 추가된 부분: 만약 데이터베이스에 is_deleted가 true(탈퇴함)로 되어있다면?
         if (data?.is_deleted) {
-          alert("탈퇴한 계정입니다."); // 안내창 띄우기
-          await supabase.auth.signOut(); // 강제 로그아웃 처리
-          if (typeof window !== 'undefined') {
-            window.location.replace("/"); // 메인 화면으로 쫓아내기
-          }
-          return; // 더 이상 아래 코드를 실행하지 않고 멈춤
+          alert("탈퇴한 계정입니다.");
+          await supabase.auth.signOut();
+          if (typeof window !== 'undefined') window.location.replace("/");
+          return;
         }
 
         if (isMounted) setProfile(data || null);
@@ -42,13 +62,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     };
 
-    // 🌟 2. 새로고침 시 세션을 "꽉 잡는" 강력한 초기화 로직
     const initializeAuth = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
         if (session?.user) {
           if (isMounted) setUser(session.user);
-          await fetchProfile(session.user);
+          await fetchProfileInitial(session.user);
         } else {
           if (isMounted) {
             setUser(null);
@@ -63,17 +82,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     initializeAuth();
 
-    // 🌟 3. 로그인 상태 감지 (접속일 기록 시 화면 지연 방지)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (!isMounted) return;
       
-      // INITIAL_SESSION 이벤트 추가로 새로고침 캐치 강화
       if (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
         if (session?.user) {
           setUser(session.user);
           
           if (event === 'SIGNED_IN') {
-            // await을 빼서 DB 저장이 화면 로딩을 방해하지 않도록 백그라운드 처리
             supabase
               .from('profiles')
               .update({ last_login_at: new Date().toISOString() })
@@ -81,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               .then(); 
           }
           
-          fetchProfile(session.user);
+          fetchProfileInitial(session.user);
         }
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
@@ -98,7 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     try {
-      setIsLoading(true); // 로그아웃 시에도 UI 깜빡임 방지
+      setIsLoading(true); 
       await supabase.auth.signOut();
       if (typeof window !== 'undefined') {
         window.localStorage.clear();
@@ -111,7 +127,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const value = { user, profile, isLoading, handleLogout };
+  // 🌟 [수정됨] 만든 refreshProfile 함수를 외부로 내보냅니다.
+  const value = { user, profile, isLoading, handleLogout, refreshProfile };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

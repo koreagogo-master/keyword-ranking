@@ -1,3 +1,4 @@
+// components/Sidebar.tsx
 'use client';
 
 import Link from 'next/link';
@@ -21,10 +22,14 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { user, profile, isLoading } = useAuth();
+  // 🌟 [추가됨] refreshProfile 함수를 가져옵니다.
+  const { user, profile, isLoading, refreshProfile } = useAuth();
 
   const [clientIp, setClientIp] = useState<string | null>(null);
   const [pointPolicies, setPointPolicies] = useState<Record<string, number>>({});
+  
+  // 🌟 [추가됨] 새로고침 중 빙글빙글 도는 효과를 위한 상태
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
     fetch('https://api.ipify.org?format=json')
@@ -46,6 +51,14 @@ export default function Sidebar() {
 
     fetchPolicies();
   }, []);
+
+  // 🌟 [추가됨] 수동 새로고침 버튼 클릭 시 실행되는 함수
+  const handleRefreshPoints = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    await refreshProfile(); // DB에서 최신 포인트 불러오기!
+    setTimeout(() => setIsRefreshing(false), 500); // 아이콘이 0.5초 동안 예쁘게 돌게 함
+  };
 
   const menuGroups = [
     {
@@ -140,13 +153,27 @@ export default function Sidebar() {
                 </span>
               </div>
 
-              <Link
-                href="/charge"
-                className="w-full flex items-center justify-center gap-1.5 py-2 bg-[#5244e8]/80 hover:bg-[#5244e8] text-white rounded-md text-[12px] font-bold transition-colors shadow-sm"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                포인트 충전하기
-              </Link>
+              {/* 🌟 [수정됨] 충전 버튼과 새로고침 버튼을 가로로 나란히 배치 */}
+              <div className="flex gap-2 w-full">
+                <Link
+                  href="/charge"
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#5244e8]/80 hover:bg-[#5244e8] text-white rounded-md text-[12px] font-bold transition-colors shadow-sm"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                  포인트 충전하기
+                </Link>
+                <button
+                  onClick={handleRefreshPoints}
+                  disabled={isRefreshing}
+                  title="포인트 새로고침"
+                  className="w-[36px] flex shrink-0 items-center justify-center bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-500 rounded-md transition-colors shadow-sm"
+                >
+                  <svg className={`w-[14px] h-[14px] ${!isRefreshing ? 'text-[#5244e8]' : 'animate-spin text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              </div>
+
             </div>
           </div>
         ) : (
