@@ -38,6 +38,9 @@ function SeoTitleContent() {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
     const [isAiProcessing, setIsAiProcessing] = useState(false);
+    // 🌟 어뷰징 방지를 위한 쿨타임 상태 추가
+    const [isCooldown, setIsCooldown] = useState(false); 
+
     const [aiTags, setAiTags] = useState<string[]>([]);
     const [aiRefinedTitles, setAiRefinedTitles] = useState<string[]>([]);
 
@@ -79,7 +82,7 @@ function SeoTitleContent() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     keyword: kwToSearch.trim(),
-                    productName: '', // Step 1에서는 브랜드명을 보내지 않음
+                    productName: '', 
                     excludeKeyword: ''
                 })
             });
@@ -108,17 +111,14 @@ function SeoTitleContent() {
         setAiTags([]);
         setAiRefinedTitles([]);
 
-        // 🌟 Step 2에서 입력한 브랜드와 사양을 하나로 합칩니다.
-        const combinedProductName = [productName.trim(), attribute.trim()].filter(Boolean).join(' ');
-
         try {
             const res = await fetch('/api/seo-title', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     keyword: analyzedKeyword,
-                    productName: productName.trim(), // 🌟 브랜드명 따로 전송
-                    attribute: attribute.trim(),     // 🌟 속성/사양 따로 전송
+                    productName: productName.trim(),
+                    attribute: attribute.trim(),    
                     excludeKeyword: excludeKeyword.trim()
                 })
             });
@@ -127,8 +127,8 @@ function SeoTitleContent() {
                 setRecommendedTags(data.tags);
                 setResults(data.titles);
                 setCombinedExcludeKeyword(excludeKeyword.trim());
-                setAnalyzedProductName(productName.trim()); // 🌟 분리해서 저장
-                setAnalyzedAttribute(attribute.trim());     // 🌟 분리해서 저장
+                setAnalyzedProductName(productName.trim()); 
+                setAnalyzedAttribute(attribute.trim());     
             } else {
                 alert(data.message || '데이터 조합 중 오류가 발생했습니다.');
             }
@@ -141,11 +141,15 @@ function SeoTitleContent() {
     };
 
     const handleAiRefine = async () => {
-        if (results.length === 0) return;
-        const isPaySuccess = await deductPoints(user?.id, 1, 1, 'AI_REFINE_' + analyzedKeyword);
-        if (!isPaySuccess) return;
+        if (results.length === 0 || isCooldown) return;
+        
+        // 🌟 1P 차감 로직 완벽히 제거
+        // const isPaySuccess = await deductPoints(user?.id, 1, 1, 'AI_REFINE_' + analyzedKeyword);
+        // if (!isPaySuccess) return;
 
         setIsAiProcessing(true);
+        setIsCooldown(true); // 🌟 무한 클릭 방지 (쿨타임 시작)
+
         try {
             const titlesToSend = results.slice(0, 10).map(r => r.title);
             const res = await fetch('/api/refine-title', {
@@ -153,8 +157,8 @@ function SeoTitleContent() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     keyword: analyzedKeyword,
-                    productName: analyzedProductName, // 🌟 저장해둔 브랜드명 따로 전송
-                    attribute: analyzedAttribute,     // 🌟 저장해둔 속성 따로 전송
+                    productName: analyzedProductName, 
+                    attribute: analyzedAttribute,     
                     titles: titlesToSend
                 })
             });
@@ -170,6 +174,10 @@ function SeoTitleContent() {
             alert('서버 통신 오류가 발생했습니다.');
         } finally {
             setIsAiProcessing(false);
+            // 🌟 5초 후 다시 누를 수 있도록 쿨타임 해제
+            setTimeout(() => {
+                setIsCooldown(false);
+            }, 5000); 
         }
     };
 
@@ -246,9 +254,7 @@ function SeoTitleContent() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
 
-                {/* 🔽 [1열]: Step 1 입력 및 상위 노출 분석 결과 */}
                 <div className="flex flex-col gap-6">
-                    {/* 🌟 Step 1 박스: 오직 핵심 품목명만 남김 */}
                     <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm w-full">
                         <label className="block text-[14px] font-black !text-gray-800 mb-4">Step 1. 시장 데이터 분석</label>
                         <div className="flex gap-4 items-end">
@@ -319,9 +325,7 @@ function SeoTitleContent() {
                     )}
                 </div>
 
-                {/* 🔽 [2열]: Step 2 제외 키워드 및 최종 조합 결과 */}
                 <div className="flex flex-col gap-6">
-                    {/* 🌟 Step 2 박스: 내 상품 정보 입력 및 필터링 */}
                     <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm w-full">
                         <label className="block text-[14px] font-black !text-gray-800 mb-4">Step 2. 내 상품 정보 조합 및 필터링</label>
                         <div className="flex flex-col gap-4">
@@ -337,14 +341,12 @@ function SeoTitleContent() {
                             </div>
                             <div className="flex gap-3 items-end">
                                 <div className="flex-1">
-                                    {/* 🌟 좌측 리스트 클릭 안내 추가 */}
                                     <div className="flex justify-between items-center mb-2">
                                         <label className="block text-[13px] font-bold !text-gray-700">제외 키워드 <span className="!text-red-500 font-bold">(타사 브랜드)</span></label>
                                         <span className="text-[12px] font-bold !text-slate-500">※ 좌측 리스트에서 단어 클릭</span>
                                     </div>
                                     <input type="text" value={excludeKeyword} onChange={(e) => setExcludeKeyword(e.target.value)} placeholder="제외할 단어를 입력하거나 좌측에서 클릭하세요" onKeyDown={(e) => e.key === 'Enter' && handleCombine()} className="w-full px-4 py-3 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-[#5244e8] text-sm font-medium shadow-sm !text-black" />
                                 </div>
-                                {/* 🌟 버튼 텍스트 변경 */}
                                 <button onClick={() => handleCombine()} disabled={isCombining || top40Titles.length === 0} className={`w-32 h-[46px] !text-white font-bold rounded-md shadow-sm transition-colors ${top40Titles.length === 0 ? 'bg-slate-300 cursor-not-allowed' : isStep2Completed ? 'bg-slate-700 hover:bg-slate-800' : 'bg-[#5244e8] hover:bg-blue-700'}`}>
                                     {isCombining ? '조합 중...' : isStep2Completed ? '조합 완료' : '적용&조합'}
                                 </button>
@@ -357,7 +359,6 @@ function SeoTitleContent() {
                             <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm animate-in fade-in">
                                 <h3 className="text-[15px] font-black !text-gray-800 mb-4">기본 추천 리스트 (기계적 조합)</h3>
                                 <div className="space-y-2">
-                                    {/* 🌟 기계적 조합 리스트 한 줄 처리 (복사버튼 제거) */}
                                     {results.map((item, i) => (
                                         <div key={i} className="px-3 py-2.5 bg-gray-50 border border-gray-200 rounded-lg text-[14px] flex items-center group hover:border-[#5244e8] transition-colors">
                                             <span className="font-bold !text-slate-500 whitespace-nowrap">{item.pattern}</span>
@@ -369,8 +370,13 @@ function SeoTitleContent() {
                                 </div>
                             </div>
 
-                            <button onClick={handleAiRefine} disabled={isAiProcessing} className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 !text-white font-extrabold py-4 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all transform hover:-translate-y-0.5">
-                                {isAiProcessing ? '마케팅 AI가 분석 중...' : 'AI 프리미엄 문맥 다듬기 & 핵심 태그 추출 (1P)'}
+                            {/* 🌟 텍스트 변경 및 쿨타임 시 스타일 변경 */}
+                            <button 
+                                onClick={handleAiRefine} 
+                                disabled={isAiProcessing || isCooldown} 
+                                className={`w-full !text-white font-extrabold py-4 px-6 rounded-xl shadow-lg flex items-center justify-center gap-2 transition-all transform ${isCooldown ? 'bg-slate-400 cursor-not-allowed scale-100' : 'bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 hover:-translate-y-0.5'}`}
+                            >
+                                {isAiProcessing ? '마케팅 AI가 분석 중...' : isCooldown ? 'AI 결과를 확인하세요 (재요청 대기)' : 'AI 프리미엄 문맥 다듬기 & 핵심 태그 추출 (무료)'}
                             </button>
 
                             {(aiTags.length > 0 || aiRefinedTitles.length > 0) && (
