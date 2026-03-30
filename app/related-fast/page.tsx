@@ -351,16 +351,16 @@ function RelatedFastContent() {
                       <span className="text-xs font-bold text-slate-600">선택된 키워드 ({selectedKeywords.length})</span>
                       <span className="text-xs text-[#5244e8] font-extrabold">{formatNum(totalSelectedVolume)}</span>
                     </div>
-                    <button onClick={() => setSelectedKeywords([])} className="text-[10px] text-red-500 hover:underline font-bold">전체삭제</button>
+                    <button onClick={() => setSelectedKeywords([])} className="text-[11px] !text-red-500 hover:underline font-bold">전체삭제</button>
                   </div>
                   <div className="max-h-[350px] overflow-y-auto p-2 space-y-1">
                     {selectedKeywords.map((item, i) => (
-                      <div key={i} className="flex justify-between items-center px-3 py-2 bg-[#5244e8]/[0.03] border border-[#5244e8]/20 rounded-sm group hover:border-[#5244e8]/40 transition-all">
+                      <div key={i} className="flex justify-between items-center px-3 py-2 !bg-[#5244e8]/[0.03] border border-[#5244e8]/20 rounded-sm group hover:border-[#5244e8]/40 transition-all">
                         <div className="flex items-baseline gap-2 overflow-hidden">
                           <span className="text-[13px] font-bold text-[#5244e8] truncate">{item.keyword}</span>
                           <span className="text-[11px] text-slate-400 font-medium whitespace-nowrap">{formatNum(item.total)}</span>
                         </div>
-                        <button onClick={() => toggleKeyword(item)} className="p-1 text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-full transition-all">
+                        <button onClick={() => toggleKeyword(item)} className="p-1 !text-slate-600 hover:!text-red-600 hover:!bg-red-50 rounded-full transition-all">
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                           </svg>
