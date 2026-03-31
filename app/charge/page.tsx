@@ -117,6 +117,9 @@ export default function ChargePage() {
               결제 및 환불 유의사항
             </h2>
             <ul className="text-[14px] text-gray-600 space-y-3 font-medium pl-2">
+              <li className="text-red-700 font-bold bg-red-50 p-4 rounded-xl border border-red-100 text-[15px] leading-relaxed text-center">
+                충전하신 포인트는 Ranking Pro(tmgad.com) 내의 마케팅 키워드 분석 및 관련 서비스 이용 결제에만 사용하실 수 있습니다.
+              </li>
               <li className="flex gap-2"><span className="text-gray-400">•</span> 본 결제창은 PG사 결제 연동 심사를 위한 테스트 모드이며, 실제 고객님의 카드에서 금액이 청구되거나 출금되지 않습니다.</li>
               <li className="flex gap-2"><span className="text-gray-400">•</span> 결제 완료 시 포인트는 즉시 계정으로 지급되며, 모든 서비스(검색량 조회, 순위 확인 등)에 자유롭게 사용하실 수 있습니다.</li>
               <li className="flex gap-2"><span className="text-gray-400">•</span> 포인트 결제 후 7일 이내, 포인트를 전혀 사용하지 않은 상태에 한하여 전액 결제 취소(환불)가 가능합니다.</li>
