@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 
 import Sidebar from '@/components/Sidebar';
 
-// 토스페이먼츠 테스트 키
-const clientKey = 'test_ck_QbgMGZzorzep97BjajGDVl5E1em4';
+// 토스페이먼츠 라이브 키 (환경 변수에서 자동으로 불러옴)
+const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || '';
 
 const PLANS = [
   { id: 'starter', tag: 'STARTER', name: '스타터', price: 10000, points: 10000, bonus: '+0 P', desc: '개인 및 1인 셀러를 위한 플랜', ip: 'IP 1개 접속 가능', color: 'text-emerald-500', border: 'border-emerald-200' },
@@ -20,6 +20,11 @@ export default function ChargePage() {
   const { user, profile, isLoading } = useAuth();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  const [payMethod, setPayMethod] = useState<'계좌이체' | '카드'>('계좌이체');
+  
+  // 화면에 띄울 알림 메시지 상태
+  const [toastMessage, setToastMessage] = useState('');
 
   const handlePayment = async (plan: typeof PLANS[0]) => {
     if (!user) {
@@ -33,20 +38,25 @@ export default function ChargePage() {
       const tossPayments = await loadTossPayments(clientKey);
       const orderId = `ORDER_${new Date().getTime()}_${Math.random().toString(36).slice(2, 7)}`;
 
-      await tossPayments.requestPayment('카드', {
+      await tossPayments.requestPayment(payMethod, {
         amount: plan.price,
         orderId: orderId,
         orderName: `Ranking Pro - ${plan.name} 포인트 충전`,
-        customerName: profile?.email?.split('@')[0] || '테스트고객',
+        customerName: profile?.email?.split('@')[0] || '고객',
         customerEmail: profile?.email || 'test@test.com',
         successUrl: `${window.location.origin}/mypage?pay_status=success&amount=${plan.price}`,
         failUrl: `${window.location.origin}/mypage?pay_status=fail`,
       });
 
     } catch (error: any) {
-      console.error('결제 에러:', error);
-      if (error.code !== 'USER_CANCEL') {
-        alert('결제 모듈 로딩 중 오류가 발생했습니다.');
+      const isCancel = error.code === 'USER_CANCEL' || error.code === 'PAY_PROCESS_CANCELED' || error.message?.includes('취소');
+      
+      if (isCancel) {
+        setToastMessage('결제 진행이 취소되었습니다.');
+        setTimeout(() => setToastMessage(''), 3000);
+      } else {
+        console.error('결제 에러:', error);
+        alert('결제 진행 중 오류가 발생했습니다.');
       }
     } finally {
       setIsProcessing(false);
@@ -56,19 +66,58 @@ export default function ChargePage() {
   if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 font-bold text-gray-500">로딩 중...</div>;
 
   return (
-    <div className="flex bg-gray-50 min-h-[calc(100vh-4rem)]">
+    <div className="flex bg-gray-50 min-h-[calc(100vh-4rem)] relative">
       <Sidebar />
+      
+      {/* 💡 수정된 부분: 알림 메시지 (토스트 창) UI - 위치 중앙, 초록색 테두리와 흰 바탕으로 변경 */}
+      {toastMessage && (
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100] bg-white border-2 border-emerald-400 text-gray-700 px-8 py-4 rounded-2xl shadow-2xl font-medium transition-all duration-300 flex items-center gap-3">
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          {toastMessage}
+        </div>
+      )}
       
       <div className="flex-1 ml-64 p-6 md:p-10">
         <div className="max-w-4xl mx-auto">
 
           <h1 className="text-2xl font-bold mb-2 text-gray-900 text-center">
-            포인트 요금 충전 (테스트)
+            포인트 요금 충전
           </h1>
-          <p className="text-center text-gray-500 font-medium mb-10 text-[15px]">
-            원하시는 요금제를 선택해 결제 테스트를 진행해 보세요.<br/>
-            <span className="text-[13px]">※ 현재는 테스트 모드이므로 실제 금액이 청구되지 않습니다.</span>
+          <p className="text-center text-gray-500 font-medium mb-8 text-[15px]">
+            원하시는 요금제를 선택해 결제를 진행해 보세요.
           </p>
+
+          {/* 💡 수정된 부분: 결제 수단 선택 탭 버튼 UI 개선 */}
+          <div className="flex justify-center mb-10">
+            <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-200 shadow-inner inline-flex gap-2">
+              <button
+                onClick={() => setPayMethod('계좌이체')}
+                className={`px-6 py-2.5 rounded-lg font-medium text-[15px] transition-all border ${
+                  payMethod === '계좌이체'
+                    ? 'bg-[#5244e8] border-[#5244e8] !text-white shadow-md'
+                    : 'bg-white border-gray-200 !text-gray-500 hover:!text-gray-800 hover:border-gray-300 shadow-sm'
+                }`}
+              >
+                계좌이체
+              </button>
+              
+              <button
+                onClick={() => setPayMethod('카드')}
+                className={`px-6 py-2.5 rounded-lg font-medium text-[15px] transition-all flex items-center gap-2 border ${
+                  payMethod === '카드'
+                    ? 'bg-[#5244e8] border-[#5244e8] !text-white shadow-md'
+                    : 'bg-white border-gray-200 !text-gray-500 hover:!text-gray-800 hover:border-gray-300 shadow-sm'
+                }`}
+              >
+                신용카드
+                <span className={`text-[11px] px-2 py-0.5 rounded-full ${
+                  payMethod === '카드' ? 'bg-white/20 !text-white' : 'bg-red-50 !text-red-500 border border-red-100'
+                }`}>
+                  심사 중
+                </span>
+              </button>
+            </div>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             {PLANS.map((plan) => (
@@ -105,7 +154,7 @@ export default function ChargePage() {
                     plan.isPopular ? 'bg-[#5244e8] hover:bg-[#4336c9] hover:shadow-md' : 'bg-gray-800 hover:bg-gray-900'
                   }`}
                 >
-                  {isProcessing ? '진행 중...' : '테스트 결제하기'}
+                  {isProcessing ? '진행 중...' : '결제하기'}
                 </button>
               </div>
             ))}
@@ -117,10 +166,6 @@ export default function ChargePage() {
               결제 및 환불 유의사항
             </h2>
             <ul className="text-[14px] text-gray-600 space-y-3 font-medium pl-2">
-              <li className="text-red-700 font-bold bg-red-50 p-4 rounded-xl border border-red-100 text-[15px] leading-relaxed text-center">
-                충전하신 포인트는 Ranking Pro(tmgad.com) 내의 마케팅 키워드 분석 및 관련 서비스 이용 결제에만 사용하실 수 있습니다.
-              </li>
-              <li className="flex gap-2"><span className="text-gray-400">•</span> 본 결제창은 PG사 결제 연동 심사를 위한 테스트 모드이며, 실제 고객님의 카드에서 금액이 청구되거나 출금되지 않습니다.</li>
               <li className="flex gap-2"><span className="text-gray-400">•</span> 결제 완료 시 포인트는 즉시 계정으로 지급되며, 모든 서비스(검색량 조회, 순위 확인 등)에 자유롭게 사용하실 수 있습니다.</li>
               <li className="flex gap-2"><span className="text-gray-400">•</span> 포인트 결제 후 7일 이내, 포인트를 전혀 사용하지 않은 상태에 한하여 전액 결제 취소(환불)가 가능합니다.</li>
               <li className="flex gap-2"><span className="text-gray-400">•</span> 1P라도 사용했거나 결제 후 7일이 경과한 경우, 그리고 프로모션으로 지급된 '보너스 포인트'는 환불 대상에서 제외됩니다.</li>
