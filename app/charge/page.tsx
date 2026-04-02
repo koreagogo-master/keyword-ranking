@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 
 // 토스페이먼츠 라이브 키 (환경 변수에서 자동으로 불러옴)
-const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || '';
+const clientKey = 'live_ck_jExPeJWYVQbQjpxR555Pr49R5gvN';
 
 const PLANS = [
   { id: 'starter', tag: 'STARTER', name: '스타터', price: 10000, points: 10000, bonus: '+0 P', desc: '개인 및 1인 셀러를 위한 플랜', ip: 'IP 1개 접속 가능', color: 'text-emerald-500', border: 'border-emerald-200' },
