@@ -16,19 +16,18 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/google-analysis': 'GOOGLE',
   '/youtube-trend': 'YOUTUBE',
   '/shopping-insight': 'SHOPPING',
+  '/seo-title': 'SEO_TITLE',
+  '/seo-check': 'SEO_CHECK',       
   '/shopping-rank': 'SHOPPING_RANK',
-  '/seo-title': 'SEO_TITLE'
+  '/ai-blog': 'AI_BLOG' // 🌟 AI 포스팅 메뉴용 페이지 타입 추가
 };
 
 export default function Sidebar() {
   const pathname = usePathname();
-  // 🌟 [추가됨] refreshProfile 함수를 가져옵니다.
   const { user, profile, isLoading, refreshProfile } = useAuth();
 
   const [clientIp, setClientIp] = useState<string | null>(null);
   const [pointPolicies, setPointPolicies] = useState<Record<string, number>>({});
-  
-  // 🌟 [추가됨] 새로고침 중 빙글빙글 도는 효과를 위한 상태
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   useEffect(() => {
@@ -52,14 +51,14 @@ export default function Sidebar() {
     fetchPolicies();
   }, []);
 
-  // 🌟 [추가됨] 수동 새로고침 버튼 클릭 시 실행되는 함수
   const handleRefreshPoints = async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
-    await refreshProfile(); // DB에서 최신 포인트 불러오기!
-    setTimeout(() => setIsRefreshing(false), 500); // 아이콘이 0.5초 동안 예쁘게 돌게 함
+    await refreshProfile(); 
+    setTimeout(() => setIsRefreshing(false), 500); 
   };
 
+  // 🌟 대표님 요청사항 반영: 메뉴 순서 재배치 및 신규 그룹/메뉴 추가
   const menuGroups = [
     {
       title: "Naver 분석",
@@ -81,10 +80,9 @@ export default function Sidebar() {
       ]
     },
     {
-      title: "Google & YouTube",
+      title: "AI TOOLS", // 🌟 신규 추가된 AI 카테고리
       items: [
-        { name: "구글 키워드 분석", href: "/google-analysis" },
-        { name: "유튜브 트렌드", href: "/youtube-trend" },
+        { name: "+ Dual AI 포스팅", href: "/ai-blog" }, // 신규 메뉴
       ]
     },
     {
@@ -92,7 +90,15 @@ export default function Sidebar() {
       items: [
         { name: "쇼핑 키워드 인사이트", href: "/shopping-insight" },
         { name: "쇼핑 상품명 최적화", href: "/seo-title" },
-        { name: "상품 노출 순위 분석", href: "/shopping-rank" }
+        { name: "내 상품명 진단", href: "/seo-check" }, // 🌟 이름 변경됨
+        { name: "상품 노출 순위 분석", href: "/shopping-rank" },
+      ]
+    },
+    {
+      title: "Google & YouTube", // 🌟 위치 이동됨
+      items: [
+        { name: "구글 키워드 분석", href: "/google-analysis" },
+        { name: "유튜브 트렌드", href: "/youtube-trend" },
       ]
     },
     {
@@ -153,7 +159,6 @@ export default function Sidebar() {
                 </span>
               </div>
 
-              {/* 🌟 [수정됨] 충전 버튼과 새로고침 버튼을 가로로 나란히 배치 */}
               <div className="flex gap-2 w-full">
                 <Link
                   href="/charge"
@@ -184,7 +189,7 @@ export default function Sidebar() {
           </div>
         )}
 
-        <nav className="flex-1 py-4 overflow-y-auto">
+        <nav className="flex-1 py-4 overflow-y-auto custom-scrollbar">
           <ul>
             {menuGroups.map((group, groupIdx) => (
               <li key={groupIdx} className="mb-4">
@@ -198,7 +203,11 @@ export default function Sidebar() {
                   {group.items.map((item, itemIdx) => {
                     const isActive = pathname === item.href;
                     const pageType = URL_TO_PAGE_TYPE[item.href as string];
-                    const pointCost = pageType && pointPolicies[pageType] !== undefined ? pointPolicies[pageType] : null;
+                    
+                    // 🌟 DB에 값이 없어도 '/ai-blog'는 임시로 30P를 띄워주도록 예외 처리
+                    const pointCost = pageType && pointPolicies[pageType] !== undefined 
+                      ? pointPolicies[pageType] 
+                      : (item.href === '/ai-blog' ? 30 : null);
 
                     return (
                       <li key={itemIdx}>
@@ -230,8 +239,8 @@ export default function Sidebar() {
                                 </span>
                               ) : (
                                 <span className={`ml-2 px-1.5 py-[2px] rounded-sm text-[10px] font-bold tracking-wide border shadow-sm transition-colors ${isActive
-                                    ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20'
-                                    : 'bg-slate-50 text-slate-500 border-slate-200'
+                                  ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20'
+                                  : 'bg-slate-50 text-slate-500 border-slate-200'
                                   }`}>
                                   {pointCost}P
                                 </span>

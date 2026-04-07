@@ -6,10 +6,10 @@ import { usePathname } from 'next/navigation';
 export default function SellerTabs() {
   const pathname = usePathname();
 
-  // 탭 목록과 업무 흐름 순서 정의
   const tabs = [
     { name: '쇼핑 키워드 인사이트', href: '/shopping-insight' },
     { name: '쇼핑 상품명 최적화', href: '/seo-title' },
+    { name: '내 상품명 진단', href: '/seo-check' },
     { name: '상품 노출 순위 분석', href: '/shopping-rank' },
   ];
 

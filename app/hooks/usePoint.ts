@@ -14,7 +14,9 @@ const PATH_TO_PAGE_TYPE: Record<string, string> = {
   '/youtube-trend': 'YOUTUBE',
   '/shopping-insight': 'SHOPPING',
   '/shopping-rank': 'SHOPPING_RANK',
-  '/seo-title': 'SEO_TITLE'
+  '/seo-title': 'SEO_TITLE',
+  '/seo-check': 'SEO_CHECK',
+  '/ai-blog': 'AI_BLOG'
 };
 
 export const usePoint = () => {

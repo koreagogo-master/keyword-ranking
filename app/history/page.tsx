@@ -15,7 +15,9 @@ const PAGE_INFO: Record<string, { name: string, path: string }> = {
   'GOOGLE': { name: '구글 키워드 분석', path: '/google-analysis' },
   'YOUTUBE': { name: '유튜브 트렌드', path: '/youtube-trend' },
   'SHOPPING': { name: '쇼핑 인사이트', path: '/shopping-insight' },
-  'SHOPPING_RANK': { name: '상품 노출 순위 분석', path: '/shopping-rank' }
+  'SHOPPING_RANK': { name: '상품 노출 순위 분석', path: '/shopping-rank' },
+  'SEO_TITLE': { name: '쇼핑 상품명 최적화', path: '/seo-title' }, // 💡 대표님이 찾아내신 누락분 추가!
+  'AIBLOG': { name: 'AI 블로그', path: '/ai-blog' }               // 💡 이번에 새로 만든 기능 추가!
 };
 
 interface SearchHistory {

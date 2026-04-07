@@ -47,7 +47,9 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'SEO_TITLE': { name: '쇼핑 상품명 최적화', url: '/seo-title' }, /* 🌟 이 줄이 추가되었습니다! */
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
   'MANUAL': { name: '관리자 수동 조작', url: '/admin' },
-  'CHARGE': { name: '포인트 자동 충전', url: '/charge' }
+  'CHARGE': { name: '포인트 자동 충전', url: '/charge' },
+  'AIBLOG': { name: 'AI 블로그', url: '/ai-blog' },       // 💡 새로 추가!
+  'AI_BLOG': { name: 'AI 블로그', url: '/ai-blog' }       // 💡 과거 내역 호환을 위해 추가!
 };
 export default function AdminHistoryPage() {
   // 🌟 권한 확인을 위한 수문장 호출

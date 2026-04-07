@@ -8,6 +8,8 @@ import Sidebar from '@/components/Sidebar';
 import { createClient } from '@/app/utils/supabase/client';
 import AdminTabs from '@/components/AdminTabs'; 
 
+// ... (위쪽 import 부분은 그대로 유지) ...
+
 interface PointPolicy {
   page_type: string;
   page_name: string;
@@ -15,6 +17,14 @@ interface PointPolicy {
   original_cost?: number;
 }
 
+interface PointPolicy {
+  page_type: string;
+  page_name: string;
+  point_cost: number;
+  original_cost?: number;
+}
+
+// 💡 DB의 page_type과 완벽하게 일치하도록 수정
 const PAGE_META: Record<string, { name: string; url: string }> = {
   'ANALYSIS': { name: '키워드 정밀 분석', url: '/analysis' },
   'RELATED': { name: '연관 키워드 조회', url: '/related-fast' },
@@ -23,27 +33,35 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'TOTAL': { name: '통검 노출/순위 확인', url: '/blog-rank' },
   'GOOGLE': { name: '구글 키워드 분석', url: '/google-analysis' },
   'YOUTUBE': { name: '유튜브 트렌드', url: '/youtube-trend' },
-  'SHOPPING': { name: '쇼핑 인사이트', url: '/shopping-insight' },
+  'SHOPPING': { name: '쇼핑 키워드 인사이트', url: '/shopping-insight' }, // 사이드바 이름과 통일
   'SEO_TITLE': { name: '쇼핑 상품명 최적화', url: '/seo-title' },
-  'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' }
+  'SEO_CHECK': { name: '내 상품명 진단', url: '/diagnosis' },      // 🌟 DB에 있는 SEO_CHECK 사용
+  'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
+  'AI_BLOG': { name: '+ Dual AI 포스팅', url: '/ai-blog' }           // 🌟 DB에 있는 AI_BLOG 사용
 };
 
+// 💡 메뉴 그룹에도 수정된 영문 코드를 적용
 const MENU_GROUPS = [
   {
     title: 'NAVER 분석',
     items: ['ANALYSIS', 'RELATED', 'BLOG', 'JISIKIN', 'TOTAL']
   },
   {
-    title: 'GOOGLE & YOUTUBE',
-    items: ['GOOGLE', 'YOUTUBE']
+    title: 'AI TOOLS',     
+    items: ['AI_BLOG'] // 🌟 수정됨
   },
   {
     title: 'SELLER TOOLS',
-    items: ['SHOPPING', 'SEO_TITLE', 'SHOPPING_RANK']
+    items: ['SHOPPING', 'SEO_TITLE', 'SEO_CHECK', 'SHOPPING_RANK'] // 🌟 수정됨
+  },
+  {
+    title: 'GOOGLE & YOUTUBE',
+    items: ['GOOGLE', 'YOUTUBE']
   }
 ];
 
 export default function AdminPointsPage() {
+// ... (이하 코드는 기존과 동일하게 유지) ...
   const { user, profile, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 

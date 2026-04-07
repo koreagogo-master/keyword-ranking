@@ -19,7 +19,8 @@ const PAGE_META: Record<string, string> = {
   'SEO_TITLE': '쇼핑 상품명 최적화',
   'SHOPPING_RANK': '상품 노출 순위 분석',
   'MANUAL': '관리자 조정 포인트',
-  'CHARGE': '포인트 자동 충전'
+  'CHARGE': '포인트 자동 충전',
+  'AI_BLOG': 'AI 블로그'
 };
 
 const getPastDate = (months: number) => {
