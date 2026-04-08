@@ -37,7 +37,8 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'SEO_TITLE': { name: '쇼핑 상품명 최적화', url: '/seo-title' },
   'SEO_CHECK': { name: '내 상품명 진단', url: '/diagnosis' },      // 🌟 DB에 있는 SEO_CHECK 사용
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
-  'AI_BLOG': { name: '+ Dual AI 포스팅', url: '/ai-blog' }           // 🌟 DB에 있는 AI_BLOG 사용
+  'AI_BLOG': { name: '+ Dual AI 포스팅', url: '/ai-blog' },           // 🌟 DB에 있는 AI_BLOG 사용
+  'AI_PRESS': { name: '+ AI 언론 보도자료', url: '/ai-press' }       // 🌟 보도자료 추가
 };
 
 // 💡 메뉴 그룹에도 수정된 영문 코드를 적용
@@ -48,7 +49,7 @@ const MENU_GROUPS = [
   },
   {
     title: 'AI TOOLS',     
-    items: ['AI_BLOG'] // 🌟 수정됨
+    items: ['AI_BLOG', 'AI_PRESS'] // 🌟 보도자료 추가
   },
   {
     title: 'SELLER TOOLS',

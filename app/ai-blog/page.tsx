@@ -30,6 +30,7 @@ export default function AiBlogPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [result, setResult] = useState<any>(null);
+  const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false); // 🌟 이 줄 추가!
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -88,7 +89,7 @@ export default function AiBlogPage() {
     }
 
     if (deductPoints) {
-      const title = activeTab === "auto" ? `AI블로그생성(${wordCount}자)` : `AI블로그리뉴얼(${wordCount}자)`;
+      const title = activeTab === "auto" ? `Dual AI 포스팅(${wordCount}자)` : `Dual AI 리뉴얼(${wordCount}자)`;
       const isPaySuccess = await deductPoints(user.id, totalPoints, 1, title);
       if (!isPaySuccess) return;
     }
@@ -145,6 +146,21 @@ export default function AiBlogPage() {
       setResult({ content: data.content, freeImages: fetchedFreeImages });
       setFreeImageSearchKeyword("");
       setIsFormVisible(false);
+      setHasGeneratedOnce(true); // 🌟 이 줄 추가!
+
+      // --- 히스토리 DB 저장 로직 추가 ---
+      try {
+        const supabase = createClient();
+        const historyKeyword = activeTab === "auto" ? `[자동생성] ${keyword}` : `[리뉴얼] ${productName}`;
+        await supabase.from('search_history').insert({
+          user_id: user.id,
+          menu_name: 'Dual AI 포스팅',
+          keyword: historyKeyword
+        });
+      } catch (err) {
+        console.error("히스토리 저장 실패:", err);
+      }
+      // ----------------------------------
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
 
     } catch (error: any) {
@@ -379,7 +395,7 @@ export default function AiBlogPage() {
                       </button>
                     ) : (
                       <button onClick={handleGenerate} disabled={isGenerating} className="w-full md:w-[60%] lg:w-[40%] py-4 font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-md disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-3 text-[16px] tracking-wide mx-auto">
-                        {isGenerating ? <><svg className="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 처리 중...</> : <><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> {activeTab === "auto" ? `원고 생성하기 (${totalPoints}P 소진)` : `원고 리뉴얼하기 (${totalPoints}P 소진)`}</>}
+                        {isGenerating ? <><svg className="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 처리 중...</> : <><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> {activeTab === "auto" ? (!hasGeneratedOnce ? "원고 생성하기" : `새로 다시 작성하기 (${totalPoints}P 소진)`) : (!hasGeneratedOnce ? "원고 리뉴얼하기" : `새로 다시 리뉴얼하기 (${totalPoints}P 소진)`)}</>}
                       </button>
                     )}
                   </div>

@@ -7,7 +7,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 interface SavedSearchesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  pageType: "BLOG" | "JISIKIN" | "TOTAL" | "ANALYSIS" | "RELATED" | "GOOGLE" | "YOUTUBE" | "SHOPPING" | "SHOPPING_RANK" | "SEO_TITLE" | "AIBLOG";
+  pageType: "BLOG" | "JISIKIN" | "TOTAL" | "ANALYSIS" | "RELATED" | "GOOGLE" | "YOUTUBE" | "SHOPPING" | "SHOPPING_RANK" | "SEO_TITLE" | "AIBLOG" | 'AI_PRESS';
   onSelect: (item: any) => void;          
 }
 export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelect }: SavedSearchesDrawerProps) {

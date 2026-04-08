@@ -16,7 +16,8 @@ const PATH_TO_PAGE_TYPE: Record<string, string> = {
   '/shopping-rank': 'SHOPPING_RANK',
   '/seo-title': 'SEO_TITLE',
   '/seo-check': 'SEO_CHECK',
-  '/ai-blog': 'AI_BLOG'
+  '/ai-blog': 'AI_BLOG',
+  '/ai-press': 'AI_PRESS'
 };
 
 export const usePoint = () => {

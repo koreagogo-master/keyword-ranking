@@ -19,7 +19,8 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/seo-title': 'SEO_TITLE',
   '/seo-check': 'SEO_CHECK',       
   '/shopping-rank': 'SHOPPING_RANK',
-  '/ai-blog': 'AI_BLOG' // 🌟 AI 포스팅 메뉴용 페이지 타입 추가
+  '/ai-blog': 'AI_BLOG', // 🌟 AI 포스팅 메뉴용 페이지 타입 추가
+  '/ai-press': 'AI_PRESS' // 🌟 보도자료 메뉴용 추가
 };
 
 export default function Sidebar() {
@@ -83,6 +84,7 @@ export default function Sidebar() {
       title: "AI TOOLS", // 🌟 신규 추가된 AI 카테고리
       items: [
         { name: "+ Dual AI 포스팅", href: "/ai-blog" }, // 신규 메뉴
+        { name: "+ AI 언론 보도자료", href: "/ai-press" }, // 🌟 보도자료 신규 메뉴 추가
       ]
     },
     {
@@ -207,7 +209,7 @@ export default function Sidebar() {
                     // 🌟 DB에 값이 없어도 '/ai-blog'는 임시로 30P를 띄워주도록 예외 처리
                     const pointCost = pageType && pointPolicies[pageType] !== undefined 
                       ? pointPolicies[pageType] 
-                      : (item.href === '/ai-blog' ? 30 : null);
+                      : (item.href === '/ai-blog' ? 30 : item.href === '/ai-press' ? 50 : null); // 🌟 ai-press 50P 노출 추가
 
                     return (
                       <li key={itemIdx}>
