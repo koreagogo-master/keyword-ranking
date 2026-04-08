@@ -39,7 +39,8 @@ export default function AdminTabs() {
   }, []);
 
   const tabs = [
-    { name: '종합 대시보드', href: '/admin' },
+    { name: '대시보드', href: '/admin' },
+    { name: '결제 관리', href: '/admin/payments' },
     { name: '회원 관리', href: '/admin/users' },
     { name: '포인트 설정', href: '/admin/points' },
     { name: '포인트 히스토리', href: '/admin/history' },

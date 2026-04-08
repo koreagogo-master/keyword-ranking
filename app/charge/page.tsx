@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation';
 
 import Sidebar from '@/components/Sidebar';
 
-// 토스페이먼츠 라이브 키 (환경 변수에서 자동으로 불러옴)
-const clientKey = 'live_ck_jExPeJWYVQbQjpxR555Pr49R5gvN';
+
+const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || 'test_ck_pP2YxJ4K871G1QRB72BJVRGZwXLO';
 
 const PLANS = [
   { id: 'starter', tag: 'STARTER', name: '스타터', price: 10000, points: 10000, bonus: '+0 P', desc: '개인 및 1인 셀러를 위한 플랜', ip: 'IP 1개 접속 가능', color: 'text-emerald-500', border: 'border-emerald-200' },
@@ -21,7 +21,8 @@ export default function ChargePage() {
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   
-  const [payMethod, setPayMethod] = useState<'계좌이체' | '카드'>('계좌이체');
+  // 💡 수정된 부분 1: '카드'를 기본 결제 수단으로 설정
+  const [payMethod, setPayMethod] = useState<'카드' | '계좌이체'>('카드');
   
   // 화면에 띄울 알림 메시지 상태
   const [toastMessage, setToastMessage] = useState('');
@@ -69,7 +70,7 @@ export default function ChargePage() {
     <div className="flex bg-gray-50 min-h-[calc(100vh-4rem)] relative">
       <Sidebar />
       
-      {/* 💡 수정된 부분: 알림 메시지 (토스트 창) UI - 위치 중앙, 초록색 테두리와 흰 바탕으로 변경 */}
+      {/* 알림 메시지 (토스트 창) UI */}
       {toastMessage && (
         <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[100] bg-white border-2 border-emerald-400 text-gray-700 px-8 py-4 rounded-2xl shadow-2xl font-medium transition-all duration-300 flex items-center gap-3">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
@@ -87,9 +88,20 @@ export default function ChargePage() {
             원하시는 요금제를 선택해 결제를 진행해 보세요.
           </p>
 
-          {/* 💡 수정된 부분: 결제 수단 선택 탭 버튼 UI 개선 */}
+          {/* 💡 수정된 부분 2, 3: 버튼 순서 변경 및 '심사중' 텍스트 삭제 */}
           <div className="flex justify-center mb-10">
             <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-200 shadow-inner inline-flex gap-2">
+              <button
+                onClick={() => setPayMethod('카드')}
+                className={`px-6 py-2.5 rounded-lg font-medium text-[15px] transition-all border ${
+                  payMethod === '카드'
+                    ? 'bg-[#5244e8] border-[#5244e8] !text-white shadow-md'
+                    : 'bg-white border-gray-200 !text-gray-500 hover:!text-gray-800 hover:border-gray-300 shadow-sm'
+                }`}
+              >
+                신용카드
+              </button>
+              
               <button
                 onClick={() => setPayMethod('계좌이체')}
                 className={`px-6 py-2.5 rounded-lg font-medium text-[15px] transition-all border ${
@@ -99,22 +111,6 @@ export default function ChargePage() {
                 }`}
               >
                 계좌이체
-              </button>
-              
-              <button
-                onClick={() => setPayMethod('카드')}
-                className={`px-6 py-2.5 rounded-lg font-medium text-[15px] transition-all flex items-center gap-2 border ${
-                  payMethod === '카드'
-                    ? 'bg-[#5244e8] border-[#5244e8] !text-white shadow-md'
-                    : 'bg-white border-gray-200 !text-gray-500 hover:!text-gray-800 hover:border-gray-300 shadow-sm'
-                }`}
-              >
-                신용카드
-                <span className={`text-[11px] px-2 py-0.5 rounded-full ${
-                  payMethod === '카드' ? 'bg-white/20 !text-white' : 'bg-red-50 !text-red-500 border border-red-100'
-                }`}>
-                  심사 중
-                </span>
               </button>
             </div>
           </div>
