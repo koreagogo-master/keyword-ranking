@@ -70,7 +70,7 @@ export default function Home() {
 
           <div className="mt-6 text-center">
             <p className="text-xs text-gray-400 font-medium">
-              * 비로그인 상태에서는 IP당 일 1회만 검색 가능 하며 회원 가입시 일 5회 무료 검색이 제공됩니다. *
+              * 비로그인 상태에서는 IP당 일 1회만 검색 가능 하며 회원 가입시 3,000 Point를 드립니다. *
             </p>
           </div>
         </FadeInUp>
