@@ -17,10 +17,10 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/youtube-trend': 'YOUTUBE',
   '/shopping-insight': 'SHOPPING',
   '/seo-title': 'SEO_TITLE',
-  '/seo-check': 'SEO_CHECK',       
+  '/seo-check': 'SEO_CHECK',
   '/shopping-rank': 'SHOPPING_RANK',
-  '/ai-blog': 'AI_BLOG', // 🌟 AI 포스팅 메뉴용 페이지 타입 추가
-  '/ai-press': 'AI_PRESS' // 🌟 보도자료 메뉴용 추가
+  '/ai-blog': 'AI_BLOG',
+  '/ai-press': 'AI_PRESS'
 };
 
 export default function Sidebar() {
@@ -31,38 +31,9 @@ export default function Sidebar() {
   const [pointPolicies, setPointPolicies] = useState<Record<string, number>>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  useEffect(() => {
-    fetch('https://api.ipify.org?format=json')
-      .then(res => res.json())
-      .then(data => setClientIp(data.ip))
-      .catch(() => setClientIp('확인 불가'));
-
-    const fetchPolicies = async () => {
-      const supabase = createClient();
-      const { data } = await supabase.from('point_policies').select('page_type, point_cost');
-      if (data) {
-        const policyMap: Record<string, number> = {};
-        data.forEach(item => {
-          policyMap[item.page_type] = item.point_cost;
-        });
-        setPointPolicies(policyMap);
-      }
-    };
-
-    fetchPolicies();
-  }, []);
-
-  const handleRefreshPoints = async () => {
-    if (isRefreshing) return;
-    setIsRefreshing(true);
-    await refreshProfile(); 
-    setTimeout(() => setIsRefreshing(false), 500); 
-  };
-
-  // 🌟 대표님 요청사항 반영: 메뉴 순서 재배치 및 신규 그룹/메뉴 추가
   const menuGroups = [
     {
-      title: "Naver 분석",
+      title: "Naver TOOLS",
       items: [
         { name: "키워드 정밀 분석", href: "/analysis" },
         { name: "연관 키워드 조회", href: "/related-fast" },
@@ -81,10 +52,10 @@ export default function Sidebar() {
       ]
     },
     {
-      title: "AI TOOLS", // 🌟 신규 추가된 AI 카테고리
+      title: "AI TOOLS", 
       items: [
-        { name: "+ Dual AI 포스팅", href: "/ai-blog" }, // 신규 메뉴
-        { name: "+ AI 언론 보도자료", href: "/ai-press" }, // 🌟 보도자료 신규 메뉴 추가
+        { name: "+ Dual AI 포스팅", href: "/ai-blog" }, 
+        { name: "+ AI 언론 보도자료", href: "/ai-press" }, 
       ]
     },
     {
@@ -92,12 +63,12 @@ export default function Sidebar() {
       items: [
         { name: "쇼핑 키워드 인사이트", href: "/shopping-insight" },
         { name: "쇼핑 상품명 최적화", href: "/seo-title" },
-        { name: "내 상품명 진단", href: "/seo-check" }, // 🌟 이름 변경됨
+        { name: "내 상품명 진단", href: "/seo-check" }, 
         { name: "상품 노출 순위 분석", href: "/shopping-rank" },
       ]
     },
     {
-      title: "Google & YouTube", // 🌟 위치 이동됨
+      title: "Google & YouTube", 
       items: [
         { name: "구글 키워드 분석", href: "/google-analysis" },
         { name: "유튜브 트렌드", href: "/youtube-trend" },
@@ -113,6 +84,63 @@ export default function Sidebar() {
     }
   ];
 
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
+    const initialState: Record<string, boolean> = {};
+    const activeGroup = menuGroups.find(group => 
+      group.items.some(item => item.href === pathname)
+    );
+    
+    menuGroups.forEach(group => {
+      initialState[group.title] = activeGroup ? group.title === activeGroup.title : true;
+    });
+    return initialState;
+  });
+
+  useEffect(() => {
+    const activeGroup = menuGroups.find(group =>
+      group.items.some(item => item.href === pathname)
+    );
+
+    if (activeGroup) {
+      const newOpenGroups: Record<string, boolean> = {};
+      menuGroups.forEach(group => {
+        newOpenGroups[group.title] = group.title === activeGroup.title;
+      });
+      setOpenGroups(newOpenGroups);
+    }
+  }, [pathname]);
+
+  useEffect(() => {
+    fetch('https://api.ipify.org?format=json')
+      .then(res => res.json())
+      .then(data => setClientIp(data.ip))
+      .catch(() => setClientIp('확인 불가'));
+
+    const fetchPolicies = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.from('point_policies').select('page_type, point_cost');
+      if (data) {
+        const policyMap: Record<string, number> = {};
+        data.forEach(item => {
+          policyMap[item.page_type] = item.point_cost;
+        });
+        setPointPolicies(policyMap);
+      }
+    };
+    fetchPolicies();
+  }, []);
+
+  const handleRefreshPoints = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    await refreshProfile();
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
+
+  const toggleGroup = (title: string) => {
+    setOpenGroups(prev => ({ ...prev, [title]: !prev[title] }));
+  };
+
   return (
     <>
       <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-50 pt-10">
@@ -123,18 +151,15 @@ export default function Sidebar() {
           </div>
         ) : user ? (
           <div className="px-4 pt-0 pb-4 border-b border-gray-100 bg-gray-50/30">
-
             <div className="flex items-center gap-1.5 mb-2.5 px-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-[11px] font-bold text-gray-400 tracking-wider">
                 IP: <span className="text-gray-600">{clientIp || '로딩중...'}</span>
               </span>
             </div>
-
             <div className="p-3 bg-white border border-[#5244e8]/20 rounded-lg shadow-sm">
               <div className="flex justify-between items-center pb-2 mb-2 border-b border-gray-100">
                 <span className="text-[11px] text-gray-400 font-black tracking-widest uppercase">My Grade</span>
-
                 <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded border uppercase
                   ${profile?.grade === 'agency' ? 'bg-purple-50 text-purple-600 border-purple-200' :
                     profile?.grade === 'pro' ? 'bg-blue-50 text-blue-600 border-blue-200' :
@@ -143,7 +168,6 @@ export default function Sidebar() {
                   {profile?.grade || 'FREE'}
                 </span>
               </div>
-
               <div className="flex justify-between items-center mb-1.5">
                 <span className="text-[11px] text-gray-500 font-bold tracking-tight">결제한 포인트</span>
                 <span className="text-[11px] font-semibold text-gray-600">{profile?.purchased_points?.toLocaleString() || 0} P</span>
@@ -153,109 +177,97 @@ export default function Sidebar() {
                 <span className="text-[11px] font-semibold text-green-600">{profile?.bonus_points?.toLocaleString() || 0} P</span>
               </div>
               <div className="w-full h-px bg-gray-100 mb-2.5"></div>
-
               <div className="flex justify-between items-center mb-3">
                 <span className="text-[11px] text-[#5244e8] font-bold tracking-tight">사용 가능 포인트</span>
                 <span className="text-[13px] font-bold text-[#5244e8]">
                   {((profile?.bonus_points || 0) + (profile?.purchased_points || 0)).toLocaleString()} <span className="text-[11px]">P</span>
                 </span>
               </div>
-
               <div className="flex gap-2 w-full">
-                <Link
-                  href="/charge"
-                  className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#5244e8]/80 hover:bg-[#5244e8] text-white rounded-md text-[12px] font-bold transition-colors shadow-sm"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                  포인트 충전하기
+                <Link href="/charge" className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#5244e8]/80 hover:bg-[#5244e8] text-white rounded-md text-[12px] font-bold transition-colors shadow-sm">
+                  충전하기
                 </Link>
-                <button
-                  onClick={handleRefreshPoints}
-                  disabled={isRefreshing}
-                  title="포인트 새로고침"
-                  className="w-[36px] flex shrink-0 items-center justify-center bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-500 rounded-md transition-colors shadow-sm"
-                >
+                <button onClick={handleRefreshPoints} disabled={isRefreshing} className="w-[36px] flex shrink-0 items-center justify-center bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-500 rounded-md transition-colors shadow-sm">
                   <svg className={`w-[14px] h-[14px] ${!isRefreshing ? 'text-[#5244e8]' : 'animate-spin text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
                 </button>
               </div>
-
             </div>
           </div>
         ) : (
           <div className="px-4 pt-4 pb-4 border-b border-gray-100 bg-gray-50/30 flex items-center justify-center">
-            <Link href="/login" className="text-[12px] font-bold text-[#5244e8] hover:underline">
-              로그인이 필요합니다
-            </Link>
+            <Link href="/login" className="text-[12px] font-bold text-[#5244e8] hover:underline">로그인이 필요합니다</Link>
           </div>
         )}
 
         <nav className="flex-1 py-4 overflow-y-auto custom-scrollbar">
           <ul>
-            {menuGroups.map((group, groupIdx) => (
-              <li key={groupIdx} className="mb-4">
-                <div
-                  className="px-6 py-1.5 text-[12px] font-bold text-gray-400 tracking-wider uppercase"
-                  style={{ fontFamily: "'NanumSquare', sans-serif" }}
-                >
-                  {group.title}
-                </div>
-                <ul className="mt-0.5">
-                  {group.items.map((item, itemIdx) => {
-                    const isActive = pathname === item.href;
-                    const pageType = URL_TO_PAGE_TYPE[item.href as string];
-                    
-                    // 🌟 DB에 값이 없어도 '/ai-blog'는 임시로 30P를 띄워주도록 예외 처리
-                    const pointCost = pageType && pointPolicies[pageType] !== undefined 
-                      ? pointPolicies[pageType] 
-                      : (item.href === '/ai-blog' ? 30 : item.href === '/ai-press' ? 50 : null); // 🌟 ai-press 50P 노출 추가
+            {menuGroups.map((group, groupIdx) => {
+              const isGroupActive = group.items.some(item => item.href === pathname);
 
-                    return (
-                      <li key={itemIdx}>
-                        <Link
-                          href={item.href}
-                          onClick={(e) => {
-                            if ((item as any).isPreparing) {
-                              e.preventDefault();
-                              alert('해당 기능은 현재 준비 중입니다! 곧 멋진 모습으로 찾아뵙겠습니다. 🚀');
-                            }
-                          }}
-                          className={`
-                            px-6 py-2 flex items-center gap-3 transition-all text-[13.5px]
-                            ${isActive
-                              ? 'bg-[#5244e8]/10 text-[#5244e8] border-r-[3px] border-[#5244e8] font-semibold'
-                              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}
-                            ${(item as any).isPreparing ? 'opacity-60 cursor-not-allowed' : ''}
-                          `}
-                        >
-                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? 'bg-[#5244e8]' : 'bg-gray-200'}`}></span>
+              return (
+                <li key={groupIdx} className="mb-1 pb-1 border-b border-gray-100 last:border-b-0">
+                  <div
+                    onClick={() => toggleGroup(group.title)}
+                    className={`px-4 py-1.5 text-[11.5px] font-extrabold tracking-wider uppercase border-b flex items-center justify-between cursor-pointer transition-all
+                      ${isGroupActive 
+                        ? 'text-[#5244e8] border-[#5244e8]/40' 
+                        : 'text-gray-400 border-transparent hover:text-gray-600'}`}
+                    style={{ fontFamily: "'NanumSquare', sans-serif" }}
+                  >
+                    {group.title}
+                    <svg
+                      className={`w-3 h-3 transition-transform duration-200 ${openGroups[group.title] ? '' : '-rotate-90'}`}
+                      fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </div>
 
-                          <div className="flex items-center">
-                            {typeof item.name === 'string' ? item.name : item.name}
+                  {/* 💡 스르르~ 애니메이션: Grid 레이아웃을 이용해 높이를 0에서 100%로 부드럽게 펼칩니다 */}
+                  <div className={`grid transition-all duration-300 ease-in-out ${openGroups[group.title] ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                    <ul className="overflow-hidden mt-0.5">
+                      {group.items.map((item, itemIdx) => {
+                        const isActive = pathname === item.href;
+                        const pageType = URL_TO_PAGE_TYPE[item.href as string];
+                        const pointCost = pageType && pointPolicies[pageType] !== undefined 
+                          ? pointPolicies[pageType] 
+                          : (item.href === '/ai-blog' ? 30 : item.href === '/ai-press' ? 50 : null);
 
-                            {typeof item.name === 'string' && pointCost !== null && (
-                              pointCost === 0 ? (
-                                <span className="ml-2 px-1.5 py-[2px] bg-[#5244e8]/10 text-[#5244e8] rounded-sm text-[10px] font-black tracking-wide border border-[#5244e8]/20 shadow-sm">
-                                  FREE
-                                </span>
-                              ) : (
-                                <span className={`ml-2 px-1.5 py-[2px] rounded-sm text-[10px] font-bold tracking-wide border shadow-sm transition-colors ${isActive
-                                  ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20'
-                                  : 'bg-slate-50 text-slate-500 border-slate-200'
+                        return (
+                          <li key={itemIdx}>
+                            <Link
+                              href={item.href}
+                            className={`group mx-3 pl-7 pr-4 py-[9px] flex items-center transition-colors duration-200 text-[13.5px] font-medium relative
+                                ${isActive 
+                                  ? 'bg-[#5244e8]/10 text-[#5244e8]' 
+                                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                            >
+                              {/* 💡 비활성 상태일 때 bg-transparent(투명) 였던 것을 bg-gray-200(연한 회색)으로 변경했습니다. */}
+                              <div className={`absolute left-0 top-0 bottom-0 w-[3px] transition-all ${
+                                isActive ? 'bg-[#5244e8]' : 'bg-gray-200 group-hover:bg-gray-300'
+                              }`}></div>
+
+                              <div className="flex-1 flex items-center justify-between">
+                                <span>{typeof item.name === 'string' ? item.name : item.name}</span>
+                                {typeof item.name === 'string' && pointCost !== null && (
+                                  <span className={`px-1.5 py-[2px] rounded-sm text-[10px] font-bold tracking-wide border shadow-sm transition-colors ${
+                                    isActive ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20' : 'bg-slate-50 text-slate-500 border-slate-200'
                                   }`}>
-                                  {pointCost}P
-                                </span>
-                              )
-                            )}
-                          </div>
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </li>
-            ))}
+                                    {pointCost === 0 ? 'FREE' : `${pointCost}P`}
+                                  </span>
+                                )}
+                              </div>
+                            </Link>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </nav>
 

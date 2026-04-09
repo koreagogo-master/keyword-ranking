@@ -44,7 +44,7 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
 // 💡 메뉴 그룹에도 수정된 영문 코드를 적용
 const MENU_GROUPS = [
   {
-    title: 'NAVER 분석',
+    title: 'NAVER TOOLS',
     items: ['ANALYSIS', 'RELATED', 'BLOG', 'JISIKIN', 'TOTAL']
   },
   {

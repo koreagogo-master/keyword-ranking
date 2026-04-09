@@ -30,7 +30,7 @@ export default function AiBlogPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [result, setResult] = useState<any>(null);
-  const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false); // 🌟 이 줄 추가!
+  const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -41,8 +41,8 @@ export default function AiBlogPage() {
   const [visibleImageCount, setVisibleImageCount] = useState(10);
   const [freeImageSearchKeyword, setFreeImageSearchKeyword] = useState("");
   const [isSearchingFreeImage, setIsSearchingFreeImage] = useState(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null); // 모달용 선택된 이미지 상태
-  const [showToast, setShowToast] = useState(false); // 🌟 [추가] 토스트 알림 상태
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [showToast, setShowToast] = useState(false);
 
   const isSaveDisabled = !user ||
     (activeTab === "auto" && (!keyword.trim() || !productName.trim() || !features.trim())) ||
@@ -56,7 +56,6 @@ export default function AiBlogPage() {
 
   const totalPoints = getBasePoints();
 
-  // 🌟 [강력한 중복 제거 도우미 함수]
   const extractUniqueId = (url: string) => {
     try {
       if (url.includes('pixabay')) {
@@ -130,12 +129,9 @@ export default function AiBlogPage() {
           });
           if (freeImgRes.ok) {
             const freeImgData = await freeImgRes.json();
-
-            // 🌟 강력한 ID 기반 중복 제거
             const uniqueImages = (freeImgData.images || []).filter((url: string, index: number, self: string[]) =>
               index === self.findIndex((t) => extractUniqueId(t) === extractUniqueId(url))
             );
-
             fetchedFreeImages = uniqueImages;
           }
         }
@@ -146,9 +142,8 @@ export default function AiBlogPage() {
       setResult({ content: data.content, freeImages: fetchedFreeImages });
       setFreeImageSearchKeyword("");
       setIsFormVisible(false);
-      setHasGeneratedOnce(true); // 🌟 이 줄 추가!
+      setHasGeneratedOnce(true);
 
-      // --- 히스토리 DB 저장 로직 추가 ---
       try {
         const supabase = createClient();
         const historyKeyword = activeTab === "auto" ? `[자동생성] ${keyword}` : `[리뉴얼] ${productName}`;
@@ -160,7 +155,6 @@ export default function AiBlogPage() {
       } catch (err) {
         console.error("히스토리 저장 실패:", err);
       }
-      // ----------------------------------
       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 100);
 
     } catch (error: any) {
@@ -227,12 +221,9 @@ export default function AiBlogPage() {
       });
       if (freeImgRes.ok) {
         const freeImgData = await freeImgRes.json();
-
-        // 🌟 강력한 ID 기반 중복 제거
         const uniqueImages = (freeImgData.images || []).filter((url: string, index: number, self: string[]) =>
           index === self.findIndex((t) => extractUniqueId(t) === extractUniqueId(url))
         );
-
         setResult((prev: any) => ({ ...prev, freeImages: uniqueImages }));
       } else {
         alert("이미지 검색 중 오류가 발생했습니다.");
@@ -277,16 +268,17 @@ export default function AiBlogPage() {
 
               <div className="flex border-b border-gray-300 mb-6">
                 <button onClick={() => { setActiveTab("auto"); setIsFormVisible(true); }} className={`px-8 py-3 font-bold text-[15px] transition-colors ${activeTab === "auto" ? "border-b-2 border-indigo-600 !text-indigo-600 bg-white" : "!text-gray-500 hover:text-gray-700 bg-gray-50/50"}`}>[원고 자동 생성]</button>
-                <button onClick={() => { setActiveTab("renewal"); setIsFormVisible(true); }} className={`px-8 py-3 font-bold text-[15px] transition-colors ${activeTab === "renewal" ? "border-b-2 border-indigo-600 !text-indigo-600 bg-white" : "!text-gray-500 hover:text-gray-700 bg-gray-50/50"}`}>[기존 원고 리뉴얼]</button>
+                {/* 🌟 수정: 리뉴얼 탭 활성화 시 청록색(teal-700) 계열로 변경 */}
+                <button onClick={() => { setActiveTab("renewal"); setIsFormVisible(true); }} className={`px-8 py-3 font-bold text-[15px] transition-colors ${activeTab === "renewal" ? "border-b-2 border-teal-700 !text-teal-700 bg-white" : "!text-gray-500 hover:text-gray-700 bg-gray-50/50"}`}>[기존 원고 리뉴얼]</button>
               </div>
 
               {isFormVisible ? (
                 <div className="animate-fadeIn">
-                  <div className="bg-indigo-50/40 border-[2px] border-indigo-500 shadow-md rounded-xl p-5 flex flex-col mb-4">
+                  <div className={`border-[2px] shadow-md rounded-xl p-5 flex flex-col mb-4 ${activeTab === "auto" ? "bg-indigo-50/40 border-indigo-500" : "bg-teal-50/40 border-teal-600"}`}>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="flex items-center gap-2 shrink-0"><h2 className="text-[15px] font-extrabold text-indigo-900">{activeTab === "auto" ? "기본 정보 입력" : "리뉴얼 타겟 설정"}</h2></div>
-                      <div className="w-px h-3 bg-indigo-300 shrink-0"></div>
-                      <p className="text-[13px] text-indigo-900/80 font-medium">{activeTab === "auto" ? "블로그 글의 뼈대가 되는 가장 중요한 정보입니다. '장점/소구점'을 구체적으로 많이 적을수록 글의 퀄리티와 분량이 안정적으로 늘어납니다." : "경쟁사의 좋은 글을 흡수하여, 내 상품을 홍보하는 글로 180도 리뉴얼합니다. 타겟 키워드와 내 상품명을 반드시 적어주세요."}</p>
+                      <div className="flex items-center gap-2 shrink-0"><h2 className={`text-[15px] font-extrabold ${activeTab === "auto" ? "text-indigo-900" : "text-teal-900"}`}>{activeTab === "auto" ? "기본 정보 입력" : "리뉴얼 타겟 설정"}</h2></div>
+                      <div className={`w-px h-3 shrink-0 ${activeTab === "auto" ? "bg-indigo-300" : "bg-teal-300"}`}></div>
+                      <p className={`text-[13px] font-medium ${activeTab === "auto" ? "text-indigo-900/80" : "text-teal-900/80"}`}>{activeTab === "auto" ? "블로그 글의 뼈대가 되는 가장 중요한 정보입니다. '장점/소구점'을 구체적으로 많이 적을수록 글의 퀄리티와 분량이 안정적으로 늘어납니다." : "경쟁사의 좋은 글을 흡수하여, 내 상품을 홍보하는 글로 180도 리뉴얼합니다. 타겟 키워드와 내 상품명을 반드시 적어주세요."}</p>
                     </div>
 
                     {activeTab === "auto" ? (
@@ -308,15 +300,15 @@ export default function AiBlogPage() {
                       <div className="flex flex-col gap-3">
                         <div className="flex items-center gap-5">
                           <div className="flex items-center gap-2 w-1/2">
-                            <label className="text-[13px] font-bold text-indigo-900 whitespace-nowrap">타겟 메인 키워드</label>
-                            <input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} className="w-full py-1.5 px-2 border border-indigo-200 rounded outline-none text-[13px] focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 bg-white shadow-sm" placeholder="상위노출 목표 키워드 (예: 가족용 텐트 추천)" />
+                            <label className="text-[13px] font-bold text-teal-900 whitespace-nowrap">타겟 메인 키워드</label>
+                            <input type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)} className="w-full py-1.5 px-2 border border-teal-200 rounded outline-none text-[13px] focus:border-teal-600 focus:ring-1 focus:ring-teal-600 bg-white shadow-sm" placeholder="상위노출 목표 키워드 (예: 가족용 텐트 추천)" />
                           </div>
                           <div className="flex items-center gap-2 w-1/2">
-                            <label className="text-[13px] font-bold text-indigo-900 whitespace-nowrap">내 상품명/브랜드</label>
-                            <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full py-1.5 px-2 border border-indigo-200 rounded outline-none text-[13px] focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 bg-white shadow-sm" placeholder="홍보할 우리 제품명 (예: 코만도몰 텐트)" />
+                            <label className="text-[13px] font-bold text-teal-900 whitespace-nowrap">내 상품명/브랜드</label>
+                            <input type="text" value={productName} onChange={(e) => setProductName(e.target.value)} className="w-full py-1.5 px-2 border border-teal-200 rounded outline-none text-[13px] focus:border-teal-600 focus:ring-1 focus:ring-teal-600 bg-white shadow-sm" placeholder="홍보할 우리 제품명 (예: 코만도몰 텐트)" />
                           </div>
                         </div>
-                        <textarea value={originalContent} onChange={(e) => setOriginalContent(e.target.value)} rows={5} className="w-full py-2 px-3 border border-indigo-200 rounded-md outline-none text-[13px] resize-none focus:border-indigo-600 focus:ring-1 focus:ring-indigo-600 bg-white shadow-sm overflow-y-auto" placeholder="이곳에 벤치마킹할 타사의 블로그 글이나 뉴스 기사 본문을 통째로 복사하여 붙여넣어 주세요.&#13;&#10;* AI가 원본 글의 뼈대와 정보만 흡수하고, 주인공을 대표님의 상품으로 완벽하게 교체하여 완전히 새로운 글을 작성합니다." />
+                        <textarea value={originalContent} onChange={(e) => setOriginalContent(e.target.value)} rows={5} className="w-full py-2 px-3 border border-teal-200 rounded-md outline-none text-[13px] resize-none focus:border-teal-600 focus:ring-1 focus:ring-teal-600 bg-white shadow-sm overflow-y-auto" placeholder="이곳에 벤치마킹할 타사의 블로그 글이나 뉴스 기사 본문을 통째로 복사하여 붙여넣어 주세요.&#13;&#10;* AI가 원본 글의 뼈대와 정보만 흡수하고, 주인공을 대표님의 상품으로 완벽하게 교체하여 완전히 새로운 글을 작성합니다." />
                       </div>
                     )}
                   </div>
@@ -326,7 +318,7 @@ export default function AiBlogPage() {
                       <h2 className="text-[15px] font-extrabold text-slate-800 shrink-0">추가 세부 설정</h2>
                       <div className="w-px h-3 bg-gray-300 shrink-0"></div>
                       <p className="text-[13px] text-slate-500 font-medium truncate">
-                        상위노출과 전환율을 높이기 위한 디테일 설정입니다. <span className="text-indigo-600 font-bold ml-1">* 서브 키워드 (3~5개) : SEO 상위노출 퀄리티에 지대한 영향을 줍니다.</span>
+                        상위노출과 전환율을 높이기 위한 디테일 설정입니다. <span className={`font-bold ml-1 ${activeTab === "auto" ? "text-indigo-600" : "text-teal-700"}`}>* 서브 키워드 (3~5개) : SEO 상위노출 퀄리티에 지대한 영향을 줍니다.</span>
                       </p>
                     </div>
 
@@ -350,7 +342,9 @@ export default function AiBlogPage() {
                             <button
                               key={type} onClick={() => { setPostPurpose(type); if (type.includes('정보성') && wordCount === '3000') setWordCount('2000'); }}
                               className={`flex-1 h-[32px] flex items-center justify-center text-[12px] font-bold rounded transition-all border tracking-tight px-1
-                                  ${postPurpose === type ? 'bg-indigo-600 !text-white border-indigo-600 shadow-sm' : 'bg-white !text-slate-600 border-slate-300 hover:bg-slate-50'}`}
+                                  ${postPurpose === type 
+                                    ? (activeTab === "auto" ? 'bg-indigo-600 !text-white border-indigo-600 shadow-sm' : 'bg-teal-700 !text-white border-teal-700 shadow-sm') 
+                                    : 'bg-white !text-slate-600 border-slate-300 hover:bg-slate-50'}`}
                             >
                               {type}
                             </button>
@@ -387,23 +381,23 @@ export default function AiBlogPage() {
                     </div>
                   </div>
 
-                  {/* 🌟 3단: 순차적 버튼 액션 (버튼 1개로 정리 및 중앙 정렬) */}
+                  {/* 🌟 3단: 순차적 버튼 액션 (크기 및 색상 수정 완료) */}
                   <div className="flex justify-center relative">
                     {result ? (
-                      <button onClick={handleGenerate} disabled={isGenerating} className="px-12 py-3.5 font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-md disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 text-[15px] tracking-wide transition-all mx-auto">
+                      <button onClick={handleGenerate} disabled={isGenerating} className={`px-16 py-3.5 font-bold text-white rounded-md shadow-md disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-2 text-[15px] tracking-wide transition-all mx-auto ${activeTab === 'auto' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-teal-700 hover:bg-teal-800'}`}>
                         {isGenerating ? <><svg className="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 처리 중...</> : <><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> 수정된 내용 재생성 (총 {totalPoints}P 소진) </>}
                       </button>
                     ) : (
-                      <button onClick={handleGenerate} disabled={isGenerating} className="w-full md:w-[60%] lg:w-[40%] py-4 font-bold bg-indigo-600 hover:bg-indigo-700 text-white rounded-md shadow-md disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-3 text-[16px] tracking-wide mx-auto">
+                      <button onClick={handleGenerate} disabled={isGenerating} className={`px-20 py-3.5 font-bold text-white rounded-md shadow-md disabled:opacity-70 disabled:cursor-not-allowed flex justify-center items-center gap-3 text-[15px] tracking-wide mx-auto transition-colors ${activeTab === 'auto' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-teal-700 hover:bg-teal-800'}`}>
                         {isGenerating ? <><svg className="w-5 h-5 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> 처리 중...</> : <><svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg> {activeTab === "auto" ? (!hasGeneratedOnce ? "원고 생성하기" : `새로 다시 작성하기 (${totalPoints}P 소진)`) : (!hasGeneratedOnce ? "원고 리뉴얼하기" : `새로 다시 리뉴얼하기 (${totalPoints}P 소진)`)}</>}
                       </button>
                     )}
                   </div>
                 </div>
               ) : (
-                /* 🌟 폼이 접힌 상태 (빈 박스 완벽 제거, 중앙 버튼만 깔끔하게 노출) */
+                /* 🌟 폼이 접힌 상태 (크기 및 색상 수정 완료) */
                 <div className="flex justify-center animate-fadeIn mb-6 relative z-10">
-                  <button onClick={handleGenerate} disabled={isGenerating} className="px-10 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[15px] font-bold rounded-full shadow-md transition-colors flex items-center gap-2">
+                  <button onClick={handleGenerate} disabled={isGenerating} className={`px-10 py-3.5 text-white text-[15px] font-bold rounded-full shadow-md transition-colors flex items-center gap-2 ${activeTab === 'auto' ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-teal-700 hover:bg-teal-800'}`}>
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                     수정된 내용 재생성 ({totalPoints}P 소진)
                   </button>
@@ -431,9 +425,9 @@ export default function AiBlogPage() {
             <div className="w-full min-h-[400px]">
               {isGenerating ? (
                 <div className="h-[400px] border-2 border-indigo-100 rounded-xl flex flex-col items-center justify-center bg-white p-10 text-center shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gray-100"><div className="h-full bg-indigo-600 animate-pulse"></div></div>
-                  <div className="w-16 h-16 border-4 border-gray-100 border-t-indigo-600 rounded-full animate-spin mb-6"></div>
-                  {loadingStep === 1 && <h2 className="text-xl font-bold text-indigo-600 mb-2 animate-pulse">1단계: 최적화된 블로그 포스팅 구조 기획 중...</h2>}
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gray-100"><div className={`h-full animate-pulse ${activeTab === 'auto' ? 'bg-indigo-600' : 'bg-teal-600'}`}></div></div>
+                  <div className={`w-16 h-16 border-4 border-gray-100 rounded-full animate-spin mb-6 ${activeTab === 'auto' ? 'border-t-indigo-600' : 'border-t-teal-600'}`}></div>
+                  {loadingStep === 1 && <h2 className={`text-xl font-bold mb-2 animate-pulse ${activeTab === 'auto' ? 'text-indigo-600' : 'text-teal-600'}`}>1단계: 최적화된 블로그 포스팅 구조 기획 중...</h2>}
                   {loadingStep === 2 && <h2 className="text-xl font-bold text-emerald-600 mb-2 animate-pulse">2단계: 기획안을 바탕으로 본문 원고 작성 중...</h2>}
                   {loadingStep >= 3 && <h2 className="text-xl font-bold text-purple-600 mb-2 animate-pulse">3단계: 문맥 다듬기 및 유사문서 검수 중...</h2>}
                   <p className="text-sm text-gray-500 mt-4 mb-8">선택하신 목표 글자수와 엔진에 따라 최대 1분 정도 소요될 수 있습니다.</p>

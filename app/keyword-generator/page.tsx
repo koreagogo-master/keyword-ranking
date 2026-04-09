@@ -21,7 +21,7 @@ function KeywordGeneratorContent() {
   const [input2, setInput2] = useState("");
   const [input3, setInput3] = useState("");
   
-  const [options, setOptions] = useState({ ab: true, ac: true, bc: true, abc: true });
+  const [options, setOptions] = useState({ ab: true, ac: false, bc: true, abc: false });
 
   const [combinedList, setCombinedList] = useState<any[]>([]);
   const [selectedKeywords, setSelectedKeywords] = useState<string[]>([]);

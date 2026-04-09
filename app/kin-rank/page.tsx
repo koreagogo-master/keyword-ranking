@@ -299,14 +299,17 @@ function KinRankContent() {
           })}
 
           <div className="mt-4">
-            <button
-              onClick={() => handleCheck()}
-              disabled={loading}
-              className={`w-full py-3 rounded-sm font-bold text-white transition-all shadow-md
-                ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9]'}`}
-            >
-              {loading ? progress : '순위 확인하기 (입력된 항목 일괄 조회)'}
-            </button>
+            {/* 💡 버튼을 감싸는 div를 추가하여 우측 정렬(justify-end) 시켰습니다. */}
+            <div className="flex justify-end mt-4">
+              <button
+                onClick={() => handleCheck()}
+                disabled={loading}
+                className={`px-10 py-3 rounded-md font-bold text-white transition-all shadow-md
+                  ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9]'}`}
+              >
+                {loading ? progress : '순위 확인하기 (입력된 항목 일괄 조회)'}
+              </button>
+            </div>
           </div>
         </div>
       </div>

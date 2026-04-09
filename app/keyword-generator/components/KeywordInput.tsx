@@ -37,9 +37,11 @@ export default function KeywordInput({
         </div>
       </div>
 
-      <div className="flex flex-col items-center gap-4 bg-white p-5 border border-gray-200 shadow-sm rounded-sm">
-        <div className="flex gap-6 text-[14px] font-bold text-slate-700">
-          {/* 🌟 수정: 체크박스 색상을 브랜드 컬러로 변경 */}
+      {/* 💡 수정됨: justify-between(양끝 정렬)을 justify-end(우측 정렬)로 바꾸고, gap-10을 주어 옵션과 버튼 사이의 간격을 예쁘게 맞췄습니다. */}
+      <div className="flex flex-row justify-end items-center gap-8 border border-gray-200 bg-slate-50 rounded-lg p-4 shadow-sm">
+        
+        {/* 좌측(이제는 버튼 바로 왼쪽): 체크박스 옵션 영역 */}
+        <div className="flex items-center gap-5 text-[14px] font-bold text-slate-700">
           <label className="flex items-center gap-2 cursor-pointer">
             <input type="checkbox" className="w-4 h-4 accent-[#5244e8]" checked={options.ab} onChange={(e) => setOptions({...options, ab: e.target.checked})} /> A + B 조합
           </label>
@@ -54,13 +56,14 @@ export default function KeywordInput({
           </label>
         </div>
         
-        {/* 🌟 수정: 버튼 색상을 주황색에서 메인 브랜드 컬러(#5244e8)로 변경 */}
+        {/* 우측: 실행 버튼 영역 */}
         <button 
           onClick={handleCombine}
-          className="px-16 py-3 font-bold bg-[#5244e8] hover:bg-[#4336c9] text-white transition-all duration-200 text-base rounded-sm shadow-md hover:scale-[1.02] hover:shadow-lg"
+          className="px-10 py-2.5 font-bold bg-[#5244e8] hover:bg-[#4336c9] text-white transition-all duration-200 text-[14px] rounded-md shadow-sm hover:scale-[1.02] hover:shadow-md"
         >
           위 설정대로 키워드 생성하기
         </button>
+
       </div>
     </div>
   );
