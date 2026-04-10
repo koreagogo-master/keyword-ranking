@@ -31,7 +31,7 @@ export default function AdminPaymentsPage() {
   const [payments, setPayments] = useState<PaymentData[]>([]);
   const [isFetching, setIsFetching] = useState(true);
   
-  // 🌟 (신규) 취소 진행 중인 결제키를 저장하여 버튼 무한 클릭 방지
+  const [searchTerm, setSearchTerm] = useState("");
   const [cancelingKey, setCancelingKey] = useState<string | null>(null);
 
   useEffect(() => {
@@ -87,12 +87,9 @@ export default function AdminPaymentsPage() {
     }
   };
 
-  // 🌟 (신규) 환불 처리 함수
   const handleCancelPayment = async (payment: PaymentData) => {
-    // 1. 관리자 1차 확인
     if (!confirm(`[${payment.profiles?.email || '고객'}]님의 ${payment.amount.toLocaleString()}원 결제를 정말 취소(환불)하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
 
-    // 2. 사유 입력 (토스페이먼츠 정책상 환불 사유 필수)
     const reason = prompt("환불 사유를 입력해주세요 (예: 고객 단순 변심, 서비스 불만족 등)");
     if (!reason) {
       alert("환불 사유를 입력해야 취소가 가능합니다.");
@@ -102,7 +99,6 @@ export default function AdminPaymentsPage() {
     setCancelingKey(payment.payment_key);
 
     try {
-      // 3. 우리가 만든 API로 환불 요청 보내기
       const response = await fetch('/api/payments/cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -119,7 +115,7 @@ export default function AdminPaymentsPage() {
       }
 
       alert("✅ 토스페이먼츠 환불 및 DB 취소 처리가 완료되었습니다.");
-      fetchPayments(); // 리스트 새로고침
+      fetchPayments(); 
 
     } catch (error: any) {
       alert(`❌ 환불 실패: ${error.message}`);
@@ -132,6 +128,13 @@ export default function AdminPaymentsPage() {
     const d = new Date(dateStr);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
+
+  const filteredPayments = payments.filter((payment) => {
+    const searchLower = searchTerm.toLowerCase();
+    const matchEmail = payment.profiles?.email?.toLowerCase().includes(searchLower);
+    const matchOrderId = payment.order_id.toLowerCase().includes(searchLower);
+    return matchEmail || matchOrderId;
+  });
 
   if (isLoading) return <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">권한 확인 중...</div>;
   if (!user || profile?.role?.toLowerCase() !== 'admin') return null;
@@ -154,13 +157,23 @@ export default function AdminPaymentsPage() {
 
             <div className="flex items-center justify-between mb-3 ml-1">
               <h3 className="text-[15px] font-extrabold text-slate-800">전체 결제 내역</h3>
-              <button 
-                onClick={fetchPayments} 
-                disabled={isFetching}
-                className="px-3 py-1.5 rounded-md border border-slate-700 bg-slate-800 hover:bg-slate-900 transition-colors shadow-sm disabled:opacity-30 flex items-center gap-1.5"
-              >
-                <span className="text-[12px] font-bold !text-white">{isFetching ? '불러오는 중...' : '새로고침'}</span>
-              </button>
+              
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="이메일 또는 주문번호 검색"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="px-3 py-1.5 border border-gray-300 rounded-md text-[13px] outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all w-60"
+                />
+                <button 
+                  onClick={fetchPayments} 
+                  disabled={isFetching}
+                  className="px-3 py-1.5 rounded-md border border-slate-700 bg-slate-800 hover:bg-slate-900 transition-colors shadow-sm disabled:opacity-30 flex items-center gap-1.5"
+                >
+                  <span className="text-[12px] font-bold !text-white">{isFetching ? '불러오는 중...' : '새로고침'}</span>
+                </button>
+              </div>
             </div>
 
             <div className="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm mb-16">
@@ -172,16 +185,16 @@ export default function AdminPaymentsPage() {
                     <th className="px-6 py-4">요금제 (주문번호)</th>
                     <th className="px-6 py-4 text-right w-32">결제 금액</th>
                     <th className="px-6 py-4 text-center w-28">상태</th>
-                    <th className="px-6 py-4 text-center w-28">관리</th>
+                    <th className="px-6 py-4 text-center w-32">관리</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-[14px]">
                   {isFetching ? (
                     <tr><td colSpan={6} className="text-center py-10 text-slate-500 font-bold">결제 데이터를 불러오는 중입니다...</td></tr>
-                  ) : payments.length === 0 ? (
-                    <tr><td colSpan={6} className="text-center py-10 text-slate-500 font-bold">결제 내역이 없습니다.</td></tr>
+                  ) : filteredPayments.length === 0 ? (
+                    <tr><td colSpan={6} className="text-center py-10 text-slate-500 font-bold">검색된 결제 내역이 없습니다.</td></tr>
                   ) : (
-                    payments.map((payment) => {
+                    filteredPayments.map((payment) => {
                       const isDone = payment.status === 'DONE';
                       const isCanceled = payment.status === 'CANCELED';
                       const isProcessing = cancelingKey === payment.payment_key;
@@ -213,8 +226,7 @@ export default function AdminPaymentsPage() {
                               <button 
                                 onClick={() => handleCancelPayment(payment)}
                                 disabled={isProcessing}
-                                // 🌟 강제 텍스트 색상(!text-rose-600) 추가됨
-                                className="px-3 py-1.5 bg-white border border-rose-200 !text-rose-600 hover:bg-rose-50 rounded text-[12px] font-bold transition-colors shadow-sm disabled:opacity-50 w-full"
+                                className="px-3 py-1.5 bg-white border border-rose-200 !text-rose-600 hover:bg-rose-50 rounded text-[12px] font-bold transition-colors shadow-sm disabled:opacity-50 whitespace-nowrap"
                               >
                                 {isProcessing ? '처리중..' : '결제 취소'}
                               </button>

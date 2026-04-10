@@ -21,18 +21,19 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white font-body flex flex-col">
 
-      {/* 🌟 1. 메인 히어로 섹션 (검색창 테두리를 보라색 톤으로 통일) */}
-      <main className="bg-gray-50 flex flex-col items-center justify-center px-4 pt-28 pb-32 border-b border-gray-100">
+      {/* 🌟 1. 메인 히어로 섹션 (여백 축소 및 마케팅 중심 카피라이팅 적용) */}
+      <main className="bg-gray-50 flex flex-col items-center justify-center px-4 pt-16 pb-10 border-b border-gray-100">
         <FadeInUp>
-          <div className="text-center mb-12">
-            <span className="text-indigo-600 font-bold text-sm md:text-base mb-6 inline-block bg-indigo-100/50 px-4 py-1.5 rounded-full">
+          <div className="text-center mb-10">
+            <span className="text-indigo-600 font-bold text-sm mb-5 inline-block bg-indigo-100/50 px-4 py-1.5 rounded-full">
               회원가입 시 매일 5회 무료 검색 제공!
             </span>
-            <h1 className="text-5xl md:text-7xl font-black font-sans text-gray-900 mb-8 tracking-tighter">
+            <h1 className="text-5xl md:text-6xl font-black font-sans text-gray-900 mb-6 tracking-tighter">
               Ranking <span className="text-indigo-600">Pro</span>
             </h1>
-            <p className="text-gray-500 text-lg md:text-xl font-medium leading-relaxed">
-              Naver API와 Google API를 기반으로<br className="md:hidden" /> 성공적인 마케팅을 위한 정밀 데이터 분석 솔루션
+            <p className="text-gray-500 text-lg font-medium leading-relaxed">
+              효율적인 마케팅을 위한 키워드와 시장 분석부터 AI를 활용한 콘텐츠 작성.<br className="hidden md:block" /> 
+              데이터 기반의 가장 확실한 비즈니스 솔루션
             </p>
           </div>
         </FadeInUp>
@@ -76,312 +77,295 @@ export default function Home() {
         </FadeInUp>
       </main>
 
-      {/* 🌟 2. 소개 섹션 */}
-      <section className="bg-white py-24 px-6 border-b border-gray-100">
-        <div className="max-w-6xl mx-auto text-center">
+      {/* 🌟 2. 소개 섹션 (패딩 조절 및 text-justify 적용으로 자연스러운 정렬) */}
+      <section className="bg-white py-20 px-6 border-b border-gray-100">
+        <div className="max-w-[1000px] mx-auto">
           <FadeInUp>
-            <div className="text-center px-4">
+            <div className="text-center px-4 mb-12">
               <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 font-title tracking-tight">
-                완벽한 데이터 분석의 새로운 기준
+                Ranking Pro 핵심 솔루션
               </h2>
-              <p className="text-lg text-gray-500 mb-16 max-w-2xl mx-auto break-keep leading-relaxed">
-                흩어진 데이터를 모아 마케팅의 명확한 해답을 제시합니다.<br className="hidden md:block" />
-                성공적인 비즈니스를 위한 가장 강력하고 직관적인 파트너를 경험해 보세요.
+              <p className="text-lg text-gray-500 max-w-2xl mx-auto break-keep leading-relaxed">
+                검색 로직 분석부터 전문가 수준의 AI 포스팅, 온라인 셀러 맞춤 진단까지.<br />파편화된 마케팅 업무를 하나로 연결하여 가장 확실하고 강력한 해답을 제시합니다.
               </p>
             </div>
           </FadeInUp>
 
           <FadeInUp delay={0.2}>
-            <div className="grid md:grid-cols-3 gap-10">
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-indigo-200 flex flex-col items-center text-center">
-                <div className="text-indigo-500 mb-5 bg-indigo-50 p-3 rounded-2xl">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+            {/* 💡 2x2 Grid Layout */}
+            <div className="grid md:grid-cols-2 gap-5">
+              
+              {/* 1. 데이터 분석 */}
+              <div className="bg-white p-6 md:p-7 rounded-[1.5rem] border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-indigo-300 flex flex-col">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
+                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                  </div>
+                  <h3 className="text-[17px] font-bold text-gray-800">초정밀 통합 데이터 분석</h3>
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">초정밀 실시간 데이터 추적</h3>
-                <p className="text-gray-500 text-sm leading-relaxed break-keep">
-                  과거의 지표가 아닌, 포털 엔진의 최신 노출 로직과 순위를 실시간으로 스크래핑하여 가장 빠르고 정확한 인사이트를 제공합니다.
+                {/* 강제 줄바꿈 제거 및 text-justify 적용 */}
+                <p className="text-gray-500 text-[14.5px] leading-relaxed break-keep text-justify">
+                  네이버, 구글, 유튜브의 방대한 최신 로직을 실시간으로 추적하여, 실질적인 트래픽과 매출로 이어지는 고효율 황금 키워드를 발굴합니다.
                 </p>
               </div>
 
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-indigo-200 flex flex-col items-center text-center">
-                <div className="text-indigo-500 mb-5 bg-indigo-50 p-3 rounded-2xl">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" /></svg>
+              {/* 2. AI 창작 */}
+              <div className="bg-white p-6 md:p-7 rounded-[1.5rem] border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-indigo-300 flex flex-col">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
+                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  </div>
+                  <h3 className="text-[17px] font-bold text-gray-800">Dual AI 자동화 엔진</h3>
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">입체적인 경쟁도 분석</h3>
-                <p className="text-gray-500 text-sm leading-relaxed break-keep">
-                  단순한 검색량 조회를 넘어, 문서 발행량과 CPC 단가를 다각도로 분석하여 실질적인 매출로 이어지는 고효율 황금 키워드를 발굴합니다.
+                {/* 문구 수정 및 text-justify 적용 */}
+                <p className="text-gray-500 text-[14.5px] leading-relaxed break-keep text-justify">
+                  GPT-4와 Claude 3.5의 특성을 결합하여, 전문가 수준의 블로그 포스팅과 언론 기사를 자동 완성합니다.
                 </p>
               </div>
 
-              <div className="bg-white p-8 rounded-3xl shadow-sm border border-indigo-200 flex flex-col items-center text-center">
-                <div className="text-indigo-500 mb-5 bg-indigo-50 p-3 rounded-2xl">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+              {/* 3. 커머스/셀러 */}
+              <div className="bg-white p-6 md:p-7 rounded-[1.5rem] border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-indigo-300 flex flex-col">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
+                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                  </div>
+                  <h3 className="text-[17px] font-bold text-gray-800">이커머스 맞춤형 솔루션</h3>
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-3">IP 분산 처리 시스템</h3>
-                <p className="text-gray-500 text-sm leading-relaxed break-keep">
-                  독자적인 프록시 네트워크 서버망을 구축하여, 대규모 키워드 분석 시에도 차단 위험 없이 가장 안전하고 안정적인 환경을 보장합니다.
+                {/* 강제 줄바꿈 제거 및 text-justify 적용 */}
+                <p className="text-gray-500 text-[14.5px] leading-relaxed break-keep text-justify">
+                  상품명 SEO 진단부터 쇼핑 인사이트, 실시간 노출 순위 추적까지 온라인 셀러의 시장 경쟁력을 높이는 전용 툴을 지원합니다.
                 </p>
               </div>
+
+              {/* 4. 시스템/인프라 */}
+              <div className="bg-white p-6 md:p-7 rounded-[1.5rem] border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-indigo-300 flex flex-col">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
+                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg>
+                  </div>
+                  <h3 className="text-[17px] font-bold text-gray-800">안전한 IP 분산 네트워크</h3>
+                </div>
+                {/* 강제 줄바꿈 제거 및 text-justify 적용 */}
+                <p className="text-gray-500 text-[14.5px] leading-relaxed break-keep text-justify">
+                  독자적인 프록시 서버망을 구축하여 대량 키워드 스크래핑 시에도 포털 차단 위험 없이 가장 안정적인 작업 환경을 보장합니다.
+                </p>
+              </div>
+
             </div>
           </FadeInUp>
         </div>
       </section>
 
-      {/* 🌟 3. 제공 솔루션 (정확히 16개로 맞추어 그리드 붕괴 방지) */}
-      <section className="bg-gray-50 py-24 px-6 border-b border-gray-100">
-        <div className="max-w-5xl mx-auto">
+      {/* 🌟 3. 제공 솔루션 (PC 전용 Bento Box 레이아웃 + 명도 대비 강화) */}
+      {/* 전체 배경을 bg-gray-50 에서 bg-gray-100 으로 한 단계 어둡게 변경했습니다 */}
+      <section className="bg-gray-100 py-24 px-6 border-b border-gray-200">
+        <div className="max-w-[1200px] mx-auto">
           <FadeInUp>
             <div className="text-center px-4">
               <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 font-title tracking-tight">
-                프리미엄 마케팅 솔루션
+                프리미엄 마케팅 툴킷
               </h2>
-              <p className="text-lg text-gray-500 mb-16 max-w-2xl mx-auto break-keep leading-relaxed">
-                블로그 지수부터 상위 노출 분석까지,<br className="hidden md:block" />
-                전문가의 시선으로 설계된 빈틈없는 맞춤형 분석 도구를 제공합니다.
+              <p className="text-lg text-gray-500 mb-16 max-w-3xl mx-auto break-keep leading-relaxed">
+                콘텐츠 기획, 상위 노출 분석, 상품명 진단을 하나의 플랫폼에서.<br />전문 마케터와 온라인 셀러의 업무 시간을 단축하고 성과를 극대화하는 맞춤형 도구를 제공합니다.
               </p>
             </div>
           </FadeInUp>
 
           <FadeInUp delay={0.2}>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+            {/* 💡 3x3 Grid Layout */}
+            <div className="grid grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)]">
+              
+              {/* --- [1] Naver TOOLS (2x2) --- */}
+              <div className="col-span-2 row-span-2 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-[#03c75a] hover:shadow-xl flex flex-col">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                  <span className="w-1.5 h-5 bg-[#03c75a] rounded-full"></span>
+                  Naver TOOLS
+                </h3>
+                <div className="grid grid-cols-3 gap-4 flex-1">
+                  {/* 내부 버튼들의 테두리를 border-gray-100 에서 border-gray-200 으로 한 단계 진하게 변경했습니다 */}
+                  <Link href="/analysis" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-[#03c75a] transition-colors">키워드 정밀 분석</h3>
+                  </Link>
 
-              {/* 박스 1 */}
-              <Link href="/analysis" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  <Link href="/related-fast" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-[#03c75a] transition-colors">연관 키워드 조회</h3>
+                  </Link>
+
+                  <Link href="/blog-rank-b" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-[#03c75a] transition-colors">블로그 순위 확인</h3>
+                  </Link>
+
+                  <Link href="/kin-rank" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-[#03c75a] transition-colors">지식인 순위 확인</h3>
+                  </Link>
+
+                  <Link href="/blog-rank" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-[#03c75a] transition-colors">통검 노출/순위 확인</h3>
+                  </Link>
+
+                  <Link href="/keyword-generator" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-[#03c75a] transition-colors">키워드 생성기</h3>
+                  </Link>
                 </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">키워드 정밀 분석</h3>
-              </Link>
+              </div>
 
-              {/* 박스 2 */}
-              <Link href="/related-fast" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+              {/* --- [2] AI TOOLS (1x1) --- */}
+              <div className="col-span-1 row-span-1 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-purple-400 hover:shadow-xl flex flex-col">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                  <span className="w-1.5 h-5 bg-purple-500 rounded-full"></span>
+                  AI TOOLS
+                </h3>
+                <div className="flex flex-col gap-3 flex-1">
+                  <Link href="/ai-blog" className="group flex-1 bg-gray-50/50 rounded-2xl border border-gray-200 flex items-center p-5 transition-all duration-300 hover:scale-[1.03] hover:bg-white hover:shadow-md hover:border-purple-300">
+                    <div className="w-10 h-10 mr-4 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-purple-600 transition-colors">+ Dual AI 포스팅</h3>
+                  </Link>
+                  <Link href="/ai-press" className="group flex-1 bg-gray-50/50 rounded-2xl border border-gray-200 flex items-center p-5 transition-all duration-300 hover:scale-[1.03] hover:bg-white hover:shadow-md hover:border-purple-300">
+                    <div className="w-10 h-10 mr-4 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15" /></svg>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-purple-600 transition-colors">+ AI 언론 보도자료</h3>
+                  </Link>
                 </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">연관 키워드 조회</h3>
-              </Link>
+              </div>
 
-              {/* 박스 3 */}
-              <Link href="/keyword-generator" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+              {/* --- [3] Google & YouTube (1x1) --- */}
+              <div className="col-span-1 row-span-1 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-red-400 hover:shadow-xl flex flex-col">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                  <span className="w-1.5 h-5 bg-red-500 rounded-full"></span>
+                  Google & YouTube
+                </h3>
+                <div className="grid grid-cols-2 gap-4 flex-1">
+                  <Link href="/google-analysis" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-red-300">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-red-50 flex items-center justify-center text-red-500 transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
+                    </div>
+                    <h3 className="text-[14px] font-bold text-gray-700 group-hover:text-red-500 transition-colors">구글 키워드 분석</h3>
+                  </Link>
+                  <Link href="/youtube-trend" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-red-300">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-red-50 flex items-center justify-center text-red-500 transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <h3 className="text-[14px] font-bold text-gray-700 group-hover:text-red-500 transition-colors">유튜브 트렌드</h3>
+                  </Link>
                 </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">키워드 생성기</h3>
-              </Link>
+              </div>
 
-              {/* 박스 4 */}
-              <Link href="/blog-rank-b" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+              {/* --- [4] Seller Tools (2x1) --- */}
+              <div className="col-span-2 row-span-1 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-orange-400 hover:shadow-xl flex flex-col">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                  <span className="w-1.5 h-5 bg-orange-400 rounded-full"></span>
+                  Seller Tools
+                </h3>
+                <div className="grid grid-cols-4 gap-4 flex-1">
+                  <Link href="/shopping-insight" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-orange-300">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+                    </div>
+                    <h3 className="text-[14px] font-bold text-gray-700 whitespace-nowrap group-hover:text-orange-500 transition-colors">키워드 인사이트</h3>
+                  </Link>
+                  <Link href="/seo-title" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-orange-300">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                    </div>
+                    <h3 className="text-[14px] font-bold text-gray-700 whitespace-nowrap group-hover:text-orange-500 transition-colors">상품명 최적화</h3>
+                  </Link>
+                  <Link href="/seo-check" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-orange-300">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
+                    </div>
+                    <h3 className="text-[14px] font-bold text-gray-700 whitespace-nowrap group-hover:text-orange-500 transition-colors">내 상품명 진단</h3>
+                  </Link>
+                  <Link href="/shopping-rank" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-orange-300">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-orange-50 flex items-center justify-center text-orange-500 transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                    </div>
+                    <h3 className="text-[14px] font-bold text-gray-700 whitespace-nowrap group-hover:text-orange-500 transition-colors">노출 순위 분석</h3>
+                  </Link>
                 </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">블로그 순위 확인</h3>
-              </Link>
+              </div>
 
-              {/* 박스 5 */}
-              <Link href="/kin-rank" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+              {/* --- [5] System (1x1) --- */}
+              <div className="col-span-1 row-span-1 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-gray-400 hover:shadow-xl flex flex-col">
+                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+                  <span className="w-1.5 h-5 bg-gray-400 rounded-full"></span>
+                  System
+                </h3>
+                <div className="flex flex-col gap-3 flex-1 justify-center">
+                  <Link href="/history" className="group flex-1 bg-gray-50/50 rounded-xl border border-gray-200 flex items-center px-4 py-2 transition-all duration-300 hover:scale-[1.03] hover:bg-white hover:shadow-md hover:border-gray-300">
+                    <div className="w-9 h-9 mr-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                    </div>
+                    <h3 className="text-[14px] font-bold text-gray-600 group-hover:text-gray-800 transition-colors">저장된 목록 보기</h3>
+                  </Link>
+                  <Link href="/contact" className="group flex-1 bg-gray-50/50 rounded-xl border border-gray-200 flex items-center px-4 py-2 transition-all duration-300 hover:scale-[1.03] hover:bg-white hover:shadow-md hover:border-gray-300">
+                    <div className="w-9 h-9 mr-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <h3 className="text-[14px] font-bold text-gray-600 group-hover:text-gray-800 transition-colors">고객센터 (FAQ)</h3>
+                  </Link>
+                  <Link href="/notice" className="group flex-1 bg-gray-50/50 rounded-xl border border-gray-200 flex items-center px-4 py-2 transition-all duration-300 hover:scale-[1.03] hover:bg-white hover:shadow-md hover:border-gray-300">
+                    <div className="w-9 h-9 mr-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                    </div>
+                    <h3 className="text-[14px] font-bold text-gray-600 group-hover:text-gray-800 transition-colors">공지사항</h3>
+                  </Link>
                 </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">지식인 순위 확인</h3>
-              </Link>
+              </div>
 
-              {/* 박스 6 */}
-              <Link href="/blog-rank" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">통검 노출/순위 확인</h3>
-              </Link>
-
-              {/* 박스 7 */}
-              <Link href="/google-analysis" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">구글 키워드 분석</h3>
-              </Link>
-
-              {/* 박스 8 */}
-              <Link href="/youtube-trend" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">유튜브 트렌드</h3>
-              </Link>
-
-              {/* 박스 9 */}
-              <Link href="/shopping-insight" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">쇼핑 인사이트</h3>
-              </Link>
-
-              {/* 🚀 신규 박스 10: 쇼핑 상품명 최적화 (메모장 아이콘 차용하여 전문성 강조) */}
-              <Link href="/seo-title" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">쇼핑 상품명 최적화</h3>
-              </Link>
-
-              {/* 박스 11 (기존 10) */}
-              <Link href="/shopping-rank" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">상품 노출 순위 분석</h3>
-              </Link>
-
-              {/* 🚀 박스 12: 저장된 목록 보기 (링크 /history 로 수정) */}
-              <Link href="/history" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">저장된 목록 보기</h3>
-              </Link>
-
-              {/* 박스 14: 고객센터 (FAQ) */}
-              <Link href="/contact" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">고객센터 (FAQ)</h3>
-              </Link>
-
-              {/* 박스 15: 공지사항 */}
-              <Link href="/notice" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">공지사항</h3>
-              </Link>
-
-              {/* 박스 13: 검색 키워드 저장 */}
-              <Link href="#" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">검색 키워드 저장</h3>
-              </Link>
-
-
-              {/* 🚀 박스 16: 전용 웹 메모장 (IP 분산 처리 시스템 대체) */}
-              <Link href="#" className="group bg-white h-40 rounded-2xl border border-indigo-200 shadow-sm flex flex-col items-center justify-center transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.25)] hover:border-indigo-400 cursor-pointer">
-                <div className="text-indigo-500 mb-4 transition-transform duration-300 group-hover:-translate-y-1">
-                  <svg className="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                </div>
-                <h3 className="text-[15px] font-bold text-gray-800 group-hover:text-indigo-700 transition-colors duration-300">전용 웹 메모장</h3>
-              </Link>
             </div>
           </FadeInUp>
         </div>
       </section>
 
-      {/* 🌟 4. 합리적인 포인트 요금제 */}
-      <section className="bg-white py-24 px-6 border-b border-gray-100">
-        <div className="max-w-5xl mx-auto">
+      {/* 🌟 4. 요금제 섹션 (군더더기 제거 및 톤다운된 청크 타일형 CTA 적용) */}
+      <section className="bg-white py-16 px-6 border-b border-gray-100">
+        <div className="max-w-[1000px] mx-auto">
           <FadeInUp>
-            <div className="text-center px-4">
-              <h2 className="text-3xl font-black text-gray-900 mb-4 font-title tracking-tight">
-                합리적인 맞춤형 요금제
-              </h2>
-              <p className="text-lg text-gray-500 mb-16 mx-auto leading-relaxed">
-                비즈니스 규모에 맞게 필요한 만큼만 충전하세요.<br />
-                매월 빠져나가는 정기 결제의 부담 없이, 모든 프리미엄 분석 기능을 자유롭게 활용할 수 있습니다.
-              </p>
-            </div>
-          </FadeInUp>
-
-          <FadeInUp delay={0.2}>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-              {/* 1. 스타터 */}
-              <div className="group bg-gray-50 rounded-2xl p-10 border border-gray-200 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-[0_15px_40px_-15px_rgba(16,185,129,0.2)] hover:border-emerald-500 h-full">
-                <span className="text-sm font-medium tracking-widest text-gray-400 group-hover:text-emerald-500 transition-colors mb-2">STARTER</span>
-                <h3 className="text-4xl font-bold text-gray-800 group-hover:text-emerald-500 transition-colors mb-4">스타터</h3>
-
-                <p className="text-[15px] text-gray-500 mb-6">개인 및 1인 셀러를 위한 플랜</p>
-
-                <div className="mb-8 w-full">
-                  <p className="flex items-baseline justify-center gap-1.5 text-5xl font-light text-gray-700 group-hover:text-emerald-500 transition-colors mb-3 tracking-tight">
-                    10,000 <span className="text-lg font-medium tracking-wide">Point</span>
-                  </p>
-                  <p className="text-base text-gray-600 font-medium">
-                    ₩ 10,000 <span className="text-emerald-500 ml-1 font-medium">(+0 P)</span>
-                  </p>
-                </div>
-
-                <div className="mb-8">
-                  <p className="text-lg text-gray-600 font-semibold group-hover:text-gray-800 transition-colors">IP 1개 접속 가능</p>
-                </div>
-
-                <button
-                  onClick={() => window.location.href = '/charge'}
-                  className="cursor-pointer w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all"
-                >
-                  결제하기
-                </button>
+            <div className="w-full flex flex-col md:flex-row items-center justify-between gap-8 py-4">
+              
+              {/* 좌측: 텍스트 영역 (불필요한 뱃지 제거, 제목에 집중) */}
+              <div className="text-center md:text-left flex-1">
+                <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4 font-title tracking-tight">
+                  약정 없이 자유로운 포인트 충전 시스템
+                </h2>
+                <p className="text-[15px] text-gray-500 break-keep leading-relaxed">
+                  매월 결제되는 부담스러운 구독료는 그만. 필요한 순간에 필요한 만큼만 충전하여 사용하는 투명하고 합리적인 포인트 제도를 운영합니다.
+                </p>
               </div>
-
-              {/* 2. 프로 */}
-              <div className="group bg-gray-50 rounded-2xl p-10 border border-gray-200 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-[0_15px_40px_-15px_rgba(79,70,229,0.2)] hover:border-indigo-500 h-full">
-                <span className="text-sm font-medium tracking-widest text-gray-400 group-hover:text-indigo-500 transition-colors mb-2">PRO</span>
-                <h3 className="text-4xl font-bold text-gray-800 group-hover:text-indigo-500 transition-colors mb-4">프로</h3>
-
-                <p className="text-[15px] text-gray-500 mb-6">전문 마케터를 위한 베스트 플랜</p>
-
-                <div className="mb-8 w-full">
-                  <p className="flex items-baseline justify-center gap-1.5 text-5xl font-light text-gray-700 group-hover:text-indigo-500 transition-colors mb-3 tracking-tight">
-                    36,000 <span className="text-lg font-medium tracking-wide">Point</span>
-                  </p>
-                  <p className="text-base text-gray-600 font-medium">
-                    ₩ 30,000 <span className="text-indigo-500 ml-1 font-medium">(+6,000 P)</span>
-                  </p>
-                </div>
-
-                <div className="mb-8">
-                  <p className="text-lg text-gray-600 font-semibold group-hover:text-gray-800 transition-colors">IP 1개 접속 가능</p>
-                </div>
-
-                <button
-                  onClick={() => window.location.href = '/charge'}
-                  className="cursor-pointer w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all"
-                >
-                  결제하기
-                </button>
+              
+              {/* 우측: 결제 버튼 영역 (톤다운된 다크 슬레이트 색상, 2줄 타일 형태) */}
+              <div className="shrink-0 mt-4 md:mt-0">
+                {/* 밝은 indigo에서 차분한 slate-800으로 톤 다운하고 padding을 늘려 정사각형 타일 느낌을 주었습니다 */}
+                <Link href="/charge" className="group bg-slate-800 text-white px-8 py-6 rounded-[1.5rem] shadow-md hover:bg-slate-900 hover:shadow-lg transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-w-[160px]">
+                  <span className="font-bold text-[17px]">포인트 충전소</span>
+                  <span className="font-bold text-[14.5px] text-slate-400 flex items-center gap-1 group-hover:text-white transition-colors">
+                    바로가기
+                    <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                  </span>
+                </Link>
               </div>
-
-              {/* 3. 에이전시 */}
-              <div className="group bg-gray-50 rounded-2xl p-10 border border-gray-200 flex flex-col items-center text-center transition-all duration-300 hover:-translate-y-2 hover:bg-white hover:shadow-[0_15px_40px_-15px_rgba(249,115,22,0.2)] hover:border-orange-500 h-full">
-                <span className="text-sm font-medium tracking-widest text-gray-400 group-hover:text-orange-500 transition-colors mb-2">AGENCY</span>
-                <h3 className="text-4xl font-bold text-gray-800 group-hover:text-orange-500 transition-colors mb-4">에이전시</h3>
-
-                <p className="text-[15px] text-gray-500 mb-6">대행사 및 대용량 분석용 플랜</p>
-
-                <div className="mb-8 w-full">
-                  <p className="flex items-baseline justify-center gap-1.5 text-5xl font-light text-gray-700 group-hover:text-orange-500 transition-colors mb-3 tracking-tight">
-                    60,000 <span className="text-lg font-medium tracking-wide">Point</span>
-                  </p>
-                  <p className="text-base text-gray-600 font-medium">
-                    ₩ 50,000<span className="text-orange-500 ml-1 font-medium">(+10,000 P)</span>
-                  </p>
-                </div>
-
-                <div className="mb-8">
-                  <p className="text-lg text-gray-600 font-semibold group-hover:text-gray-800 transition-colors">IP 다중 접속 가능</p>
-                </div>
-
-                <button
-                  onClick={() => window.location.href = '/charge'}
-                  className="cursor-pointer w-full mt-auto py-4 rounded-xl font-medium bg-gray-800 text-white shadow-sm hover:bg-gray-900 transition-all"
-                >
-                  결제하기
-                </button>
-              </div>
-
+              
             </div>
           </FadeInUp>
         </div>
