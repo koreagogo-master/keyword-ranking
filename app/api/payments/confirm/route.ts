@@ -1,18 +1,16 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js'; // 💡 데이터베이스 연결 도구 추가
-
-// 💡 관리자 권한으로 Supabase 연결 (RLS 보안 규칙 무시하고 강제 기록)
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+import { createClient } from '@supabase/supabase-js';
 
 export async function POST(request: Request) {
   try {
+    // 💡 핵심 수정: 빌드 에러 방지를 위해 DB 연결을 함수 내부로 이동했습니다!
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     const body = await request.json();
-    // 💡 프론트엔드에서 넘겨준 userId 받기
     const { paymentKey, orderId, amount, userId } = body;
 
-    // 1. 토스 결제 승인 요청
     const secretKey = process.env.TOSS_SECRET_KEY || '';
     const encryptedSecretKey = Buffer.from(secretKey + ':').toString('base64');
 
@@ -31,17 +29,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: data.message }, { status: 400 });
     }
 
-    // ==========================================
-    // 🚀 2. 결제 성공! 이제 3개 장부에 꼼꼼히 기록합니다.
-    // ==========================================
     if (!userId) throw new Error('사용자 ID가 없습니다.');
 
     const numAmount = Number(amount);
     let planId = 'starter';
-    let basePoints = numAmount; // 결제 금액 1:1 비율
+    let basePoints = numAmount;
     let bonusPoints = 0;
 
-    // 요금제별 보너스 포인트 자동 계산기
     if (numAmount === 30000) {
       planId = 'pro';
       bonusPoints = 6000;
@@ -50,7 +44,6 @@ export async function POST(request: Request) {
       bonusPoints = 10000;
     }
 
-    // [장부 1] payments 테이블 (관리자용 결제 내역) 추가
     await supabase.from('payments').insert({
       user_id: userId,
       order_id: orderId,
@@ -62,7 +55,6 @@ export async function POST(request: Request) {
       receipt_url: data.receipt?.url || null
     });
 
-    // [장부 2] profiles 테이블 (유저의 현재 포인트 지갑) 업데이트
     const { data: profile } = await supabase.from('profiles').select('*').eq('id', userId).single();
     if (profile) {
       await supabase.from('profiles').update({
@@ -72,7 +64,6 @@ export async function POST(request: Request) {
       }).eq('id', userId);
     }
 
-    // [장부 3] point_history 테이블 (마이페이지 이용 내역) 추가
     await supabase.from('point_history').insert({
       user_id: userId,
       change_type: '충전',
