@@ -7,9 +7,6 @@ import { useRouter } from 'next/navigation';
 
 import Sidebar from '@/components/Sidebar';
 
-
-const clientKey = 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eoq';
-
 const PLANS = [
   { id: 'starter', tag: 'STARTER', name: '스타터', price: 10000, points: 10000, bonus: '+0 P', desc: '개인 및 1인 셀러를 위한 플랜', ip: 'IP 1개 접속 가능', color: 'text-emerald-500', border: 'border-emerald-200' },
   { id: 'pro', tag: 'PRO', name: '프로', price: 30000, points: 36000, bonus: '+6,000 P', desc: '전문 마케터를 위한 베스트 플랜', ip: 'IP 1개 접속 가능', color: 'text-[#5244e8]', border: 'border-[#5244e8]', isPopular: true },
@@ -21,10 +18,7 @@ export default function ChargePage() {
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   
-  // 💡 수정된 부분 1: '카드'를 기본 결제 수단으로 설정
   const [payMethod, setPayMethod] = useState<'카드' | '계좌이체'>('카드');
-  
-  // 화면에 띄울 알림 메시지 상태
   const [toastMessage, setToastMessage] = useState('');
 
   const handlePayment = async (plan: typeof PLANS[0]) => {
@@ -36,17 +30,20 @@ export default function ChargePage() {
 
     setIsProcessing(true);
     try {
+      // 💡 1. 하드코딩된 테스트 키 삭제! 금고(.env.local)에서 안전하게 라이브 키 가져오기
+      const clientKey = process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY || '';
       const tossPayments = await loadTossPayments(clientKey);
       const orderId = `ORDER_${new Date().getTime()}_${Math.random().toString(36).slice(2, 7)}`;
 
+      // 💡 2. 결제 팝업 띄우기 및 아까 만든 영수증 페이지(/payment/success)로 연결
       await tossPayments.requestPayment(payMethod, {
         amount: plan.price,
         orderId: orderId,
-        orderName: `Ranking Pro - ${plan.name} 포인트 충전`,
+        orderName: `TMGad - ${plan.name} 포인트 충전`,
         customerName: profile?.email?.split('@')[0] || '고객',
         customerEmail: profile?.email || 'test@test.com',
-        successUrl: `${window.location.origin}/mypage?pay_status=success&amount=${plan.price}`,
-        failUrl: `${window.location.origin}/mypage?pay_status=fail`,
+        successUrl: `${window.location.origin}/payment/success`,
+        failUrl: `${window.location.origin}/payment/fail`,
       });
 
     } catch (error: any) {
@@ -88,7 +85,6 @@ export default function ChargePage() {
             원하시는 요금제를 선택해 결제를 진행해 보세요.
           </p>
 
-          {/* 💡 수정된 부분 2, 3: 버튼 순서 변경 및 '심사중' 텍스트 삭제 */}
           <div className="flex justify-center mb-10">
             <div className="bg-gray-50 p-1.5 rounded-xl border border-gray-200 shadow-inner inline-flex gap-2">
               <button
