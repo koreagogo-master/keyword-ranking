@@ -1,7 +1,8 @@
 import type { Metadata } from "next"; 
 import localFont from "next/font/local"; 
+// @ts-ignore
 import "./globals.css";
-import Header from "@/components/Header"; 
+import Header from "@/components/Header";
 import MemoSidebar from "@/components/MemoSidebar"; 
 import Footer from "@/components/Footer"; 
 // 🌟 1. 방금 1단계에서 만든 중앙 통제실(AuthProvider)을 불러옵니다.
@@ -29,8 +30,14 @@ const nanumSquare = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Ranking Pro - 마케팅 키워드 분석의 정밀 솔루션", 
-  description: "Naver API와 Google API를 기반으로 한 정밀 데이터 분석과 시각화 솔루션인 Ranking Pro로 마케팅 키워드 전략을 혁신하세요. 실시간 트렌드 분석, 경쟁사 비교, 키워드 성과 추적 등 다양한 기능을 제공합니다.",
+  title: "Ranking Pro - 마케팅 키워드 분석의 정밀 솔루션 tmgad.com", 
+  description: "Naver API와 Google API를 기반으로 GPT-4o(구조 기획)와 Claude 3.5(자연스러운 문장) 듀얼 엔진을 접목한 마케터 전용 사이트. 키워드 분석, 경쟁사 분석, 키워드 트렌드 파악을 통해 효과적인 마케팅 전략 수립을 지원합니다.",
+  // 👇 🌟 네이버 소유권 확인 태그가 추가된 부분입니다.
+  verification: {
+    other: {
+      "naver-site-verification": ["a6ef7f0c6159e0a643424685bf07ced6eca6ea1e"],
+    },
+  },
 };
 
 export default function RootLayout({
