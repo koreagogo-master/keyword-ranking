@@ -6,6 +6,13 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainFooter from "@/components/MainFooter";
 import FadeInUp from "@/components/FadeInUp";
+import { Montserrat } from 'next/font/google';
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  weight: ['400', '700', '900'],
+  style: ['normal', 'italic'],
+});
 
 export default function Home() {
   const [keyword, setKeyword] = useState("");
@@ -28,7 +35,7 @@ export default function Home() {
             <span className="text-indigo-600 font-bold text-sm mb-5 inline-block bg-indigo-100/50 px-4 py-1.5 rounded-full">
               회원가입 시 매일 5회 무료 검색 제공!
             </span>
-            <h1 className="text-5xl md:text-6xl font-black font-sans text-gray-900 mb-6 tracking-tighter">
+            <h1 className={`text-5xl md:text-6xl font-black text-gray-900 mb-6 tracking-tighter ${montserrat.className}`}>
               Ranking <span className="text-indigo-600">Pro</span>
             </h1>
             <p className="text-gray-500 text-lg font-medium leading-relaxed">
@@ -82,9 +89,9 @@ export default function Home() {
         <div className="max-w-[1000px] mx-auto">
           <FadeInUp>
             <div className="text-center px-4 mb-12">
-              <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 font-title tracking-tight">
-                Ranking Pro 핵심 솔루션
-              </h2>
+              <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2 font-title">
+              랭킹 프로 핵심 솔루션
+            </h2>
               <p className="text-lg text-gray-500 max-w-2xl mx-auto break-keep leading-relaxed">
                 검색 로직 분석부터 전문가 수준의 AI 포스팅, 온라인 셀러 맞춤 진단까지.<br />파편화된 마케팅 업무를 하나로 연결하여 가장 확실하고 강력한 해답을 제시합니다.
               </p>
@@ -105,7 +112,7 @@ export default function Home() {
                 </div>
                 {/* 강제 줄바꿈 제거 및 text-justify 적용 */}
                 <p className="text-gray-500 text-[14.5px] leading-relaxed break-keep text-justify">
-                  네이버, 구글, 유튜브의 방대한 최신 로직을 실시간으로 추적하여, 실질적인 트래픽과 매출로 이어지는 고효율 황금 키워드를 발굴합니다.
+                  네이버, 구글, 유튜브의 최신 로직을 공식 API와 TMGad. 만의 노하우로 분석하여 실질적인 결과에 도움을 줍니다.
                 </p>
               </div>
 
@@ -119,7 +126,7 @@ export default function Home() {
                 </div>
                 {/* 문구 수정 및 text-justify 적용 */}
                 <p className="text-gray-500 text-[14.5px] leading-relaxed break-keep text-justify">
-                  GPT-4와 Claude 3.5의 특성을 결합하여, 전문가 수준의 블로그 포스팅과 언론 기사를 자동 완성합니다.
+                  GPT-4와 Claude 3.5의 특성을 결합하여, 전문가 수준의 블로그 포스팅과 언론 기사를 생성하여 완성합니다.
                 </p>
               </div>
 
@@ -162,7 +169,7 @@ export default function Home() {
         <div className="max-w-[1200px] mx-auto">
           <FadeInUp>
             <div className="text-center px-4">
-              <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4 font-title tracking-tight">
+              <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2 font-title">
                 프리미엄 마케팅 툴킷
               </h2>
               <p className="text-lg text-gray-500 mb-16 max-w-3xl mx-auto break-keep leading-relaxed">
@@ -346,7 +353,7 @@ export default function Home() {
               
               {/* 좌측: 텍스트 영역 (불필요한 뱃지 제거, 제목에 집중) */}
               <div className="text-center md:text-left flex-1">
-                <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4 font-title tracking-tight">
+                <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2 font-title">
                   약정 없이 자유로운 포인트 충전 시스템
                 </h2>
                 <p className="text-[15px] text-gray-500 break-keep leading-relaxed">
