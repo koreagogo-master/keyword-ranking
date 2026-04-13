@@ -1,3 +1,4 @@
+// app/layout.tsx
 import type { Metadata } from "next"; 
 import localFont from "next/font/local"; 
 // @ts-ignore
@@ -29,10 +30,18 @@ const nanumSquare = localFont({
   variable: "--font-nanum-square",
 });
 
+// 👇 🌟 네이버 기준(제목 40자, 설명 80자)에 맞추고 OG 태그를 추가한 메타데이터입니다.
 export const metadata: Metadata = {
-  title: "Ranking Pro - 마케팅 키워드 분석의 정밀 솔루션 tmgad.com", 
-  description: "Naver API와 Google API를 기반으로 GPT-4o(구조 기획)와 Claude 3.5(자연스러운 문장) 듀얼 엔진을 접목한 마케터 전용 사이트. 키워드 분석, 경쟁사 분석, 키워드 트렌드 파악을 통해 효과적인 마케팅 전략 수립을 지원합니다.",
-  // 👇 🌟 네이버 소유권 확인 태그가 추가된 부분입니다.
+  title: "Ranking Pro - 마케터를 위한 정밀 키워드 분석 솔루션", // 35자 (합격)
+  description: "마케터 전용 정밀 키워드 분석 솔루션. 네이버·구글 검색 트렌드 분석과 AI 듀얼 엔진 포스팅으로 최적의 마케팅 전략을 제공합니다.", // 73자 (합격)
+  openGraph: {
+    title: "Ranking Pro - 마케터를 위한 정밀 키워드 분석 솔루션",
+    description: "마케터 전용 정밀 키워드 분석 솔루션. 네이버·구글 검색 트렌드 분석과 AI 듀얼 엔진 포스팅으로 최적의 마케팅 전략을 제공합니다.",
+    url: "https://tmgad.com",
+    siteName: "Ranking Pro",
+    locale: "ko_KR",
+    type: "website",
+  },
   verification: {
     other: {
       "naver-site-verification": ["a6ef7f0c6159e0a643424685bf07ced6eca6ea1e"],
