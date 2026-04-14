@@ -11,6 +11,7 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/analysis': 'ANALYSIS',
   '/related-fast': 'RELATED',
   '/blog-rank-b': 'BLOG',
+  '/index-check': 'INDEX_CHECK', // 🌟 URL 연동 추가
   '/kin-rank': 'JISIKIN',
   '/blog-rank': 'TOTAL',
   '/google-analysis': 'GOOGLE',
@@ -38,6 +39,7 @@ export default function Sidebar() {
         { name: "키워드 정밀 분석", href: "/analysis" },
         { name: "연관 키워드 조회", href: "/related-fast" },
         { name: "블로그 순위 확인", href: "/blog-rank-b" },
+        { name: "블로그 노출 진단", href: "/index-check" }, // 🌟 메뉴 추가
         { name: "지식인 순위 확인", href: "/kin-rank" },
         { name: "통검 노출/순위 확인", href: "/blog-rank" },
         {
@@ -96,17 +98,17 @@ export default function Sidebar() {
     return initialState;
   });
 
+  // 🌟 토글 로직 변경: 페이지 이동 시 열려있던 다른 그룹들을 강제로 닫지 않습니다.
   useEffect(() => {
     const activeGroup = menuGroups.find(group =>
       group.items.some(item => item.href === pathname)
     );
 
     if (activeGroup) {
-      const newOpenGroups: Record<string, boolean> = {};
-      menuGroups.forEach(group => {
-        newOpenGroups[group.title] = group.title === activeGroup.title;
-      });
-      setOpenGroups(newOpenGroups);
+      setOpenGroups(prev => ({
+        ...prev, // 기존에 열려있던 상태(prev)를 그대로 유지
+        [activeGroup.title]: true // 새로 이동한 그룹만 추가로 활성화(열기)
+      }));
     }
   }, [pathname]);
 
@@ -225,7 +227,6 @@ export default function Sidebar() {
                     </svg>
                   </div>
 
-                  {/* 💡 스르르~ 애니메이션: Grid 레이아웃을 이용해 높이를 0에서 100%로 부드럽게 펼칩니다 */}
                   <div className={`grid transition-all duration-300 ease-in-out ${openGroups[group.title] ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                     <ul className="overflow-hidden mt-0.5">
                       {group.items.map((item, itemIdx) => {
@@ -244,7 +245,6 @@ export default function Sidebar() {
                                   ? 'bg-[#5244e8]/10 text-[#5244e8]' 
                                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
                             >
-                              {/* 💡 비활성 상태일 때 bg-transparent(투명) 였던 것을 bg-gray-200(연한 회색)으로 변경했습니다. */}
                               <div className={`absolute left-0 top-0 bottom-0 w-[3px] transition-all ${
                                 isActive ? 'bg-[#5244e8]' : 'bg-gray-200 group-hover:bg-gray-300'
                               }`}></div>

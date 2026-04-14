@@ -8,6 +8,7 @@ const PATH_TO_PAGE_TYPE: Record<string, string> = {
   '/analysis': 'ANALYSIS',
   '/related-fast': 'RELATED',
   '/blog-rank-b': 'BLOG',
+  '/index-check': 'INDEX_CHECK',
   '/kin-rank': 'JISIKIN',
   '/blog-rank': 'TOTAL',
   '/google-analysis': 'GOOGLE',

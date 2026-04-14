@@ -21,7 +21,8 @@ const PAGE_META: Record<string, string> = {
   'MANUAL': '관리자 조정 포인트',
   'CHARGE': '포인트 자동 충전',
   'AI_BLOG': 'Dual AI 포스팅',
-  'AI_PRESS': 'AI 언론 보도자료'
+  'AI_PRESS': 'AI 언론 보도자료',
+  'INDEX_CHECK': '블로그 노출 진단'
 };
 
 const getPastDate = (months: number) => {

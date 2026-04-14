@@ -7,8 +7,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 interface SavedSearchesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  pageType: "BLOG" | "JISIKIN" | "TOTAL" | "ANALYSIS" | "RELATED" | "GOOGLE" | "YOUTUBE" | "SHOPPING" | "SHOPPING_RANK" | "SEO_TITLE" | "AIBLOG" | 'AI_PRESS';
-  onSelect: (item: any) => void;          
+  pageType: "BLOG" | "JISIKIN" | "TOTAL" | "ANALYSIS" | "RELATED" | "GOOGLE" | "YOUTUBE" | "SHOPPING" | "SHOPPING_RANK" | "SEO_TITLE" | "AIBLOG" | "AI_PRESS" | "INDEX_CHECK"; onSelect: (item: any) => void;
 }
 export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelect }: SavedSearchesDrawerProps) {
   const { user } = useAuth();
@@ -30,7 +29,7 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
       .eq('user_id', user?.id)
       .eq('page_type', pageType)
       .order('created_at', { ascending: false });
-    
+
     if (!error && data) setList(data);
     setIsLoading(false);
   };
@@ -78,7 +77,7 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
             📂 저장된 설정 불러오기
           </h2>
           <button onClick={onClose} className="p-1.5 hover:bg-gray-200 rounded-sm transition-colors text-gray-500">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
 
@@ -91,7 +90,7 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
             <div className="space-y-3">
               {list.map((item) => (
                 <div key={item.id} className="group flex flex-col p-4 bg-white border border-gray-200 rounded-sm hover:border-[#5244e8] hover:shadow-md transition-all">
-                  
+
                   <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-1.5 text-[11px] text-gray-400 font-medium">
                       <span>{formatDate(item.created_at)}</span>
@@ -115,17 +114,16 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
                         {item.keyword}
                       </div>
                     </>
-                  ) : pageType === 'JISIKIN' ? (
-                    // 🌟 [Request 4번 해결 관련] JISIKIN 페이지는 그대로 키워드 유지
-                    <div className="text-[12px] text-gray-500 mb-1">키워드: <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
-                      {item.jisikin_data?.map((d: any) => d.keyword).join(', ')}
-                    </span></div>
                   ) : (
-                    // 🌟 [Request 4번 해결] 조건부 출력 로직 추가
-                    // 현재 열린 페이지가 SEO_TITLE이면 "핵심 품목명", 아니면 "키워드"로 출력
                     <div className="text-[12px] text-gray-500 mb-1">
-                      {pageType === 'SEO_TITLE' ? '핵심 품목명:' : '키워드:'} 
-                      <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
+                      {/* 👇 조건문을 확장했습니다: INDEX_CHECK면 '블로그 ID:', SEO_TITLE이면 '핵심 품목명:', 그 외에는 '키워드:' */}
+                      {pageType === 'INDEX_CHECK'
+                        ? '블로그 ID:'
+                        : pageType === 'SEO_TITLE'
+                          ? '핵심 품목명:'
+                          : '키워드:'
+                      }
+                      <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug ml-1">
                         {item.keyword}
                       </span>
                     </div>

@@ -1,3 +1,4 @@
+// app/admin/points/page.tsx
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
@@ -8,8 +9,6 @@ import Sidebar from '@/components/Sidebar';
 import { createClient } from '@/app/utils/supabase/client';
 import AdminTabs from '@/components/AdminTabs'; 
 
-// ... (위쪽 import 부분은 그대로 유지) ...
-
 interface PointPolicy {
   page_type: string;
   page_name: string;
@@ -17,43 +16,35 @@ interface PointPolicy {
   original_cost?: number;
 }
 
-interface PointPolicy {
-  page_type: string;
-  page_name: string;
-  point_cost: number;
-  original_cost?: number;
-}
-
-// 💡 DB의 page_type과 완벽하게 일치하도록 수정
 const PAGE_META: Record<string, { name: string; url: string }> = {
   'ANALYSIS': { name: '키워드 정밀 분석', url: '/analysis' },
   'RELATED': { name: '연관 키워드 조회', url: '/related-fast' },
   'BLOG': { name: '블로그 순위 확인', url: '/blog-rank-b' },
+  'INDEX_CHECK': { name: '블로그 노출 진단', url: '/index-check' }, // 🌟 새로 추가됨
   'JISIKIN': { name: '지식인 순위 확인', url: '/kin-rank' },
   'TOTAL': { name: '통검 노출/순위 확인', url: '/blog-rank' },
   'GOOGLE': { name: '구글 키워드 분석', url: '/google-analysis' },
   'YOUTUBE': { name: '유튜브 트렌드', url: '/youtube-trend' },
-  'SHOPPING': { name: '쇼핑 키워드 인사이트', url: '/shopping-insight' }, // 사이드바 이름과 통일
+  'SHOPPING': { name: '쇼핑 키워드 인사이트', url: '/shopping-insight' }, 
   'SEO_TITLE': { name: '쇼핑 상품명 최적화', url: '/seo-title' },
-  'SEO_CHECK': { name: '내 상품명 진단', url: '/diagnosis' },      // 🌟 DB에 있는 SEO_CHECK 사용
+  'SEO_CHECK': { name: '내 상품명 진단', url: '/diagnosis' },      
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
-  'AI_BLOG': { name: '+ Dual AI 포스팅', url: '/ai-blog' },           // 🌟 DB에 있는 AI_BLOG 사용
-  'AI_PRESS': { name: '+ AI 언론 보도자료', url: '/ai-press' }       // 🌟 보도자료 추가
+  'AI_BLOG': { name: '+ Dual AI 포스팅', url: '/ai-blog' },           
+  'AI_PRESS': { name: '+ AI 언론 보도자료', url: '/ai-press' }       
 };
 
-// 💡 메뉴 그룹에도 수정된 영문 코드를 적용
 const MENU_GROUPS = [
   {
     title: 'NAVER TOOLS',
-    items: ['ANALYSIS', 'RELATED', 'BLOG', 'JISIKIN', 'TOTAL']
+    items: ['ANALYSIS', 'RELATED', 'BLOG', 'INDEX_CHECK', 'JISIKIN', 'TOTAL'] // 🌟 INDEX_CHECK 추가됨
   },
   {
     title: 'AI TOOLS',     
-    items: ['AI_BLOG', 'AI_PRESS'] // 🌟 보도자료 추가
+    items: ['AI_BLOG', 'AI_PRESS'] 
   },
   {
     title: 'SELLER TOOLS',
-    items: ['SHOPPING', 'SEO_TITLE', 'SEO_CHECK', 'SHOPPING_RANK'] // 🌟 수정됨
+    items: ['SHOPPING', 'SEO_TITLE', 'SEO_CHECK', 'SHOPPING_RANK'] 
   },
   {
     title: 'GOOGLE & YOUTUBE',
@@ -62,7 +53,6 @@ const MENU_GROUPS = [
 ];
 
 export default function AdminPointsPage() {
-// ... (이하 코드는 기존과 동일하게 유지) ...
   const { user, profile, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
 
@@ -112,7 +102,6 @@ export default function AdminPointsPage() {
     setSavingId(policy.page_type);
     const supabase = createClient();
     
-    // 🌟 불필요한 검증 로직 제거 (가장 순수하고 안정적인 업데이트)
     const { error } = await supabase
       .from('point_policies')
       .update({ point_cost: policy.point_cost })
@@ -125,7 +114,6 @@ export default function AdminPointsPage() {
       alert(`[${metaName}] 포인트가 ${policy.point_cost}P로 저장되었습니다.`);
       setPolicies(prev => prev.map(p => p.page_type === policy.page_type ? { ...p, original_cost: policy.point_cost } : p));
       
-      // 🌟 캐시를 날려 사이드바 등을 즉시 동기화합니다.
       router.refresh();
     } else {
       alert(`저장에 실패했습니다. 관리자에게 문의하세요. (${error.message})`);
