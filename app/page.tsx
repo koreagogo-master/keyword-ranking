@@ -164,7 +164,6 @@ export default function Home() {
       </section>
 
       {/* 🌟 3. 제공 솔루션 (PC 전용 Bento Box 레이아웃 + 명도 대비 강화) */}
-      {/* 전체 배경을 bg-gray-50 에서 bg-gray-100 으로 한 단계 어둡게 변경했습니다 */}
       <section className="bg-gray-100 py-24 px-6 border-b border-gray-200">
         <div className="max-w-[1200px] mx-auto">
           <FadeInUp>
@@ -189,7 +188,7 @@ export default function Home() {
                   Naver TOOLS
                 </h3>
                 <div className="grid grid-cols-3 gap-4 flex-1">
-                  {/* 내부 버튼들의 테두리를 border-gray-100 에서 border-gray-200 으로 한 단계 진하게 변경했습니다 */}
+                  
                   <Link href="/analysis" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
                     <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
@@ -209,6 +208,14 @@ export default function Home() {
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                     </div>
                     <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-[#03c75a] transition-colors">블로그 순위 확인</h3>
+                  </Link>
+
+                  {/* 🌟 새로 추가된 부분: 블로그 노출 진단 */}
+                  <Link href="/index-check" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-[#03c75a] transition-colors">블로그 노출 진단</h3>
                   </Link>
 
                   <Link href="/kin-rank" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
@@ -363,7 +370,6 @@ export default function Home() {
               
               {/* 우측: 결제 버튼 영역 (톤다운된 다크 슬레이트 색상, 2줄 타일 형태) */}
               <div className="shrink-0 mt-4 md:mt-0">
-                {/* 밝은 indigo에서 차분한 slate-800으로 톤 다운하고 padding을 늘려 정사각형 타일 느낌을 주었습니다 */}
                 <Link href="/charge" className="group bg-slate-800 text-white px-8 py-6 rounded-[1.5rem] shadow-md hover:bg-slate-900 hover:shadow-lg transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-w-[160px]">
                   <span className="font-bold text-[17px]">포인트 충전소</span>
                   <span className="font-bold text-[14.5px] text-slate-400 flex items-center gap-1 group-hover:text-white transition-colors">

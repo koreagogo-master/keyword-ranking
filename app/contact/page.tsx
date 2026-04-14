@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { createClient } from '@/app/utils/supabase/client';
 import Link from 'next/link';
-import Sidebar from '@/components/Sidebar';
+// 🌟 불필요해진 Sidebar import 제거됨
 
 interface MyInquiry {
   id: string;
@@ -123,8 +123,8 @@ export default function ContactPage() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       
-
-      <div className="flex-1 ml-64 py-16 px-6">
+      {/* 🌟 ml-64 (사이드바 공간 비우기) 클래스를 제거하여 화면 전체를 사용하게 함 */}
+      <div className="flex-1 py-16 px-6">
         <div className="max-w-4xl mx-auto mt-2">
           
           <div className="text-center mb-14">

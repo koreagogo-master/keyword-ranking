@@ -29,7 +29,7 @@ export default function Sidebar() {
 
   // 🌟 1. 사이드바를 절대 보여주지 않을 '단어 목록'입니다.
   // 나중에 페이지가 늘어나면 여기에 단어만 추가하시면 됩니다!
-  const excludeKeywords = ['/login', '/signup', '/terms', '/privacy'];
+  const excludeKeywords = ['/login', '/signup', '/terms', '/privacy', '/contact'];
 
   // 🌟 2. 홈('/') 이거나, 위 단어로 '시작'하는 모든 페이지를 체크합니다.
   const isExcluded = 
