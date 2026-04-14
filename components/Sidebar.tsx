@@ -27,9 +27,17 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
 export default function Sidebar() {
   const pathname = usePathname();
 
-  if (pathname === '/') return null;
-  if (pathname === '/terms') return null;
-  if (pathname === '/privacy') return null;
+  // 🌟 1. 사이드바를 절대 보여주지 않을 '단어 목록'입니다.
+  // 나중에 페이지가 늘어나면 여기에 단어만 추가하시면 됩니다!
+  const excludeKeywords = ['/login', '/signup', '/terms', '/privacy'];
+
+  // 🌟 2. 홈('/') 이거나, 위 단어로 '시작'하는 모든 페이지를 체크합니다.
+  const isExcluded = 
+    pathname === '/' || 
+    excludeKeywords.some(keyword => pathname.startsWith(keyword));
+
+  // 🌟 3. 제외 대상이라면 투명 망토(hidden)를 입혀서 에러도 막고 화면에서도 숨깁니다.
+  if (isExcluded) return <div className="hidden"></div>;
 
   const { user, profile, isLoading, refreshProfile } = useAuth();
 
