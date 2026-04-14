@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useEffect, Suspense, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import Sidebar from "@/components/Sidebar";
+
 import RankTabs from "@/components/RankTabs";
 
 import { createClient } from "@/app/utils/supabase/client";
@@ -196,7 +196,7 @@ function AnalysisContent() {
         className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight"
         style={{ fontFamily: "'NanumSquare', sans-serif" }}
       >
-        <Sidebar />
+        
 
         <main className="flex-1 ml-64 p-10">
           <div className="max-w-7xl mx-auto">

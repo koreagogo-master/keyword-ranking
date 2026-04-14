@@ -7,7 +7,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/app/contexts/AuthContext';
 
-import Sidebar from "@/components/Sidebar";
+
 import AdminTabs from '@/components/AdminTabs';
 
 // 통계 제외용 관리자 이메일
@@ -280,7 +280,7 @@ export default function AdminUsersPage() {
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
       <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-        <Sidebar />
+        
 
         <main className="flex-1 ml-64 p-10 relative">
           <div className="max-w-[1200px] mx-auto">

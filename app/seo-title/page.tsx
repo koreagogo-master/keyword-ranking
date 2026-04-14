@@ -429,7 +429,7 @@ export default function SeoTitlePage() {
         <>
             <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
             <div className="flex min-h-screen bg-[#f8f9fa] !text-black antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-                <Sidebar />
+                
                 <main className="flex-1 ml-64 p-10 relative">
                     <div className="max-w-7xl mx-auto">
                         <Suspense fallback={<div className="p-10 text-center text-gray-500 font-bold">로딩 중...</div>}>

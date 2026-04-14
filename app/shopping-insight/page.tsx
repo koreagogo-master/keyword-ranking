@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import Link from 'next/link';
-import Sidebar from "@/components/Sidebar";
+
 import { useAuth } from "@/app/contexts/AuthContext";
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
@@ -235,7 +235,7 @@ function ShoppingInsightContent() {
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
       <div className="flex min-h-screen bg-[#f8f9fa] !text-black antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-        <Sidebar />
+        
 
         <main className="flex-1 ml-64 p-10 relative">
           <div className="max-w-7xl mx-auto">

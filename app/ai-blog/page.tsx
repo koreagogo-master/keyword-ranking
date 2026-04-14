@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Sidebar from "@/components/Sidebar";
+
 import { useAuth } from "@/app/contexts/AuthContext";
 import { usePoint } from "@/app/hooks/usePoint";
 
@@ -241,7 +241,7 @@ export default function AiBlogPage() {
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
 
       <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-        <Sidebar />
+        
 
         <main className="flex-1 ml-64 relative">
 

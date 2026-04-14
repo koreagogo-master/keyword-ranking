@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, Suspense, useMemo } from "react";
-import Sidebar from "@/components/Sidebar";
+
 import RankTabs from "@/components/RankTabs";
 
 import KeywordInput from "./components/KeywordInput";
@@ -188,7 +188,7 @@ function KeywordGeneratorContent() {
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
       <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-        <Sidebar />
+        
 
         <main className="flex-1 ml-64 p-10">
           <div className="max-w-7xl mx-auto">

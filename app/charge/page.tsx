@@ -65,7 +65,7 @@ export default function ChargePage() {
 
   return (
     <div className="flex bg-gray-50 min-h-[calc(100vh-4rem)] relative">
-      <Sidebar />
+      
       
       {/* 알림 메시지 (토스트 창) UI */}
       {toastMessage && (

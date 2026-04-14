@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
-import Sidebar from "@/components/Sidebar";
+
 import { createClient } from "@/app/utils/supabase/client";
 
 const PAGE_META: Record<string, string> = {
@@ -290,7 +290,7 @@ function MyPageContent() {
 
   return (
     <div className="flex bg-gray-50 min-h-[calc(100vh-4rem)]">
-      <Sidebar />
+      
       <div className="flex-1 ml-64 p-6 md:p-10">
         <div className="max-w-4xl mx-auto">
 

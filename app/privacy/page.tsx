@@ -1,9 +1,10 @@
 export default function PrivacyPage() {
   return (
-    <div className="bg-gray-50 py-16 px-6">
+    // 🌟 본문이 화면 중앙에 꽉 차게 배치되도록 설정되었습니다. (ml-64 없음)
+    <div className="py-12 px-6">
       <div className="max-w-4xl mx-auto bg-white p-10 md:p-16 rounded-xl shadow-sm border border-gray-100">
         <h1 className="text-3xl font-black text-slate-800 mb-8">개인정보처리방침</h1>
-        <div className="prose max-w-none text-sm text-slate-600 leading-loose space-y-6">
+        <div className="prose max-w-none text-[14px] text-slate-600 leading-loose space-y-6">
           <p>주식회사 티엠지(이하 "회사")는 회원의 개인정보를 중요시하며, "정보통신망 이용촉진 및 정보보호"에 관한 법률을 준수하고 있습니다.</p>
 
           <p><strong>1. 수집하는 개인정보 항목</strong><br />

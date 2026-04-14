@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, Suspense } from "react";
-import Sidebar from "@/components/Sidebar";
+
 import RankTabs from "@/components/RankTabs";
 
 // 숫자 포맷팅 (1,000 단위 콤마)
@@ -152,7 +152,7 @@ function RelatedAnalysisContent() {
 
   return (
     <div className="flex min-h-screen bg-[#f8f9fa] !text-black">
-      <Sidebar />
+      
       <main className="flex-1 ml-64 p-10">
         <div className="max-w-7xl mx-auto">
           <RankTabs />

@@ -1,4 +1,6 @@
 // app/layout.tsx
+// app/layout.tsx 파일 상단에 추가
+import Sidebar from "@/components/Sidebar";
 import type { Metadata } from "next"; 
 import localFont from "next/font/local"; 
 // @ts-ignore
@@ -6,11 +8,11 @@ import "./globals.css";
 import Header from "@/components/Header";
 import MemoSidebar from "@/components/MemoSidebar"; 
 import Footer from "@/components/Footer"; 
-// 🌟 1. 방금 1단계에서 만든 중앙 통제실(AuthProvider)을 불러옵니다.
 import { AuthProvider } from "@/app/contexts/AuthContext";
-
-// 👇 🌟 여기에 수문장(모바일 차단막)을 불러오는 코드를 추가했습니다!
 import MobileBlocker from "@/components/MobileBlocker"; 
+
+// 🌟 1. 사이드바를 뼈대용으로 불러옵니다.
+ 
 
 const nanumBarunGothic = localFont({
   src: [
@@ -30,10 +32,9 @@ const nanumSquare = localFont({
   variable: "--font-nanum-square",
 });
 
-// 👇 🌟 네이버 기준(제목 40자, 설명 80자)에 맞추고 OG 태그를 추가한 메타데이터입니다.
 export const metadata: Metadata = {
-  title: "Ranking Pro - 마케터를 위한 정밀 키워드 분석 솔루션", // 35자 (합격)
-  description: "마케터 전용 정밀 키워드 분석 솔루션. 네이버·구글 검색 트렌드 분석과 AI 듀얼 엔진 포스팅으로 최적의 마케팅 전략을 제공합니다.", // 73자 (합격)
+  title: "Ranking Pro - 마케터를 위한 정밀 키워드 분석 솔루션",
+  description: "마케터 전용 정밀 키워드 분석 솔루션. 네이버·구글 검색 트렌드 분석과 AI 듀얼 엔진 포스팅으로 최적의 마케팅 전략을 제공합니다.",
   openGraph: {
     title: "Ranking Pro - 마케터를 위한 정밀 키워드 분석 솔루션",
     description: "마케터 전용 정밀 키워드 분석 솔루션. 네이버·구글 검색 트렌드 분석과 AI 듀얼 엔진 포스팅으로 최적의 마케팅 전략을 제공합니다.",
@@ -59,27 +60,21 @@ export default function RootLayout({
       <body
         className={`${nanumBarunGothic.variable} ${nanumSquare.variable} antialiased flex flex-col min-h-screen`}
       >
-        {/* 🌟 2. AuthProvider로 웹사이트 전체 화면(Header, 콘텐츠, Footer 등)을 싹 감싸줍니다. */}
         <AuthProvider>
-          
-          {/* 👇 🌟 여기에 모바일 수문장을 세웠습니다! (모든 페이지에서 작동합니다) */}
           <MobileBlocker />
-          
-          {/* 상단 네비게이션 바 */}
           <Header />
           
-          {/* 우측 슬라이딩 메모장 (모든 페이지에서 따라다님) */}
+          {/* 🌟 2. 뼈대에 사이드바를 고정합니다! 이제 모든 페이지에 자동으로 나옵니다. */}
+          <Sidebar />
+          
           <MemoSidebar />
           
-          {/* 메인 콘텐츠 영역 */}
           <div className="pt-16 flex-1 bg-gray-50 text-slate-800">
             {children}
           </div>
 
-          {/* 푸터 영역 (모든 페이지 하단에 공통 적용) */}
-          <div className="ml-[255px]">
             <Footer />
-          </div>
+
         </AuthProvider>
       </body>
     </html>

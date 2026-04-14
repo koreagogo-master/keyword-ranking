@@ -26,6 +26,11 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
 
 export default function Sidebar() {
   const pathname = usePathname();
+
+  if (pathname === '/') return null;
+  if (pathname === '/terms') return null;
+  if (pathname === '/privacy') return null;
+
   const { user, profile, isLoading, refreshProfile } = useAuth();
 
   const [clientIp, setClientIp] = useState<string | null>(null);
@@ -54,10 +59,10 @@ export default function Sidebar() {
       ]
     },
     {
-      title: "AI TOOLS", 
+      title: "AI TOOLS",
       items: [
-        { name: "+ Dual AI 포스팅", href: "/ai-blog" }, 
-        { name: "+ AI 언론 보도자료", href: "/ai-press" }, 
+        { name: "+ Dual AI 포스팅", href: "/ai-blog" },
+        { name: "+ AI 언론 보도자료", href: "/ai-press" },
       ]
     },
     {
@@ -65,12 +70,12 @@ export default function Sidebar() {
       items: [
         { name: "쇼핑 키워드 인사이트", href: "/shopping-insight" },
         { name: "쇼핑 상품명 최적화", href: "/seo-title" },
-        { name: "내 상품명 진단", href: "/seo-check" }, 
+        { name: "내 상품명 진단", href: "/seo-check" },
         { name: "상품 노출 순위 분석", href: "/shopping-rank" },
       ]
     },
     {
-      title: "Google & YouTube", 
+      title: "Google & YouTube",
       items: [
         { name: "구글 키워드 분석", href: "/google-analysis" },
         { name: "유튜브 트렌드", href: "/youtube-trend" },
@@ -88,10 +93,10 @@ export default function Sidebar() {
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
     const initialState: Record<string, boolean> = {};
-    const activeGroup = menuGroups.find(group => 
+    const activeGroup = menuGroups.find(group =>
       group.items.some(item => item.href === pathname)
     );
-    
+
     menuGroups.forEach(group => {
       initialState[group.title] = activeGroup ? group.title === activeGroup.title : true;
     });
@@ -145,14 +150,14 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed h-full z-50 pt-10">
+      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col fixed top-[64px] h-[calc(100vh-64px)] z-40">
 
         {isLoading ? (
           <div className="px-4 pt-4 pb-4 border-b border-gray-100 bg-gray-50/30 flex items-center justify-center">
             <span className="text-xs text-gray-400 font-bold">정보 불러오는 중...</span>
           </div>
         ) : user ? (
-          <div className="px-4 pt-0 pb-4 border-b border-gray-100 bg-gray-50/30">
+          <div className="px-4 pt-5 pb-4 border-b border-gray-100 bg-gray-50/30">
             <div className="flex items-center gap-1.5 mb-2.5 px-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
               <span className="text-[11px] font-bold text-gray-400 tracking-wider">
@@ -212,10 +217,12 @@ export default function Sidebar() {
                 <li key={groupIdx} className="mb-1 pb-1 border-b border-gray-100 last:border-b-0">
                   <div
                     onClick={() => toggleGroup(group.title)}
-                    className={`px-4 py-1.5 text-[11.5px] font-extrabold tracking-wider uppercase border-b flex items-center justify-between cursor-pointer transition-all
-                      ${isGroupActive 
-                        ? 'text-[#5244e8] border-[#5244e8]/40' 
-                        : 'text-gray-400 border-transparent hover:text-gray-600'}`}
+                    // 🌟 py-1.5 를 py-2 로 살짝 늘려 클릭 영역을 넓혀줍니다.
+                    className={`px-4 py-2 text-[11.5px] font-extrabold tracking-wider uppercase border-b flex items-center justify-between cursor-pointer transition-all
+      ${isGroupActive
+                        ? 'text-[#5244e8] border-[#5244e8]/40 bg-[#5244e8]/5'
+                        // 🌟 옅은 gray-400을 진한 slate-600으로 바꾸고, 마우스를 올리면 더 진해지며(slate-900) 배경색(bg-slate-50)이 깔리게 합니다.
+                        : 'text-slate-600 border-transparent hover:text-slate-900 hover:bg-slate-50'}`}
                     style={{ fontFamily: "'NanumSquare', sans-serif" }}
                   >
                     {group.title}
@@ -232,29 +239,27 @@ export default function Sidebar() {
                       {group.items.map((item, itemIdx) => {
                         const isActive = pathname === item.href;
                         const pageType = URL_TO_PAGE_TYPE[item.href as string];
-                        const pointCost = pageType && pointPolicies[pageType] !== undefined 
-                          ? pointPolicies[pageType] 
+                        const pointCost = pageType && pointPolicies[pageType] !== undefined
+                          ? pointPolicies[pageType]
                           : (item.href === '/ai-blog' ? 30 : item.href === '/ai-press' ? 50 : null);
 
                         return (
                           <li key={itemIdx}>
                             <Link
                               href={item.href}
-                            className={`group mx-3 pl-7 pr-4 py-[9px] flex items-center transition-colors duration-200 text-[13.5px] font-medium relative
-                                ${isActive 
-                                  ? 'bg-[#5244e8]/10 text-[#5244e8]' 
+                              className={`group mx-3 pl-7 pr-4 py-[9px] flex items-center transition-colors duration-200 text-[13.5px] font-medium relative
+                                ${isActive
+                                  ? 'bg-[#5244e8]/10 text-[#5244e8]'
                                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
                             >
-                              <div className={`absolute left-0 top-0 bottom-0 w-[3px] transition-all ${
-                                isActive ? 'bg-[#5244e8]' : 'bg-gray-200 group-hover:bg-gray-300'
-                              }`}></div>
+                              <div className={`absolute left-0 top-0 bottom-0 w-[3px] transition-all ${isActive ? 'bg-[#5244e8]' : 'bg-gray-200 group-hover:bg-gray-300'
+                                }`}></div>
 
                               <div className="flex-1 flex items-center justify-between">
                                 <span>{typeof item.name === 'string' ? item.name : item.name}</span>
                                 {typeof item.name === 'string' && pointCost !== null && (
-                                  <span className={`px-1.5 py-[2px] rounded-sm text-[10px] font-bold tracking-wide border shadow-sm transition-colors ${
-                                    isActive ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20' : 'bg-slate-50 text-slate-500 border-slate-200'
-                                  }`}>
+                                  <span className={`px-1.5 py-[2px] rounded-sm text-[10px] font-bold tracking-wide border shadow-sm transition-colors ${isActive ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20' : 'bg-slate-50 text-slate-500 border-slate-200'
+                                    }`}>
                                     {pointCost === 0 ? 'FREE' : `${pointCost}P`}
                                   </span>
                                 )}

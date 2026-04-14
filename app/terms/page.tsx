@@ -1,9 +1,10 @@
 export default function TermsPage() {
   return (
-    <div className="bg-gray-50 py-16 px-6">
+    // 🌟 layout.tsx와 중복되는 bg-gray-50을 제거하고, 적절한 상하 여백(py-12)만 남겼습니다.
+    <div className="py-12 px-6">
       <div className="max-w-4xl mx-auto bg-white p-10 md:p-16 rounded-xl shadow-sm border border-gray-100">
         <h1 className="text-3xl font-black text-slate-800 mb-8">이용약관</h1>
-        <div className="prose max-w-none text-sm text-slate-600 leading-loose space-y-6">
+        <div className="prose max-w-none text-[14px] text-slate-600 leading-loose space-y-6">
           <p><strong>제 1 조 (목적)</strong><br />
           본 약관은 주식회사 티엠지(이하 "회사")가 운영하는 TMG AD 서비스(이하 "서비스")의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p>
           

@@ -166,7 +166,7 @@ export default function AdminNoticePage() {
 
   return (
     <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043]">
-      <Sidebar />
+      
 
       <main className="flex-1 ml-64 p-10 relative">
         <div className="max-w-[1200px] mx-auto">
