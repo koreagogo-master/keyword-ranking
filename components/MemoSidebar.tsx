@@ -7,15 +7,20 @@ import { useAuth } from "@/app/contexts/AuthContext";
 type SaveState = 'IDLE' | 'SAVING' | 'SAVED';
 
 export default function MemoSidebar() {
+  // 🌟 [수정] 여기도 마찬가지로 모든 Hook을 맨 위에 둡니다.
+  const [isMounted, setIsMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isBottomMode, setIsBottomMode] = useState(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
   const [charCount, setCharCount] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
-  
   const [saveState, setSaveState] = useState<SaveState>('IDLE');
-
+  
   const { user, profile } = useAuth();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleOpenMemo = () => setIsOpen(true);
@@ -44,7 +49,6 @@ export default function MemoSidebar() {
       }
       setCharCount(initialText.length); 
       setIsLoaded(true);
-      // 데이터를 처음 불러오면 무조건 '저장 완료' 상태로 둡니다.
       setSaveState('SAVED');
     }
   }, [profile, isLoaded]);
@@ -70,7 +74,6 @@ export default function MemoSidebar() {
       
       if (error) throw error;
       
-      // 타이머를 없애고, 텍스트가 수정되기 전까지는 계속 '저장 완료' 상태를 유지합니다.
       setSaveState('SAVED'); 
 
     } catch (err) {
@@ -82,12 +85,13 @@ export default function MemoSidebar() {
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setCharCount(e.target.value.length);
-    // 텍스트를 한 글자라도 수정하면 즉시 '저장' 버튼(IDLE)으로 활성화됩니다.
     if (saveState !== 'IDLE') {
       setSaveState('IDLE');
     }
   };
 
+  // 🌟 [수정] Hook 선언이 완벽히 끝난 가장 아랫부분에 조건문을 배치합니다.
+  if (!isMounted) return null;
   if (!user) return null;
 
   const triggerClasses = isBottomMode

@@ -8,7 +8,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 
 import Sidebar from '@/components/Sidebar';
 import { createClient } from '@/app/utils/supabase/client';
-import AdminTabs from '@/components/AdminTabs'; 
+import AdminTabs from '@/components/AdminTabs';
 
 interface PointHistory {
   id: string;
@@ -17,8 +17,9 @@ interface PointHistory {
   change_amount: number;
   page_type: string;
   description: string;
-  running_balance?: number; 
-  profiles: { 
+  ip_address?: string; // 🌟 딱 한 줄 추가됨: IP 주소 타입 정의
+  running_balance?: number;
+  profiles: {
     email: string;
     purchased_points: number;
     bonus_points: number;
@@ -60,17 +61,17 @@ export default function AdminHistoryPage() {
   const alertShown = useRef(false);
 
   const [history, setHistory] = useState<PointHistory[]>([]);
-  const [totalUsablePoints, setTotalUsablePoints] = useState<number>(0); 
+  const [totalUsablePoints, setTotalUsablePoints] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-  
+
   const [filterType, setFilterType] = useState<string>('ALL');
   const [searchEmail, setSearchEmail] = useState<string>('');
-  const [searchKeyword, setSearchKeyword] = useState<string>(''); 
-  const [startDate, setStartDate] = useState<string>(''); 
-  const [endDate, setEndDate] = useState<string>(''); 
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const [startDate, setStartDate] = useState<string>('');
+  const [endDate, setEndDate] = useState<string>('');
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 20; 
+  const itemsPerPage = 20;
   const [chartOffset, setChartOffset] = useState(0);
 
   // 🌟 철통 보안 로직 (1회만 알림)
@@ -80,7 +81,7 @@ export default function AdminHistoryPage() {
         if (!alertShown.current) {
           alert('접근 권한이 없습니다.');
           alertShown.current = true;
-          router.replace('/'); 
+          router.replace('/');
         }
       }
     }
@@ -100,12 +101,13 @@ export default function AdminHistoryPage() {
   const fetchHistoryAndStats = async () => {
     setLoading(true);
     const supabase = createClient();
-    
+
+    // 이미 * 를 통해 모든 데이터를 불러오고 있어서 별도의 쿼리 수정은 필요 없습니다.
     const { data: historyData } = await supabase
       .from('point_history')
       .select(`*, profiles ( email, purchased_points, bonus_points )`)
       .order('created_at', { ascending: false })
-      .limit(3000); 
+      .limit(3000);
 
     if (historyData) setHistory(historyData as any);
 
@@ -125,12 +127,12 @@ export default function AdminHistoryPage() {
 
   const formatDateTime = (dateStr: string) => {
     const d = new Date(dateStr);
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
   };
 
   const getTodayString = () => {
     const d = new Date();
-    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   };
 
   const todayStats = useMemo(() => {
@@ -157,11 +159,11 @@ export default function AdminHistoryPage() {
 
   const weeklyStats = useMemo(() => {
     const stats: Record<string, { used: number, charged: number, signup: number, net: number }> = {};
-    
-    for(let i=6; i>=0; i--) {
+
+    for (let i = 6; i >= 0; i--) {
       const d = new Date();
-      d.setDate(d.getDate() - i - (chartOffset * 7)); 
-      const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      d.setDate(d.getDate() - i - (chartOffset * 7));
+      const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
       stats[dateStr] = { used: 0, charged: 0, signup: 0, net: 0 };
     }
 
@@ -221,7 +223,7 @@ export default function AdminHistoryPage() {
 
       const matchEmail = item.profiles?.email.toLowerCase().includes(searchEmail.toLowerCase()) || false;
       const matchKeyword = item.description?.toLowerCase().includes(searchKeyword.toLowerCase()) || false;
-      
+
       const itemDate = item.created_at.split('T')[0];
       const matchStartDate = startDate ? itemDate >= startDate : true;
       const matchEndDate = endDate ? itemDate <= endDate : true;
@@ -249,19 +251,19 @@ export default function AdminHistoryPage() {
     return <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">권한 확인 중...</div>;
   }
   if (!user || profile?.role?.toLowerCase() !== 'admin') {
-    return null; 
+    return null;
   }
 
   return (
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
-      
+
       <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-        
-        
+
+
         <main className="flex-1 ml-64 p-10 relative">
           <div className="max-w-[1200px] mx-auto">
-            
+
             <AdminTabs />
 
             <div className="mb-8 text-center relative">
@@ -271,7 +273,7 @@ export default function AdminHistoryPage() {
               <p className="text-sm text-slate-500">
                 모든 유저의 포인트 사용, 결제, 관리자 수동 조작 내역이 실시간으로 100% 기록됩니다.
               </p>
-              
+
               <div className="absolute right-0 bottom-0">
                 <button onClick={fetchHistoryAndStats} className="inline-flex items-center gap-1.5 text-[14px] font-bold !text-slate-500 hover:!text-[#5244e8] transition-colors !bg-white px-4 py-2 rounded-sm border border-gray-200 shadow-sm">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
@@ -330,11 +332,11 @@ export default function AdminHistoryPage() {
                   )}
                 </div>
               </div>
-              
+
               <div className="flex gap-2">
                 <div className="w-12 flex flex-col items-end justify-center py-3">
                   <span className="text-[12px] font-bold mb-2 opacity-0">날짜</span>
-                  
+
                   <div className="w-full flex flex-col space-y-2 text-[13px] font-extrabold pr-2">
                     <div className="text-indigo-400 text-right">충전</div>
                     <div className="text-emerald-500 text-right">가입</div>
@@ -384,7 +386,7 @@ export default function AdminHistoryPage() {
                   </select>
                 </div>
               </div>
-              
+
               <div className="flex gap-6 items-center pt-4 border-t border-gray-100">
                 <div className="flex items-center gap-2 flex-1">
                   <span className="text-[13px] font-extrabold text-slate-700 w-16 shrink-0">e-mail / ID</span>
@@ -422,12 +424,12 @@ export default function AdminHistoryPage() {
                     <tr><td colSpan={7} className="text-center py-10 text-slate-500 font-bold">해당하는 내역이 없습니다.</td></tr>
                   ) : (
                     paginatedHistory.map((item) => {
-                      const label = item.page_type === 'SIGNUP' 
+                      const label = item.page_type === 'SIGNUP'
                         ? { text: 'N', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
                         : TYPE_LABELS[item.change_type] || { text: '?', color: 'bg-gray-100 text-gray-500' };
-                      
+
                       const isMinus = item.change_amount < 0;
-                      
+
                       const meta = PAGE_META[item.page_type];
                       const displayPageName = meta ? meta.name : (item.page_type || '-');
                       const displayPageUrl = meta ? meta.url : '';
@@ -446,15 +448,24 @@ export default function AdminHistoryPage() {
                             </span>
                           </td>
                           <td className="px-6 py-4 text-center">
-                            <span 
+                            <span
                               className={`font-bold ${item.page_type === 'SIGNUP' ? 'text-emerald-600 bg-emerald-50' : 'text-slate-600 bg-slate-100'} text-[13px] px-2 py-1.5 rounded-sm cursor-help whitespace-nowrap`}
                               title={displayPageUrl ? `페이지 경로: ${displayPageUrl}` : ''}
                             >
                               {displayPageName}
                             </span>
                           </td>
-                          <td className="px-6 py-4 text-slate-700 font-medium">
-                            {item.description || '-'}
+                          <td className="px-3 py-1">
+                            <div className="flex flex-col gap-0.5">
+                              <div className="text-slate-700 font-medium leading-tight">
+                                {item.description || '-'}
+                              </div>
+                              {item.ip_address && (
+                                <div className="text-[11px] font-medium text-slate-400 tracking-tight leading-none">
+                                  {item.ip_address}
+                                </div>
+                              )}
+                            </div>
                           </td>
                           <td className="px-6 py-4 text-right">
                             <span className={`font-black text-[15px] ${isMinus ? 'text-rose-600' : 'text-indigo-600'}`}>
@@ -476,29 +487,28 @@ export default function AdminHistoryPage() {
 
             {!loading && filteredHistory.length > 0 && (
               <div className="flex justify-center items-center gap-2 pb-10">
-                <button 
+                <button
                   onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                   className="px-4 py-2 rounded-md border border-gray-200 bg-white !text-slate-600 font-bold disabled:opacity-30 hover:bg-slate-50 transition-colors"
                 >
                   이전
                 </button>
-                
+
                 {getPageNumbers().map(num => (
                   <button
                     key={num}
                     onClick={() => setCurrentPage(num)}
-                    className={`w-9 h-9 rounded-md flex items-center justify-center font-bold transition-colors ${
-                      currentPage === num 
-                      ? 'bg-[#5244e8] !text-white border border-[#5244e8]' 
+                    className={`w-9 h-9 rounded-md flex items-center justify-center font-bold transition-colors ${currentPage === num
+                      ? 'bg-[#5244e8] !text-white border border-[#5244e8]'
                       : 'bg-white !text-slate-600 border border-gray-200 hover:bg-slate-50'
-                    }`}
+                      }`}
                   >
                     {num}
                   </button>
                 ))}
 
-                <button 
+                <button
                   onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                   className="px-4 py-2 rounded-md border border-gray-200 bg-white !text-slate-600 font-bold disabled:opacity-30 hover:bg-slate-50 transition-colors"

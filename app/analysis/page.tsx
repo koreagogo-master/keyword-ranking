@@ -9,6 +9,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 import { usePoint } from '@/app/hooks/usePoint'; 
+import BlindWrapper from "@/components/BlindWrapper"; // 🌟 BlindWrapper 임포트 추가
 
 import SearchVolume from "./components/1_SearchVolume";
 import ContentStats from "./components/2_ContentStats";
@@ -23,8 +24,7 @@ function safeNumber(v: any) {
 }
 
 function AnalysisContent() {
-  // 🌟 isLoading 추가 (로그인 정보가 완전히 로드된 후 결제를 시도해야 안전함)
-  const { user, isLoading } = useAuth();
+  const { user, profile, isLoading } = useAuth(); // 🌟 profile(등급 정보) 추가
   const { deductPoints } = usePoint(); 
 
   const [keyword, setKeyword] = useState("");
@@ -37,18 +37,14 @@ function AnalysisContent() {
   const [relatedKeywords, setRelatedKeywords] = useState<string[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // 🌟 중복 결제 및 중복 실행 방지를 위한 방어막
   const lastProcessedKeyword = useRef<string | null>(null);
 
   const searchParams = useSearchParams();
   const router = useRouter();
   const urlKeyword = searchParams.get("keyword");
 
-  // 🌟 핵심 파이프라인 1: URL에 키워드가 잡히면 무조건 여기를 거칩니다. (메인에서 오든, 여기서 검색하든)
   useEffect(() => {
-    // 로그인 정보 로딩이 끝났고, URL에 키워드가 있을 때만 실행
     if (!isLoading && urlKeyword && urlKeyword !== "") {
-      // 이미 방금 결제하고 검색한 키워드라면 중복 실행 안 함
       if (lastProcessedKeyword.current !== urlKeyword) {
         executePaidSearch(urlKeyword); 
       }
@@ -60,9 +56,8 @@ function AnalysisContent() {
     setIsCompleted(false);
   }, [keyword]);
 
-  // 🌟 핵심 파이프라인 2: "결제"와 "검색"이 무조건 한 세트로 묶인 단일 함수!
   const executePaidSearch = async (k: string) => {
-    lastProcessedKeyword.current = k; // 결제 시도 진입 표시 (중복 방지)
+    lastProcessedKeyword.current = k; 
     setKeyword(k);
     setSearchedKeyword(k); 
     setIsSearching(true);
@@ -71,17 +66,14 @@ function AnalysisContent() {
     setRelatedKeywords([]);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    // 🛑 [결제 톨게이트] 
-    // 여기서 결제가 실패하면 (포인트 부족 등) 더 이상 아래로 넘어가지 못함!
     const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
     if (!isPaySuccess) {
       setIsSearching(false);
-      lastProcessedKeyword.current = null; // 실패했으니 다음에 다시 버튼 누르면 실행되게 리셋
+      lastProcessedKeyword.current = null; 
       return;
     }
 
     try {
-      // ✅ 결제 통과 시 네이버 데이터 가져오기
       const naverRes = await fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`);
       const naverData = await naverRes.json();
       
@@ -96,19 +88,14 @@ function AnalysisContent() {
     }
   };
 
-  // 🌟 수동으로 검색 버튼을 눌렀을 때의 동작
   const handleSearch = async (targetKeyword?: string) => {
     const k = (typeof targetKeyword === 'string' ? targetKeyword : keyword).trim();
     if (!k) return;
 
     if (urlKeyword === k) {
-      // 이미 "다이어트" 검색 결과에 있는데 또 "다이어트"를 검색 누른 경우
-      // URL이 안 변하므로 useEffect가 안 돎 -> 강제로 리셋하고 결제 함수 실행
       lastProcessedKeyword.current = null;
       executePaidSearch(k);
     } else {
-      // 새로운 키워드라면 단순히 URL만 바꿔줌. 
-      // (URL이 바뀌면 위의 useEffect가 냄새를 맡고 알아서 결제 파이프라인을 태움!)
       router.push(`/analysis?keyword=${encodeURIComponent(k)}`);
     }
   };
@@ -188,6 +175,9 @@ function AnalysisContent() {
     };
   }, [data, searchedKeyword]);
 
+  // 🌟 현재 사용자가 유료 회원(또는 포인트를 지불한 상태)인지 판별
+  const isPaidUser = profile?.grade && profile.grade !== 'free';
+
   return (
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
@@ -196,8 +186,6 @@ function AnalysisContent() {
         className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight"
         style={{ fontFamily: "'NanumSquare', sans-serif" }}
       >
-        
-
         <main className="flex-1 ml-64 p-10">
           <div className="max-w-7xl mx-auto">
             <RankTabs />
@@ -290,9 +278,58 @@ function AnalysisContent() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-10 items-start">
-                  <RelatedKeywords data={data} onKeywordClick={handleSearch} />
-                  <div className="space-y-10">
+                  {/* 🌟 1. 연관 키워드 컴포넌트에 블라인드 적용을 위한 Wrapper 씌우기 */}
+                  <div className="relative">
+                     <RelatedKeywords data={data} onKeywordClick={handleSearch} />
+                     {!isPaidUser && (
+                       <div className="absolute top-[40%] bottom-0 left-0 right-0 bg-gradient-to-b from-transparent via-white/80 to-white flex flex-col items-center justify-end pb-10 z-10">
+                         <div className="backdrop-blur-[2px] w-full h-full absolute inset-0 -z-10"></div>
+                         {!user ? (
+                           <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
+                              <h3 className="text-lg font-black text-gray-900 mb-2">더 많은 연관 키워드 보기 🔒</h3>
+                              <p className="text-sm text-gray-500 font-medium mb-4">로그인하시면 연관 키워드 데이터를 모두 확인할 수 있습니다.</p>
+                              <a href="/login" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
+                                지금 로그인하기
+                              </a>
+                           </div>
+                         ) : (
+                           <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
+                              <h3 className="text-lg font-black text-gray-900 mb-2">프리미엄 데이터 접근 💎</h3>
+                              <p className="text-sm text-gray-500 font-medium mb-4">포인트를 사용하시면 숨겨진 연관 키워드를 모두 확인할 수 있습니다.</p>
+                              <a href="/charge" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
+                                포인트 충전하기
+                              </a>
+                           </div>
+                         )}
+                       </div>
+                     )}
+                  </div>
+                  
+                  {/* 🌟 2. 유사도 분석 컴포넌트에 블라인드 적용을 위한 Wrapper 씌우기 */}
+                  <div className="relative space-y-10">
                     <SimilarityAnalysis data={data} mainKeyword={searchedKeyword} onKeywordClick={handleSearch} />
+                     {!isPaidUser && (
+                       <div className="absolute top-[40%] bottom-0 left-0 right-0 bg-gradient-to-b from-transparent via-white/80 to-white flex flex-col items-center justify-end pb-10 z-10">
+                         <div className="backdrop-blur-[2px] w-full h-full absolute inset-0 -z-10"></div>
+                         {!user ? (
+                           <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
+                              <h3 className="text-lg font-black text-gray-900 mb-2">더 많은 유사 키워드 보기 🔒</h3>
+                              <p className="text-sm text-gray-500 font-medium mb-4">로그인하시면 상세한 유사도 분석 결과를 확인할 수 있습니다.</p>
+                              <a href="/login" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
+                                회원가입하고 무료로 보기
+                              </a>
+                           </div>
+                         ) : (
+                           <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
+                              <h3 className="text-lg font-black text-gray-900 mb-2">모든 데이터 펼쳐보기 💎</h3>
+                              <p className="text-sm text-gray-500 font-medium mb-4">결제 후 전체 유사도 분석 데이터를 확인하여 인사이트를 넓혀보세요.</p>
+                              <a href="/charge" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
+                                프리미엄 혜택 알아보기
+                              </a>
+                           </div>
+                         )}
+                       </div>
+                     )}
                   </div>
                 </div>
               </div>

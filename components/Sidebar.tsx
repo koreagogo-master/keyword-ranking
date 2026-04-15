@@ -11,7 +11,7 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/analysis': 'ANALYSIS',
   '/related-fast': 'RELATED',
   '/blog-rank-b': 'BLOG',
-  '/index-check': 'INDEX_CHECK', // 🌟 URL 연동 추가
+  '/index-check': 'INDEX_CHECK',
   '/kin-rank': 'JISIKIN',
   '/blog-rank': 'TOTAL',
   '/google-analysis': 'GOOGLE',
@@ -26,21 +26,10 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
 
 export default function Sidebar() {
   const pathname = usePathname();
-
-  // 🌟 1. 사이드바를 절대 보여주지 않을 '단어 목록'입니다.
-  // 나중에 페이지가 늘어나면 여기에 단어만 추가하시면 됩니다!
-  const excludeKeywords = ['/login', '/signup', '/terms', '/privacy', '/contact'];
-
-  // 🌟 2. 홈('/') 이거나, 위 단어로 '시작'하는 모든 페이지를 체크합니다.
-  const isExcluded = 
-    pathname === '/' || 
-    excludeKeywords.some(keyword => pathname.startsWith(keyword));
-
-  // 🌟 3. 제외 대상이라면 투명 망토(hidden)를 입혀서 에러도 막고 화면에서도 숨깁니다.
-  if (isExcluded) return <div className="hidden"></div>;
-
+  
+  // 🌟 [수정] 무조건 모든 Hook(useState, useEffect, useAuth)을 맨 위로 끌어올립니다!
+  const [isMounted, setIsMounted] = useState(false);
   const { user, profile, isLoading, refreshProfile } = useAuth();
-
   const [clientIp, setClientIp] = useState<string | null>(null);
   const [pointPolicies, setPointPolicies] = useState<Record<string, number>>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -52,7 +41,7 @@ export default function Sidebar() {
         { name: "키워드 정밀 분석", href: "/analysis" },
         { name: "연관 키워드 조회", href: "/related-fast" },
         { name: "블로그 순위 확인", href: "/blog-rank-b" },
-        { name: "블로그 노출 진단", href: "/index-check" }, // 🌟 메뉴 추가
+        { name: "블로그 노출 진단", href: "/index-check" },
         { name: "지식인 순위 확인", href: "/kin-rank" },
         { name: "통검 노출/순위 확인", href: "/blog-rank" },
         {
@@ -104,23 +93,24 @@ export default function Sidebar() {
     const activeGroup = menuGroups.find(group =>
       group.items.some(item => item.href === pathname)
     );
-
     menuGroups.forEach(group => {
       initialState[group.title] = activeGroup ? group.title === activeGroup.title : true;
     });
     return initialState;
   });
 
-  // 🌟 토글 로직 변경: 페이지 이동 시 열려있던 다른 그룹들을 강제로 닫지 않습니다.
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   useEffect(() => {
     const activeGroup = menuGroups.find(group =>
       group.items.some(item => item.href === pathname)
     );
-
     if (activeGroup) {
       setOpenGroups(prev => ({
-        ...prev, // 기존에 열려있던 상태(prev)를 그대로 유지
-        [activeGroup.title]: true // 새로 이동한 그룹만 추가로 활성화(열기)
+        ...prev,
+        [activeGroup.title]: true 
       }));
     }
   }, [pathname]);
@@ -155,6 +145,14 @@ export default function Sidebar() {
   const toggleGroup = (title: string) => {
     setOpenGroups(prev => ({ ...prev, [title]: !prev[title] }));
   };
+
+  // 🌟 [수정] 모든 Hook 선언이 끝난 가장 안전한 이 위치에서 return 처리를 합니다!
+  if (!isMounted) return null;
+
+  const excludeKeywords = ['/login', '/signup', '/terms', '/privacy', '/contact'];
+  const isExcluded = pathname === '/' || excludeKeywords.some(keyword => pathname.startsWith(keyword));
+  
+  if (isExcluded) return <div className="hidden"></div>;
 
   return (
     <>
@@ -225,11 +223,9 @@ export default function Sidebar() {
                 <li key={groupIdx} className="mb-1 pb-1 border-b border-gray-100 last:border-b-0">
                   <div
                     onClick={() => toggleGroup(group.title)}
-                    // 🌟 py-1.5 를 py-2 로 살짝 늘려 클릭 영역을 넓혀줍니다.
                     className={`px-4 py-2 text-[11.5px] font-extrabold tracking-wider uppercase border-b flex items-center justify-between cursor-pointer transition-all
       ${isGroupActive
                         ? 'text-[#5244e8] border-[#5244e8]/40 bg-[#5244e8]/5'
-                        // 🌟 옅은 gray-400을 진한 slate-600으로 바꾸고, 마우스를 올리면 더 진해지며(slate-900) 배경색(bg-slate-50)이 깔리게 합니다.
                         : 'text-slate-600 border-transparent hover:text-slate-900 hover:bg-slate-50'}`}
                     style={{ fontFamily: "'NanumSquare', sans-serif" }}
                   >

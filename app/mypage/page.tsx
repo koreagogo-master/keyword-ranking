@@ -36,7 +36,6 @@ function MyPageContent() {
   const { user, profile, isLoading } = useAuth();
   const router = useRouter();
 
-  // 🌟 결제 데이터 낚아채기 추가
   const searchParams = useSearchParams();
   const paymentKey = searchParams.get('paymentKey');
   const orderId = searchParams.get('orderId');
@@ -55,16 +54,12 @@ function MyPageContent() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 10;
-
-  // 🌟 방어막 깃발 추가
   const isProcessingRef = useRef(false);
 
-  // 🌟 여기서부터 추가: 결제 승인 및 포인트 자동 지급 로직
   useEffect(() => {
     if (paymentKey && orderId && amount && user && profile) {
-      // 이미 처리 중이면 두 번 실행하지 않고 바로 종료
       if (isProcessingRef.current) return;
-      isProcessingRef.current = true; // 문 잠그기
+      isProcessingRef.current = true; 
 
       processPayment();
     }
@@ -74,7 +69,6 @@ function MyPageContent() {
   const processPayment = async () => {
     const supabase = createClient();
     
-    // 🌟 수정 1: single()을 maybeSingle()로 변경하여 406 에러(경고) 해결
     const { data: existingPayment } = await supabase
       .from('payments')
       .select('id')
@@ -117,7 +111,6 @@ function MyPageContent() {
             grade: planId
           }).eq('id', user.id);
 
-          // 🌟 수정 2: change_type: '충전' 이라는 필수 값을 추가하여 에러 완벽 해결!
           const { error: historyError } = await supabase.from('point_history').insert({
             user_id: user.id,
             change_amount: pointsToAdd,
@@ -144,7 +137,6 @@ function MyPageContent() {
       router.replace('/mypage');
     }
   };
-  // 🌟 여기까지 추가 완료
 
   useEffect(() => {
     if (!isLoading && !user) {
@@ -294,7 +286,6 @@ function MyPageContent() {
       <div className="flex-1 ml-64 p-6 md:p-10">
         <div className="max-w-4xl mx-auto">
 
-          {/* 🌟 1. 타이틀 수정: text-center 추가 */}
           <h1 className="text-2xl font-bold mb-6 text-gray-900 text-center">
             마이페이지
           </h1>
@@ -377,7 +368,6 @@ function MyPageContent() {
               포인트 이용 내역
             </h2>
 
-            {/* 🌟 2. 탭 영역 수정 */}
             <div className="flex justify-center border-b border-gray-200 mb-6 relative">
               <button
                 onClick={() => handleTabChange('ALL')}
@@ -453,7 +443,15 @@ function MyPageContent() {
                             </span>
                           </td>
                           <td className="px-5 py-2">
-                            <div className="font-bold text-slate-800 text-[13px]">{displayPage}</div>
+                            {/* 🌟 3. 상세 내용 옆에 IP 주소 뱃지 추가 */}
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-slate-800 text-[13px]">{displayPage}</span>
+                              {item.ip_address && (
+                                <span className="text-[10px] font-bold bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded border border-slate-200" title="사용 기기 IP">
+                                  IP: {item.ip_address}
+                               </span>
+                              )}
+                            </div>
                             {item.description && item.page_type !== 'SIGNUP' && (
                               <div className="text-[12px] text-slate-500 mt-0.5">{item.description}</div>
                             )}
@@ -546,7 +544,6 @@ function MyPageContent() {
   );
 }
 
-// 🌟 파일 제일 밑에 이 코드를 통째로 추가합니다.
 export default function MyPage() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-bold text-slate-500">결제 정보 확인 중...</div>}>

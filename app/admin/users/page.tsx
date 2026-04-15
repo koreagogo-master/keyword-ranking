@@ -7,7 +7,6 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { useAuth } from '@/app/contexts/AuthContext';
 
-
 import AdminTabs from '@/components/AdminTabs';
 
 // 통계 제외용 관리자 이메일
@@ -98,6 +97,36 @@ export default function AdminUsersPage() {
       fetchUsers(); 
     } else {
       alert("고정 상태 변경 중 오류가 발생했습니다. (SQL 명령어로 is_pinned 컬럼을 추가했는지 확인해주세요!)");
+    }
+  };
+
+  // 🌟 [추가] 무료 횟수 전용 수정 함수 (장부 기록 없이 깔끔하게 DB만 수정)
+  const handleUpdateFreeCount = async (userId: string, currentVal: number) => {
+    const input = window.prompt(
+      `[무료 잔여 횟수]를 수정합니다.\n테스트를 위해 남은 횟수를 입력하세요.\n(현재: ${currentVal ?? 0} 회)`,
+      String(currentVal ?? 0)
+    );
+
+    if (input === null) return;
+
+    const newVal = parseInt(input.replace(/,/g, ''), 10);
+    if (isNaN(newVal) || newVal < 0) {
+      alert("0 이상의 올바른 숫자를 입력해주세요.");
+      return;
+    }
+
+    if (newVal === (currentVal ?? 0)) return;
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ free_search_count: newVal })
+      .eq('id', userId);
+
+    if (!error) {
+      alert("무료 잔여 횟수가 변경되었습니다.");
+      fetchUsers();
+    } else {
+      alert("무료 횟수 수정 중 오류가 발생했습니다.");
     }
   };
 
@@ -425,6 +454,8 @@ export default function AdminUsersPage() {
                     </th>
                     
                     <th className="py-2.5 px-3 border-b border-gray-200 text-center">등급 관리</th>
+                    {/* 🌟 무료 횟수 헤더 추가 */}
+                    <th className="py-2.5 px-3 border-b border-gray-200 text-center text-orange-500 font-bold">무료 횟수</th>
                     <th className="py-2.5 px-3 border-b border-gray-200 text-right text-slate-500">누적 결제 P</th>
                     <th className="py-2.5 px-3 border-b border-gray-200 text-right text-slate-500">결제 잔여 P</th>
                     <th className="py-2.5 px-3 border-b border-gray-200 text-right text-slate-500">보너스 P</th>
@@ -434,9 +465,9 @@ export default function AdminUsersPage() {
                 </thead>
                 <tbody className="text-[13px]">
                   {loading ? (
-                    <tr><td colSpan={10} className="text-center py-8 text-slate-500 font-bold">데이터를 불러오는 중입니다...</td></tr>
+                    <tr><td colSpan={11} className="text-center py-8 text-slate-500 font-bold">데이터를 불러오는 중입니다...</td></tr>
                   ) : paginatedUsers.length === 0 ? (
-                    <tr><td colSpan={10} className="text-center py-8 text-slate-500 font-bold">조건에 맞는 회원이 없습니다.</td></tr>
+                    <tr><td colSpan={11} className="text-center py-8 text-slate-500 font-bold">조건에 맞는 회원이 없습니다.</td></tr>
                   ) : (
                     paginatedUsers.map((u, index) => {
                       const totalPoints = (u.purchased_points || 0) + (u.bonus_points || 0);
@@ -486,6 +517,17 @@ export default function AdminUsersPage() {
                               <option value="pro" className="text-blue-600">Pro</option>
                               <option value="agency" className="text-purple-600">Agency</option>
                             </select>
+                          </td>
+                          
+                          {/* 🌟 무료 횟수 클릭 수정 버튼 추가 */}
+                          <td className="py-2 px-3 text-center">
+                            <button
+                              onClick={() => handleUpdateFreeCount(u.id, u.free_search_count)}
+                              className="hover:bg-orange-100 px-2 py-1 rounded transition-colors font-extrabold !text-orange-500 text-[12px]"
+                              title="무료 횟수 수정"
+                            >
+                              {u.free_search_count ?? 0}
+                            </button>
                           </td>
 
                           <td className="py-2 px-3 text-right">
