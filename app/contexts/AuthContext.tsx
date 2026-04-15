@@ -13,8 +13,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 🌟 [추가됨] 내 브라우저만의 고유한 입장권(세션 ID) 랜덤 생성
-  const localSessionId = useRef(typeof window !== 'undefined' ? Math.random().toString(36).substring(2, 15) : '');
+  // 🌟 [수정됨] 내 브라우저만의 고유한 입장권(세션 ID) 생성 및 유지
+  // sessionStorage를 확인해서 기존 입장권이 있으면 쓰고, 없으면 새로 만듭니다.
+  const getOrCreateSessionId = () => {
+    if (typeof window === 'undefined') return '';
+    
+    // 1. 브라우저 보관함에 내 입장권이 있는지 확인
+    let sid = window.sessionStorage.getItem('my_session_id');
+    
+    // 2. 없다면 새로 발급받고 보관함에 저장
+    if (!sid) {
+      sid = Math.random().toString(36).substring(2, 15);
+      window.sessionStorage.setItem('my_session_id', sid);
+    }
+    
+    return sid; // 3. 입장권 반환
+  };
+
+  const localSessionId = useRef(getOrCreateSessionId());
 
   // 언제든지 외부(사이드바 등)에서 포인트를 다시 불러올 수 있는 전용 함수
   const refreshProfile = async () => {

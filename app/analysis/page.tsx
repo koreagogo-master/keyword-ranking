@@ -8,7 +8,7 @@ import RankTabs from "@/components/RankTabs";
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
-import { usePoint } from '@/app/hooks/usePoint'; 
+import { usePoint } from '@/app/hooks/usePoint';
 import BlindWrapper from "@/components/BlindWrapper"; // 🌟 BlindWrapper 임포트 추가
 
 import SearchVolume from "./components/1_SearchVolume";
@@ -18,6 +18,7 @@ import RelatedKeywords from "./components/4_RelatedKeywords";
 import SimilarityAnalysis from "./components/5_SimilarityAnalysis";
 import KeywordStrategy from "./components/6_KeywordStrategy";
 import SectionOrder from "./components/7_SectionOrder";
+import HelpButton from '@/components/HelpButton';
 
 function safeNumber(v: any) {
   return typeof v === "number" && Number.isFinite(v) ? v : 0;
@@ -25,11 +26,11 @@ function safeNumber(v: any) {
 
 function AnalysisContent() {
   const { user, profile, isLoading } = useAuth(); // 🌟 profile(등급 정보) 추가
-  const { deductPoints } = usePoint(); 
+  const { deductPoints } = usePoint();
 
   const [keyword, setKeyword] = useState("");
-  const [searchedKeyword, setSearchedKeyword] = useState(""); 
-  
+  const [searchedKeyword, setSearchedKeyword] = useState("");
+
   const [data, setData] = useState<any>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
@@ -46,10 +47,10 @@ function AnalysisContent() {
   useEffect(() => {
     if (!isLoading && urlKeyword && urlKeyword !== "") {
       if (lastProcessedKeyword.current !== urlKeyword) {
-        executePaidSearch(urlKeyword); 
+        executePaidSearch(urlKeyword);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlKeyword, isLoading]);
 
   useEffect(() => {
@@ -57,9 +58,9 @@ function AnalysisContent() {
   }, [keyword]);
 
   const executePaidSearch = async (k: string) => {
-    lastProcessedKeyword.current = k; 
+    lastProcessedKeyword.current = k;
     setKeyword(k);
-    setSearchedKeyword(k); 
+    setSearchedKeyword(k);
     setIsSearching(true);
     setIsCompleted(false);
     setData(null);
@@ -69,14 +70,14 @@ function AnalysisContent() {
     const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
     if (!isPaySuccess) {
       setIsSearching(false);
-      lastProcessedKeyword.current = null; 
+      lastProcessedKeyword.current = null;
       return;
     }
 
     try {
       const naverRes = await fetch(`/api/keyword?keyword=${encodeURIComponent(k)}`);
       const naverData = await naverRes.json();
-      
+
       if (!naverRes.ok) throw new Error(naverData?.error || "네이버 데이터 로드 실패");
 
       setData({ ...naverData });
@@ -123,7 +124,7 @@ function AnalysisContent() {
 
   const handleApplySavedSetting = (item: any) => {
     setIsDrawerOpen(false);
-    handleSearch(item.keyword); 
+    handleSearch(item.keyword);
   };
 
   const stats = useMemo(() => {
@@ -142,7 +143,7 @@ function AnalysisContent() {
     const cTotal = safeNumber(data.contentCount?.total);
 
     return {
-      keyword: searchedKeyword, 
+      keyword: searchedKeyword,
       search: {
         total: safeNumber(data.searchCount?.total),
         pc: safeNumber(data.searchCount?.pc),
@@ -171,7 +172,7 @@ function AnalysisContent() {
       },
       weeklyTrend: data.weeklyTrend,
       monthlyTrend: data.monthlyTrend,
-      googleVolume: 0 
+      googleVolume: 0
     };
   }, [data, searchedKeyword]);
 
@@ -191,14 +192,22 @@ function AnalysisContent() {
             <RankTabs />
 
             <div className="flex justify-between items-start mb-8">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              <div className="flex items-center gap-2 mb-4">
+                <h1 className="text-2xl font-bold text-gray-900">
                   {searchedKeyword ? `"${searchedKeyword}" 키워드 정밀 분석` : "키워드 정밀 분석"}
                 </h1>
-                <p className="text-sm text-slate-500">* 분석할 키워드를 입력하여 네이버 검색량 및 상세 지표를 확인하세요.</p>
+
+                
+                <HelpButton
+                  href="https://blog.naver.com/lboll"
+                  tooltip="도움말"
+                />
+
+
+
               </div>
               <div className="flex items-center gap-2 mt-1">
-                <button 
+                <button
                   onClick={handleSaveCurrentSetting}
                   disabled={!searchedKeyword || !user}
                   className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
@@ -280,56 +289,56 @@ function AnalysisContent() {
                 <div className="grid grid-cols-2 gap-10 items-start">
                   {/* 🌟 1. 연관 키워드 컴포넌트에 블라인드 적용을 위한 Wrapper 씌우기 */}
                   <div className="relative">
-                     <RelatedKeywords data={data} onKeywordClick={handleSearch} />
-                     {!isPaidUser && (
-                       <div className="absolute top-[40%] bottom-0 left-0 right-0 bg-gradient-to-b from-transparent via-white/80 to-white flex flex-col items-center justify-end pb-10 z-10">
-                         <div className="backdrop-blur-[2px] w-full h-full absolute inset-0 -z-10"></div>
-                         {!user ? (
-                           <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
-                              <h3 className="text-lg font-black text-gray-900 mb-2">더 많은 연관 키워드 보기 🔒</h3>
-                              <p className="text-sm text-gray-500 font-medium mb-4">로그인하시면 연관 키워드 데이터를 모두 확인할 수 있습니다.</p>
-                              <a href="/login" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
-                                지금 로그인하기
-                              </a>
-                           </div>
-                         ) : (
-                           <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
-                              <h3 className="text-lg font-black text-gray-900 mb-2">프리미엄 데이터 접근 💎</h3>
-                              <p className="text-sm text-gray-500 font-medium mb-4">포인트를 사용하시면 숨겨진 연관 키워드를 모두 확인할 수 있습니다.</p>
-                              <a href="/charge" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
-                                포인트 충전하기
-                              </a>
-                           </div>
-                         )}
-                       </div>
-                     )}
+                    <RelatedKeywords data={data} onKeywordClick={handleSearch} />
+                    {!isPaidUser && (
+                      <div className="absolute top-[40%] bottom-0 left-0 right-0 bg-gradient-to-b from-transparent via-white/80 to-white flex flex-col items-center justify-end pb-10 z-10">
+                        <div className="backdrop-blur-[2px] w-full h-full absolute inset-0 -z-10"></div>
+                        {!user ? (
+                          <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
+                            <h3 className="text-lg font-black text-gray-900 mb-2">더 많은 연관 키워드 보기 🔒</h3>
+                            <p className="text-sm text-gray-500 font-medium mb-4">로그인하시면 연관 키워드 데이터를 모두 확인할 수 있습니다.</p>
+                            <a href="/login" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
+                              지금 로그인하기
+                            </a>
+                          </div>
+                        ) : (
+                          <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
+                            <h3 className="text-lg font-black text-gray-900 mb-2">프리미엄 데이터 접근 💎</h3>
+                            <p className="text-sm text-gray-500 font-medium mb-4">포인트를 사용하시면 숨겨진 연관 키워드를 모두 확인할 수 있습니다.</p>
+                            <a href="/charge" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
+                              포인트 충전하기
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
-                  
+
                   {/* 🌟 2. 유사도 분석 컴포넌트에 블라인드 적용을 위한 Wrapper 씌우기 */}
                   <div className="relative space-y-10">
                     <SimilarityAnalysis data={data} mainKeyword={searchedKeyword} onKeywordClick={handleSearch} />
-                     {!isPaidUser && (
-                       <div className="absolute top-[40%] bottom-0 left-0 right-0 bg-gradient-to-b from-transparent via-white/80 to-white flex flex-col items-center justify-end pb-10 z-10">
-                         <div className="backdrop-blur-[2px] w-full h-full absolute inset-0 -z-10"></div>
-                         {!user ? (
-                           <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
-                              <h3 className="text-lg font-black text-gray-900 mb-2">더 많은 유사 키워드 보기 🔒</h3>
-                              <p className="text-sm text-gray-500 font-medium mb-4">로그인하시면 상세한 유사도 분석 결과를 확인할 수 있습니다.</p>
-                              <a href="/login" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
-                                회원가입하고 무료로 보기
-                              </a>
-                           </div>
-                         ) : (
-                           <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
-                              <h3 className="text-lg font-black text-gray-900 mb-2">모든 데이터 펼쳐보기 💎</h3>
-                              <p className="text-sm text-gray-500 font-medium mb-4">결제 후 전체 유사도 분석 데이터를 확인하여 인사이트를 넓혀보세요.</p>
-                              <a href="/charge" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
-                                프리미엄 혜택 알아보기
-                              </a>
-                           </div>
-                         )}
-                       </div>
-                     )}
+                    {!isPaidUser && (
+                      <div className="absolute top-[40%] bottom-0 left-0 right-0 bg-gradient-to-b from-transparent via-white/80 to-white flex flex-col items-center justify-end pb-10 z-10">
+                        <div className="backdrop-blur-[2px] w-full h-full absolute inset-0 -z-10"></div>
+                        {!user ? (
+                          <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
+                            <h3 className="text-lg font-black text-gray-900 mb-2">더 많은 유사 키워드 보기 🔒</h3>
+                            <p className="text-sm text-gray-500 font-medium mb-4">로그인하시면 상세한 유사도 분석 결과를 확인할 수 있습니다.</p>
+                            <a href="/login" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
+                              회원가입하고 무료로 보기
+                            </a>
+                          </div>
+                        ) : (
+                          <div className="bg-white/95 p-6 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] text-center border border-indigo-50 relative z-20 w-[80%] mx-auto">
+                            <h3 className="text-lg font-black text-gray-900 mb-2">모든 데이터 펼쳐보기 💎</h3>
+                            <p className="text-sm text-gray-500 font-medium mb-4">결제 후 전체 유사도 분석 데이터를 확인하여 인사이트를 넓혀보세요.</p>
+                            <a href="/charge" className="inline-block px-6 py-2.5 bg-[#5244e8] hover:bg-[#4035ba] text-white text-sm font-black rounded-xl transition-all shadow-md hover:shadow-lg w-full">
+                              프리미엄 혜택 알아보기
+                            </a>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
