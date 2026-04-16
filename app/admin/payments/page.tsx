@@ -99,6 +99,7 @@ export default function AdminPaymentsPage() {
     setCancelingKey(payment.payment_key);
 
     try {
+      // 🌟 [수정됨] 주석 처리되었던 실제 API 호출 로직 복원
       const response = await fetch('/api/payments/cancel', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -115,7 +116,7 @@ export default function AdminPaymentsPage() {
       }
 
       alert("✅ 토스페이먼츠 환불 및 DB 취소 처리가 완료되었습니다.");
-      fetchPayments(); 
+      fetchPayments(); // 목록 새로고침
 
     } catch (error: any) {
       alert(`❌ 환불 실패: ${error.message}`);
