@@ -199,7 +199,7 @@ function AnalysisContent() {
 
                 
                 <HelpButton
-                  href="https://blog.naver.com/lboll"
+                  href="https://blog.naver.com/lboll/224254481124"
                   tooltip="도움말"
                 />
 
