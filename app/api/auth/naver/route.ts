@@ -1,9 +1,9 @@
 // app/api/auth/naver/route.ts
 // 역할: 네이버 OAuth 인증 페이지로 리디렉션
 
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const clientId = process.env.NEXT_PUBLIC_NAVER_CLIENT_ID;
 
   if (!clientId) {
@@ -13,13 +13,11 @@ export async function GET() {
     );
   }
 
-  // 현재 도메인을 기반으로 콜백 URL 생성
-  const baseUrl =
-    process.env.NODE_ENV === 'production'
-      ? 'https://tmgad.com'
-      : 'http://localhost:3000';
+  // request.url에서 현재 환경의 origin을 동적으로 추출
+  // (로컬: http://localhost:3000 / 라이브: https://tmgad.com)
+  const origin = new URL(request.url).origin;
 
-  const callbackUrl = `${baseUrl}/api/auth/naver/callback`;
+  const callbackUrl = `${origin}/api/auth/naver/callback`;
 
   // CSRF 방지를 위한 state 값 (랜덤 문자열)
   const state = Math.random().toString(36).substring(2, 15);
