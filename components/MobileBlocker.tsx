@@ -40,7 +40,7 @@ export default function MobileBlocker() {
         </div>
 
         {/* 2. PC 브라우저 대시보드 목업 */}
-        <div className="w-full max-w-xs mb-8">
+        <div className="w-2/3 mb-4">
           {/* 브라우저 윈도우 외곽 */}
           <div className="rounded-xl border border-[#334155] bg-[#1e293b] shadow-2xl overflow-hidden">
             {/* 상단 탭 바 */}
@@ -53,49 +53,20 @@ export default function MobileBlocker() {
               </div>
             </div>
             {/* 대시보드 내용 */}
-            <div className="p-3 grid grid-cols-3 gap-2">
+            <div className="p-2 grid grid-cols-3 gap-1.5">
               {/* 상단 stat 카드 3개 */}
-              <div className="bg-[#0f172a] rounded-lg p-2 border border-[#334155]">
-                <div className="w-full h-1.5 bg-[#6366f1] rounded mb-1.5"></div>
-                <div className="w-3/4 h-1 bg-[#334155] rounded"></div>
+              <div className="bg-[#0f172a] rounded-lg p-1.5 border border-[#334155]">
+                <div className="w-full h-1 bg-[#6366f1] rounded mb-1"></div>
+                <div className="w-3/4 h-0.5 bg-[#334155] rounded"></div>
               </div>
-              <div className="bg-[#0f172a] rounded-lg p-2 border border-[#334155]">
-                <div className="w-full h-1.5 bg-[#818cf8] rounded mb-1.5"></div>
-                <div className="w-2/3 h-1 bg-[#334155] rounded"></div>
+              <div className="bg-[#0f172a] rounded-lg p-1.5 border border-[#334155]">
+                <div className="w-full h-1 bg-[#818cf8] rounded mb-1"></div>
+                <div className="w-2/3 h-0.5 bg-[#334155] rounded"></div>
               </div>
-              <div className="bg-[#0f172a] rounded-lg p-2 border border-[#334155]">
-                <div className="w-full h-1.5 bg-[#a5b4fc] rounded mb-1.5"></div>
-                <div className="w-1/2 h-1 bg-[#334155] rounded"></div>
+              <div className="bg-[#0f172a] rounded-lg p-1.5 border border-[#334155]">
+                <div className="w-full h-1 bg-[#a5b4fc] rounded mb-1"></div>
+                <div className="w-1/2 h-0.5 bg-[#334155] rounded"></div>
               </div>
-            </div>
-            {/* 차트 영역 */}
-            <div className="px-3 pb-3">
-              <div className="bg-[#0f172a] rounded-lg p-2 border border-[#334155]">
-                <div className="flex items-end gap-1 h-10 mt-1">
-                  <div className="flex-1 bg-[#6366f1]/40 rounded-t" style={{ height: '40%' }}></div>
-                  <div className="flex-1 bg-[#6366f1]/60 rounded-t" style={{ height: '65%' }}></div>
-                  <div className="flex-1 bg-[#6366f1]/40 rounded-t" style={{ height: '50%' }}></div>
-                  <div className="flex-1 bg-[#6366f1] rounded-t" style={{ height: '90%' }}></div>
-                  <div className="flex-1 bg-[#6366f1]/60 rounded-t" style={{ height: '70%' }}></div>
-                  <div className="flex-1 bg-[#818cf8] rounded-t" style={{ height: '85%' }}></div>
-                  <div className="flex-1 bg-[#a5b4fc] rounded-t" style={{ height: '100%' }}></div>
-                </div>
-                <div className="flex gap-1 mt-1">
-                  {[...Array(7)].map((_, i) => (
-                    <div key={i} className="flex-1 h-0.5 bg-[#334155] rounded"></div>
-                  ))}
-                </div>
-              </div>
-            </div>
-            {/* 테이블 영역 */}
-            <div className="px-3 pb-3 space-y-1">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex items-center gap-2 bg-[#0f172a] rounded px-2 py-1 border border-[#334155]">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#6366f1]"></div>
-                  <div className="flex-1 h-1 bg-[#334155] rounded"></div>
-                  <div className="w-4 h-1 bg-[#6366f1]/40 rounded"></div>
-                </div>
-              ))}
             </div>
           </div>
         </div>
