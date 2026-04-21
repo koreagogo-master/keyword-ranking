@@ -146,7 +146,12 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(linkData.properties.action_link);
 
   } catch (error) {
-    console.error('[Naver Callback Error]', error);
+    // Cloud Run 로그에서 원인을 추적할 수 있도록 상세 출력
+    console.error('============================================');
+    console.error('[Naver Callback Error] 네이버 로그인 처리 중 에러 발생');
+    console.error('Error message:', error instanceof Error ? error.message : String(error));
+    console.error('Error stack:', error instanceof Error ? error.stack : '(no stack)');
+    console.error('============================================');
     return NextResponse.redirect(`${baseUrl}/?error=naver_auth_failed`);
   }
 }
