@@ -13,11 +13,10 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // request.url에서 현재 환경의 origin을 동적으로 추출
-  // (로컬: http://localhost:3000 / 라이브: https://tmgad.com)
-  const origin = new URL(request.url).origin;
-
-  const callbackUrl = `${origin}/api/auth/naver/callback`;
+  // Cloud Run 프록시 환경 대응: x-forwarded-host 헤더를 우선 사용
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
+  const baseUrl = host.includes('tmgad.com') ? 'https://tmgad.com' : 'http://localhost:3000';
+  const callbackUrl = `${baseUrl}/api/auth/naver/callback`;
 
   // CSRF 방지를 위한 state 값 (랜덤 문자열)
   const state = Math.random().toString(36).substring(2, 15);

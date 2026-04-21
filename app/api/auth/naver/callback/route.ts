@@ -9,14 +9,12 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get('code');
   const state = searchParams.get('state');
 
-  // request.url에서 현재 환경의 origin을 동적으로 추출
-  // (로컬: http://localhost:3000 / 라이브: https://tmgad.com)
-  const requestUrl = new URL(request.url);
-  const origin = requestUrl.origin;
+  // Cloud Run 프록시 환경 대응: x-forwarded-host 헤더를 우선 사용
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || '';
+  const baseUrl = host.includes('tmgad.com') ? 'https://tmgad.com' : 'http://localhost:3000';
 
-  const callbackUrl = `${origin}/api/auth/naver/callback`;
+  const callbackUrl = `${baseUrl}/api/auth/naver/callback`;
   // 에러 리디렉션용 baseUrl도 동일하게 사용
-  const baseUrl = origin;
 
   // A. code, state 유효성 검사
   if (!code || !state) {
