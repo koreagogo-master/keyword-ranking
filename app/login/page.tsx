@@ -160,6 +160,20 @@ export default function LoginPage() {
               </svg>
               Google로 계속하기
             </button>
+
+            {/* ── 네이버 로그인 버튼 ── */}
+            <button
+              type="button"
+              onClick={() => { window.location.href = '/api/auth/naver'; }}
+              className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold transition-all active:scale-95 cursor-pointer shadow-sm !text-white"
+              style={{ backgroundColor: '#03C75A' }}
+            >
+              {/* 네이버 N 로고 SVG */}
+              <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="white">
+                <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z"/>
+              </svg>
+              네이버로 시작하기
+            </button>
           </form>
         ) : (
           /* 🌟 비밀번호 찾기 폼 */
