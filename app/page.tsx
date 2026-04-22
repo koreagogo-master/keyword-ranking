@@ -181,13 +181,13 @@ export default function Home() {
             {/* 💡 3x3 Grid Layout */}
             <div className="grid grid-cols-3 gap-6 auto-rows-[minmax(200px,auto)]">
               
-              {/* --- [1] Naver TOOLS (2x2) --- */}
-              <div className="col-span-2 row-span-2 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-[#03c75a] hover:shadow-xl flex flex-col">
+              {/* --- [1] Naver TOOLS --- */}
+              <div className="col-span-2 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-[#03c75a] hover:shadow-xl flex flex-col">
                 <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                   <span className="w-1.5 h-5 bg-[#03c75a] rounded-full"></span>
                   Naver TOOLS
                 </h3>
-                <div className="grid grid-cols-3 gap-4 flex-1">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 flex-1">
                   
                   <Link href="/analysis" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
                     <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
@@ -232,6 +232,13 @@ export default function Home() {
                     <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-[#03c75a] transition-colors">통검 노출/순위 확인</h3>
                   </Link>
 
+                  <Link href="/keyword-volume" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
+                    <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 10h18M3 14h18M10 3v18M14 3v18" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-4.35-4.35M17 11A6 6 0 115 11a6 6 0 0112 0z" /></svg>
+                    </div>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-[#03c75a] transition-colors">키워드별 조회수</h3>
+                  </Link>
+
                   <Link href="/keyword-generator" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-[#03c75a]/30">
                     <div className="w-12 h-12 mb-3 rounded-full bg-[#03c75a]/10 flex items-center justify-center text-[#03c75a] transition-transform duration-300 group-hover:-translate-y-1">
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
@@ -263,29 +270,7 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* --- [3] Google & YouTube (1x1) --- */}
-              <div className="col-span-1 row-span-1 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-red-400 hover:shadow-xl flex flex-col">
-                <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                  <span className="w-1.5 h-5 bg-red-500 rounded-full"></span>
-                  Google & YouTube
-                </h3>
-                <div className="grid grid-cols-2 gap-4 flex-1">
-                  <Link href="/google-analysis" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-red-300">
-                    <div className="w-12 h-12 mb-3 rounded-full bg-red-50 flex items-center justify-center text-red-500 transition-transform duration-300 group-hover:-translate-y-1">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
-                    </div>
-                    <h3 className="text-[14px] font-bold text-gray-700 group-hover:text-red-500 transition-colors">구글 키워드 분석</h3>
-                  </Link>
-                  <Link href="/youtube-trend" className="group bg-gray-50/50 rounded-2xl border border-gray-200 flex flex-col items-center justify-center p-4 transition-all duration-300 hover:scale-105 hover:bg-white hover:shadow-md hover:border-red-300">
-                    <div className="w-12 h-12 mb-3 rounded-full bg-red-50 flex items-center justify-center text-red-500 transition-transform duration-300 group-hover:-translate-y-1">
-                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    </div>
-                    <h3 className="text-[14px] font-bold text-gray-700 group-hover:text-red-500 transition-colors">유튜브 트렌드</h3>
-                  </Link>
-                </div>
-              </div>
-
-              {/* --- [4] Seller Tools (2x1) --- */}
+              {/* --- [3] Seller Tools (2x1) --- */}
               <div className="col-span-2 row-span-1 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-orange-400 hover:shadow-xl flex flex-col">
                 <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
                   <span className="w-1.5 h-5 bg-orange-400 rounded-full"></span>
@@ -319,33 +304,28 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* --- [5] System (1x1) --- */}
-              <div className="col-span-1 row-span-1 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-gray-400 hover:shadow-xl flex flex-col">
+              {/* --- [4] Google & YouTube (1x1) --- */}
+              <div className="col-span-1 row-span-1 bg-white rounded-[2rem] p-8 border-2 border-transparent shadow-sm transition-all duration-300 hover:border-red-400 hover:shadow-xl flex flex-col">
                 <h3 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                  <span className="w-1.5 h-5 bg-gray-400 rounded-full"></span>
-                  System
+                  <span className="w-1.5 h-5 bg-red-500 rounded-full"></span>
+                  Google &amp; YouTube
                 </h3>
-                <div className="flex flex-col gap-3 flex-1 justify-center">
-                  <Link href="/history" className="group flex-1 bg-gray-50/50 rounded-xl border border-gray-200 flex items-center px-4 py-2 transition-all duration-300 hover:scale-[1.03] hover:bg-white hover:shadow-md hover:border-gray-300">
-                    <div className="w-9 h-9 mr-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                <div className="flex flex-col gap-3 flex-1">
+                  <Link href="/google-analysis" className="group flex-1 bg-gray-50/50 rounded-2xl border border-gray-200 flex items-center p-5 transition-all duration-300 hover:scale-[1.03] hover:bg-white hover:shadow-md hover:border-red-300">
+                    <div className="w-10 h-10 mr-4 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
                     </div>
-                    <h3 className="text-[14px] font-bold text-gray-600 group-hover:text-gray-800 transition-colors">저장된 목록 보기</h3>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-red-500 transition-colors">구글 키워드 분석</h3>
                   </Link>
-                  <Link href="/contact" className="group flex-1 bg-gray-50/50 rounded-xl border border-gray-200 flex items-center px-4 py-2 transition-all duration-300 hover:scale-[1.03] hover:bg-white hover:shadow-md hover:border-gray-300">
-                    <div className="w-9 h-9 mr-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <Link href="/youtube-trend" className="group flex-1 bg-gray-50/50 rounded-2xl border border-gray-200 flex items-center p-5 transition-all duration-300 hover:scale-[1.03] hover:bg-white hover:shadow-md hover:border-red-300">
+                    <div className="w-10 h-10 mr-4 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                     </div>
-                    <h3 className="text-[14px] font-bold text-gray-600 group-hover:text-gray-800 transition-colors">고객센터 (FAQ)</h3>
-                  </Link>
-                  <Link href="/notice" className="group flex-1 bg-gray-50/50 rounded-xl border border-gray-200 flex items-center px-4 py-2 transition-all duration-300 hover:scale-[1.03] hover:bg-white hover:shadow-md hover:border-gray-300">
-                    <div className="w-9 h-9 mr-3 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 shrink-0 transition-transform duration-300 group-hover:-translate-y-0.5">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
-                    </div>
-                    <h3 className="text-[14px] font-bold text-gray-600 group-hover:text-gray-800 transition-colors">공지사항</h3>
+                    <h3 className="text-[15px] font-bold text-gray-700 group-hover:text-red-500 transition-colors">유튜브 트렌드</h3>
                   </Link>
                 </div>
               </div>
+
 
             </div>
           </FadeInUp>
