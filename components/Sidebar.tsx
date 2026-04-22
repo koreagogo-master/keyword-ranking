@@ -21,7 +21,9 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/seo-check': 'SEO_CHECK',
   '/shopping-rank': 'SHOPPING_RANK',
   '/ai-blog': 'AI_BLOG',
-  '/ai-press': 'AI_PRESS'
+  '/ai-press': 'AI_PRESS',
+  '/keyword-volume': 'KEYWORD_VOLUME',
+  '/keyword-generator': 'KEYWORD_GENERATOR'
 };
 
 export default function Sidebar() {
@@ -51,15 +53,8 @@ export default function Sidebar() {
         { name: "블로그 노출 진단", href: "/index-check" },
         { name: "지식인 순위 확인", href: "/kin-rank" },
         { name: "통검 노출/순위 확인", href: "/blog-rank" },
-        {
-          name: (
-            <div className="flex items-center">
-              키워드 생성기
-              <span className="ml-1.5 px-1.5 py-[2px] bg-[#5244e8]/10 text-[#5244e8] rounded-sm text-[10px] font-black tracking-wide border border-[#5244e8]/20">FREE</span>
-            </div>
-          ),
-          href: "/keyword-generator"
-        },
+        { name: "키워드별 조회수", href: "/keyword-volume" },
+        { name: "키워드 생성기", href: "/keyword-generator" },
       ]
     },
     {
@@ -264,8 +259,13 @@ export default function Sidebar() {
                               <div className="flex-1 flex items-center justify-between">
                                 <span>{typeof item.name === 'string' ? item.name : item.name}</span>
                                 {typeof item.name === 'string' && pointCost !== null && (
-                                  <span className={`px-1.5 py-[2px] rounded-sm text-[10px] font-bold tracking-wide border shadow-sm transition-colors ${isActive ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20' : 'bg-slate-50 text-slate-500 border-slate-200'
-                                    }`}>
+                                  <span className={`px-1.5 py-[2px] rounded-sm text-[10px] tracking-wide border shadow-sm transition-colors ${
+                                    pointCost === 0
+                                      ? 'bg-[#5244e8]/10 text-[#5244e8] border-[#5244e8]/20 font-black'
+                                      : isActive
+                                        ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20 font-bold'
+                                        : 'bg-slate-50 text-slate-500 border-slate-200 font-bold'
+                                  }`}>
                                     {pointCost === 0 ? 'FREE' : `${pointCost}P`}
                                   </span>
                                 )}

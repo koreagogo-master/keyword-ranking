@@ -30,13 +30,15 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'SEO_CHECK': { name: '내 상품명 진단', url: '/diagnosis' },      
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
   'AI_BLOG': { name: '+ Dual AI 포스팅', url: '/ai-blog' },           
-  'AI_PRESS': { name: '+ AI 언론 보도자료', url: '/ai-press' }       
+  'AI_PRESS': { name: '+ AI 언론 보도자료', url: '/ai-press' },
+  'KEYWORD_VOLUME': { name: '키워드별 조회수', url: '/keyword-volume' },
+  'KEYWORD_GENERATOR': { name: '키워드 생성기', url: '/keyword-generator' }
 };
 
 const MENU_GROUPS = [
   {
     title: 'NAVER TOOLS',
-    items: ['ANALYSIS', 'RELATED', 'BLOG', 'INDEX_CHECK', 'JISIKIN', 'TOTAL'] // 🌟 INDEX_CHECK 추가됨
+    items: ['ANALYSIS', 'RELATED', 'BLOG', 'INDEX_CHECK', 'JISIKIN', 'TOTAL', 'KEYWORD_VOLUME', 'KEYWORD_GENERATOR']
   },
   {
     title: 'AI TOOLS',     

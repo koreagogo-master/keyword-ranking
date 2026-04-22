@@ -19,7 +19,8 @@ const PAGE_INFO: Record<string, { name: string, path: string }> = {
   'SEO_TITLE': { name: '쇼핑 상품명 최적화', path: '/seo-title' },
   'AIBLOG': { name: 'AI 블로그', path: '/ai-blog' },
   'INDEX_CHECK': { name: '블로그 노출 진단', path: '/index-check' },
-  'AI_PRESS': { name: 'AI 언론 보도자료', path: '/ai-press' }
+  'AI_PRESS': { name: 'AI 언론 보도자료', path: '/ai-press' },
+  'KEYWORD_VOLUME': { name: '키워드별 조회수', path: '/keyword-volume' }
 };
 
 interface SearchHistory {

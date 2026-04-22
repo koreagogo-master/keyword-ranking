@@ -13,22 +13,22 @@ export default function RankTabs() {
     { name: 'N 모바일 블로그', href: '/blog-rank-b' },
     { name: 'N 모바일 지식인', href: '/kin-rank' },
     { name: 'N 모바일 통검 노출/순위 확인', href: '/blog-rank' },
+    { name: '키워드별 조회수', href: '/keyword-volume' },
     { name: "키워드 생성기", href: "/keyword-generator" },
   ];
 
   return (
-    <div className="flex border-b border-gray-200 mb-8">
+    <div className="flex border-b border-gray-200 mb-8 antialiased">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
         return (
           <Link
             key={tab.href}
             href={tab.href}
-            // 🌟 수정: 활성화된 탭 밑줄과 글자색을 #5244e8 컬러로 적용
-            className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-[2px] ${
+            className={`px-6 py-3 text-sm transition-all duration-200 ease-in-out border-b-2 -mb-[2px] ${
               isActive
-                ? 'border-[#5244e8] text-[#5244e8]'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-[#5244e8] text-[#5244e8] font-semibold'
+                : 'border-transparent text-gray-500 font-medium hover:text-gray-700 hover:border-gray-300'
             }`}
           >
             {tab.name}
