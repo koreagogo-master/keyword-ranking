@@ -104,7 +104,7 @@ export default function NoticePage() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043]">
+    <div className="flex min-h-[calc(100vh-160px)] bg-[#f8f9fa] text-[#3c4043]">
       
 
       <main className="flex-1 ml-64 p-10 relative">

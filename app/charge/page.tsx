@@ -61,10 +61,10 @@ export default function ChargePage() {
     }
   };
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-gray-50 font-bold text-gray-500">로딩 중...</div>;
+  if (isLoading) return <div className="min-h-[calc(100vh-160px)] flex items-center justify-center bg-gray-50 font-bold text-gray-500">로딩 중...</div>;
 
   return (
-    <div className="flex bg-gray-50 min-h-[calc(100vh-4rem)] relative">
+    <div className="flex bg-gray-50 min-h-[calc(100vh-160px)] relative">
       
       
       {/* 알림 메시지 (토스트 창) UI */}

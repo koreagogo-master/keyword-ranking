@@ -34,6 +34,13 @@ export default function Sidebar() {
   const [pointPolicies, setPointPolicies] = useState<Record<string, number>>({});
   const [isRefreshing, setIsRefreshing] = useState(false);
 
+  const bannerCopies = [
+    "마케터를 위한 스마트 메모장. 무거운 에버노트를 완벽히 대체합니다.",
+    "방금 분석한 그 키워드, 날아가기 전에 노트T에 바로 기록하세요.",
+    "마케터를 위한 스마트 메모장. 구글 캘린더와 드라이브까지 한 번에!"
+  ];
+  const [bannerText, setBannerText] = useState(bannerCopies[0]);
+
   const menuGroups = [
     {
       title: "Naver TOOLS",
@@ -78,14 +85,6 @@ export default function Sidebar() {
         { name: "유튜브 트렌드", href: "/youtube-trend" },
       ]
     },
-    {
-      title: "System",
-      items: [
-        { name: "저장된 목록 보기", href: "/history" },
-        { name: "고객센터 (FAQ)", href: "/contact" },
-        { name: "공지사항", href: "/notice" }
-      ]
-    }
   ];
 
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
@@ -113,6 +112,11 @@ export default function Sidebar() {
         [activeGroup.title]: true 
       }));
     }
+  }, [pathname]);
+
+  useEffect(() => {
+    setBannerText(bannerCopies[Math.floor(Math.random() * bannerCopies.length)]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   useEffect(() => {
@@ -163,41 +167,40 @@ export default function Sidebar() {
             <span className="text-xs text-gray-400 font-bold">정보 불러오는 중...</span>
           </div>
         ) : user ? (
-          <div className="px-4 pt-5 pb-4 border-b border-gray-100 bg-gray-50/30">
-            <div className="flex items-center gap-1.5 mb-2.5 px-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-              <span className="text-[11px] font-bold text-gray-400 tracking-wider">
-                IP: <span className="text-gray-600">{clientIp || '로딩중...'}</span>
-              </span>
-            </div>
-            <div className="p-3 bg-white border border-[#5244e8]/20 rounded-lg shadow-sm">
-              <div className="flex justify-between items-center pb-2 mb-2 border-b border-gray-100">
-                <span className="text-[11px] text-gray-400 font-black tracking-widest uppercase">My Grade</span>
-                <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded border uppercase
-                  ${profile?.grade === 'agency' ? 'bg-purple-50 text-purple-600 border-purple-200' :
-                    profile?.grade === 'pro' ? 'bg-blue-50 text-blue-600 border-blue-200' :
-                      profile?.grade === 'starter' ? 'bg-green-50 text-green-600 border-green-200' :
-                        'bg-gray-50 text-gray-600 border-gray-200'}`}>
-                  {profile?.grade || 'FREE'}
+          <div className="px-4 pt-3 pb-3 border-b border-gray-100 bg-gray-50/30">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <div className="flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span className="text-[11px] font-bold text-gray-400 tracking-wider">
+                  IP: <span className="text-gray-600">{clientIp || '로딩중...'}</span>
                 </span>
               </div>
-              <div className="flex justify-between items-center mb-1.5">
+              <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded border uppercase
+                ${profile?.grade === 'agency' ? 'bg-purple-50 text-purple-600 border-purple-200' :
+                  profile?.grade === 'pro' ? 'bg-blue-50 text-blue-600 border-blue-200' :
+                    profile?.grade === 'starter' ? 'bg-green-50 text-green-600 border-green-200' :
+                      'bg-gray-50 text-gray-600 border-gray-200'}`}>
+                {profile?.grade || 'FREE'}
+              </span>
+            </div>
+            <div className="p-2.5 bg-white border border-[#5244e8]/20 rounded-lg shadow-sm">
+              <div className="flex justify-between items-center mb-1">
                 <span className="text-[11px] text-gray-500 font-bold tracking-tight">결제한 포인트</span>
                 <span className="text-[11px] font-semibold text-gray-600">{profile?.purchased_points?.toLocaleString() || 0} P</span>
               </div>
-              <div className="flex justify-between items-center mb-2">
+              <div className="flex justify-between items-center mb-1">
                 <span className="text-[11px] text-green-600 font-bold tracking-tight">보너스 포인트</span>
                 <span className="text-[11px] font-semibold text-green-600">{profile?.bonus_points?.toLocaleString() || 0} P</span>
               </div>
-              <div className="w-full h-px bg-gray-100 mb-2.5"></div>
-              <div className="flex justify-between items-center mb-3">
+              <div className="w-full h-px bg-gray-100 my-1.5"></div>
+              <div className="flex justify-between items-center mb-2">
                 <span className="text-[11px] text-[#5244e8] font-bold tracking-tight">사용 가능 포인트</span>
                 <span className="text-[13px] font-bold text-[#5244e8]">
                   {((profile?.bonus_points || 0) + (profile?.purchased_points || 0)).toLocaleString()} <span className="text-[11px]">P</span>
                 </span>
               </div>
               <div className="flex gap-2 w-full">
-                <Link href="/charge" className="flex-1 flex items-center justify-center gap-1.5 py-2 bg-[#5244e8]/80 hover:bg-[#5244e8] text-white rounded-md text-[12px] font-bold transition-colors shadow-sm">
+                <Link href="/charge" className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-[#5244e8]/80 hover:bg-[#5244e8] text-white rounded-md text-[12px] font-bold transition-colors shadow-sm">
                   충전하기
                 </Link>
                 <button onClick={handleRefreshPoints} disabled={isRefreshing} className="w-[36px] flex shrink-0 items-center justify-center bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-500 rounded-md transition-colors shadow-sm">
@@ -223,11 +226,10 @@ export default function Sidebar() {
                 <li key={groupIdx} className="mb-1 pb-1 border-b border-gray-100 last:border-b-0">
                   <div
                     onClick={() => toggleGroup(group.title)}
-                    className={`px-4 py-2 text-[11.5px] font-extrabold tracking-wider uppercase border-b flex items-center justify-between cursor-pointer transition-all
+                    className={`px-4 py-2 text-[11.5px] font-extrabold tracking-widest uppercase border-b flex items-center justify-between cursor-pointer transition-all font-sans antialiased
       ${isGroupActive
                         ? 'text-[#5244e8] border-[#5244e8]/40 bg-[#5244e8]/5'
                         : 'text-slate-600 border-transparent hover:text-slate-900 hover:bg-slate-50'}`}
-                    style={{ fontFamily: "'NanumSquare', sans-serif" }}
                   >
                     {group.title}
                     <svg
@@ -251,12 +253,12 @@ export default function Sidebar() {
                           <li key={itemIdx}>
                             <Link
                               href={item.href}
-                              className={`group mx-3 pl-7 pr-4 py-[9px] flex items-center transition-colors duration-200 text-[13.5px] font-medium relative
+                              className={`group mx-3 pl-7 pr-4 py-1.5 flex items-center transition-colors duration-200 text-[13.5px] font-medium relative
                                 ${isActive
                                   ? 'bg-[#5244e8]/10 text-[#5244e8]'
-                                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'}`}
+                                  : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900'}`}
                             >
-                              <div className={`absolute left-0 top-0 bottom-0 w-[3px] transition-all ${isActive ? 'bg-[#5244e8]' : 'bg-gray-200 group-hover:bg-gray-300'
+                              <div className={`absolute left-0 top-0 bottom-0 w-[3px] transition-all ${isActive ? 'bg-[#5244e8]' : 'bg-gray-200 group-hover:bg-[#5244e8]/40'
                                 }`}></div>
 
                               <div className="flex-1 flex items-center justify-between">
@@ -278,16 +280,40 @@ export default function Sidebar() {
               );
             })}
           </ul>
+
+          {/* 저장된 목록 보기 - 독립 단일 링크 */}
+          <div className="px-3 pt-2 pb-1 border-t border-gray-100 mt-1">
+            <Link
+              href="/history"
+              className={`group flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-[13px] font-bold transition-all
+                ${pathname === '/history'
+                  ? 'bg-[#5244e8]/10 text-[#5244e8]'
+                  : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'}`}
+            >
+              <svg className="w-4 h-4 shrink-0 text-[#5244e8] transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path className="group-hover:fill-[#5244e8]/20 transition-all duration-200" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3a2 2 0 00-2 2v16l7-3 7 3V5a2 2 0 00-2-2H5z" />
+              </svg>
+              저장된 목록 보기
+            </Link>
+          </div>
         </nav>
 
-        <div className="p-4 border-t border-gray-100 bg-gray-50/50">
-          <div className="p-3 rounded-lg border border-gray-200 bg-white shadow-sm flex items-center justify-between">
-            <div>
-              <p className="text-[9px] font-black text-gray-400 mb-0.5 uppercase tracking-widest">System</p>
-              <p className="text-[11px] text-gray-600 font-bold">Enterprise Mode</p>
+        <div className="p-3 border-t border-gray-100">
+          <a
+            href="https://notetapp.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block bg-indigo-50 hover:bg-indigo-100 transition-colors rounded-xl p-4 cursor-pointer"
+          >
+            <div className="flex items-start justify-between mb-1">
+              <span className="text-[11px] text-indigo-600 font-bold">✨ 추천 도구</span>
+              <svg className="w-3.5 h-3.5 text-indigo-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
             </div>
-            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse"></span>
-          </div>
+            <p className="text-[14px] text-gray-900 font-bold leading-tight">Note T (노트티)</p>
+            <p className="text-[12px] text-gray-500 mt-1 leading-snug">{isMounted ? bannerText : bannerCopies[0]}</p>
+          </a>
         </div>
       </aside>
     </>

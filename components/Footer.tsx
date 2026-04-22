@@ -11,7 +11,7 @@ export default function Footer() {
   if (pathname === '/') return null;
 
   // 🌟 1. 사이드바가 없는 예외 페이지 목록 (Sidebar.tsx와 동일하게 맞춰줍니다)
-  const noSidebarPaths = ['/terms', '/privacy'];
+  const noSidebarPaths = ['/terms', '/privacy', '/login', '/signup', '/contact'];
   
   // 🌟 2. 현재 주소가 예외 목록에 포함되는지 확인합니다.
   const isNoSidebar = noSidebarPaths.includes(pathname);
@@ -36,6 +36,8 @@ export default function Footer() {
           <Link href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[13px] font-medium text-gray-500 hover:text-gray-800 transition-colors">개인정보처리방침</Link>
           <span className="text-gray-200 text-xs">|</span>
           <Link href="/contact" rel="noopener noreferrer" className="text-[13px] font-medium text-gray-500 hover:text-gray-800 transition-colors">고객센터</Link>
+          <span className="text-gray-200 text-xs">|</span>
+          <Link href="/notice" rel="noopener noreferrer" className="text-[13px] font-medium text-gray-500 hover:text-gray-800 transition-colors">공지사항</Link>
         </div>
 
         <p className="text-gray-300 text-xs tracking-wider">
