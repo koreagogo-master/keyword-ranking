@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
         type: 'magiclink',
         email,
         options: {
-          redirectTo: `${origin}/auth/naver/processing`,
+          redirectTo: `${baseUrl}/auth/naver/processing`,
         },
       });
 
