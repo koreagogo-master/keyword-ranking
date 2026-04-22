@@ -148,7 +148,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     // Cloud Run 로그에서 원인을 추적할 수 있도록 상세 출력
     console.error('============================================');
-    console.error('[Naver Callback Error] 네이버 로그인 처리 중 에러 발생');
+    console.error('[Naver Callback Error] 상세 원인:', error instanceof Error ? error.message : error);
     console.error('Error message:', error instanceof Error ? error.message : String(error));
     console.error('Error stack:', error instanceof Error ? error.stack : '(no stack)');
     console.error('============================================');
