@@ -42,7 +42,9 @@ async function fetchKeywordChunk(
   const { timestamp, signature } = makeSignature(secretKey);
 
   const url = new URL('https://api.naver.com/keywordstool');
-  url.searchParams.set('hintKeywords', chunk.join(','));
+  // 네이버 API는 띄어쓰기를 허용하지 않으므로 전송 시에만 공백 제거
+  const sanitizedChunk = chunk.map(kw => kw.replace(/\s+/g, ''));
+  url.searchParams.set('hintKeywords', sanitizedChunk.join(','));
   url.searchParams.set('showDetail', '1');
 
   console.log(`[keyword-volume] 청크 호출: [${chunk.join(', ')}]`);
