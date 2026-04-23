@@ -147,57 +147,126 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // =======================================================================
-  // 🌟 [신규 추가] 중복 로그인 밀어내기 수문장 시스템
+  // 🌟 [업데이트] 요금제 등급별 IP 중복 접속 제어 시스템
   // =======================================================================
   useEffect(() => {
     if (!user || !profile) return;
 
-    // 기획 원칙: 에이전시(VIP)와 무료 회원은 다중 접속을 허용하므로 검사하지 않고 통과!
-    if (profile?.role?.toLowerCase() === 'admin' || profile.grade === 'agency' || profile.grade === 'free') return;
+    const enforceSingleSession = async (currentUser: any, localSessionIdStr: string) => {
+      try {
+        // 1. DB에서 현재 유저의 프로필 정보(등급, 세션ID, 최근 IP 등)를 가져옵니다.
+        const { data: dbProfile, error } = await supabase
+          .from('profiles')
+          .select('grade, current_session_id, last_ip')
+          .eq('id', currentUser.id)
+          .single();
 
-    const enforceSingleSession = async () => {
-      // 1. 현재 DB에 기록된 입장권(세션) 확인
-      const { data } = await supabase.from('profiles').select('current_session_id').eq('id', user.id).single();
-
-      // 2. 누군가 다른 입장권으로 접속 중이라면 '밀어내기 팝업' 노출
-      if (data?.current_session_id && data.current_session_id !== localSessionId.current) {
-        const confirmKick = window.confirm("🚨 현재 다른 기기에서 사용 중인 계정입니다.\n기존 접속을 끊고 이 기기에서 로그인하시겠습니까?");
-        if (!confirmKick) {
-          // 취소하면 내가 물러납니다. (기존에 잘 만들어두신 handleLogout 재활용)
-          await handleLogout();
+        if (error || !dbProfile) {
+          console.error("프로필 정보를 불러오는 데 실패했습니다.", error);
           return;
         }
-      }
 
-      // 3. 확인을 눌렀거나, 내가 첫 접속이라면 내 입장권 번호와 IP로 DB 덮어쓰기
-      let currentIp = '알 수 없음';
-      try {
-        const res = await fetch('https://api.ipify.org?format=json');
-        const ipData = await res.json();
-        currentIp = ipData.ip;
-      } catch (e) {}
+        const userGrade = dbProfile.grade?.toLowerCase() || 'starter';
 
-      await supabase.from('profiles').update({
-        current_session_id: localSessionId.current,
-        last_ip: currentIp
-      }).eq('id', user.id);
+        // ==========================================
+        // [1단계] AGENCY, FREE, ADMIN 등급 -> 즉시 스킵 (다중 접속 허용)
+        // ==========================================
+        if (['agency', 'free', 'admin'].includes(userGrade)) {
+          return; // 세션 일치 여부 검사 없이 통과
+        }
 
-      // 4. 누군가 내 자리를 뺏어가는지 실시간 감시 (Supabase Realtime)
-      const channel = supabase.channel('session_listener')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user.id}` }, (payload: any) => {
-          // DB의 입장권 번호가 내 번호와 다르게 바뀌었다면? (누군가 나를 밀어냈다!)
-          if (payload.new.current_session_id && payload.new.current_session_id !== localSessionId.current) {
-            alert("⚠️ 다른 기기에서 새로운 로그인이 감지되어 현재 접속이 종료됩니다.");
-            handleLogout(); 
+        // ==========================================
+        // [2단계 & 3단계] 하위 등급의 세션 ID 불일치 검사
+        // ==========================================
+        if (dbProfile.current_session_id && dbProfile.current_session_id !== localSessionIdStr) {
+
+          // 현재 접속을 시도하는 클라이언트의 실제 IP 가져오기
+          let currentIp = '';
+          try {
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+            currentIp = ipData.ip;
+          } catch (ipError) {
+            console.warn("IP 주소 가져오기 실패. 강제 검증 진행.");
           }
-        }).subscribe();
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
+          // [2단계] 세션 ID는 다르지만 IP가 동일한 경우 (단순 재접속/브라우저 재실행)
+          if (currentIp && dbProfile.last_ip === currentIp) {
+            // 팝업 없이 조용히 현재 세션 ID 덮어쓰기
+            await supabase
+              .from('profiles')
+              .update({
+                current_session_id: localSessionIdStr,
+                last_ip: currentIp
+              })
+              .eq('id', currentUser.id);
+
+            // Realtime 감시 시작 후 종료
+            const channel = supabase.channel('session_listener')
+              .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${currentUser.id}` }, (payload: any) => {
+                if (payload.new.current_session_id && payload.new.current_session_id !== localSessionIdStr) {
+                  alert("⚠️ 다른 기기에서 새로운 로그인이 감지되어 현재 접속이 종료됩니다.");
+                  handleLogout();
+                }
+              }).subscribe();
+            return () => { supabase.removeChannel(channel); };
+          }
+
+          // [3단계] 세션 ID도 다르고 IP도 다른 경우 (진짜 중복 접속 시도)
+          const confirmKick = window.confirm(
+            "🚨 현재 다른 기기(IP)에서 사용 중인 계정입니다.\n\n기존 접속을 로그아웃 처리하고 현재 기기에서 접속하시겠습니까?\n(취소를 누르시면 현재 기기에서 로그아웃됩니다.)"
+          );
+
+          if (confirmKick) {
+            // 동의 시: DB 정보를 현재 기기로 덮어씌움 (기존 기기는 다음 작업 시 튕김)
+            await supabase
+              .from('profiles')
+              .update({
+                current_session_id: localSessionIdStr,
+                last_ip: currentIp
+              })
+              .eq('id', currentUser.id);
+          } else {
+            // 거절 시: 현재 기기 즉시 로그아웃
+            await supabase.auth.signOut();
+            window.location.href = '/login';
+            return;
+          }
+
+        } else {
+          // 정상 접속(세션 일치 또는 첫 접속) 시 현재 IP 저장
+          try {
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const { ip: currentIp } = await ipResponse.json();
+
+            if (dbProfile.last_ip !== currentIp) {
+              await supabase
+                .from('profiles')
+                .update({ last_ip: currentIp })
+                .eq('id', currentUser.id);
+            }
+          } catch (e) {
+            // IP 수집 실패 무시
+          }
+        }
+
+        // Realtime 감시: 누군가 내 세션을 뺏어가는지 실시간 감시 (Supabase Realtime)
+        const channel = supabase.channel('session_listener')
+          .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${currentUser.id}` }, (payload: any) => {
+            if (payload.new.current_session_id && payload.new.current_session_id !== localSessionIdStr) {
+              alert("⚠️ 다른 기기에서 새로운 로그인이 감지되어 현재 접속이 종료됩니다.");
+              handleLogout();
+            }
+          }).subscribe();
+
+        return () => { supabase.removeChannel(channel); };
+
+      } catch (err) {
+        console.error("단일 세션 검증 중 예기치 않은 오류가 발생했습니다.", err);
+      }
     };
 
-    enforceSingleSession();
+    enforceSingleSession(user, localSessionId.current);
   }, [user, profile?.grade, supabase]);
 
   const value = { user, profile, isLoading, handleLogout, refreshProfile };
