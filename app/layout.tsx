@@ -33,8 +33,14 @@ const nanumSquare = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Ranking Pro - 마케터를 위한 정밀 키워드 분석 솔루션",
+  // 🌟 1. 동적 타이틀 세팅 (템플릿 적용)
+  title: {
+    default: "Ranking Pro - 마케터를 위한 정밀 키워드 분석 솔루션", // 메인 페이지 이름
+    template: "%s | Ranking Pro", // 세부 페이지 이름 뼈대
+  },
   description: "마케터 전용 정밀 키워드 분석 솔루션. 네이버·구글 검색 트렌드 분석과 AI 듀얼 엔진 포스팅으로 최적의 마케팅 전략을 제공합니다.",
+  
+  // 🌟 2. 카카오톡/슬랙 썸네일(Open Graph) 세팅
   openGraph: {
     title: "Ranking Pro - 마케터를 위한 정밀 키워드 분석 솔루션",
     description: "마케터 전용 정밀 키워드 분석 솔루션. 네이버·구글 검색 트렌드 분석과 AI 듀얼 엔진 포스팅으로 최적의 마케팅 전략을 제공합니다.",
@@ -42,7 +48,17 @@ export const metadata: Metadata = {
     siteName: "Ranking Pro",
     locale: "ko_KR",
     type: "website",
+    images: [
+      {
+        url: "/tmgad-cover.jpg", // 업로드하신 썸네일 이미지 적용
+        width: 1200,
+        height: 630,
+        alt: "Ranking Pro 대표 이미지",
+      },
+    ],
   },
+  
+  // 기존 네이버 소유권 확인 태그 (원래 있던 것 그대로 유지)
   verification: {
     other: {
       "naver-site-verification": ["a6ef7f0c6159e0a643424685bf07ced6eca6ea1e"],
