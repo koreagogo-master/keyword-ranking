@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; 
 
 import { useAuth } from "@/app/contexts/AuthContext";
 import { usePoint } from "@/app/hooks/usePoint";
@@ -13,7 +13,8 @@ export default function AiPressPage() {
 
   const [activeTab, setActiveTab] = useState<'new' | 'renewal'>('new');
 
-  const [docType, setDocType] = useState("보도자료 (언론 배포용)");
+  // 🌟 [수정] 기본 선택값을 '뉴스 기사 (객관적 보도)'로 변경했습니다.
+  const [docType, setDocType] = useState("뉴스 기사 (객관적 보도)");
   const [companyName, setCompanyName] = useState("");
   const [ceoName, setCeoName] = useState("");
   const [newsTopic, setNewsTopic] = useState("");
@@ -31,25 +32,40 @@ export default function AiPressPage() {
   
   const [progressMessage, setProgressMessage] = useState("");
 
-  const totalPoints = 50;
-  
+  const [totalPoints, setTotalPoints] = useState(500); 
+
+  useEffect(() => {
+    const fetchBasePoint = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('point_policies')
+        .select('point_cost')
+        .eq('page_type', 'AI_PRESS') 
+        .single();
+
+      if (data && !error) {
+        setTotalPoints(data.point_cost);
+      }
+    };
+    fetchBasePoint();
+  }, []);
+
   const isSaveDisabled = activeTab === 'new' 
     ? !user || !companyName.trim() || !newsTopic.trim() || !details.trim()
     : !user || !companyName.trim() || !originalText.trim() || !renewalRequest.trim();
 
-  // 🌟 [추가됨] 탭 전환 시 데이터를 깔끔하게 초기화하는 함수
   const handleTabSwitch = (targetTab: 'new' | 'renewal') => {
     if (activeTab !== targetTab) {
-      // 다른 탭으로 넘어갈 때 모든 입력값과 상태를 디폴트로 리셋합니다.
-      setDocType("보도자료 (언론 배포용)");
+      // 🌟 [수정] 탭 전환 시에도 기본값을 '뉴스 기사'로 초기화합니다.
+      setDocType("뉴스 기사 (객관적 보도)");
       setCompanyName("");
       setCeoName("");
       setNewsTopic("");
       setDetails("");
       setOriginalText("");
       setRenewalRequest("");
-      setResult(null);             // 띄워져 있던 결과 화면 닫기
-      setHasGeneratedOnce(false);  // 하단 버튼 텍스트 초기화
+      setResult(null);             
+      setHasGeneratedOnce(false);  
     }
     setActiveTab(targetTab);
     setIsFormVisible(true);
@@ -200,7 +216,6 @@ export default function AiPressPage() {
               </div>
 
               <div className="flex border-b border-gray-300 mb-6 mt-4">
-                {/* 🌟 탭 클릭 시 handleTabSwitch 함수 호출 적용 */}
                 <button
                   onClick={() => handleTabSwitch('new')}
                   className={`py-3 px-8 text-[15px] font-extrabold transition-colors border-b-[3px] -mb-[1.5px] ${activeTab === 'new' ? 'border-indigo-600 !text-indigo-700' : 'border-transparent !text-gray-500 hover:!text-gray-700'}`}
@@ -237,7 +252,8 @@ export default function AiPressPage() {
                       <div className="flex items-center gap-3">
                         <label className="text-[13px] font-bold text-slate-700 w-[150px] shrink-0">작성 형태 선택</label>
                         <div className="flex gap-2">
-                          {['보도자료 (언론 배포용)', '뉴스 기사 (객관적 보도)', '전문 칼럼 (오피니언)'].map(type => {
+                          {/* 🌟 [수정] 대표님이 지시하신 순서로 배열을 변경했습니다. */}
+                          {['뉴스 기사 (객관적 보도)', '전문 칼럼 (오피니언)', '보도자료 (언론 배포용)'].map(type => {
                             const activeColor = activeTab === 'new' ? 'bg-indigo-600 !text-white border-indigo-600' : 'bg-teal-700 !text-white border-teal-700';
                             return (
                               <button key={type} onClick={() => setDocType(type)} className={`px-5 py-2.5 text-[13px] font-bold rounded-md transition-all border shadow-sm ${docType === type ? activeColor : 'bg-white !text-slate-600 border-slate-300 hover:bg-slate-50'}`}>
@@ -306,7 +322,7 @@ export default function AiPressPage() {
                       ) : (
                         !hasGeneratedOnce 
                             ? `전문가용 ${docType} ${activeTab === 'new' ? '작성하기' : '리뉴얼'}` 
-                            : `새로 다시 ${activeTab === 'new' ? '작성하기' : '리뉴얼하기'} (${totalPoints}P 소진)`
+                            : `새로 다시 ${activeTab === 'new' ? '작성하기' : '리뉴얼하기'}`
                       )}
                     </button>
                   </div>

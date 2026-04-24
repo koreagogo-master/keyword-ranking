@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react"; // 🌟 수정: useEffect 추가 완료
 
 import { useAuth } from "@/app/contexts/AuthContext";
 import { usePoint } from "@/app/hooks/usePoint";
@@ -22,7 +22,7 @@ export default function AiBlogPage() {
 
   // [선택] 세부 설정 상태
   const [subKeywords, setSubKeywords] = useState("");
-  const [postPurpose, setPostPurpose] = useState("설득형(리뷰/공감)");
+  const [postPurpose, setPostPurpose] = useState("정보성(전문/객관)");
   const [wordCount, setWordCount] = useState("1500");
   const [targetAudience, setTargetAudience] = useState("");
   const [extraPrompt, setExtraPrompt] = useState("");
@@ -44,14 +44,34 @@ export default function AiBlogPage() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [showToast, setShowToast] = useState(false);
 
+  // 🌟 [신규 추가] DB에서 기본 포인트를 실시간으로 불러오기
+  const [basePoint, setBasePoint] = useState(300); // 초기 기본값
+
+  useEffect(() => {
+    const fetchBasePoint = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from('point_policies')
+        .select('point_cost')
+        .eq('page_type', 'AI_BLOG')
+        .single();
+
+      if (data && !error) {
+        setBasePoint(data.point_cost);
+      }
+    };
+    fetchBasePoint();
+  }, []);
+
   const isSaveDisabled = !user ||
     (activeTab === "auto" && (!keyword.trim() || !productName.trim() || !features.trim())) ||
     (activeTab === "renewal" && (!keyword.trim() || !productName.trim() || !originalContent.trim()));
 
+  // 🌟 수정: DB에서 불러온 basePoint에 추가 포인트를 더하는 공식
   const getBasePoints = () => {
-    if (wordCount === "2000") return 50;
-    if (wordCount === "3000") return 70;
-    return 30;
+    if (wordCount === "2000") return basePoint + 20;
+    if (wordCount === "3000") return basePoint + 40;
+    return basePoint;
   };
 
   const totalPoints = getBasePoints();
@@ -338,7 +358,7 @@ export default function AiBlogPage() {
 
                       <div className="w-[38%] flex flex-col gap-3 justify-center">
                         <div className="flex gap-1 w-full">
-                          {['설득형(리뷰/공감)', '정보성(전문/객관)'].map(type => (
+                          {['정보성(전문/객관)', '설득형(리뷰/공감)'].map(type => (
                             <button
                               key={type} onClick={() => { setPostPurpose(type); if (type.includes('정보성') && wordCount === '3000') setWordCount('2000'); }}
                               className={`flex-1 h-[32px] flex items-center justify-center text-[12px] font-bold rounded transition-all border tracking-tight px-1

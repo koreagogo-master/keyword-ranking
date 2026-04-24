@@ -28,8 +28,8 @@ export default function Home() {
   // 💡 16개의 툴을 배열로 깔끔하게 정리 (에러 방지 및 4x4 완벽 정렬을 위함)
   const toolkits = [
     // --- AI TOOLS ---
-    { category: "AI TOOLS", label: "Dual AI 포스팅", href: "/ai-blog", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> },
-    { category: "AI TOOLS", label: "AI 언론 보도자료", href: "/ai-press", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15" /> },
+    { category: "AI TOOLS", label: "+ AI 포스팅 생성/리뉴얼", href: "/ai-blog", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> },
+    { category: "AI TOOLS", label: "+ AI 보도자료 작성/리뉴얼", href: "/ai-press", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15" /> },
     // --- NAVER TOOLS ---
     { category: "NAVER TOOLS", label: "키워드 정밀 분석", href: "/analysis", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /> },
     { category: "NAVER TOOLS", label: "연관 키워드 조회", href: "/related-fast", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /> },
@@ -171,7 +171,7 @@ export default function Home() {
           <FadeInUp delay={0.2}>
             <div className="grid md:grid-cols-2 gap-5">
               {/* 1. 데이터 분석 */}
-              <div className="bg-white p-6 md:p-7 rounded-[1.5rem] border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-indigo-300 flex flex-col">
+              <div className="bg-gray-50 p-6 md:p-7 rounded-[1.5rem] border border-gray-200 flex flex-col">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
@@ -184,7 +184,7 @@ export default function Home() {
               </div>
 
               {/* 2. AI 창작 */}
-              <div className="bg-white p-6 md:p-7 rounded-[1.5rem] border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-indigo-300 flex flex-col">
+              <div className="bg-gray-50 p-6 md:p-7 rounded-[1.5rem] border border-gray-200 flex flex-col">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
@@ -197,7 +197,7 @@ export default function Home() {
               </div>
 
               {/* 3. 커머스/셀러 */}
-              <div className="bg-white p-6 md:p-7 rounded-[1.5rem] border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-indigo-300 flex flex-col">
+              <div className="bg-gray-50 p-6 md:p-7 rounded-[1.5rem] border border-gray-200 flex flex-col">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
@@ -210,7 +210,7 @@ export default function Home() {
               </div>
 
               {/* 4. 시스템/인프라 */}
-              <div className="bg-white p-6 md:p-7 rounded-[1.5rem] border border-gray-200 shadow-sm transition-all duration-300 hover:shadow-md hover:border-indigo-300 flex flex-col">
+              <div className="bg-gray-50 p-6 md:p-7 rounded-[1.5rem] border border-gray-200 flex flex-col">
                 <div className="flex items-center gap-3 mb-3">
                   <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
                     <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg>
@@ -245,7 +245,7 @@ export default function Home() {
 
               {/* 우측: 결제 버튼 영역 */}
               <div className="shrink-0 mt-4 md:mt-0">
-                <Link href="/charge" className="group bg-slate-800 text-white px-8 py-6 rounded-[1.5rem] shadow-md hover:bg-slate-900 hover:shadow-lg transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-w-[160px]">
+                <Link href="/charge" className="group bg-indigo-950 text-white px-8 py-6 rounded-[1.5rem] shadow-md hover:bg-indigo-900 hover:shadow-lg hover:shadow-indigo-500/20 transition-all duration-300 flex flex-col items-center justify-center gap-1.5 min-w-[160px]">
                   <span className="font-bold text-[17px]">포인트 충전소</span>
                   <span className="font-bold text-[14.5px] text-slate-400 flex items-center gap-1 group-hover:text-white transition-colors">
                     바로가기

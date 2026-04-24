@@ -45,6 +45,13 @@ export default function Sidebar() {
 
   const menuGroups = [
     {
+      title: "AI TOOLS",
+      items: [
+        { name: "+ Dual AI 포스팅", href: "/ai-blog" },
+        { name: "+ AI 언론 보도자료", href: "/ai-press" },
+      ]
+    },
+    {
       title: "Naver TOOLS",
       items: [
         { name: "키워드 정밀 분석", href: "/analysis" },
@@ -57,13 +64,7 @@ export default function Sidebar() {
         { name: "키워드 생성기", href: "/keyword-generator" },
       ]
     },
-    {
-      title: "AI TOOLS",
-      items: [
-        { name: "+ Dual AI 포스팅", href: "/ai-blog" },
-        { name: "+ AI 언론 보도자료", href: "/ai-press" },
-      ]
-    },
+    // ... (이하 Seller Tools 등 동일하게 유지) ...
     {
       title: "Seller Tools",
       items: [
