@@ -3,10 +3,12 @@
 
 import { useState } from "react";
 
-
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+
+// 🌟 [추가] 공통 탭 컴포넌트 불러오기
+import RankTabs from "@/components/RankTabs";
 
 // 🌟 1. 포인트 차감 기능을 위해 usePoint 훅을 불러옵니다.
 import { usePoint } from '@/app/hooks/usePoint'; 
@@ -106,8 +108,6 @@ export default function IndexCheckPage() {
     }
   };
 
-  // ... (이하 handleSaveCurrentSetting, handleApplySavedSetting 로직 및 UI는 기존과 동일하게 유지) ...
-
   const handleSaveCurrentSetting = async () => {
     if (!blogId) {
       alert("아이디를 입력한 후 저장해주세요.");
@@ -147,12 +147,13 @@ export default function IndexCheckPage() {
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
       <div className="flex min-h-screen bg-[#f8f9fa] !text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
         
-        
-
         <main className="flex-1 ml-64 p-10">
           <div className="max-w-7xl mx-auto">
+            
+            {/* 🌟 [핵심] 공통 탭 컴포넌트를 이식한 위치입니다. */}
+            <RankTabs />
 
-            <div className="flex justify-between items-start mb-8">
+            <div className="flex justify-between items-start mb-8 mt-4">
               <div>
                 <h1 className="text-2xl font-bold !text-black mb-2">블로그 검색 노출 진단</h1>
                 <p className="text-sm text-slate-500 mt-1">* 아이디만 입력하면 최근 포스팅 50개를 분석하여 노출 여부를 판단합니다.</p>
