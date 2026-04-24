@@ -10,7 +10,15 @@ export default function MobileBlocker() {
   useEffect(() => {
     // 화면 가로 길이가 768px (일반적인 태블릿/모바일 크기) 이하인지 체크
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        document.body.style.overflow = 'hidden';
+        document.body.style.overscrollBehavior = 'none';
+      } else {
+        document.body.style.overflow = 'unset';
+        document.body.style.overscrollBehavior = 'auto';
+      }
     };
 
     checkMobile(); // 처음 렌더링 시 체크
@@ -31,7 +39,7 @@ export default function MobileBlocker() {
 
   if (isMobile) {
     return (
-      <div className="fixed inset-0 z-[999999] bg-[#0f172a] flex flex-col items-center justify-start p-6 text-center overflow-y-auto w-full overflow-x-hidden">
+      <div className="fixed inset-0 z-[999999] bg-[#0f172a] flex flex-col items-center justify-start p-6 text-center w-full overflow-x-hidden h-[100dvh] overflow-hidden overscroll-none">
 
         {/* 1. 로고 영역 */}
         <div className="mt-10 mb-6">
