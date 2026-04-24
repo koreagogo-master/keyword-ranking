@@ -31,7 +31,7 @@ export default function MobileBlocker() {
 
   if (isMobile) {
     return (
-      <div className="fixed inset-0 z-[999999] bg-[#0f172a] flex flex-col items-center justify-start p-6 text-center overflow-y-auto">
+      <div className="fixed inset-0 z-[999999] bg-[#0f172a] flex flex-col items-center justify-start p-6 text-center overflow-y-auto w-full overflow-x-hidden">
 
         {/* 1. 로고 영역 */}
         <div className="mt-10 mb-6">
