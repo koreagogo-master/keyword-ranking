@@ -7,7 +7,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 interface SavedSearchesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  pageType: "BLOG" | "JISIKIN" | "TOTAL" | "ANALYSIS" | "RELATED" | "GOOGLE" | "YOUTUBE" | "SHOPPING" | "SHOPPING_RANK" | "SEO_TITLE" | "AIBLOG" | "AI_PRESS" | "INDEX_CHECK" | "KEYWORD_VOLUME"; onSelect: (item: any) => void;
+  pageType: "BLOG" | "JISIKIN" | "TOTAL" | "ANALYSIS" | "RELATED" | "GOOGLE" | "YOUTUBE" | "SHOPPING" | "SHOPPING_RANK" | "SEO_TITLE" | "AIBLOG" | "AI_PRESS" | "INDEX_CHECK" | "KEYWORD_VOLUME" | "REVIEW_AI"; onSelect: (item: any) => void;
 }
 export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelect }: SavedSearchesDrawerProps) {
   const { user } = useAuth();
@@ -65,6 +65,7 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
     // 🌟 SEO 타이틀 페이지 이름 추가
     if (pageType === 'SEO_TITLE') return '쇼핑 상품명 최적화';
     if (pageType === 'KEYWORD_VOLUME') return '키워드별 조회수';
+    if (pageType === 'REVIEW_AI') return '리뷰 답글 AI 어시스턴트';
     return '';
   };
 
@@ -122,7 +123,9 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
                         ? '블로그 ID:'
                         : pageType === 'SEO_TITLE'
                           ? '핵심 품목명:'
-                          : '키워드:'
+                          : pageType === 'REVIEW_AI'
+                            ? '프리셋 타이틀:'
+                            : '키워드:'
                       }
                       <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug ml-1">
                         {item.keyword}

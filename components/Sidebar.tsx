@@ -22,6 +22,7 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/shopping-rank': 'SHOPPING_RANK',
   '/ai-blog': 'AI_BLOG',
   '/ai-press': 'AI_PRESS',
+  '/review-ai': 'REVIEW_AI',
   '/keyword-volume': 'KEYWORD_VOLUME',
   '/keyword-generator': 'KEYWORD_GENERATOR'
 };
@@ -49,6 +50,7 @@ export default function Sidebar() {
       items: [
         { name: "+ Dual AI 포스팅", href: "/ai-blog" },
         { name: "+ AI 언론 보도자료", href: "/ai-press" },
+        { name: "+ 리뷰 답글 AI", href: "/review-ai" },
       ]
     },
     {
@@ -243,7 +245,7 @@ export default function Sidebar() {
                         const pageType = URL_TO_PAGE_TYPE[item.href as string];
                         const pointCost = pageType && pointPolicies[pageType] !== undefined
                           ? pointPolicies[pageType]
-                          : (item.href === '/ai-blog' ? 30 : item.href === '/ai-press' ? 50 : null);
+                          : (item.href === '/ai-blog' ? 30 : item.href === '/ai-press' ? 50 : item.href === '/review-ai' ? 0 : null);
 
                         return (
                           <li key={itemIdx}>

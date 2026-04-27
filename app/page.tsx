@@ -1,7 +1,8 @@
 // app/page.tsx
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import MainFooter from "@/components/MainFooter";
@@ -14,10 +15,32 @@ const montserrat = Montserrat({
   style: ['normal', 'italic'],
 });
 
+interface Notice {
+  id: string;
+  title: string;
+  is_pinned: boolean;
+  created_at: string;
+}
+
 export default function Home() {
   const [keyword, setKeyword] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const [notices, setNotices] = useState<Notice[]>([]);
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchLatestNotices = async () => {
+      const supabase = createClient();
+      const { data } = await supabase
+        .from('notices')
+        .select('id, title, is_pinned, created_at')
+        .order('is_pinned', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(4);
+      if (data) setNotices(data);
+    };
+    fetchLatestNotices();
+  }, []);
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -30,6 +53,7 @@ export default function Home() {
     // --- AI TOOLS ---
     { category: "AI TOOLS", label: "+ AI 포스팅 생성/리뉴얼", href: "/ai-blog", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> },
     { category: "AI TOOLS", label: "+ AI 보도자료 작성/리뉴얼", href: "/ai-press", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15" /> },
+    { category: "AI TOOLS", label: "+ 리뷰 답변 AI 자동 생성기", href: "/review-ai", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.8 7.5a1.84 1.84 0 0 0-2.6 0l-.2.3-.3-.3a1.84 1.84 0 1 0-2.4 2.8L12 13l2.7-2.7c.9-.9.8-2.1.1-2.8z" /></> },
     // --- NAVER TOOLS ---
     { category: "NAVER TOOLS", label: "키워드 정밀 분석", href: "/analysis", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /> },
     { category: "NAVER TOOLS", label: "연관 키워드 조회", href: "/related-fast", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /> },
@@ -156,7 +180,7 @@ export default function Home() {
 
       {/* 🌟 3. 소개 섹션 */}
       <section className="bg-white py-20 px-6 border-b border-gray-100">
-        <div className="max-w-[1000px] mx-auto">
+        <div className="max-w-[1200px] mx-auto">
           <FadeInUp>
             <div className="text-center px-4 mb-12">
               <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2 font-title">
@@ -169,57 +193,140 @@ export default function Home() {
           </FadeInUp>
 
           <FadeInUp delay={0.2}>
-            <div className="grid md:grid-cols-2 gap-5">
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
               {/* 1. 데이터 분석 */}
-              <div className="bg-gray-50 p-6 md:p-7 rounded-[1.5rem] border border-gray-200 flex flex-col">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
-                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
+              <div className="bg-gray-50 p-5 xl:p-6 rounded-[1.5rem] border border-gray-200 flex flex-col">
+                <div className="flex items-center gap-2.5 mb-3.5">
+                  <div className="text-indigo-600 shrink-0 bg-indigo-100/50 p-2 rounded-xl">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                   </div>
-                  <h3 className="text-[17px] font-bold text-gray-800">초정밀 통합 데이터 분석</h3>
+                  <h3 className="text-[15.5px] font-bold text-gray-800 tracking-tight leading-tight">초정밀 통합<br className="hidden lg:block xl:hidden" /> 데이터 분석</h3>
                 </div>
-                <p className="text-gray-500 text-[14.5px] leading-relaxed break-keep text-justify">
+                <p className="text-gray-500 text-[13.5px] leading-relaxed break-keep">
                   네이버, 구글, 유튜브의 최신 로직을 공식 API와 TMGad. 만의 노하우로 분석하여 실질적인 결과에 도움을 줍니다.
                 </p>
               </div>
 
               {/* 2. AI 창작 */}
-              <div className="bg-gray-50 p-6 md:p-7 rounded-[1.5rem] border border-gray-200 flex flex-col">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
-                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+              <div className="bg-gray-50 p-5 xl:p-6 rounded-[1.5rem] border border-gray-200 flex flex-col">
+                <div className="flex items-center gap-2.5 mb-3.5">
+                  <div className="text-indigo-600 shrink-0 bg-indigo-100/50 p-2 rounded-xl">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                   </div>
-                  <h3 className="text-[17px] font-bold text-gray-800">Dual AI 자동화 엔진</h3>
+                  <h3 className="text-[15.5px] font-bold text-gray-800 tracking-tight leading-tight">Dual AI<br className="hidden lg:block xl:hidden" /> 자동화 엔진</h3>
                 </div>
-                <p className="text-gray-500 text-[14.5px] leading-relaxed break-keep text-justify">
+                <p className="text-gray-500 text-[13.5px] leading-relaxed break-keep">
                   GPT-4와 Claude 3.5의 특성을 결합하여, 전문가 수준의 블로그 포스팅과 언론 기사를 생성하여 완성합니다.
                 </p>
               </div>
 
               {/* 3. 커머스/셀러 */}
-              <div className="bg-gray-50 p-6 md:p-7 rounded-[1.5rem] border border-gray-200 flex flex-col">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
-                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
+              <div className="bg-gray-50 p-5 xl:p-6 rounded-[1.5rem] border border-gray-200 flex flex-col">
+                <div className="flex items-center gap-2.5 mb-3.5">
+                  <div className="text-indigo-600 shrink-0 bg-indigo-100/50 p-2 rounded-xl">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg>
                   </div>
-                  <h3 className="text-[17px] font-bold text-gray-800">이커머스 맞춤형 솔루션</h3>
+                  <h3 className="text-[15.5px] font-bold text-gray-800 tracking-tight leading-tight">이커머스<br className="hidden lg:block xl:hidden" /> 맞춤형 솔루션</h3>
                 </div>
-                <p className="text-gray-500 text-[14.5px] leading-relaxed break-keep text-justify">
+                <p className="text-gray-500 text-[13.5px] leading-relaxed break-keep">
                   상품명 SEO 진단부터 쇼핑 인사이트, 실시간 노출 순위 추적까지 온라인 셀러의 시장 경쟁력을 높이는 전용 툴을 지원합니다.
                 </p>
               </div>
 
               {/* 4. 시스템/인프라 */}
-              <div className="bg-gray-50 p-6 md:p-7 rounded-[1.5rem] border border-gray-200 flex flex-col">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="text-indigo-600 shrink-0 transition-transform hover:scale-110">
-                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg>
+              <div className="bg-gray-50 p-5 xl:p-6 rounded-[1.5rem] border border-gray-200 flex flex-col">
+                <div className="flex items-center gap-2.5 mb-3.5">
+                  <div className="text-indigo-600 shrink-0 bg-indigo-100/50 p-2 rounded-xl">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" /></svg>
                   </div>
-                  <h3 className="text-[17px] font-bold text-gray-800">안전한 IP 분산 네트워크</h3>
+                  <h3 className="text-[15.5px] font-bold text-gray-800 tracking-tight leading-tight">안전한 IP<br className="hidden lg:block xl:hidden" /> 분산 네트워크</h3>
                 </div>
-                <p className="text-gray-500 text-[14.5px] leading-relaxed break-keep text-justify">
+                <p className="text-gray-500 text-[13.5px] leading-relaxed break-keep">
                   독자적인 프록시 서버망을 구축하여 대량 키워드 스크래핑 시에도 포털 차단 위험 없이 가장 안정적인 작업 환경을 보장합니다.
                 </p>
+              </div>
+
+            </div>
+          </FadeInUp>
+
+          <FadeInUp delay={0.3}>
+            <div className="mt-16 max-w-[1200px] mx-auto grid lg:grid-cols-5 gap-6">
+              
+              {/* 좌측 60%: 최근 공지사항 */}
+              <div className="lg:col-span-3 flex flex-col">
+                <div className="flex items-end justify-between mb-3 px-2">
+                  <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
+                    최근 공지사항
+                  </h3>
+                  <Link href="/notice" className="text-[13px] font-bold text-gray-400 hover:text-indigo-600 transition-colors">
+                    더보기 +
+                  </Link>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden flex-1">
+                  {notices.length > 0 ? (
+                    <ul className="divide-y divide-gray-100">
+                      {notices.map(notice => (
+                        <li key={notice.id} className="group transition-colors hover:bg-slate-50">
+                          <Link href={`/notice?id=${notice.id}`} className="flex items-center justify-between px-6 py-4">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                              {notice.is_pinned ? (
+                                <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-black bg-indigo-50 text-indigo-600 border border-indigo-100">중요</span>
+                              ) : (
+                                <span className="shrink-0 px-2 py-0.5 rounded text-[11px] font-black bg-gray-100 text-gray-500">공지</span>
+                              )}
+                              <span className={`text-[14.5px] font-medium truncate transition-colors group-hover:text-indigo-600 ${notice.is_pinned ? 'text-gray-900 font-bold' : 'text-gray-700'}`}>
+                                {notice.title}
+                              </span>
+                            </div>
+                            <span className="shrink-0 ml-4 text-[13px] text-gray-400 font-medium">
+                              {notice.created_at.substring(0, 10)}
+                            </span>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="px-6 py-8 text-center text-sm text-gray-400 font-medium">
+                      등록된 공지사항이 없습니다.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* 우측 40%: 고객센터 배너 */}
+              <div className="lg:col-span-2 flex flex-col mt-8 lg:mt-0">
+                <div className="flex items-end mb-3 px-2">
+                  <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                    <svg className="w-5 h-5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z" />
+                      <path d="M21 16v2a4 4 0 0 1-4 4h-5" />
+                    </svg>
+                    고객센터
+                  </h3>
+                </div>
+                <div className="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 flex flex-col justify-center flex-1 relative overflow-hidden">
+                  <div className="relative z-10 flex flex-col gap-3">
+                    <p className="text-gray-500 text-[13.5px] font-medium mb-1.5 px-1 text-left break-keep">
+                      궁금하신 점이나 불편한 점을 언제든 알려주세요.
+                    </p>
+                    <Link href="/contact" className="group bg-gray-50 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-all duration-300 rounded-xl px-5 py-4 flex items-center justify-between border border-gray-100 hover:border-indigo-100">
+                      <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                        <span className="font-bold text-[14.5px]">자주 묻는 질문 (FAQ)</span>
+                      </div>
+                      <svg className="w-4 h-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    </Link>
+                    
+                    <Link href="/contact" className="group bg-gray-50 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-all duration-300 rounded-xl px-5 py-4 flex items-center justify-between border border-gray-100 hover:border-indigo-100">
+                      <div className="flex items-center gap-3">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>
+                        <span className="font-bold text-[14.5px]">1:1 문의하기</span>
+                      </div>
+                      <svg className="w-4 h-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+                    </Link>
+                  </div>
+                </div>
               </div>
 
             </div>

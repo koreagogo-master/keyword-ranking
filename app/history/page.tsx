@@ -20,6 +20,7 @@ const PAGE_INFO: Record<string, { name: string, path: string }> = {
   'AIBLOG': { name: 'AI 블로그', path: '/ai-blog' },
   'INDEX_CHECK': { name: '블로그 노출 진단', path: '/index-check' },
   'AI_PRESS': { name: 'AI 언론 보도자료', path: '/ai-press' },
+  'REVIEW_AI': { name: '리뷰 답글 AI', path: '/review-ai' },
   'KEYWORD_VOLUME': { name: '키워드별 조회수', path: '/keyword-volume' }
 };
 
@@ -82,6 +83,8 @@ export default function HistoryPage() {
     // 🌟 지식인 페이지로 갈 때는 jisikin_data 배열을 통째로 포장해서 보냅니다.
     if (item.page_type === 'JISIKIN' && item.jisikin_data) {
       url.searchParams.append('jisikin_data', encodeURIComponent(JSON.stringify(item.jisikin_data)));
+    } else if (item.page_type === 'REVIEW_AI') {
+      url.searchParams.append('id', item.id);
     } else {
       if (item.keyword && item.keyword !== 'NULL') {
         url.searchParams.append('keyword', item.keyword);

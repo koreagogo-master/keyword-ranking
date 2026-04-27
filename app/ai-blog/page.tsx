@@ -7,6 +7,7 @@ import { usePoint } from "@/app/hooks/usePoint";
 
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+import AiTabs from "@/components/AiTabs";
 
 export default function AiBlogPage() {
   const { user } = useAuth();
@@ -267,6 +268,7 @@ export default function AiBlogPage() {
 
           <div className="sticky top-0 z-40 bg-[#f8f9fa] border-b border-gray-300 shadow-sm px-10 pt-8 pb-6 transition-all duration-300 relative">
             <div className="max-w-[1200px] mx-auto">
+              <AiTabs />
 
               <div className="flex justify-between items-start mb-6">
                 <div>

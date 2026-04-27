@@ -6,6 +6,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import { usePoint } from "@/app/hooks/usePoint";
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+import AiTabs from "@/components/AiTabs";
 
 export default function AiPressPage() {
   const { user } = useAuth();
@@ -196,6 +197,7 @@ export default function AiPressPage() {
         <main className="flex-1 ml-64 relative">
           <div className="sticky top-0 z-40 bg-[#f8f9fa] border-b border-gray-300 shadow-sm px-10 pt-8 pb-6 transition-all duration-300">
             <div className="max-w-[1200px] mx-auto">
+              <AiTabs />
               
               <div className="flex justify-between items-start mb-6">
                 <div>

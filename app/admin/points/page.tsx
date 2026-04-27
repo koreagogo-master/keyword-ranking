@@ -31,6 +31,7 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
   'AI_BLOG': { name: '+ Dual AI 포스팅', url: '/ai-blog' },           
   'AI_PRESS': { name: '+ AI 언론 보도자료', url: '/ai-press' },
+  'REVIEW_AI': { name: '+ 리뷰 답글 AI', url: '/review-ai' },
   'KEYWORD_VOLUME': { name: '키워드별 조회수', url: '/keyword-volume' },
   'KEYWORD_GENERATOR': { name: '키워드 생성기', url: '/keyword-generator' }
 };
@@ -42,7 +43,7 @@ const MENU_GROUPS = [
   },
   {
     title: 'AI TOOLS',     
-    items: ['AI_BLOG', 'AI_PRESS'] 
+    items: ['AI_BLOG', 'AI_PRESS', 'REVIEW_AI'] 
   },
   {
     title: 'SELLER TOOLS',

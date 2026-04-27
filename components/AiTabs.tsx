@@ -1,16 +1,16 @@
+// components/AiTabs.tsx
 'use client';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-export default function SellerTabs() {
+export default function AiTabs() {
   const pathname = usePathname();
 
   const tabs = [
-    { name: '쇼핑 키워드 인사이트', href: '/shopping-insight' },
-    { name: '쇼핑 상품명 최적화', href: '/seo-title' },
-    { name: '내 상품명 진단', href: '/seo-check' },
-    { name: '상품 노출 순위 분석', href: '/shopping-rank' },
+    { name: '블로그 포스팅 AI', href: '/ai-blog' },
+    { name: '언론보도 보도자료 AI', href: '/ai-press' },
+    { name: '리뷰 답글 AI', href: '/review-ai' },
   ];
 
   return (

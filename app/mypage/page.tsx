@@ -22,6 +22,7 @@ const PAGE_META: Record<string, string> = {
   'CHARGE': '포인트 자동 충전',
   'AI_BLOG': 'Dual AI 포스팅',
   'AI_PRESS': 'AI 언론 보도자료',
+  'REVIEW_AI': '리뷰 답글 AI',
   'INDEX_CHECK': '블로그 노출 진단'
 };
 
