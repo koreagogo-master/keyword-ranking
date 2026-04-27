@@ -478,7 +478,7 @@ function ReviewAiContent() {
                           className={`flex-1 h-[30px] px-2 rounded-sm border !text-xs !text-gray-700
                                      focus:outline-none focus:border-[#5244e8] transition-all ${selectBgClass}`}
                         >
-                          <option value="">제품 선택 (선택 안 함)</option>
+                          <option value="">제품 선택</option>
                           {presets.map(p => (
                             <option key={p.id} value={p.id}>
                               {presetLabel(p)}
