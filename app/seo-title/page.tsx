@@ -7,6 +7,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { usePoint } from '@/app/hooks/usePoint';
 import { createClient } from '@/app/utils/supabase/client';
 import SavedSearchesDrawer from '@/components/SavedSearchesDrawer';
+import HelpButton from '@/components/HelpButton';
 
 interface TagType {
     word: string;
@@ -243,7 +244,10 @@ function SeoTitleContent() {
             <SellerTabs />
             <div className="flex justify-between items-start mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold !text-black mb-2">쇼핑 상품명 최적화</h1>
+                <div className="flex items-center gap-2 mb-2">
+                    <h1 className="text-2xl font-bold !text-black">쇼핑 상품명 최적화</h1>
+                    <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+                </div>
                     <p className="text-sm !text-slate-500 mt-1 leading-relaxed">네이버 쇼핑 로직에 최적화된 상품명을 조립하고 AI로 완벽하게 다듬어줍니다.</p>
                 </div>
                 <div className="flex items-center gap-2 mt-1 shrink-0">

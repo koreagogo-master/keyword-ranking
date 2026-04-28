@@ -14,6 +14,7 @@ import SellerTabs from '@/components/SellerTabs';
 
 // 🌟 1. 마법의 포인트 스위치 가져오기
 import { usePoint } from '@/app/hooks/usePoint'; 
+import HelpButton from '@/components/HelpButton';
 
 // 🔥 에러 원인 차단: Next.js 서버 충돌을 방지하기 위해 안전한 정규식 방식으로 변경했습니다.
 const stripHtml = (html: string) => {
@@ -185,7 +186,10 @@ function ShoppingRankContent() {
 
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-2xl font-bold !text-black mb-2">상품 노출 순위 분석</h1>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-2xl font-bold !text-black">상품 노출 순위 분석</h1>
+            <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+          </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">여러 개의 키워드를 쉼표(,)로 구분하여 한 번에 순위를 검색할 수 있습니다.</p>
           <p className="text-sm font-bold text-blue-600 mt-1">※ 네이버 쇼핑 카테고리(가격비교 영역) 순수 검색 결과 기준 순위입니다.</p>
         </div>

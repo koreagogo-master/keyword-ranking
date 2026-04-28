@@ -12,6 +12,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
 import { usePoint } from '@/app/hooks/usePoint'; 
+import HelpButton from '@/components/HelpButton';
 
 interface SearchResultRow {
   keyword: string;
@@ -156,9 +157,10 @@ function BlogRankContent() {
     <>
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            N 모바일 블로그 탭 순위 확인
-          </h1>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-2xl font-bold text-gray-900">N 모바일 블로그 탭 순위 확인</h1>
+            <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+          </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
             블로그 닉네임과 키워드를 입력하여 N 모바일 블로그 탭의 노출 순위를 확인하세요.<br />
             여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다.

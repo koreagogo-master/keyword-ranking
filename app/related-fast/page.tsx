@@ -13,6 +13,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
 import { usePoint } from '@/app/hooks/usePoint'; 
+import HelpButton from '@/components/HelpButton';
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
 
@@ -278,7 +279,10 @@ function RelatedFastContent() {
           
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">연관 키워드 조회</h1>
+              <div className="flex items-center gap-2 mb-2">
+                <h1 className="text-2xl font-bold text-gray-900">연관 키워드 조회</h1>
+                <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+              </div>
               <p className="text-sm text-slate-500 mt-1 leading-relaxed">
                 포스팅 시 적용 가능한 연관 키워드를 네이버 API 기반으로 추천합니다. 리스트에서 키워드를 선택하면 좌측에 선택된 키워드가 담깁니다.<br />
                 최종 선택된 키워드는 일괄 복사하여 메모장 등에 붙여넣을 수 있으며, 조회 키워드를 변경해도 유지됩니다.<br />

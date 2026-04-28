@@ -13,6 +13,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
 import { usePoint } from '@/app/hooks/usePoint'; 
+import HelpButton from '@/components/HelpButton';
 
 interface SearchResult {
   keyword: string;
@@ -165,9 +166,10 @@ function BlogRankContent() {
       {/* 1. 타이틀과 상단 버튼 영역 (여기에만 flex 적용) */}
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            N 모바일 통검 순위 확인
-          </h1>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-2xl font-bold text-gray-900">N 모바일 통검 순위 확인</h1>
+            <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+          </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
             "사이트", "뉴스", "플레이스"는 순위에서 제외됩니다.<br />
             "지식인"이 순위에 노출될 경우 제목에 내용이 길게 표시됩니다.

@@ -6,6 +6,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 import AiTabs from "@/components/AiTabs";
+import HelpButton from "@/components/HelpButton";
 
 // ─── 인라인 SVG 아이콘 (lucide-react 미설치 → 직접 구현) ─────
 // width/height를 16px로 통일 — 버튼 내 아이콘이 확실히 보이도록
@@ -171,6 +172,7 @@ function ReviewAiContent() {
 
   // ── 톤앤매너 / 공통 설정
   const [selectedTone, setSelectedTone] = useState<ToneId>('friendly-repurchase');
+  const [isEmojiOff, setIsEmojiOff] = useState(false);
 
   // ── 리뷰 카드 상태
   const [cards, setCards] = useState<ReviewCard[]>(INITIAL_CARDS);
@@ -241,6 +243,7 @@ function ReviewAiContent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tone: selectedTone,
+          isEmojiOff,
           reviews: validReviews,
         }),
       });
@@ -320,9 +323,10 @@ function ReviewAiContent() {
             {/* ── 페이지 헤더 */}
             <div className="flex justify-between items-start mb-6">
               <div>
-                <h1 className="!text-2xl font-bold !text-gray-900 mb-2">
-                  리뷰 답글 AI 어시스턴트
-                </h1>
+                <div className="flex items-center gap-2 mb-2">
+                  <h1 className="!text-2xl font-bold !text-gray-900">리뷰 답글 AI 어시스턴트</h1>
+                  <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+                </div>
                 <p className="!text-sm !text-slate-500 leading-relaxed">
                   제품 프리셋을 등록하고 고객 리뷰를 붙여넣으면 AI가 브랜드 톤앤매너에 맞는 답글을 자동으로 작성합니다.<br />
                   포토 리뷰나 악플 대응 옵션을 활용해 상황에 꼭 맞는 맞춤형 답변을 생성해 보세요!
@@ -400,24 +404,48 @@ function ReviewAiContent() {
 
 
 
-              {/* 구분선 — 답변 톤앤매너만 */}
+              {/* 구분선 — 답변 톤앤매너 + 이모지 유무 */}
               <div className="border-t border-gray-100 pt-4">
-                <label className="block !text-sm font-bold !text-gray-600 mb-1.5">답변 톤앤매너</label>
-                <div className="flex w-full gap-2">
-                  {TONE_OPTIONS.map(t => (
+                <div className="flex items-end gap-4">
+                  {/* 톤앤매너 버튼 그룹 */}
+                  <div className="flex-1">
+                    <label className="block !text-sm font-bold !text-gray-600 mb-1.5">답변 톤앤매너</label>
+                    <div className="flex w-full gap-2">
+                      {TONE_OPTIONS.map(t => (
+                        <button
+                          key={t.id}
+                          id={`tone-${t.id}`}
+                          onClick={() => setSelectedTone(t.id)}
+                          className={`flex-1 !text-center py-2 h-[38px] rounded-sm !text-sm font-bold transition-all border
+                            ${selectedTone === t.id
+                              ? 'bg-[#5244e8] border-[#5244e8] !text-white shadow-sm'
+                              : 'bg-white border-gray-300 !text-gray-500 hover:border-[#5244e8] hover:!text-[#5244e8]'
+                            }`}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 구분 세로선 */}
+                  <div className="w-px bg-gray-200" style={{ height: '55px' }} />
+
+                  {/* 이모지 유/무 토글 */}
+                  <div className="shrink-0">
+                    <label className="block !text-sm font-bold !text-gray-600 mb-1.5">이모지 (유/무)</label>
                     <button
-                      key={t.id}
-                      id={`tone-${t.id}`}
-                      onClick={() => setSelectedTone(t.id)}
-                      className={`flex-1 !text-center py-2 h-[38px] rounded-sm !text-sm font-bold transition-all border
-                        ${selectedTone === t.id
-                          ? 'bg-[#5244e8] border-[#5244e8] !text-white shadow-sm'
-                          : 'bg-white border-gray-300 !text-gray-500 hover:border-[#5244e8] hover:!text-[#5244e8]'
+                      id="toggle-emoji-off"
+                      onClick={() => setIsEmojiOff(prev => !prev)}
+                      className={`w-[120px] !text-center h-[38px] rounded-sm !text-sm font-bold transition-all border
+                        ${isEmojiOff
+                          ? 'bg-red-50 border-red-400 !text-red-600 shadow-sm'
+                          : 'bg-white border-gray-300 !text-gray-500 hover:border-red-400 hover:!text-red-500'
                         }`}
                     >
-                      {t.label}
+                      {isEmojiOff ? '🚫 이모지 없음' : '😊 이모지 허용'}
                     </button>
-                  ))}
+                  </div>
                 </div>
               </div>
             </div>

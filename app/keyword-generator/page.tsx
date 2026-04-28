@@ -7,6 +7,7 @@ import RankTabs from "@/components/RankTabs";
 import KeywordInput from "./components/KeywordInput";
 import GeneratedTable from "./components/GeneratedTable";
 import SelectedCart from "./components/SelectedCart";
+import HelpButton from "@/components/HelpButton";
 
 export default function KeywordGeneratorPage() {
   return (
@@ -195,7 +196,10 @@ function KeywordGeneratorContent() {
             <RankTabs /> 
 
             <div className="mb-6 mt-6">
-              <h1 className="text-2xl font-bold !text-black">키워드 생성기</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold !text-black">키워드 생성기</h1>
+                <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+              </div>
               {/* 🌟 수정: 안내 문구의 색상을 파란색에서 브랜드 컬러로 변경 */}
               <p className="text-[14px] font-extrabold text-[#5244e8] mt-3 mb-2">💡 본 메뉴는 포인트 차감 없이 무제한으로 이용 가능한 무료 도구입니다.</p>
               <p className="text-sm text-slate-500 mt-1 leading-relaxed">

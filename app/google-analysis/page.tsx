@@ -13,6 +13,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
 import { usePoint } from '@/app/hooks/usePoint'; 
+import HelpButton from '@/components/HelpButton';
 
 const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
 
@@ -207,7 +208,10 @@ function GoogleAnalysisContent() {
     <>
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-2xl font-bold !text-black mb-2">구글 키워드 분석</h1>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-2xl font-bold !text-black">구글 키워드 분석</h1>
+            <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+          </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
             구글 Ads API를 활용하여 글로벌 및 국내 검색량, 경쟁도, 예상 CPC(클릭당 비용)를 분석합니다.<br />
             구글 기준 조회수가 적은 키워드는 구글 Ads에서 검색되지 않을 수 있습니다.

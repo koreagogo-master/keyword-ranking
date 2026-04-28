@@ -3,6 +3,7 @@
 import { useState, Suspense } from "react";
 
 import RankTabs from "@/components/RankTabs";
+import HelpButton from "@/components/HelpButton";
 
 // 숫자 포맷팅 (1,000 단위 콤마)
 const formatNum = (num: number) => new Intl.NumberFormat().format(num || 0);
@@ -158,7 +159,10 @@ function RelatedAnalysisContent() {
           <RankTabs />
           
           <div className="mb-10">
-            <h1 className="text-2xl font-bold !text-black">연관검색어 분석</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold !text-black">연관검색어 분석</h1>
+              <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+            </div>
           </div>
 
           <div className="bg-white border border-gray-300 flex items-center mb-8 shadow-sm focus-within:border-blue-500 rounded-none max-w-3xl overflow-hidden">

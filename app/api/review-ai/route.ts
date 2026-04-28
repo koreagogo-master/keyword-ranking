@@ -16,6 +16,7 @@ interface RequestBody {
   productName: string;   // 공통 제품명 (프리셋 미선택 시 fallback)
   productDesc: string;   // 핵심 장점
   tone: string;          // 톤앤매너 id
+  isEmojiOff?: boolean;  // 이모지 사용 금지 여부
   reviews: ReviewItem[];
 }
 
@@ -30,10 +31,11 @@ const TONE_LABELS: Record<string, string> = {
 // ── Claude 단건 호출 함수
 async function generateReply(
   client: Anthropic,
-  { productName, productDesc, tone, review }: {
+  { productName, productDesc, tone, isEmojiOff, review }: {
     productName: string;
     productDesc: string;
     tone: string;
+    isEmojiOff?: boolean;
     review: ReviewItem;
   }
 ): Promise<string> {
@@ -43,6 +45,7 @@ async function generateReply(
     `[제품명]: ${review.presetName || productName || '해당 제품'}`,
     `[핵심 장점]: ${review.presetDesc || productDesc || '없음'}`,
     `[톤앤매너]: ${tonLabel}`,
+    isEmojiOff ? '[이모지 규칙]: 이모지(이모티콘)를 절대 사용하지 마세요.' : '',
     review.isPhoto ? '[특이사항]: 사진을 첨부해준 포토 리뷰입니다. 사진 촬영에 대한 감사 표현을 자연스럽게 포함해 주세요.' : '',
     review.isNegative ? '[특이사항]: 3점 이하 부정적 리뷰입니다. 고객의 불만을 진심으로 수용하고 개선 의지를 보여주세요.' : '',
     '',
@@ -80,7 +83,7 @@ export async function POST(req: NextRequest) {
 
     // 2. 요청 파싱
     const body: RequestBody = await req.json();
-    const { productName, productDesc, tone, reviews } = body;
+    const { productName, productDesc, tone, isEmojiOff, reviews } = body;
 
     const validReviews = reviews.filter(r => r.text && r.text.trim() !== '');
 
@@ -118,7 +121,7 @@ export async function POST(req: NextRequest) {
     // 4. 모든 리뷰 병렬 처리
     const settled = await Promise.allSettled(
       validReviews.map(review =>
-        generateReply(client, { productName, productDesc, tone, review })
+        generateReply(client, { productName, productDesc, tone, isEmojiOff, review })
       )
     );
 

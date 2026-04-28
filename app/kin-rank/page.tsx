@@ -13,6 +13,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from "@/app/contexts/AuthContext";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 import { usePoint } from '@/app/hooks/usePoint'; 
+import HelpButton from '@/components/HelpButton';
 
 interface SearchResult {
   keyword: string;
@@ -206,9 +207,10 @@ function KinRankContent() {
     <>
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            N 지식인 통검노출, 순위, 날짜 확인
-          </h1>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-2xl font-bold text-gray-900">N 지식인 통검노출, 순위, 날짜 확인</h1>
+            <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+          </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
             키워드와 찾을 제목 식별 문구를 입력하여 지식인 탭 순위와 통검 노출 여부를 확인하세요.<br />
             최대 10개까지 항목을 추가하여 일괄 조회할 수 있습니다.

@@ -7,6 +7,7 @@ import { createClient } from '@/app/utils/supabase/client';
 import SavedSearchesDrawer from '@/components/SavedSearchesDrawer';
 import RankTabs from '@/components/RankTabs';
 import { usePoint } from '@/app/hooks/usePoint';
+import HelpButton from '@/components/HelpButton';
 
 interface VolumeResult {
   keyword: string;
@@ -202,7 +203,10 @@ function KeywordVolumeContent() {
           {/* 헤더 */}
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">키워드별 조회수</h1>
+              <div className="flex items-center gap-2 mb-2">
+                <h1 className="text-2xl font-bold text-gray-900">키워드별 조회수</h1>
+                <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+              </div>
               <p className="text-sm text-slate-500 mt-1 leading-relaxed">
                 네이버 검색광고 데이터를 기반으로 다수 키워드의 PC/모바일 조회수를 일괄 분석합니다.
               </p>

@@ -12,6 +12,7 @@ import RankTabs from "@/components/RankTabs";
 
 // 🌟 1. 포인트 차감 기능을 위해 usePoint 훅을 불러옵니다.
 import { usePoint } from '@/app/hooks/usePoint'; 
+import HelpButton from '@/components/HelpButton';
 
 interface BlogPost {
   title: string;
@@ -155,7 +156,10 @@ export default function IndexCheckPage() {
 
             <div className="flex justify-between items-start mb-8 mt-4">
               <div>
-                <h1 className="text-2xl font-bold !text-black mb-2">블로그 검색 노출 진단</h1>
+                <div className="flex items-center gap-2 mb-2">
+                  <h1 className="text-2xl font-bold !text-black">블로그 검색 노출 진단</h1>
+                  <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+                </div>
                 <p className="text-sm text-slate-500 mt-1 leading-relaxed">아이디만 입력하면 최근 포스팅 50개를 분석하여 노출 여부를 판단합니다.</p>
               </div>
               <div className="flex items-center gap-2 mt-1 shrink-0">
