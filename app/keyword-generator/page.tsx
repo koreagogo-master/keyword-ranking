@@ -195,7 +195,7 @@ function KeywordGeneratorContent() {
           <div className="max-w-7xl mx-auto">
             <RankTabs /> 
 
-            <div className="mb-6 mt-6">
+            <div className="mb-8">
               <div className="flex items-center gap-2">
                 <h1 className="text-2xl font-bold !text-black">키워드 생성기</h1>
                 <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />

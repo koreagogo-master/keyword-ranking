@@ -154,7 +154,7 @@ export default function IndexCheckPage() {
             {/* 🌟 [핵심] 공통 탭 컴포넌트를 이식한 위치입니다. */}
             <RankTabs />
 
-            <div className="flex justify-between items-start mb-8 mt-4">
+            <div className="flex justify-between items-start mb-8">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <h1 className="text-2xl font-bold !text-black">블로그 검색 노출 진단</h1>

@@ -187,7 +187,7 @@ function ShoppingRankContent() {
       <div className="flex justify-between items-start mb-8">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <h1 className="text-2xl font-bold !text-black">상품 노출 순위 분석</h1>
+            <h1 className="text-2xl font-bold !text-gray-900">상품 노출 순위 분석</h1>
             <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
           </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">여러 개의 키워드를 쉼표(,)로 구분하여 한 번에 순위를 검색할 수 있습니다.</p>

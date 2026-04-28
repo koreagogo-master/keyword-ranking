@@ -316,8 +316,8 @@ function ReviewAiContent() {
         className="flex min-h-screen bg-[#f8f9fa] !text-[#3c4043] antialiased tracking-tight"
         style={{ fontFamily: "'NanumSquare', sans-serif" }}
       >
-        <main className="flex-1 ml-64 px-10 pt-8 pb-32 relative">
-          <div className="max-w-[1200px] mx-auto">
+        <main className="flex-1 ml-64 px-10 pt-10 pb-32 relative">
+          <div className="max-w-7xl mx-auto">
             <AiTabs />
 
             {/* ── 페이지 헤더 */}

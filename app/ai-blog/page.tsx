@@ -267,8 +267,8 @@ export default function AiBlogPage() {
 
         <main className="flex-1 ml-64 relative">
 
-          <div className="sticky top-0 z-40 bg-[#f8f9fa] border-b border-gray-300 shadow-sm px-10 pt-8 pb-6 transition-all duration-300 relative">
-            <div className="max-w-[1200px] mx-auto">
+          <div className="sticky top-0 z-40 bg-[#f8f9fa] border-b border-gray-300 shadow-sm px-10 pt-10 pb-6 transition-all duration-300 relative">
+            <div className="max-w-7xl mx-auto">
               <AiTabs />
 
               <div className="flex justify-between items-start mb-6">
@@ -450,7 +450,7 @@ export default function AiBlogPage() {
           {/* ========================================================= */}
 
           {/* 하단 스크롤 영역: 결과 출력 */}
-          <div className="px-10 pt-12 max-w-[1200px] mx-auto pb-32">
+          <div className="px-10 pt-12 max-w-7xl mx-auto pb-32">
             <div className="w-full min-h-[400px]">
               {isGenerating ? (
                 <div className="h-[400px] border-2 border-indigo-100 rounded-xl flex flex-col items-center justify-center bg-white p-10 text-center shadow-sm relative overflow-hidden">
