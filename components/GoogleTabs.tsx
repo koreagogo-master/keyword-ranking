@@ -13,17 +13,17 @@ export default function GoogleTabs() {
   ];
 
   return (
-    <div className="flex border-b border-gray-200 mb-8">
+    <div className="flex border-b border-gray-200 mb-8 antialiased overflow-x-auto whitespace-nowrap pb-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       {tabs.map((tab) => {
         const isActive = pathname === tab.href;
         return (
           <Link
             key={tab.href}
             href={tab.href}
-            className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-[2px] ${
+            className={`px-5 py-3 text-[14px] transition-all duration-200 ease-in-out border-b-[3px] -mb-[1px] shrink-0 ${
               isActive
-                ? 'border-[#5244e8] text-[#5244e8]'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                ? 'border-[#5244e8] text-[#5244e8] font-bold'
+                : 'border-transparent text-gray-500 font-medium hover:text-gray-800 hover:border-gray-300'
             }`}
           >
             {tab.name}
@@ -32,4 +32,4 @@ export default function GoogleTabs() {
       })}
     </div>
   );
-}
+}
