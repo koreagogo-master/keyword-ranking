@@ -159,8 +159,10 @@ function BlogRankContent() {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             N 모바일 블로그 탭 순위 확인
           </h1>
-          <p className="text-sm text-slate-500 mt-1">* 블로그 닉네임과 키워드를 입력하여 N 모바일 블로그 탭의 노출 순위를 확인하세요.</p>
-          <p className="text-sm text-slate-500 mt-1">* 여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다.</p>
+          <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+            블로그 닉네임과 키워드를 입력하여 N 모바일 블로그 탭의 노출 순위를 확인하세요.<br />
+            여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다.
+          </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
           <button 

@@ -323,8 +323,9 @@ function ReviewAiContent() {
                 <h1 className="!text-2xl font-bold !text-gray-900 mb-2">
                   리뷰 답글 AI 어시스턴트
                 </h1>
-                <p className="!text-sm !text-slate-500">
-                  제품 프리셋을 등록하고, 고객 리뷰를 붙여넣으면 AI가 브랜드 톤앤매너에 맞는 답글을 자동으로 작성합니다.
+                <p className="!text-sm !text-slate-500 leading-relaxed">
+                  제품 프리셋을 등록하고 고객 리뷰를 붙여넣으면 AI가 브랜드 톤앤매너에 맞는 답글을 자동으로 작성합니다.<br />
+                  포토 리뷰나 악플 대응 옵션을 활용해 상황에 꼭 맞는 맞춤형 답변을 생성해 보세요!
                 </p>
               </div>
               <div className="flex items-center gap-2 mt-1 shrink-0">

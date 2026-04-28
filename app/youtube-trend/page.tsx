@@ -155,7 +155,7 @@ function YouTubeTrendContent() {
       <div className="flex justify-between items-start mb-8">
         <div>
           <h1 className="text-2xl font-bold !text-black mb-2">유튜브 트렌드 분석</h1>
-          <p className="text-sm text-slate-500 mt-1">* 상위 노출 영상의 조회수, 숨겨진 태그를 분석하고 구글 Ads 타겟팅용 URL을 일괄 추출합니다.</p>
+          <p className="text-sm text-slate-500 mt-1 leading-relaxed">상위 노출 영상의 조회수, 숨겨진 태그를 분석하고 구글 Ads 타겟팅용 URL을 일괄 추출합니다.</p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
           <button 

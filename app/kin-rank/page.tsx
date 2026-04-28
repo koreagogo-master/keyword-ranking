@@ -209,8 +209,10 @@ function KinRankContent() {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             N 지식인 통검노출, 순위, 날짜 확인
           </h1>
-          <p className="text-sm text-slate-500 mt-1">* 키워드와 찾을 제목 식별 문구를 입력하여 지식인 탭 순위와 통검 노출 여부를 확인하세요.</p>
-          <p className="text-sm text-slate-500 mt-1">* 최대 10개까지 항목을 추가하여 일괄 조회할 수 있습니다.</p>
+          <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+            키워드와 찾을 제목 식별 문구를 입력하여 지식인 탭 순위와 통검 노출 여부를 확인하세요.<br />
+            최대 10개까지 항목을 추가하여 일괄 조회할 수 있습니다.
+          </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
           <button 

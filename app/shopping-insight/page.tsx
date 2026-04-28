@@ -245,7 +245,7 @@ function ShoppingInsightContent() {
             <div className="flex justify-between items-start mb-8">
               <div>
                 <h1 className="text-2xl font-bold !text-black mb-2">쇼핑 키워드 인사이트</h1>
-                <p className="text-sm text-slate-500 mt-1">* 네이버 쇼핑 데이터 기반으로 상품 키워드의 경쟁력과 트렌드를 분석합니다.</p>
+                <p className="text-sm text-slate-500 mt-1 leading-relaxed">네이버 쇼핑 데이터 기반으로 상품 키워드의 경쟁력과 트렌드를 분석합니다.</p>
               </div>
               <div className="flex items-center gap-2 mt-1 shrink-0">
                 <button

@@ -202,10 +202,9 @@ function KeywordVolumeContent() {
           {/* 헤더 */}
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 mb-1">키워드별 조회수</h1>
-              <p className="text-sm text-gray-500 font-medium">
-                조회할 키워드를 엔터로 구분하여 입력하세요.{' '}
-                <span className="text-[#5244e8] font-bold">(최대 100개)</span>
+              <h1 className="text-2xl font-bold text-gray-900 mb-2">키워드별 조회수</h1>
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                네이버 검색광고 데이터를 기반으로 다수 키워드의 PC/모바일 조회수를 일괄 분석합니다.
               </p>
             </div>
             <div className="flex items-center gap-2 mt-1 shrink-0">

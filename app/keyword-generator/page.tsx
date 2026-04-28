@@ -198,9 +198,11 @@ function KeywordGeneratorContent() {
               <h1 className="text-2xl font-bold !text-black">키워드 생성기</h1>
               {/* 🌟 수정: 안내 문구의 색상을 파란색에서 브랜드 컬러로 변경 */}
               <p className="text-[14px] font-extrabold text-[#5244e8] mt-3 mb-2">💡 본 메뉴는 포인트 차감 없이 무제한으로 이용 가능한 무료 도구입니다.</p>
-              <p className="text-sm text-slate-500 mt-1">* 여러 단어들을 조합하여 수많은 키워드 경우의 수를 생성합니다. (최대 500개 생성)</p>
-              <p className="text-sm text-slate-500 mt-1">* 안정적인 데이터 조회를 위해, 세부 조회는 1개씩 0.2초 간격으로 순차 진행됩니다.</p>
-              <p className="text-sm text-[#5244e8] font-bold mt-1">* 각 단어장에 들어갈 단어들은 엔터(줄바꿈)로 구분하여 한 줄에 하나씩 입력해 주세요.</p>
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                여러 단어들을 조합하여 수많은 키워드 경우의 수를 생성합니다. (최대 500개 생성)<br />
+                안정적인 데이터 조회를 위해, 세부 조회는 1개씩 0.2초 간격으로 순차 진행됩니다.<br />
+                <span className="text-[#5244e8] font-bold">각 단어장에 들어갈 단어들은 엔터(줄바꿈)로 구분하여 한 줄에 하나씩 입력해 주세요.</span>
+              </p>
             </div>
 
             <KeywordInput 

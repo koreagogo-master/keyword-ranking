@@ -191,22 +191,23 @@ function AnalysisContent() {
           <div className="max-w-7xl mx-auto">
             <RankTabs />
 
-            <div className="flex justify-between items-start mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {searchedKeyword ? `"${searchedKeyword}" 키워드 정밀 분석` : "키워드 정밀 분석"}
-                </h1>
-
-                
-                <HelpButton
-                  href="https://blog.naver.com/lboll/224254481124"
-                  tooltip="도움말"
-                />
-
-
-
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    {searchedKeyword ? `"${searchedKeyword}" 키워드 정밀 분석` : "키워드 정밀 분석"}
+                  </h1>
+                  <HelpButton
+                    href="https://blog.naver.com/lboll/224254481124"
+                    tooltip="도움말"
+                  />
+                </div>
+                <p className="!text-sm !text-slate-500 leading-relaxed">
+                  검색량, 문서 포화도, 월간 트렌드부터 상위 노출 섹션 순서까지 한 번에 분석합니다.<br className="hidden md:block" />
+                  데이터에 기반한 가장 확실한 키워드 전략을 수립해 보세요.
+                </p>
               </div>
-              <div className="flex items-center gap-2 mt-1">
+              <div className="flex items-center gap-2 mt-1 shrink-0">
                 <button
                   onClick={handleSaveCurrentSetting}
                   disabled={!searchedKeyword || !user}

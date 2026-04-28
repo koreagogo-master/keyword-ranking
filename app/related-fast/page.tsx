@@ -279,9 +279,11 @@ function RelatedFastContent() {
           <div className="flex justify-between items-start mb-8">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">연관 키워드 조회</h1>
-              <p className="text-sm text-slate-500 mt-1">* 포스팅 시 적용 가능한 연관 키워드를 네이버 API 기반으로 추천합니다. 조회 후 리스트에서 키워드를 선택 하면 좌측 [선택된 키워드]의 리스트가 생성 됩니다.</p>
-              <p className="text-sm text-slate-500 mt-1">* 최종 선택 된 키워드를 복사하여 메모장에 붙여넣기가 가능 합니다. 선택된 키워드는 조회 키워드를 변경 하여도 남아 있습니다.</p>
-              <p className="text-sm text-slate-500 mt-1">* CPC 단가 : 우측 상단의 순위를 조정 하면 조회 시점 기준으로 업데이트 됩니다.</p>
+              <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+                포스팅 시 적용 가능한 연관 키워드를 네이버 API 기반으로 추천합니다. 리스트에서 키워드를 선택하면 좌측에 선택된 키워드가 담깁니다.<br />
+                최종 선택된 키워드는 일괄 복사하여 메모장 등에 붙여넣을 수 있으며, 조회 키워드를 변경해도 유지됩니다.<br />
+                CPC 단가는 우측 상단의 순위 기준을 변경하면 해당 시점을 기준으로 즉시 업데이트됩니다.
+              </p>
             </div>
             <div className="flex items-center gap-2 mt-1 shrink-0">
               <button 

@@ -168,8 +168,10 @@ function BlogRankContent() {
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
             N 모바일 통검 순위 확인
           </h1>
-          <p className="text-sm text-slate-500 mt-1">* "사이트", "뉴스", "플레이스"는 순위에서 제외 됩니다.</p>
-          <p className="text-sm text-slate-500 mt-1">* "지식인"이 순위에 노출 될 경우 제목에 내용이 길게 표시 됩니다.</p>
+          <p className="text-sm text-slate-500 mt-1 leading-relaxed">
+            "사이트", "뉴스", "플레이스"는 순위에서 제외됩니다.<br />
+            "지식인"이 순위에 노출될 경우 제목에 내용이 길게 표시됩니다.
+          </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
           <button 

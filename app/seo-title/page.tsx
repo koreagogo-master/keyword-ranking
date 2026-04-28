@@ -244,7 +244,7 @@ function SeoTitleContent() {
             <div className="flex justify-between items-start mb-8">
                 <div>
                     <h1 className="text-2xl font-bold !text-black mb-2">쇼핑 상품명 최적화</h1>
-                    <p className="text-sm !text-slate-500 mt-1">* 네이버 쇼핑 로직에 최적화된 상품명을 조립하고 AI로 완벽하게 다듬어줍니다.</p>
+                    <p className="text-sm !text-slate-500 mt-1 leading-relaxed">네이버 쇼핑 로직에 최적화된 상품명을 조립하고 AI로 완벽하게 다듬어줍니다.</p>
                 </div>
                 <div className="flex items-center gap-2 mt-1 shrink-0">
                     <button onClick={handleSaveCurrentSetting} disabled={!keyword.trim()} className={`px-4 py-2 text-sm font-bold !text-white rounded-md shadow-sm transition-colors ${!keyword.trim() ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}>현재 설정 저장</button>

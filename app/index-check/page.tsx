@@ -156,7 +156,7 @@ export default function IndexCheckPage() {
             <div className="flex justify-between items-start mb-8 mt-4">
               <div>
                 <h1 className="text-2xl font-bold !text-black mb-2">블로그 검색 노출 진단</h1>
-                <p className="text-sm text-slate-500 mt-1">* 아이디만 입력하면 최근 포스팅 50개를 분석하여 노출 여부를 판단합니다.</p>
+                <p className="text-sm text-slate-500 mt-1 leading-relaxed">아이디만 입력하면 최근 포스팅 50개를 분석하여 노출 여부를 판단합니다.</p>
               </div>
               <div className="flex items-center gap-2 mt-1 shrink-0">
                 <button 
