@@ -8,6 +8,7 @@ import { usePoint } from "@/app/hooks/usePoint";
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 import AiTabs from "@/components/AiTabs";
+import HelpButton from "@/components/HelpButton";
 
 export default function AiBlogPage() {
   const { user } = useAuth();
@@ -272,7 +273,13 @@ export default function AiBlogPage() {
 
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">AI 블로그 포스팅 생성 & 리뉴얼</h1>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h1 className="text-2xl font-bold text-gray-900">AI 블로그 포스팅 생성 & 리뉴얼</h1>
+                    <HelpButton
+                      href="https://blog.naver.com/lboll/224267680747"
+                      tooltip="도움말"
+                    />
+                  </div>
                   <div className="space-y-1">
                     <p className="text-sm text-slate-500">* 타겟 키워드와 상품의 장점만 입력하면, 상위 노출에 최적화된 고품질 정보성 블로그 원고를 AI가 즉시 작성합니다.</p>
                     <p className="text-sm text-indigo-600 font-bold">* GPT-4o(구조 기획)와 Claude 3.5(자연스러운 문장) 듀얼 엔진이 가동됩니다.</p>

@@ -7,6 +7,7 @@ import { usePoint } from "@/app/hooks/usePoint";
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 import AiTabs from "@/components/AiTabs";
+import HelpButton from "@/components/HelpButton";
 
 export default function AiPressPage() {
   const { user } = useAuth();
@@ -201,7 +202,13 @@ export default function AiPressPage() {
               
               <div className="flex justify-between items-start mb-6">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">AI 언론 보도자료 / 기사 / 칼럼 작성</h1>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h1 className="text-2xl font-bold text-gray-900">AI 언론 보도자료 / 기사 / 칼럼 작성</h1>
+                    <HelpButton
+                      href="https://blog.naver.com/lboll/224267739085"
+                      tooltip="도움말"
+                    />
+                  </div>
                   <div className="space-y-1">
                     <p className="text-sm text-slate-500">* 기업의 새로운 소식, 신제품 출시, 이벤트 등을 전문적인 기사 형식으로 완벽하게 작성합니다.</p>
                     <p className="text-sm text-indigo-600 font-bold">* 기자들이 선호하는 객관적이고 신뢰감 있는 톤앤매너가 자동 적용됩니다.</p>
