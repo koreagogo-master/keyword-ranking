@@ -81,6 +81,7 @@ export async function checkNaverKinRank(keyword: string, targetTitleSnippet: str
     if (browser) await browser.close();
   }
 }
+// 서버 재배포용 주석
 // [로봇 1] 통합검색 노출 확인
 async function checkMainExposure(browser: any, keyword: string): Promise<boolean> {
   const page = await browser.newPage();

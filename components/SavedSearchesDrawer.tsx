@@ -69,7 +69,7 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
     if (pageType === 'PLACE_RANK') return '플레이스 순위 조회';
     return '';
   };
-
+// 구글 서버 렉 해결을 위한 재배포 주석
   return (
     <>
       {isOpen && <div className="fixed inset-0 bg-black/20 z-[99998]" onClick={onClose} />}

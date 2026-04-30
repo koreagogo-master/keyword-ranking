@@ -291,7 +291,7 @@ function BlogRankContent() {
               </div>
             )}
           </div>
-
+// 구글 서버 렉 해결을 위한 재배포 주석
           <div className="flex-1">
             <label className="block text-sm font-bold mb-2 text-gray-600">키워드 (쉼표 구분)</label>
             <input
