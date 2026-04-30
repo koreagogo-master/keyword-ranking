@@ -21,7 +21,8 @@ const PAGE_INFO: Record<string, { name: string, path: string }> = {
   'INDEX_CHECK': { name: '블로그 노출 진단', path: '/index-check' },
   'AI_PRESS': { name: 'AI 언론 보도자료', path: '/ai-press' },
   'REVIEW_AI': { name: '리뷰 답글 AI', path: '/review-ai' },
-  'KEYWORD_VOLUME': { name: '키워드별 조회수', path: '/keyword-volume' }
+  'KEYWORD_VOLUME': { name: '키워드별 조회수', path: '/keyword-volume' },
+  'PLACE_RANK': { name: '플레이스 순위 조회', path: '/place-rank' }
 };
 
 interface SearchHistory {

@@ -23,7 +23,8 @@ const PAGE_META: Record<string, string> = {
   'AI_BLOG': 'Dual AI 포스팅',
   'AI_PRESS': 'AI 언론 보도자료',
   'REVIEW_AI': '리뷰 답글 AI',
-  'INDEX_CHECK': '블로그 노출 진단'
+  'INDEX_CHECK': '블로그 노출 진단',
+  'PLACE_RANK': '플레이스 순위 조회'
 };
 
 const getPastDate = (months: number) => {

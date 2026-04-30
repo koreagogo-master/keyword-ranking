@@ -19,7 +19,9 @@ const PATH_TO_PAGE_TYPE: Record<string, string> = {
   '/seo-check': 'SEO_CHECK',
   '/ai-blog': 'AI_BLOG',
   '/ai-press': 'AI_PRESS',
-  '/keyword-volume': 'KEYWORD_VOLUME'
+  '/keyword-volume': 'KEYWORD_VOLUME',
+  '/place-rank': 'PLACE_RANK'
+
 };
 
 // 무료 횟수를 절대 쓸 수 없는 유료 전용 기능 목록

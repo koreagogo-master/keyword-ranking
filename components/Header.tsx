@@ -20,11 +20,19 @@ interface NoticeHeader {
 
 export default function Header() {
   const pathname = usePathname(); 
-  const { user, profile, isLoading, handleLogout } = useAuth();
+  const { user, profile, isLoading, handleLogout, refreshProfile } = useAuth();
 
   const [dynamicNotices, setDynamicNotices] = useState<NoticeHeader[]>([]);
   const [noticeIndex, setNoticeIndex] = useState(0);
   const [isLoadingNotices, setIsLoadingNotices] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefreshPoints = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    await refreshProfile();
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
 
   useEffect(() => {
     const fetchPinnedNotices = async () => {
@@ -95,11 +103,18 @@ export default function Header() {
               </Link>
             )}
 
-            <div className="flex items-center px-3 h-9 bg-gray-50 border border-gray-200 rounded-lg">
-              <span className="text-[11px] font-bold text-gray-500 tracking-wider mr-1.5">Point:</span>
-              <span className="text-[13px] font-medium text-gray-700">
-                {((profile?.bonus_points || 0) + (profile?.purchased_points || 0)).toLocaleString()}
-              </span>
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center px-3 h-9 bg-gray-50 border border-gray-200 rounded-lg">
+                <span className="text-[11px] font-bold text-gray-500 tracking-wider mr-1.5">Point:</span>
+                <span className="text-[13px] font-medium text-gray-700">
+                  {((profile?.bonus_points || 0) + (profile?.purchased_points || 0)).toLocaleString()}
+                </span>
+              </div>
+              <button onClick={handleRefreshPoints} disabled={isRefreshing} className="w-[36px] h-9 flex shrink-0 items-center justify-center bg-gray-50 border border-gray-200 hover:bg-gray-100 text-gray-500 rounded-lg transition-colors shadow-sm">
+                <svg className={`w-[14px] h-[14px] ${!isRefreshing ? 'text-[#5244e8]' : 'animate-spin text-gray-400'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+              </button>
             </div>
             
             <div className="flex items-center gap-2 ml-1.5 pl-3 border-l border-gray-200">

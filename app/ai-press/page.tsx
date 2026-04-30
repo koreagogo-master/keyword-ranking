@@ -28,6 +28,7 @@ export default function AiPressPage() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [saveToast, setSaveToast] = useState(false);
 
   const [isFormVisible, setIsFormVisible] = useState(true);
   const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false);
@@ -84,7 +85,10 @@ export default function AiPressPage() {
     const { error } = await supabase.from('saved_searches').insert({
       user_id: user.id, page_type: 'AI_PRESS', nickname: '', keyword: displayTitle, settings: settingsToSave
     });
-    if (!error) alert("현재 설정이 안전하게 저장되었습니다.");
+    if (!error) {
+      setSaveToast(true);
+      setTimeout(() => setSaveToast(false), 3000);
+    }
   };
 
   const handleApplySavedSetting = (item: any) => {
@@ -372,6 +376,15 @@ export default function AiPressPage() {
           </div>
         </main>
       </div>
+      {saveToast && (
+        <div className="fixed top-24 right-12 z-[9999] flex items-center gap-3 bg-[#5244e8]/80 text-white text-[15px] font-bold px-7 py-4 rounded-2xl shadow-[0_10px_40px_-10px_rgba(82,68,232,0.6)] border border-indigo-400/30 animate-fade-in-down backdrop-blur-sm">
+          <svg className="w-6 h-6 text-indigo-100 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          현재 설정이 성공적으로 저장되었습니다.
+        </div>
+      )}
+
       <SavedSearchesDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} pageType="AI_PRESS" onSelect={handleApplySavedSetting} />
     </>
   );

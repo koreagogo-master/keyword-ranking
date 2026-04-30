@@ -17,6 +17,8 @@ export default function RankTabs() {
     { name: '통검 노출', href: '/blog-rank' },
     { name: '조회수 확인', href: '/keyword-volume' },
     { name: '키워드 생성', href: '/keyword-generator' },
+    { name: '플레이스 순위', href: '/place-rank' },
+
   ];
 
   return (

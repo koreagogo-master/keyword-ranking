@@ -33,13 +33,14 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'AI_PRESS': { name: '+ AI 언론 보도자료', url: '/ai-press' },
   'REVIEW_AI': { name: '+ 리뷰 답글 AI', url: '/review-ai' },
   'KEYWORD_VOLUME': { name: '키워드별 조회수', url: '/keyword-volume' },
-  'KEYWORD_GENERATOR': { name: '키워드 생성기', url: '/keyword-generator' }
+  'KEYWORD_GENERATOR': { name: '키워드 생성기', url: '/keyword-generator' },
+  'PLACE_RANK': { name: '플레이스 순위', url: '/place-rank' }
 };
 
 const MENU_GROUPS = [
   {
     title: 'NAVER TOOLS',
-    items: ['ANALYSIS', 'RELATED', 'BLOG', 'INDEX_CHECK', 'JISIKIN', 'TOTAL', 'KEYWORD_VOLUME', 'KEYWORD_GENERATOR']
+    items: ['ANALYSIS', 'RELATED', 'BLOG', 'INDEX_CHECK', 'JISIKIN', 'TOTAL', 'KEYWORD_VOLUME', 'KEYWORD_GENERATOR', 'PLACE_RANK']
   },
   {
     title: 'AI TOOLS',     

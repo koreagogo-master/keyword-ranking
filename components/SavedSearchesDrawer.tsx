@@ -7,7 +7,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 interface SavedSearchesDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  pageType: "BLOG" | "JISIKIN" | "TOTAL" | "ANALYSIS" | "RELATED" | "GOOGLE" | "YOUTUBE" | "SHOPPING" | "SHOPPING_RANK" | "SEO_TITLE" | "AIBLOG" | "AI_PRESS" | "INDEX_CHECK" | "KEYWORD_VOLUME" | "REVIEW_AI"; onSelect: (item: any) => void;
+  pageType: "BLOG" | "JISIKIN" | "TOTAL" | "ANALYSIS" | "RELATED" | "GOOGLE" | "YOUTUBE" | "SHOPPING" | "SHOPPING_RANK" | "SEO_TITLE" | "AIBLOG" | "AI_PRESS" | "INDEX_CHECK" | "KEYWORD_VOLUME" | "REVIEW_AI" | "PLACE_RANK"; onSelect: (item: any) => void;
 }
 export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelect }: SavedSearchesDrawerProps) {
   const { user } = useAuth();
@@ -66,6 +66,7 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
     if (pageType === 'SEO_TITLE') return '쇼핑 상품명 최적화';
     if (pageType === 'KEYWORD_VOLUME') return '키워드별 조회수';
     if (pageType === 'REVIEW_AI') return '리뷰 답글 AI 어시스턴트';
+    if (pageType === 'PLACE_RANK') return '플레이스 순위 조회';
     return '';
   };
 
@@ -109,11 +110,14 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
                     </div>
                   </div>
 
-                  {pageType === 'BLOG' || pageType === 'TOTAL' ? (
+                  {pageType === 'BLOG' || pageType === 'TOTAL' || pageType === 'PLACE_RANK' ? (
                     <>
-                      <div className="text-[12px] text-gray-500 mb-1">닉네임: <span className="font-bold text-gray-800">{item.nickname}</span></div>
+                      <div className="text-[12px] text-gray-500 mb-1">
+                        {pageType === 'PLACE_RANK' ? '업체명: ' : '닉네임: '}
+                        <span className="font-bold text-gray-800">{item.nickname}</span>
+                      </div>
                       <div className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug">
-                        {item.keyword}
+                        {pageType === 'PLACE_RANK' ? `키워드: ${item.keyword}` : item.keyword}
                       </div>
                     </>
                   ) : (

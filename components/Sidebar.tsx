@@ -24,12 +24,13 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/ai-press': 'AI_PRESS',
   '/review-ai': 'REVIEW_AI',
   '/keyword-volume': 'KEYWORD_VOLUME',
-  '/keyword-generator': 'KEYWORD_GENERATOR'
+  '/keyword-generator': 'KEYWORD_GENERATOR',
+  '/place-rank': 'PLACE_RANK'
 };
 
 export default function Sidebar() {
   const pathname = usePathname();
-  
+
   // 🌟 [수정] 무조건 모든 Hook(useState, useEffect, useAuth)을 맨 위로 끌어올립니다!
   const [isMounted, setIsMounted] = useState(false);
   const { user, profile, isLoading, refreshProfile } = useAuth();
@@ -64,9 +65,10 @@ export default function Sidebar() {
         { name: "통검 노출/순위 확인", href: "/blog-rank" },
         { name: "키워드별 조회수", href: "/keyword-volume" },
         { name: "키워드 생성기", href: "/keyword-generator" },
+        { name: "플레이스 순위 조회", href: "/place-rank" },
       ]
     },
-    // ... (이하 Seller Tools 등 동일하게 유지) ...
+
     {
       title: "Seller Tools",
       items: [
@@ -107,14 +109,14 @@ export default function Sidebar() {
     if (activeGroup) {
       setOpenGroups(prev => ({
         ...prev,
-        [activeGroup.title]: true 
+        [activeGroup.title]: true
       }));
     }
   }, [pathname]);
 
   useEffect(() => {
     setBannerText(bannerCopies[Math.floor(Math.random() * bannerCopies.length)]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   useEffect(() => {
@@ -153,7 +155,7 @@ export default function Sidebar() {
 
   const excludeKeywords = ['/login', '/signup', '/terms', '/privacy', '/contact'];
   const isExcluded = pathname === '/' || excludeKeywords.some(keyword => pathname.startsWith(keyword));
-  
+
   if (isExcluded) return <div className="hidden"></div>;
 
   return (
@@ -262,13 +264,12 @@ export default function Sidebar() {
                               <div className="flex-1 flex items-center justify-between">
                                 <span>{typeof item.name === 'string' ? item.name : item.name}</span>
                                 {typeof item.name === 'string' && pointCost !== null && (
-                                  <span className={`px-1.5 py-[2px] rounded-sm text-[10px] tracking-wide border shadow-sm transition-colors ${
-                                    pointCost === 0
-                                      ? 'bg-[#5244e8]/10 text-[#5244e8] border-[#5244e8]/20 font-black'
-                                      : isActive
-                                        ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20 font-bold'
-                                        : 'bg-slate-50 text-slate-500 border-slate-200 font-bold'
-                                  }`}>
+                                  <span className={`px-1.5 py-[2px] rounded-sm text-[10px] tracking-wide border shadow-sm transition-colors ${pointCost === 0
+                                    ? 'bg-[#5244e8]/10 text-[#5244e8] border-[#5244e8]/20 font-black'
+                                    : isActive
+                                      ? 'bg-[#5244e8]/5 text-[#5244e8] border-[#5244e8]/20 font-bold'
+                                      : 'bg-slate-50 text-slate-500 border-slate-200 font-bold'
+                                    }`}>
                                     {pointCost === 0 ? 'FREE' : `${pointCost}P`}
                                   </span>
                                 )}
