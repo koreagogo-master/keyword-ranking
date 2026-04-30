@@ -21,6 +21,8 @@ interface SearchResultRow {
   title: string;
   author: string;
   isSuccess: boolean;
+  isLoading?: boolean;
+  error?: string;
 }
 
 const AUTHOR_COLORS = [
@@ -48,6 +50,11 @@ function BlogRankContent() {
   const [results, setResults] = useState<SearchResultRow[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [saveToast, setSaveToast] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
+  // 🌟 재조회 순차 대기열
+  const retryQueue = useRef<{ keyword: string; nickname: string }[]>([]);
+  const isRetrying = useRef<boolean>(false);
 
   const nicknames = targetNickname.split(',').map(s => s.trim()).filter(Boolean);
 
@@ -73,7 +80,7 @@ function BlogRankContent() {
       return;
     }
 
-    const keywords = kwToSearch.split(',').map(k => k.trim()).filter(Boolean);
+    const keywords = kwToSearch.split(',').map(k => k.trim()).filter(Boolean).slice(0, 10);
     const keywordString = keywords.join(', ');
 
     const isPaySuccess = await deductPoints(user?.id, 10 * keywords.length, keywords.length, keywordString);
@@ -106,19 +113,90 @@ function BlogRankContent() {
     setProgress('완료');
   };
 
-  // 🌟 자동 검색 센서 로직 시작
+  // 🌟 재조회 함수 (포인트 차감 없이 해당 키워드만 재시도)
+  const processRetryQueue = async () => {
+    if (isRetrying.current || retryQueue.current.length === 0) return;
+    isRetrying.current = true;
+
+    while (retryQueue.current.length > 0) {
+      const { keyword: retryKeyword, nickname: retryNickname } = retryQueue.current.shift()!;
+
+      try {
+        const res = await checkNaverBlogRank(retryKeyword, retryNickname);
+
+        setResults(prev => prev.map(item => {
+          if (item.keyword !== retryKeyword) return item;
+          if (res.success && Array.isArray(res.data)) {
+            const matched = res.data.find((d: any) =>
+              retryNickname.split(',').map((s: string) => s.trim()).some(nick => d.author?.includes(nick))
+            ) || res.data[0];
+            if (matched) {
+              return { ...item, rank: matched.rank, date: matched.date, title: matched.title, author: matched.author, isSuccess: true, isLoading: false, error: undefined };
+            }
+          }
+          return { ...item, rank: 'X', date: '-', title: '순위 내 없음', author: '-', isSuccess: false, isLoading: false, error: undefined };
+        }));
+      } catch (e: any) {
+        setResults(prev => prev.map(item =>
+          item.keyword === retryKeyword
+            ? { ...item, isLoading: false, error: e.message || '조회 실패' }
+            : item
+        ));
+      }
+
+      if (retryQueue.current.length > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+    }
+
+    isRetrying.current = false;
+  };
+
+  const handleRetry = (retryKeyword: string) => {
+    const retryNickname = targetNickname;
+    const alreadyQueued = retryQueue.current.some(q => q.keyword === retryKeyword);
+    const currentItem = results.find(r => r.keyword === retryKeyword);
+    if (alreadyQueued || currentItem?.isLoading) return;
+
+    retryQueue.current.push({ keyword: retryKeyword, nickname: retryNickname });
+
+    setResults(prev => prev.map(item =>
+      item.keyword === retryKeyword
+        ? { ...item, isLoading: true, error: undefined }
+        : item
+    ));
+
+    processRetryQueue();
+  };
+
+  // 🌟 결과 복사 함수 (닉네임 헤더 + 닉네임별 키워드/순위 TSV)
+  const handleCopyResults = () => {
+    const sections: string[] = [];
+    nicknames.forEach((nick) => {
+      sections.push(`[블로그 닉네임]\t${nick}`);
+      sections.push('키워드\t순위');
+      uniqueKeywords.forEach(kw => {
+        const kwRows = results.filter(r => r.keyword === kw);
+        const matchedRow = kwRows.find(r => getMatchedNicknameIndex(r.author) === nicknames.indexOf(nick));
+        const displayRow = matchedRow || kwRows.find(r => r.author === '-');
+        const rank = displayRow ? String(displayRow.rank) : '-';
+        sections.push(`${kw}\t${rank}`);
+      });
+      sections.push('');
+    });
+    const tsv = sections.join('\n').trimEnd();
+    navigator.clipboard.writeText(tsv).then(() => {
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), 3000);
+    });
+  };
+
+  // 🌟 URL 파라미터로 입력값 채우기 (자동 검색 없음 — 수동 검색)
   useEffect(() => {
-    // URL 파라미터가 모두 존재하고, 아직 검색이 실행되지 않았을 때만 작동
     if (urlKeyword && urlNickname && !isSearchExecuted.current) {
-      isSearchExecuted.current = true; // 중복 실행 방지 락 걸기
-      
+      isSearchExecuted.current = true;
       setTargetNickname(urlNickname);
       setKeywordInput(urlKeyword);
-
-      // 약간의 딜레이를 주어 상태 업데이트가 화면에 반영될 시간을 확보
-      setTimeout(() => {
-        handleCheck(urlNickname, urlKeyword);
-      }, 300);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlKeyword, urlNickname]);
@@ -152,7 +230,7 @@ function BlogRankContent() {
     const slicedKeywords = item.keyword.split(',').map((k: string) => k.trim()).filter(Boolean).slice(0, 10).join(', ');
     setTargetNickname(item.nickname);
     setKeywordInput(slicedKeywords);
-    handleCheck(item.nickname, slicedKeywords);
+    // 자동 검색 제거: 입력값만 채워주고 사용자가 직접 '순위 확인하기'를 누르도록 함
   };
 
   const uniqueKeywords = Array.from(new Set(results.map(r => r.keyword)));
@@ -167,7 +245,7 @@ function BlogRankContent() {
           </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
             블로그 닉네임과 키워드를 입력하여 N 모바일 블로그 탭의 노출 순위를 확인하세요.<br />
-            여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다.
+            여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다. <span className="font-bold text-amber-500">(최대 10개)</span>
           </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
@@ -191,7 +269,7 @@ function BlogRankContent() {
       </div>
 
       <div className="bg-white p-6 rounded-sm border border-gray-200 shadow-sm mb-8">
-        <div className="flex gap-4 items-end">
+        <div className="flex gap-4 items-start">
           <div className="w-1/4 min-w-[200px]">
             <label className="block text-sm font-bold mb-2 text-gray-600">블로그 닉네임</label>
             <input
@@ -200,6 +278,18 @@ function BlogRankContent() {
               className="w-full p-3 h-[50px] border border-gray-300 rounded-sm focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
               placeholder="예: 연세베스트치과"
             />
+            {nicknames.length > 0 && (
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                {nicknames.map((nick, idx) => (
+                  <span
+                    key={idx}
+                    className={`text-xs font-extrabold px-2 py-0.5 bg-gray-50 border border-gray-200 rounded-full ${AUTHOR_COLORS[idx % AUTHOR_COLORS.length]}`}
+                  >
+                    {nick}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="flex-1">
@@ -208,12 +298,32 @@ function BlogRankContent() {
               value={keywordInput}
               onChange={e => setKeywordInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full p-3 h-[50px] border border-gray-300 rounded-sm focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
+              className={`w-full p-3 h-[50px] border rounded-sm focus:outline-none focus:ring-1 transition-all shadow-sm ${
+                keywordInput.split(',').filter(k => k.trim()).length > 10
+                  ? 'border-red-400 focus:border-red-500 focus:ring-red-400 bg-red-50'
+                  : 'border-gray-300 focus:border-[#5244e8] focus:ring-[#5244e8]'
+              }`}
               placeholder="부천교정, 부천치과"
             />
+            {keywordInput.trim() && (
+              <div className="mt-1.5 flex items-center gap-1.5">
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                  keywordInput.split(',').filter(k => k.trim()).length > 10
+                    ? 'bg-red-100 text-red-600'
+                    : keywordInput.split(',').filter(k => k.trim()).length === 10
+                    ? 'bg-amber-100 text-amber-600'
+                    : 'bg-indigo-50 text-[#5244e8]'
+                }`}>
+                  {keywordInput.split(',').filter(k => k.trim()).length} / 10
+                </span>
+                {keywordInput.split(',').filter(k => k.trim()).length > 10 && (
+                  <span className="text-xs text-red-500 font-medium">처음 10개 키워드로 검색됩니다.</span>
+                )}
+              </div>
+            )}
           </div>
 
-          <div>
+          <div className="pt-[28px]">
             <button
               onClick={() => handleCheck()}
               disabled={loading}
@@ -223,19 +333,6 @@ function BlogRankContent() {
             </button>
           </div>
         </div>
-
-        {nicknames.length > 0 && (
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            {nicknames.map((nick, idx) => (
-              <span
-                key={idx}
-                className={`text-[13px] font-extrabold px-2.5 py-1 bg-gray-50 border border-gray-200 rounded-md ${AUTHOR_COLORS[idx % AUTHOR_COLORS.length]}`}
-              >
-                {nick}
-              </span>
-            ))}
-          </div>
-        )}
       </div>
 
       {results.length > 0 && (
@@ -261,6 +358,7 @@ function BlogRankContent() {
                       <tr>
                         <th className="p-3 w-40 text-center">키워드</th>
                         <th className="p-3 w-28 text-center">순위</th>
+                        <th className="p-3 w-16 text-center">재조회</th>
                         <th className="p-3 w-32 text-center">작성일</th>
                         <th className="p-3">제목</th>
                       </tr>
@@ -274,14 +372,37 @@ function BlogRankContent() {
                         };
                         
                         const isRanked = displayRow.rank !== 'X' && displayRow.rank !== 'Err';
+                        const isRowLoading = (displayRow as SearchResultRow).isLoading === true;
+                        const isRowError = (displayRow as SearchResultRow).error != null || displayRow.rank === 'Err';
 
                         return (
                           <tr key={i} className="hover:bg-gray-50 transition-colors">
                             <td className="p-3 font-bold text-gray-900 text-center">{kw}</td>
                             <td className="p-3 text-center">
-                              <span className={`font-extrabold text-lg ${isRanked ? 'text-[#5244e8]' : 'text-gray-300'}`}>
-                                {displayRow.rank}
-                              </span>
+                              {isRowLoading ? (
+                                <div className="flex justify-center"><div className="w-5 h-5 border-2 rounded-full animate-spin border-indigo-100 border-t-[#5244e8]" /></div>
+                              ) : isRowError ? (
+                                <span className="text-xs font-bold text-red-500">검색 실패</span>
+                              ) : (
+                                <span className={`font-extrabold text-lg ${isRanked ? 'text-[#5244e8]' : 'text-gray-300'}`}>
+                                  {displayRow.rank}
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3 text-center">
+                              {isRowLoading ? (
+                                <div className="w-5 h-5 border-2 rounded-full animate-spin border-indigo-100 border-t-[#5244e8] mx-auto" />
+                              ) : (!isRanked || isRowError) ? (
+                                <button
+                                  onClick={() => handleRetry(kw)}
+                                  title="재조회"
+                                  className="w-8 h-8 flex items-center justify-center mx-auto rounded-full hover:bg-indigo-50 text-slate-400 hover:text-[#5244e8] transition-all"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                  </svg>
+                                </button>
+                              ) : null}
                             </td>
                             <td className="p-3 text-center text-[13px] font-medium text-gray-500 whitespace-nowrap">
                               {displayRow.date}
@@ -298,9 +419,32 @@ function BlogRankContent() {
               );
             })}
           </div>
+
+          {/* 🌟 결과 복사 버튼 */}
+          {!loading && (
+            <div className="flex justify-center mt-8">
+              <button
+                onClick={handleCopyResults}
+                className="flex items-center gap-2 px-8 py-3 bg-slate-800 text-white text-sm font-bold rounded-full shadow-md hover:bg-slate-700 transition-all hover:-translate-y-0.5"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                결과 복사
+              </button>
+            </div>
+          )}
         </div>
       )}
-      
+
+      {/* 🌟 복사 완료 토스트 */}
+      <div
+        className={`fixed bottom-8 left-1/2 -translate-x-1/2 px-6 py-3 bg-slate-800 text-white text-sm font-bold rounded-full shadow-lg transition-all duration-300 z-50 flex items-center gap-2 ${showToast ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'}`}
+      >
+        <svg className="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>
+        복사 되었습니다.
+      </div>
+
       {saveToast && (
         <div className="fixed top-24 right-12 z-[9999] flex items-center gap-3 bg-[#5244e8]/80 text-white text-[15px] font-bold px-7 py-4 rounded-2xl shadow-[0_10px_40px_-10px_rgba(82,68,232,0.6)] border border-indigo-400/30 animate-fade-in-down backdrop-blur-sm">
           <svg className="w-6 h-6 text-indigo-100 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

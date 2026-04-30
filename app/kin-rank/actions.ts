@@ -81,7 +81,6 @@ export async function checkNaverKinRank(keyword: string, targetTitleSnippet: str
     if (browser) await browser.close();
   }
 }
-
 // [로봇 1] 통합검색 노출 확인
 async function checkMainExposure(browser: any, keyword: string): Promise<boolean> {
   const page = await browser.newPage();
@@ -94,9 +93,10 @@ async function checkMainExposure(browser: any, keyword: string): Promise<boolean
   try {
     await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 30000 });
 
+    // [수정됨] 텍스트 기반 탐지에서 URL 패턴(kin.naver.com) 탐지로 변경하여 안정성 극대화
     const hasKinSection = await page.evaluate(() => {
-      const allHeaders = Array.from(document.querySelectorAll('h2, strong, span, div.title'));
-      return allHeaders.some(el => el.textContent?.trim() === '지식iN');
+      const allLinks = Array.from(document.querySelectorAll('a'));
+      return allLinks.some(a => a.href && a.href.includes('kin.naver.com'));
     });
 
     return hasKinSection;

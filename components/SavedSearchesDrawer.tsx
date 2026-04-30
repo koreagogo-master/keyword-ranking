@@ -122,7 +122,6 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
                     </>
                   ) : (
                     <div className="text-[12px] text-gray-500 mb-1">
-                      {/* 👇 조건문을 확장했습니다: INDEX_CHECK면 '블로그 ID:', SEO_TITLE이면 '핵심 품목명:', 그 외에는 '키워드:' */}
                       {pageType === 'INDEX_CHECK'
                         ? '블로그 ID:'
                         : pageType === 'SEO_TITLE'
@@ -132,7 +131,10 @@ export default function SavedSearchesDrawer({ isOpen, onClose, pageType, onSelec
                             : '키워드:'
                       }
                       <span className="text-[13px] font-bold text-gray-800 line-clamp-2 leading-snug ml-1">
-                        {item.keyword}
+                        {pageType === 'JISIKIN' && Array.isArray(item.jisikin_data)
+                          ? item.jisikin_data.map((data: any) => data.keyword).join(', ')
+                          : item.keyword
+                        }
                       </span>
                     </div>
                   )}
