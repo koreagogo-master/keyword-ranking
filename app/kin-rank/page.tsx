@@ -12,7 +12,7 @@ import RankTabs from '@/components/RankTabs';
 import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from "@/app/contexts/AuthContext";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
-import { usePoint } from '@/app/hooks/usePoint'; 
+import { usePoint } from '@/app/hooks/usePoint';
 import HelpButton from '@/components/HelpButton';
 
 interface SearchResult {
@@ -33,8 +33,8 @@ interface InputRow {
 // 🌟 메인 로직을 별도의 컴포넌트로 분리 (Suspense로 감싸기 위함)
 function KinRankContent() {
   const { user } = useAuth();
-  const { deductPoints } = usePoint(); 
-  
+  const { deductPoints } = usePoint();
+
   // 🌟 URL 파라미터 읽기 (지식인 데이터 전용)
   const searchParams = useSearchParams();
   const urlJisikinData = searchParams.get('jisikin_data');
@@ -86,14 +86,26 @@ function KinRankContent() {
     const validInputs = inputsToUse.filter(input => input.keyword.trim() !== '' && input.targetTitle.trim() !== '');
 
     if (validInputs.length === 0) {
-      alert('최소 하나의 키워드와 찾을 제목을 입력해주세요.');
+      alert('최소 하나의 키워드와 찾을 제목(또는 URL)을 입력해주세요.');
       return;
+    }
+
+    // URL 유효성 검사
+    for (const input of validInputs) {
+      const target = input.targetTitle.trim();
+      if (target.startsWith('http') || target.includes('naver.com')) {
+        const docIdMatch = target.match(/(?:docId=|docs\/)(\d+)/);
+        if (!docIdMatch) {
+          alert(`입력하신 링크가 올바른 지식인 게시물 URL이 아닙니다.\n(오류 입력값: ${target})`);
+          return;
+        }
+      }
     }
 
     const keywordString = validInputs.map(input => input.keyword).join(', ');
 
     const isPaySuccess = await deductPoints(user?.id, 10 * validInputs.length, validInputs.length, keywordString);
-    if (!isPaySuccess) return; 
+    if (!isPaySuccess) return;
 
     setLoading(true);
     setResults([]);
@@ -142,7 +154,7 @@ function KinRankContent() {
 
   const handleCopyResults = () => {
     if (results.length === 0) return;
-    
+
     let text = "키워드\t통검 노출\t탭 순위\t작성일\t제목\n";
     results.forEach(res => {
       const isMain = res.isMainExposed === true ? "노출 O" : res.isMainExposed === false ? "결과 없음" : "-";
@@ -164,10 +176,10 @@ function KinRankContent() {
       try {
         // 문자열로 넘어온 JSON 데이터를 다시 배열로 변환합니다.
         const parsedData: InputRow[] = JSON.parse(decodeURIComponent(urlJisikinData));
-        
+
         if (Array.isArray(parsedData) && parsedData.length > 0) {
           const loadedInputs = parsedData.slice(0, 10);
-          
+
           // 화면에 보이게 상태를 업데이트 (최소 5줄 유지)
           const paddedInputs = [...loadedInputs];
           while (paddedInputs.length < 5) {
@@ -182,7 +194,7 @@ function KinRankContent() {
         console.error("지식인 데이터 파싱 에러:", e);
       }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlJisikinData]);
 
 
@@ -235,12 +247,12 @@ function KinRankContent() {
             <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
           </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-            키워드와 찾을 제목 식별 문구를 입력하여 지식인 탭 순위와 통검 노출 여부를 확인하세요. <span className="font-bold text-amber-500">(최대 30위까지만 검색합니다.)</span><br />
+            키워드와 찾을 제목(또는 게시물 URL)을 입력하여 지식인 탭 순위와 통검 노출 여부를 확인하세요. <span className="font-bold text-amber-500">(최대 30위까지만 검색합니다.)</span><br />
             최대 10개까지 항목을 추가하여 일괄 조회할 수 있습니다.
           </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
-          <button 
+          <button
             onClick={handleSaveCurrentSetting}
             disabled={results.length === 0 || !user}
             className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
@@ -311,13 +323,13 @@ function KinRankContent() {
                   />
                 </div>
                 <div className="flex-[2]">
-                  {index === 0 && <label className="block text-sm font-bold mb-2 text-gray-600">찾을 제목</label>}
+                  {index === 0 && <label className="block text-sm font-bold mb-2 text-gray-600">찾을 제목 (또는 게시물 URL)</label>}
                   <input
                     type="text"
                     value={row.targetTitle}
                     onChange={(e) => handleInputChange(index, 'targetTitle', e.target.value)}
                     onKeyDown={handleKeyDown}
-                    placeholder={`제목 식별 문구 ${index + 1}`}
+                    placeholder={`제목 식별 문구 또는 게시물 URL ${index + 1}`}
                     className="w-full p-3 h-[45px] rounded-sm bg-white border border-gray-300 focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] text-gray-900 text-sm font-medium transition-all shadow-sm"
                   />
                 </div>
@@ -326,17 +338,35 @@ function KinRankContent() {
           })}
 
           <div className="mt-4">
-            {/* 💡 버튼을 감싸는 div를 추가하여 우측 정렬(justify-end) 시켰습니다. */}
-            <div className="pt-2 border-t border-gray-100 flex justify-center mt-2">
-            <button
-              onClick={() => handleCheck()}
-              disabled={loading}
-              className={`h-[50px] px-10 rounded-sm font-bold text-white transition-all shadow-sm
-                ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9] hover:-translate-y-0.5'}`}
-            >
-              {loading ? progress : '순위 확인'}
-            </button>
-          </div>
+            <div className="pt-4 border-t border-gray-100 flex justify-center items-center gap-3 mt-2">
+              <button
+                onClick={() => handleCheck()}
+                disabled={loading}
+                className={`h-[50px] px-10 rounded-sm font-bold text-white transition-all shadow-sm
+                  ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9] hover:-translate-y-0.5'}`}
+              >
+                {loading ? progress : '순위 확인'}
+              </button>
+              <button
+                onClick={() => {
+                  setInputs([
+                    { keyword: '', targetTitle: '' },
+                    { keyword: '', targetTitle: '' },
+                    { keyword: '', targetTitle: '' },
+                    { keyword: '', targetTitle: '' },
+                    { keyword: '', targetTitle: '' },
+                  ]);
+                  setResults([]);
+                }}
+                disabled={loading}
+                className="h-[50px] px-6 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 !text-slate-600 text-sm font-bold rounded-sm transition-all border border-slate-200 flex items-center gap-1.5 shadow-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                초기화
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -393,11 +423,11 @@ function KinRankContent() {
                     </td>
 
                     <td className="p-4 text-sm text-gray-700 font-medium">
-                      <a 
-                        href={res.url || '#'} 
-                        target="_blank" 
-                        rel="noopener noreferrer" 
-                        className="hover:underline hover:text-[#5244e8] inline-block max-w-[400px] truncate font-medium align-middle" 
+                      <a
+                        href={res.url || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:underline hover:text-[#5244e8] inline-block max-w-[400px] truncate font-medium align-middle"
                         title={res.title}
                       >
                         {res.title}
@@ -447,7 +477,7 @@ export default function KinRankPage() {
         className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight"
         style={{ fontFamily: "'NanumSquare', sans-serif" }}
       >
-        
+
 
         <main className="flex-1 ml-64 p-10">
           <div className="max-w-7xl mx-auto">

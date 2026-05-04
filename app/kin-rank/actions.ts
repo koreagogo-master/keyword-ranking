@@ -219,11 +219,36 @@ async function checkTabRank(browser: any, keyword: string, targetTitleSnippet: s
     });
 
     const normalize = (text: string) => text.replace(/[^a-zA-Z0-9가-힣]/g, '').toLowerCase();
+    
+    // URL 감지 및 docId 추출
+    let targetDocId: string | null = null;
+    const cleanTarget = targetTitleSnippet.trim();
+    if (cleanTarget.startsWith('http') || cleanTarget.includes('naver.com')) {
+        const match = cleanTarget.match(/(?:docId=|docs\/)(\d+)/);
+        if (match) {
+            targetDocId = match[1];
+        }
+    }
+
     const targetNormal = normalize(targetTitleSnippet);
 
     for (let i = 0; i < extractedData.length; i++) {
         if (i >= 30) break;
-        if (normalize(extractedData[i].text).includes(targetNormal)) {
+        
+        let isMatch = false;
+        if (targetDocId) {
+            // URL(docId) 기반 매칭
+            if (extractedData[i].url && extractedData[i].url.includes(targetDocId)) {
+                isMatch = true;
+            }
+        } else {
+            // 기존 텍스트 기반 매칭
+            if (normalize(extractedData[i].text).includes(targetNormal)) {
+                isMatch = true;
+            }
+        }
+
+        if (isMatch) {
             return { 
                 rank: i + 1, 
                 title: extractedData[i].text, 
