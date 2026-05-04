@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, Suspense } from 'react';
-import Sidebar from '@/components/Sidebar';
+
 import SellerTabs from '@/components/SellerTabs';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { usePoint } from '@/app/hooks/usePoint';

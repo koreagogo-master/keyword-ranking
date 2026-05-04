@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 // 🌟 URL 파라미터를 읽기 위해 추가
 import { useSearchParams } from 'next/navigation';
 import { checkNaverRank } from './actions';
-import Sidebar from '@/components/Sidebar';
+
 import RankTabs from '@/components/RankTabs';
 
 import { createClient } from "@/app/utils/supabase/client";
@@ -22,6 +22,9 @@ interface SearchResult {
   date: string;
   title: string;
   author: string;
+  url?: string;
+  reason?: 'NOT_FOUND' | 'ERROR' | null;
+  deepSearched?: boolean;
 }
 
 // 🌟 메인 로직을 별도의 컴포넌트로 분리 (Suspense로 감싸기 위함)
@@ -45,6 +48,7 @@ function BlogRankContent() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [saveToast, setSaveToast] = useState(false);
+  const [deepSearchingKeyword, setDeepSearchingKeyword] = useState<string | null>(null);
 
   const handleCheck = async (overrideNickname?: string, overrideKeyword?: string) => {
     const nickToSearch = overrideNickname !== undefined ? overrideNickname : targetNickname;
@@ -91,6 +95,8 @@ function BlogRankContent() {
             date: data.success ? data.data?.date || '-' : '-',
             title: data.success ? data.data?.title || '' : (data.message || '순위 내 없음'),
             author: data.success ? data.data?.author || '' : '-',
+            url: data.success ? data.data?.url || '' : '',
+            reason: data.success ? null : (data.reason || null),
           },
         ]);
       } catch (err) {
@@ -103,6 +109,7 @@ function BlogRankContent() {
             date: '-',
             title: '시스템 오류 발생',
             author: '-',
+            reason: 'ERROR',
           },
         ]);
       }
@@ -112,19 +119,13 @@ function BlogRankContent() {
     setProgress('완료');
   };
 
-  // 🌟 자동 검색 센서 로직 시작
+  // 🌟 URL 파라미터로 진입 시 필드만 채우기 (자동 조회 없음)
   useEffect(() => {
-    // URL 파라미터가 모두 존재하고, 아직 검색이 실행되지 않았을 때만 작동
     if (urlKeyword && urlNickname && !isSearchExecuted.current) {
-      isSearchExecuted.current = true; // 중복 실행 방지 락 걸기
-      
+      isSearchExecuted.current = true;
       setTargetNickname(urlNickname);
       setKeywordInput(urlKeyword);
-
-      // 약간의 딜레이를 주어 상태 업데이트가 화면에 반영될 시간을 확보
-      setTimeout(() => {
-        handleCheck(urlNickname, urlKeyword);
-      }, 300);
+      // 자동 조회 제거 — 사용자가 [순위 확인하기] 버튼을 직접 클릭해야 검색 시작
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlKeyword, urlNickname]);
@@ -154,14 +155,13 @@ function BlogRankContent() {
   };
 
   const handleApplySavedSetting = (item: any) => {
-    setIsDrawerOpen(false); 
-    
+    setIsDrawerOpen(false);
+
     const slicedKeywords = item.keyword.split(',').map((k: string) => k.trim()).filter(Boolean).slice(0, 10).join(', ');
 
     setTargetNickname(item.nickname);
     setKeywordInput(slicedKeywords);
-    
-    handleCheck(item.nickname, slicedKeywords);
+    // 자동 조회 제거 — 사용자가 직접 버튼 클릭 시에만 검색
   };
 
   return (
@@ -176,7 +176,7 @@ function BlogRankContent() {
           </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
             "사이트", "뉴스", "플레이스"는 순위에서 제외됩니다.<br />
-            "지식인"이 순위에 노출될 경우 제목에 내용이 길게 표시됩니다.
+            "지식인"은 블로그가 아니므로 순위 집계에서 제외됩니다. 검색 결과에 포함된 경우 제목 자리에 답변 내용이 길게 표시될 수 있습니다.
           </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
@@ -201,7 +201,7 @@ function BlogRankContent() {
 
       {/* 2. 메인 검색창 영역 (아래로 분리됨) */}
       <div className="bg-white p-6 rounded-sm border border-gray-200 shadow-sm mb-8">
-        <div className="flex gap-4 items-end">
+        <div className="flex gap-4 items-start">
           <div className="w-1/4 min-w-[200px]">
             <label className="block text-sm font-bold mb-2 text-gray-600">
               블로그 닉네임
@@ -216,18 +216,38 @@ function BlogRankContent() {
 
           <div className="flex-1">
             <label className="block text-sm font-bold mb-2 text-gray-600">
-              키워드 (쉼표 구분)
+              키워드 (쉼표 구분, 최대 10개)
             </label>
             <input
               value={keywordInput}
               onChange={e => setKeywordInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="부천교정, 부천치과"
-              className="w-full h-[50px] p-3 rounded-sm bg-white border border-gray-300 focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
+              className={`w-full h-[50px] p-3 rounded-sm bg-white border focus:outline-none focus:ring-1 transition-all shadow-sm ${
+                keywordInput.split(',').filter(k => k.trim()).length > 10
+                  ? 'border-red-400 focus:border-red-500 focus:ring-red-400 bg-red-50'
+                  : 'border-gray-300 focus:border-[#5244e8] focus:ring-[#5244e8]'
+              }`}
             />
+            {keywordInput.trim() && (
+              <div className="mt-1.5 flex items-center gap-1.5">
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                  keywordInput.split(',').filter(k => k.trim()).length > 10
+                    ? 'bg-red-100 text-red-600'
+                    : keywordInput.split(',').filter(k => k.trim()).length === 10
+                    ? 'bg-amber-100 text-amber-600'
+                    : 'bg-indigo-50 text-[#5244e8]'
+                }`}>
+                  {keywordInput.split(',').filter(k => k.trim()).length} / 10
+                </span>
+                {keywordInput.split(',').filter(k => k.trim()).length > 10 && (
+                  <span className="text-xs text-red-500 font-medium">처음 10개 키워드로 검색됩니다.</span>
+                )}
+              </div>
+            )}
           </div>
 
-          <div>
+          <div className="pt-[28px]">
             <button
               onClick={() => handleCheck()}
               disabled={loading}
@@ -245,35 +265,153 @@ function BlogRankContent() {
           <table className="w-full text-sm text-left border-collapse">
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs font-bold tracking-wider border-b border-gray-200">
               <tr>
-                <th className="px-6 py-4 text-center w-40">키워드</th>
-                <th className="px-6 py-4 text-center w-24">순위</th>
-                <th className="px-6 py-4 text-center w-32">작성일</th>
-                <th className="px-6 py-4 text-left">제목</th>
+                <th className="px-6 py-4 text-center w-40 !text-gray-500">키워드</th>
+                <th className="px-6 py-4 text-center w-32 !text-gray-500">순위</th>
+                <th className="px-6 py-4 text-center w-28 !text-gray-500">재조회</th>
+                <th className="px-6 py-4 text-center w-32 !text-gray-500">작성일</th>
+                <th className="px-6 py-4 text-left !text-gray-500">제목</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {results.map((r, i) => (
                 <tr key={i} className="hover:bg-[#5244e8]/5 transition-colors">
-                  <td className="px-6 py-4 font-bold text-gray-900 text-center">{r.keyword}</td>
+
+                  {/* 키워드 */}
+                  <td className="px-6 py-4 text-center font-bold !text-gray-900">{r.keyword}</td>
+
+                  {/* 순위 */}
                   <td className="px-6 py-4 text-center">
                     {r.rank === 'Auth Error' ? (
-                        <span className="text-sm text-red-500 font-bold">인증 실패</span>
+                      <span className="text-xs font-bold px-2 py-1 bg-red-50 rounded-md border border-red-200 !text-red-500">인증 실패</span>
+                    ) : r.reason === 'ERROR' ? (
+                      <span className="text-xs font-bold px-2 py-1 bg-red-50 rounded-md border border-red-200 !text-red-500">오류</span>
+                    ) : r.reason === 'NOT_FOUND' ? (
+                      <span className="text-xs font-bold px-2 py-1 bg-slate-50 rounded-md border border-slate-200 !text-slate-400">순위 없음</span>
                     ) : r.rank !== 'X' && r.rank !== 'Err' && r.rank !== 0 ? (
-                      <span className="text-lg font-extrabold text-[#5244e8]">{r.rank}</span>
+                      <span className="text-lg font-extrabold !text-[#5244e8]">{r.rank}</span>
                     ) : (
-                      <span className="text-sm text-gray-400 font-medium">-</span>
+                      <span className="text-sm font-medium !text-gray-400">-</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-center text-gray-400 font-medium">
-                    {r.date}
+
+                  {/* 재조회 */}
+                  <td className="px-6 py-4 text-center">
+                    {r.reason === 'NOT_FOUND' && !r.deepSearched ? (
+                      <button
+                        disabled={deepSearchingKeyword === r.keyword}
+                        onClick={async () => {
+                          setDeepSearchingKeyword(r.keyword);
+                          try {
+                            const { checkNaverRankDeep } = await import('./actions');
+                            const data = await checkNaverRankDeep(r.keyword, targetNickname);
+                            setResults(prev => prev.map(item =>
+                              item.keyword === r.keyword
+                                ? {
+                                    ...item,
+                                    success: data.success,
+                                    rank: data.success ? data.data?.totalRank || 0 : 'X',
+                                    date: data.success ? data.data?.date || '-' : '-',
+                                    title: data.success ? data.data?.title || '' : '순위 없음 (50위 밖)',
+                                    author: data.success ? data.data?.author || '' : '-',
+                                    reason: data.success ? null : (data.reason || 'NOT_FOUND'),
+                                    deepSearched: true,
+                                  }
+                                : item
+                            ));
+                          } catch {
+                            setResults(prev => prev.map(item =>
+                              item.keyword === r.keyword ? { ...item, reason: 'ERROR', rank: 'Err' } : item
+                            ));
+                          } finally {
+                            setDeepSearchingKeyword(null);
+                          }
+                        }}
+                        className="text-[11px] font-bold px-3 py-1 rounded-md bg-amber-50 !text-amber-600 border border-amber-200 hover:bg-amber-100 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-wait"
+                      >
+                        {deepSearchingKeyword === r.keyword ? '검색 중...' : '50위까지 추가 검색'}
+                      </button>
+                    ) : r.reason === 'ERROR' ? (
+                      <button
+                        disabled={loading}
+                        onClick={async () => {
+                          setDeepSearchingKeyword(r.keyword);
+                          try {
+                            const data = await (await import('./actions')).checkNaverRank(r.keyword, targetNickname);
+                            setResults(prev => prev.map(item =>
+                              item.keyword === r.keyword
+                                ? {
+                                    ...item,
+                                    success: data.success,
+                                    rank: data.success ? data.data?.totalRank || 0 : 'X',
+                                    date: data.success ? data.data?.date || '-' : '-',
+                                    title: data.success ? data.data?.title || '' : '-',
+                                    author: data.success ? data.data?.author || '' : '-',
+                                    reason: data.success ? null : (data.reason || 'ERROR'),
+                                  }
+                                : item
+                            ));
+                          } catch {
+                            /* 유지 */
+                          } finally {
+                            setDeepSearchingKeyword(null);
+                          }
+                        }}
+                        className="text-[11px] font-bold px-3 py-1 rounded-md bg-rose-50 !text-rose-500 border border-rose-200 hover:bg-rose-100 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-wait"
+                      >
+                        {deepSearchingKeyword === r.keyword ? '조회 중...' : '재조회'}
+                      </button>
+                    ) : (
+                      <span className="!text-gray-300">—</span>
+                    )}
                   </td>
-                  <td className="px-6 py-4 text-gray-700 font-medium">
-                    {r.title}
+
+                  {/* 작성일 */}
+                  <td className="px-6 py-4 text-center font-medium !text-gray-400">{r.date}</td>
+
+                  {/* 제목 */}
+                  <td className="px-6 py-4 font-medium !text-gray-700">
+                    {r.url ? (
+                      <a
+                        href={r.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="!text-[#5244e8] hover:underline cursor-pointer"
+                      >
+                        {r.title}
+                      </a>
+                    ) : (
+                      <span>{r.title}</span>
+                    )}
                   </td>
+
                 </tr>
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* 4. 결과 복사 버튼 */}
+      {results.length > 0 && !loading && (
+        <div className="flex justify-end mt-3">
+          <button
+            onClick={() => {
+              const header = '키워드\t순위\t작성일\t제목';
+              const rows = results.map(r => {
+                const rankText = r.reason === 'NOT_FOUND' ? '순위 없음' : r.reason === 'ERROR' ? '오류' : String(r.rank);
+                return `${r.keyword}\t${rankText}\t${r.date}\t${r.title}`;
+              });
+              navigator.clipboard.writeText([header, ...rows].join('\n'))
+                .then(() => { setSaveToast(true); setTimeout(() => setSaveToast(false), 2500); })
+                .catch(() => alert('복사에 실패했습니다.'));
+            }}
+            className="flex items-center gap-2 px-5 py-2 bg-slate-700 hover:bg-slate-800 !text-white text-sm font-bold rounded-md shadow-sm transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            결과 복사
+          </button>
         </div>
       )}
 

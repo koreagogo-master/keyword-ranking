@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef, Suspense } from 'react';
-import Sidebar from '@/components/Sidebar';
 import RankTabs from '@/components/RankTabs';
 import { checkNaverBlogRank } from './actions';
 // 🌟 URL 파라미터를 읽기 위해 추가
@@ -11,7 +10,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useAuth } from "@/app/contexts/AuthContext";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 
-import { usePoint } from '@/app/hooks/usePoint'; 
+import { usePoint } from '@/app/hooks/usePoint';
 import HelpButton from '@/components/HelpButton';
 
 interface SearchResultRow {
@@ -33,13 +32,13 @@ const AUTHOR_COLORS = [
 // 🌟 메인 로직을 별도의 컴포넌트로 분리 (Suspense로 감싸기 위함)
 function BlogRankContent() {
   const { user } = useAuth();
-  const { deductPoints } = usePoint(); 
-  
+  const { deductPoints } = usePoint();
+
   // 🌟 URL 쿼리 파라미터 읽기
   const searchParams = useSearchParams();
   const urlKeyword = searchParams.get('keyword');
   const urlNickname = searchParams.get('nickname');
-  
+
   // 중복 실행 방지를 위한 Ref
   const isSearchExecuted = useRef(false);
 
@@ -198,7 +197,7 @@ function BlogRankContent() {
       setTargetNickname(urlNickname);
       setKeywordInput(urlKeyword);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlKeyword, urlNickname]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -217,7 +216,7 @@ function BlogRankContent() {
       nickname: targetNickname,
       keyword: keywordInput
     });
-    
+
     if (!error) {
       setSaveToast(true);
       setTimeout(() => setSaveToast(false), 3000);
@@ -249,7 +248,7 @@ function BlogRankContent() {
           </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
-          <button 
+          <button
             onClick={handleSaveCurrentSetting}
             disabled={results.length === 0 || !user}
             className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
@@ -258,7 +257,7 @@ function BlogRankContent() {
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
             현재 설정 저장
           </button>
-          <button 
+          <button
             onClick={() => setIsDrawerOpen(true)}
             className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
           >
@@ -291,29 +290,26 @@ function BlogRankContent() {
               </div>
             )}
           </div>
-// 구글 서버 렉 해결을 위한 재배포 주석
           <div className="flex-1">
             <label className="block text-sm font-bold mb-2 text-gray-600">키워드 (쉼표 구분)</label>
             <input
               value={keywordInput}
               onChange={e => setKeywordInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              className={`w-full p-3 h-[50px] border rounded-sm focus:outline-none focus:ring-1 transition-all shadow-sm ${
-                keywordInput.split(',').filter(k => k.trim()).length > 10
+              className={`w-full p-3 h-[50px] border rounded-sm focus:outline-none focus:ring-1 transition-all shadow-sm ${keywordInput.split(',').filter(k => k.trim()).length > 10
                   ? 'border-red-400 focus:border-red-500 focus:ring-red-400 bg-red-50'
                   : 'border-gray-300 focus:border-[#5244e8] focus:ring-[#5244e8]'
-              }`}
+                }`}
               placeholder="부천교정, 부천치과"
             />
             {keywordInput.trim() && (
               <div className="mt-1.5 flex items-center gap-1.5">
-                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                  keywordInput.split(',').filter(k => k.trim()).length > 10
+                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${keywordInput.split(',').filter(k => k.trim()).length > 10
                     ? 'bg-red-100 text-red-600'
                     : keywordInput.split(',').filter(k => k.trim()).length === 10
-                    ? 'bg-amber-100 text-amber-600'
-                    : 'bg-indigo-50 text-[#5244e8]'
-                }`}>
+                      ? 'bg-amber-100 text-amber-600'
+                      : 'bg-indigo-50 text-[#5244e8]'
+                  }`}>
                   {keywordInput.split(',').filter(k => k.trim()).length} / 10
                 </span>
                 {keywordInput.split(',').filter(k => k.trim()).length > 10 && (
@@ -338,11 +334,11 @@ function BlogRankContent() {
       {results.length > 0 && (
         <div>
           <h2 className="text-lg font-bold mb-4 text-gray-700">검색 결과 ({uniqueKeywords.length}개 키워드)</h2>
-          
+
           <div className="space-y-8 animate-in fade-in duration-500">
             {nicknames.map((nick, idx) => {
               const colorClass = AUTHOR_COLORS[idx % AUTHOR_COLORS.length];
-              
+
               return (
                 <div key={idx} className="bg-white border border-gray-200 rounded-sm overflow-hidden shadow-sm">
                   <div className="bg-gray-50 border-b border-gray-200 p-4 flex items-center gap-3">
@@ -370,7 +366,7 @@ function BlogRankContent() {
                         const displayRow = matchedRow || kwRows.find(r => r.author === '-') || {
                           keyword: kw, rank: 'X', date: '-', title: '순위 내 없음', author: '-'
                         };
-                        
+
                         const isRanked = displayRow.rank !== 'X' && displayRow.rank !== 'Err';
                         const isRowLoading = (displayRow as SearchResultRow).isLoading === true;
                         const isRowError = (displayRow as SearchResultRow).error != null || displayRow.rank === 'Err';
@@ -454,11 +450,11 @@ function BlogRankContent() {
         </div>
       )}
 
-      <SavedSearchesDrawer 
-        isOpen={isDrawerOpen} 
-        onClose={() => setIsDrawerOpen(false)} 
-        pageType="BLOG" 
-        onSelect={handleApplySavedSetting} 
+      <SavedSearchesDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        pageType="BLOG"
+        onSelect={handleApplySavedSetting}
       />
     </>
   );
@@ -470,11 +466,11 @@ export default function BlogRankPage() {
     <>
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
       <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-        
+
         <main className="flex-1 ml-64 p-10">
           <div className="max-w-7xl mx-auto">
             <RankTabs />
-            
+
             {/* 🌟 URL 파라미터를 읽는 컴포넌트를 Suspense로 감싸기 */}
             <Suspense fallback={<div className="p-10 text-center text-gray-500 font-bold">로딩 중...</div>}>
               <BlogRankContent />

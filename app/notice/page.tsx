@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import Sidebar from '@/components/Sidebar';
+
 import { createClient } from '@/app/utils/supabase/client';
 
 interface Notice {

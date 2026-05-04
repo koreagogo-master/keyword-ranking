@@ -125,16 +125,12 @@ function KeywordVolumeContent() {
     }
   };
 
-  // 저장된 목록에서 키워드 불러와 즐시 조회
+  // 저장된 목록에서 키워드 불러와 필드만 채우기 (자동 조회 제거)
   const handleApplySavedSetting = (item: any) => {
     setIsDrawerOpen(false);
-    // 저장된 키워드(콤마 구분):엘 textarea에 한 줄씩 브러쓰로 채우고 조회
     const keywords = item.keyword.split(',').map((k: string) => k.trim()).filter(Boolean);
     setInputText(keywords.join('\n'));
-    // 조회 실행 (textarea 상태 업데이트 후 타임아웃)
-    setTimeout(() => {
-      handleSubmitWithKeywords(keywords);
-    }, 50);
+    // 자동 조회 제거 — 사용자가 [조회수 확인] 버튼을 직접 클릭해야 시작
   };
 
   const handleSubmitWithKeywords = async (keywords: string[]) => {
@@ -255,13 +251,30 @@ function KeywordVolumeContent() {
                   </span>
                   {' '}/ 최대 100개
                 </p>
-                <button
-                  onClick={handleSubmit}
-                  disabled={isLoading || keywordCount === 0 || keywordCount > 100}
-                  className="mt-4 w-full py-3 bg-[#5244e8] hover:bg-[#4336c9] disabled:bg-gray-300 text-white text-[14px] font-bold rounded-lg transition-all shadow-sm disabled:cursor-not-allowed"
-                >
-                  {isLoading ? '조회 중...' : '조회수 확인'}
-                </button>
+                <div className="mt-4 flex gap-2">
+                  <button
+                    onClick={handleSubmit}
+                    disabled={isLoading || keywordCount === 0 || keywordCount > 100}
+                    className="flex-1 py-3 bg-[#5244e8] hover:bg-[#4336c9] disabled:bg-gray-300 !text-white text-[14px] font-bold rounded-lg transition-all shadow-sm disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? '조회 중...' : '조회수 확인'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setInputText('');
+                      setResults([]);
+                      setError('');
+                      setBaseDate('');
+                    }}
+                    disabled={isLoading}
+                    className="px-4 py-3 bg-slate-100 hover:bg-slate-200 disabled:opacity-40 !text-slate-600 text-[13px] font-bold rounded-lg transition-all border border-slate-200 flex items-center gap-1.5 whitespace-nowrap"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    초기화
+                  </button>
+                </div>
               </div>
             </div>
 

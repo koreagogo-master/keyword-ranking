@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/Sidebar';
+
 import { createClient } from '@/app/utils/supabase/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 

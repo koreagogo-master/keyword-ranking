@@ -6,7 +6,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 import { checkNaverKinRank } from './actions';
-import Sidebar from '@/components/Sidebar';
+
 import RankTabs from '@/components/RankTabs';
 
 import { createClient } from "@/app/utils/supabase/client";

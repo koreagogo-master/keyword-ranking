@@ -8,6 +8,7 @@ import { launchProxyBrowser, setupPage } from '@/app/lib/puppeteerHelper';
 interface RankResult {
   success: boolean;
   message: string;
+  reason?: 'NOT_FOUND' | 'ERROR';
   data?: {
     totalRank: number;
     title: string;
@@ -207,12 +208,12 @@ export async function checkNaverBlogRank(keyword: string, targetNickname: string
     if (crawledData.found) {
       return { success: true, message: `성공! ${crawledData.found.totalRank}위`, data: crawledData.found };
     } else {
-      return { success: false, message: '순위 밖' };
+      return { success: false, message: '순위 밖', reason: 'NOT_FOUND' };
     }
 
   } catch (error) {
     console.error('Error:', error);
-    return { success: false, message: 'Error' };
+    return { success: false, message: 'Error', reason: 'ERROR' };
   } finally {
     if (browser) await browser.close();
   }
@@ -412,12 +413,13 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
           const fullText = group.items.map((i:any) => i.text).join(' ');
           
           if (normalize(fullText).includes(targetNormal) || normalize(author).includes(targetNormal)) {
+               const linkItem = group.items.find((i: any) => i.href && i.href.includes('blog.naver.com'));
                found = { 
                   totalRank: realRank, 
                   title: title || '제목 없음', 
                   author: author, 
                   date: dateStr,
-                  url: '', 
+                  url: linkItem ? linkItem.href : '', 
                   section: '통합검색' 
               };
               break; 
@@ -430,12 +432,152 @@ export async function checkNaverRank(keyword: string, targetNickname: string): P
     if (foundData) {
       return { success: true, message: `성공! ${foundData.totalRank}위`, data: foundData };
     } else {
-      return { success: false, message: '순위 밖' };
+      return { success: false, message: '순위 밖', reason: 'NOT_FOUND' };
     }
 
   } catch (error) {
     console.error('Error:', error);
-    return { success: false, message: 'Error' };
+    return { success: false, message: 'Error', reason: 'ERROR' };
+  } finally {
+    if (browser) await browser.close();
+  }
+}
+
+// ==================================================================
+// 3. [통합검색 딥서치] 50위까지 확장 검색 (포인트 추가 차감 없음)
+// ==================================================================
+export async function checkNaverRankDeep(keyword: string, targetNickname: string): Promise<RankResult> {
+  const cookieStore = await cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() { return cookieStore.getAll(); },
+        setAll(cookiesToSet) { try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); } catch {} },
+      },
+    }
+  );
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return { success: false, message: '로그인이 필요한 서비스입니다.', reason: 'ERROR' };
+
+  console.log(`\n========== [통합검색 딥서치 - 50위까지] ==========`);
+  console.log(`검색 키워드: ${keyword}`);
+
+  let browser;
+  try {
+    browser = await launchProxyBrowser();
+    const page = await browser.newPage();
+    await setupPage(page);
+
+    const searchUrl = `https://m.search.naver.com/search.naver?where=m&sm=top_hty&fbm=0&ie=utf8&query=${encodeURIComponent(keyword)}`;
+    await page.goto(searchUrl, { waitUntil: 'networkidle2', timeout: 60000 });
+
+    console.log('⬇️ 딥서치 스크롤 다운 중...');
+    for (let i = 0; i < 15; i++) {
+      await page.evaluate(() => window.scrollBy(0, 800));
+      await new Promise(resolve => setTimeout(resolve, 350));
+    }
+
+    const { foundData } = await page.evaluate((targetNick) => {
+      const normalize = (text: string | null) => text ? text.replace(/\s+/g, '').toLowerCase().trim() : '';
+      const targetNormal = normalize(targetNick);
+
+      const dateRegex = /(\d{4}\.\s*\d{1,2}\.\s*\d{1,2}|\d+(?:시간|분|일|주|개월|년)\s*전|어제|방금\s*전)/;
+      const stopKeywords = ['함께 보면 좋은', '함께 볼만한', '추천 콘텐츠', '비슷한 글', '다른 글'];
+      let cutOffY = 999999;
+
+      const allTags = document.querySelectorAll('h2, h3, h4, span, div, strong');
+      for (const el of allTags) {
+        const text = el.textContent?.trim() || '';
+        if (stopKeywords.some(k => text.includes(k))) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top > 100 && rect.top < cutOffY) cutOffY = rect.top;
+        }
+      }
+
+      const TRASH_KEYWORDS = ['설정시작', '설정끝', '직접입력', '옵션', '펼치기', '접기', '초기화', '기간', '전체', '정렬', '관련도순', '최신순', '이미지', '동영상', '뉴스', '도움말', '자동완성', '로그인', '더보기'];
+      const elements = Array.from(document.querySelectorAll('a, span, strong, div.title, p, h3, h4, li, div'));
+      let candidates: any[] = [];
+      const processedElements = new Set();
+
+      for (const el of elements) {
+        const text = el.textContent?.trim() || '';
+        if (text.length < 2) continue;
+        if (processedElements.has(el)) continue;
+        if (TRASH_KEYWORDS.some(k => text.includes(k))) continue;
+        if (text.toLowerCase() === 'naver' || text === '네이버') continue;
+
+        const rect = el.getBoundingClientRect();
+        if (rect.width < 1 || rect.height < 1) continue;
+        if (rect.top > cutOffY) continue;
+
+        const style = window.getComputedStyle(el);
+        let href = '';
+        const anchor = el.tagName === 'A' ? el : el.closest('a');
+        if (anchor && (anchor as HTMLAnchorElement).href) href = (anchor as HTMLAnchorElement).href;
+
+        processedElements.add(el);
+        candidates.push({
+          text, y: rect.top, x: rect.left,
+          fontSize: parseFloat(style.fontSize),
+          isBold: style.fontWeight === 'bold' || parseInt(style.fontWeight) >= 600,
+          hasDate: dateRegex.test(text) && text.length < 30,
+          href,
+        });
+      }
+
+      candidates.sort((a, b) => a.y - b.y);
+
+      const dateItems = candidates.filter(c => c.hasDate);
+      let found: any = null;
+      let realRank = 0;
+
+      for (const dateItem of dateItems) {
+        realRank++;
+        if (realRank > 50) break;
+
+        const nearby = candidates.filter(c => Math.abs(c.y - dateItem.y) < 200 && c.y >= dateItem.y - 150);
+        let author = '(알수없음)';
+        let title = '';
+        let maxScore = -9999;
+
+        for (const item of nearby) {
+          if (item.hasDate) continue;
+          let score = item.fontSize * 10;
+          if (item.isBold) score += 20;
+          if (item.text.includes('|')) score -= 100;
+          if (item.text.length > 80) score -= 20;
+          if (item.text.includes('함께 보면 좋은')) score = -9999;
+          if (score > maxScore) { maxScore = score; title = item.text; }
+        }
+
+        const nickCands = nearby.filter(i => !i.hasDate && i.x < dateItem.x && Math.abs(i.y - dateItem.y) < 20);
+        for (const n of nickCands) {
+          const clean = n.text.replace(/Keep|통계/g, '').trim();
+          if (clean.length > 1) { author = clean; break; }
+        }
+
+        const fullText = nearby.map((i: any) => i.text).join(' ');
+        if (normalize(fullText).includes(targetNormal) || normalize(author).includes(targetNormal)) {
+          const linkItem = nearby.find((i: any) => i.href && i.href.includes('blog.naver.com'));
+          found = { totalRank: realRank, title: title || '제목 없음', author, date: dateItem.text, url: linkItem ? linkItem.href : '', section: '통합검색(딥)' };
+          break;
+        }
+      }
+
+      return { foundData: found };
+    }, targetNickname);
+
+    if (foundData) {
+      return { success: true, message: `성공! ${foundData.totalRank}위`, data: foundData };
+    } else {
+      return { success: false, message: '순위 밖 (50위)', reason: 'NOT_FOUND' };
+    }
+
+  } catch (error) {
+    console.error('딥서치 Error:', error);
+    return { success: false, message: 'Error', reason: 'ERROR' };
   } finally {
     if (browser) await browser.close();
   }

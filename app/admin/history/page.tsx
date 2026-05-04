@@ -6,7 +6,7 @@ import { useEffect, useState, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/contexts/AuthContext';
 
-import Sidebar from '@/components/Sidebar';
+
 import { createClient } from '@/app/utils/supabase/client';
 import AdminTabs from '@/components/AdminTabs';
 
