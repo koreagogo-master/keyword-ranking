@@ -22,6 +22,7 @@ interface SearchResult {
   isMainExposed: boolean | null;
   title: string;
   date: string;
+  url?: string;
 }
 
 interface InputRow {
@@ -41,6 +42,7 @@ function KinRankContent() {
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [saveToast, setSaveToast] = useState(false);
+  const [copyToast, setCopyToast] = useState(false);
 
   const [inputs, setInputs] = useState<InputRow[]>([
     { keyword: '', targetTitle: '' },
@@ -112,10 +114,11 @@ function KinRankContent() {
         const newResult: SearchResult = {
           keyword: keyword,
           success: data.success,
-          tabRank: data.success ? (data.data?.tabRank && data.data.tabRank > 0 ? data.data.tabRank : 'X') : 'Err',
+          tabRank: data.success ? (data.data?.tabRank && data.data.tabRank > 0 ? data.data.tabRank : '결과 없음') : '검색 실패',
           isMainExposed: data.success ? data.data?.isMainExposed || false : null,
           title: data.success ? data.data?.title || '' : '오류 발생',
           date: data.success ? data.data?.date || '-' : '-',
+          url: data.success ? data.data?.url || '' : ''
         };
 
         setResults(prev => [...prev, newResult]);
@@ -124,16 +127,34 @@ function KinRankContent() {
         setResults(prev => [...prev, {
           keyword: keyword,
           success: false,
-          tabRank: 'Err',
+          tabRank: '검색 실패',
           isMainExposed: null,
           title: '시스템 오류',
-          date: '-'
+          date: '-',
+          url: ''
         }]);
       }
     }
 
     setLoading(false);
     setProgress('완료');
+  };
+
+  const handleCopyResults = () => {
+    if (results.length === 0) return;
+    
+    let text = "키워드\t통검 노출\t탭 순위\t작성일\t제목\n";
+    results.forEach(res => {
+      const isMain = res.isMainExposed === true ? "노출 O" : res.isMainExposed === false ? "결과 없음" : "-";
+      text += `${res.keyword}\t${isMain}\t${res.tabRank}\t${res.date}\t${res.title}\n`;
+    });
+
+    navigator.clipboard.writeText(text).then(() => {
+      setCopyToast(true);
+      setTimeout(() => setCopyToast(false), 3000);
+    }).catch(err => {
+      alert("복사에 실패했습니다.");
+    });
   };
 
   // 🌟 자동 검색 센서 로직 시작
@@ -214,7 +235,7 @@ function KinRankContent() {
             <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
           </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-            키워드와 찾을 제목 식별 문구를 입력하여 지식인 탭 순위와 통검 노출 여부를 확인하세요.<br />
+            키워드와 찾을 제목 식별 문구를 입력하여 지식인 탭 순위와 통검 노출 여부를 확인하세요. <span className="font-bold text-amber-500">(최대 30위까지만 검색합니다.)</span><br />
             최대 10개까지 항목을 추가하여 일괄 조회할 수 있습니다.
           </p>
         </div>
@@ -322,7 +343,16 @@ function KinRankContent() {
 
       {results.length > 0 && (
         <div>
-          <h2 className="text-lg font-bold mb-4 text-gray-700">검색 결과 ({results.length}건)</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-bold text-gray-700">검색 결과 ({results.length}건)</h2>
+            <button
+              onClick={handleCopyResults}
+              className="flex items-center gap-2 px-5 py-2 bg-slate-700 hover:bg-slate-800 !text-white text-sm font-bold rounded-md shadow-sm transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+              결과 복사
+            </button>
+          </div>
 
           <div className="bg-white rounded-sm border border-gray-200 shadow-sm overflow-hidden">
             <table className="w-full text-left border-collapse">
@@ -344,17 +374,17 @@ function KinRankContent() {
                       {res.isMainExposed === true ? (
                         <span className="px-2 py-1 rounded-sm bg-[#5244e8]/10 text-[#5244e8] text-xs font-bold border border-[#5244e8]/20">노출 O</span>
                       ) : res.isMainExposed === false ? (
-                        <span className="text-gray-400 text-xs font-medium">X</span>
+                        <span className="text-gray-400 text-[13px] font-bold">결과 없음</span>
                       ) : (
                         <span className="text-gray-300">-</span>
                       )}
                     </td>
 
                     <td className="p-4 text-center">
-                      {res.tabRank !== 'X' && res.tabRank !== 'Err' ? (
+                      {res.tabRank !== '결과 없음' && res.tabRank !== '검색 실패' ? (
                         <span className="text-lg font-extrabold text-[#5244e8]">{res.tabRank}</span>
                       ) : (
-                        <span className="text-sm text-red-400 font-medium">{res.tabRank}</span>
+                        <span className="text-[13px] font-bold text-red-400">{res.tabRank}</span>
                       )}
                     </td>
 
@@ -362,8 +392,16 @@ function KinRankContent() {
                       {res.date}
                     </td>
 
-                    <td className="p-4 text-sm text-gray-700 font-medium truncate max-w-[400px]" title={res.title}>
-                      {res.title}
+                    <td className="p-4 text-sm text-gray-700 font-medium">
+                      <a 
+                        href={res.url || '#'} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="hover:underline hover:text-[#5244e8] inline-block max-w-[400px] truncate font-medium align-middle" 
+                        title={res.title}
+                      >
+                        {res.title}
+                      </a>
                     </td>
                   </tr>
                 ))}
@@ -379,6 +417,13 @@ function KinRankContent() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           현재 설정이 성공적으로 저장되었습니다.
+        </div>
+      )}
+
+      {copyToast && (
+        <div className="fixed top-24 right-12 z-[9999] flex items-center gap-3 bg-[#5244e8]/80 text-white text-[15px] font-bold px-7 py-4 rounded-2xl shadow-[0_10px_40px_-10px_rgba(82,68,232,0.6)] border border-indigo-400/30 animate-fade-in-down backdrop-blur-sm">
+          <svg className="w-6 h-6 text-indigo-100 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+          결과가 복사되었습니다. 엑셀에 붙여넣기 하세요.
         </div>
       )}
 

@@ -156,10 +156,15 @@ async function checkTabRank(browser: any, keyword: string, targetTitleSnippet: s
         const isTitleSize = fontSize >= 16.5 && fontSize <= 17.5;
         if (isTitleSize && isRealBlue) {
              if (rect.top > 0) {
+                 let href = '';
+                 const anchor = el.closest('a');
+                 if (anchor && anchor.href) href = anchor.href;
+
                  titles.push({
                     text: text,
                     y: rect.top + window.scrollY,
-                    date: '-' 
+                    date: '-',
+                    url: href || ''
                 });
                 processed.add(el);
             }
@@ -223,7 +228,7 @@ async function checkTabRank(browser: any, keyword: string, targetTitleSnippet: s
                 rank: i + 1, 
                 title: extractedData[i].text, 
                 date: extractedData[i].date, 
-                url: targetUrl 
+                url: extractedData[i].url || targetUrl
             };
         }
     }

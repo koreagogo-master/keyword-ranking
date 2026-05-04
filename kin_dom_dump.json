@@ -1,0 +1,1556 @@
+[
+  {
+    "text": "Naver 이전페이지",
+    "fontSize": 28,
+    "y": 20,
+    "tag": "H1"
+  },
+  {
+    "text": "Naver",
+    "fontSize": 28,
+    "y": 20,
+    "tag": "A"
+  },
+  {
+    "text": "Naver",
+    "fontSize": 28,
+    "y": 20,
+    "tag": "I"
+  },
+  {
+    "text": "이전페이지",
+    "fontSize": 28,
+    "y": 20,
+    "tag": "A"
+  },
+  {
+    "text": "이전페이지",
+    "fontSize": 28,
+    "y": 20,
+    "tag": "I"
+  },
+  {
+    "text": "입력 내용 삭제    음성검색 검색",
+    "fontSize": 14,
+    "y": 10,
+    "tag": "FORM"
+  },
+  {
+    "text": "입력 내용 삭제    음성검색 검색",
+    "fontSize": 14,
+    "y": 10,
+    "tag": "DIV"
+  },
+  {
+    "text": "입력 내용 삭제",
+    "fontSize": 14,
+    "y": 10,
+    "tag": "DIV"
+  },
+  {
+    "text": "입력 내용 삭제",
+    "fontSize": 14,
+    "y": 20,
+    "tag": "DIV"
+  },
+  {
+    "text": "입력 내용 삭제",
+    "fontSize": 16,
+    "y": 10,
+    "tag": "BUTTON"
+  },
+  {
+    "text": "입력 내용 삭제",
+    "fontSize": 16,
+    "y": 24,
+    "tag": "I"
+  },
+  {
+    "text": "음성검색 검색",
+    "fontSize": 14,
+    "y": 10,
+    "tag": "DIV"
+  },
+  {
+    "text": "음성검색",
+    "fontSize": 16,
+    "y": 10,
+    "tag": "BUTTON"
+  },
+  {
+    "text": "음성검색",
+    "fontSize": 16,
+    "y": 21,
+    "tag": "I"
+  },
+  {
+    "text": "검색",
+    "fontSize": 16,
+    "y": 36,
+    "tag": "BUTTON"
+  },
+  {
+    "text": "검색",
+    "fontSize": 16,
+    "y": 36,
+    "tag": "I"
+  },
+  {
+    "text": "최근 검색어                전체삭제                                        펼쳐서 더보기              검색어 저장 기능이 꺼져 있습니다. 설정이 초기화 된다면 도움말을 확인해 주세요.              최근 검색어 내역이 없습니다. 설정이 초기화 된다면 도움말을 확인해 주세요.                                      추천 검색어이 정보가 표시된 이유                                 네이버 AI 모델이 내 검색 이력을 기준으로, 내 관심사와 맥락에 어울리는 맞춤형 검색어를 추천해 드려요.                      정보확인 레이어 닫기                                                                      숏텐츠 NOW                                                    일시적인 오류로 정보를 표시할 수 없습니다.       다시 시도해 주세요.       재시도                                                          검색 이력 기반 추천 검색어도움말                                 자동저장 끄기         도움말                       닫기                                                          컨텍스트 자동완성       동일한 시간대・연령대・남녀별 사용자 그룹의 관심사에 맞춰 자동완성을 제공합니다. 자세히 보기                ON/OFF설정은 해당기기(브라우저)에 저장됩니다.                    자세히 보기                                로그인              컨텍스트 자동완성 레이어 닫기                 관심사를 반영한 컨텍스트 자동완성도움말                       자동완성 끄기       도움말       신고                 닫기",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "전체지식iN이미지어학사전블로그클립카페인플루언서동영상쇼핑뉴스숏텐츠지도도서지식백과",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "전체지식iN이미지어학사전블로그클립카페인플루언서동영상쇼핑뉴스숏텐츠지도도서지식백과",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "전체지식iN이미지어학사전블로그클립카페인플루언서동영상쇼핑뉴스숏텐츠지도도서지식백과",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "전체",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "전체",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "전체",
+    "fontSize": 16,
+    "y": 82,
+    "tag": "I"
+  },
+  {
+    "text": "지식iN",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "지식iN",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "이미지",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "이미지",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "어학사전",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "어학사전",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "블로그",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "블로그",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "클립",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "클립",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "카페",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "카페",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "인플루언서",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "인플루언서",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "동영상",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "동영상",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "쇼핑",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "쇼핑",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "뉴스",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "뉴스",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "숏텐츠",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "숏텐츠",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "지도",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "지도",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "도서",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "도서",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "지식백과",
+    "fontSize": 0,
+    "y": 72,
+    "tag": "DIV"
+  },
+  {
+    "text": "지식백과",
+    "fontSize": 16,
+    "y": 72,
+    "tag": "A"
+  },
+  {
+    "text": "naver.search.option = {} ; naver.search.option.params = {} ; naver.search.option.append_params = (function () { return function (f, exclude) { if (exclude == undefined) exclude = []; for (var k in naver.search.option.params) { if (exclude.indexOf(k) >= 0) continue; var v = naver.search.option.params[k] ; var input = document.createElement(\"input\"); input.type = \"hidden\"; input.name = k ; input.value = v ; f.appendChild(input); } return true ; } ; })() ; naver.search.option.get_params = (function () { return function () { var option_params = \"\" ; for (var k in naver.search.option.params) { var v = naver.search.option.params[k]; option_params = option_params.concat(\"&\" + k + \"=\" + urlencode(v)); } return option_params ; } ; })() ;   전체1시간1일1주옵션옵션기간전체 1시간 1일 1주 1개월 3개월 6개월 1년 직접입력옵션펼치기접기기간 설정시작 2026.05.04. ~ 기간 설정끝 2026.05.04.년(Year)1990199119921993199419951996199719981999200020012002200320042005200620072008200920102011201220132014201520162017201820192020202120222023202420252026월(Month)12345일(Day)1234적용답변전체 eXpert 전문가 변호사 변리사 법무사 노무사 회계사 세무사 의사 한의사 수의사 약사 영양사 운동전문가 손해사정사 경영지도사 기술지도사 기술사 관세사 지식파트너 분야별 지식인 지존이상옵션 초기화 검색옵션 가이드(function(){var e=\"https://ssl.pstatic.net/sstatic/fe/sfe/searchOption/Controller_230920.js\",t=function(){var t=window.require.config({context:\"_fe_search_option\",paths:{Controller:e.replace(/\\.js$/,\"\")}});define(\"jquery\",[],function(){return jQuery}),t([\"Controller\"],function(e){var t=new e({$form:jQuery(\"#kin_form\")});t.on({selectCalendar:function(e){var s=e.param,a={area:e.$item.data(\"cr-area\")},t=e.startDate,n=e.endDate,o=t.year+\".\"+t.month+\".\"+t.date,i=n.year+\".\"+n.month+\".\"+n.date,r=o.replace(/\\./gi,\"\"),c=i.replace(/\\./gi,\"\"),s=\"datetype=6&startdate=\"+o+\"&enddate=\"+i+\"&nso=so:r,p:from\"+r+\"to\"+c+\"\";this.submit(s,a)},clickDirectInputTrigger:function(e){var t=e.param;tCR(e.bOpen?\"a=opt.cal\":\"a=opt.cal\")},clickItem:function(e){var t=e.param,n={area:e.$item.data(\"cr-area\")};this.submit(t,n)}})})};naver.common.load_js(null,t,!0,150)})()   \t \t\t \t\t\t 인테리어 사기Keep에 저장Keep에 바로가기 인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...  달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...  김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...  아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...  인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기 , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다. ★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...  결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...  인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전건축인테리어학원 취업도 지원해주나요?Keep에 저장Keep에 바로가기 건축인테리어학원에서 취업도 지원해주는지 궁금합니다. 인테리어분야로 취업을 하고 싶고, 공부도 진짜 열심히 할... 건축인테리어학원 다니면서 취업도 가능하다면 좋겠는데 진짜... 안녕하세요, 건축인테리어학원 비스쿨이 답변 드립니다.... 돼용~ 인테리어 분야 취업에서 가장 중요한 것은 학벌보다 실력(포트폴리오)입니다. 학원과 협약이 맺어진 인테리어... 비스쿨디자인4주 전건설법 인테리어 하자보수 제척기간에 대해서Keep에 저장Keep에 바로가기2021년 05월 독서실 인테리어를 하고 공사완료후 공사대금을 2억3천가량 받지 못하여... 제가 궁금한거는 인테리어 하자보수기간은 1년인데 상대방에서는 대금완불후 1년으로 알았다고...  가능 인테리어 공사에서 말하는 “하자보수 제척기간”은 보통 공사대금 완불 시점이... 또한 인테리어 하자의 담보기간을 1년으로 보는 주장도 사건 성격에 따라 달라질 수 있는데... 유수완변호사부동산, 건축2026.03.16.건축공학과 실내인테리어Keep에 저장Keep에 바로가기저희 학교가 2학년부터 건축학과랑 건축공학으로 나뉘는데 건축공학 선택해도 실내 인테리어쪽으로 빠질 수 있나요?실내 인테리어로 가려면 굳이 건축공학과 갈 필요 없습니다. 물론 건축공학과 나와도 실내 인테리어 충분히 합니다. 그걸 포함한 게 건축공학이니까. 그런데 실내 인테리어는 전문대... 중서문하성낭사우주신3주 전복층인테리어비용 질문이요!!Keep에 저장Keep에 바로가기 대략적인 인테리어비용을 알아야 매매에 좀더 도움이 될까싶어 문의드려요!! 도배전체 실크벽지 주방 전체인테리어 (ㄱ자형) 화장실 2개 전체인테리어 신발장 작은 펜트리장... 도배전체 실크벽지 약 300예상 주방 전체인테리어 (ㄱ자형) 한샘가구로 약 400예상 화장실 2개 전체인테리어 화장실 2칸 600 신발장 120예상 작은 펜트리장 만들기 도면 제공 80... 목공팀장1주 전다주택자 세낀 매물 인테리어 가능할까요?Keep에 저장Keep에 바로가기 세입자 만기가 27년 1월 10일이고, 잔금일은 26년 10월20일입니다. 이 경우에 세입자가 만기일에 퇴거한 후에 1달 정도 인테리어를 하고 실입주를 해도 되는지 궁금합니다===> 네 전입신고를 한 후 인테리어를 진행되어야 합니다. 그렇지 않은 경우 많은 재촉을 받을 것으로 보입니다.고경훈 행정사절대신행정사2주 전화성인테리어 해주는 곳 찾고 있어요Keep에 저장Keep에 바로가기안녕하세요. 인테리어는 소통이 중요하다고 하는데 소통이 기본적으로 무조건 잘 되는 화성인테리어 잘 하는 곳 아시나요 화성인테리어 괜찮은 곳 아시면 부탁드립니다. 수원 다담인테리어입니다. 저희에게 시공의뢰해주셨던 고객님들은 대부분 회사 사무실 인테리어나, 다른 상가 인테리어 등 지인분들 소개로도 많이 유입되는 편입니다. 수원/화성... 수원다담 0312230402바람신2026.03.23.인테리어 사기 민사소송Keep에 저장Keep에 바로가기인테리어 사기로 6개월전에 1억4천만원중 9천만원의 피해를 입었습니다 그런데.. 검찰 재판결과 공소기각판결이 나왔습니다… 민사소송을 걸어야하는데 돈도 많이 잃었고 저는...  질문자님께서는 인테리어 사기로 인해 9천만 원의 금전적... ▪ 민사소송의 기본 방향 ① 인테리어 사기와 관련하여... 피고(인테리어 업체 또는 대표)의 불법행위(사기, 계약위반 등)... 이유림변호사교통사고, 위반2025.11.11.인테리어 한지 얼마되지 않아 누수되어 아랫집과 저희집이 엉망입니다.Keep에 저장Keep에 바로가기작년 11월에 인테리어 공사를 하면서 누수나 결로가 없도록... 인테리어 사장님은 누수없다고 배관공사 안해도 된다고 하여 배관공사를 제외한 전체공사를 하였습니다. 인테리어가... 인테리어업체가 배관을 건든게아니라면 상관없는걸로보입니다 질문자님 집 누수공사를하신분께 여쭤보면 왜누수가생겼는지 말해줄텐데요~비손누수탐지공사1주 전  \t\t \t \t \t\t \t\t\t \t\t\t\t \t\t\t\t일시적인 오류로 정보를 표시할 수 없습니다. \t\t\t\t다시 시도해 주세요. \t\t\t\t재시도 \t\t\t \t\t \t \t \t\t \t\t\t \t\t\t\t \t\t\t\t \t\t\t\t \t\t\t\t \t\t\t\t \t\t\t\t \t\t\t \t\t \t   (function () {    var startApplication = function () {     var require = window.require.config({       \"context\": \"fender_renderer_530808f57b5e35e30d63\",       \"paths\": {         \"fender_530808f57b5e35e30d63\": \"https://ssl.pstatic.net/sstatic/fe/fender/client/530808f57b5e35e30d63/index.js\".replace(/\\.js$/, \"\"),       }     });     require([\"fender_530808f57b5e35e30d63\"], function (entry) {       entry.bootstrap(document.getElementById(\"fdr-33771ac8301444d5b204ab7777123e92\"), {\"appElementAttrs\":{\"className\":\"_slog_visible\",\"data-collection\":\"fender_renderer\",\"data-slog-container\":\"kin\"},\"meta\":{\"area\":\"kin\",\"nscs\":\"\",\"query\":\"인테리어\",\"ssc\":\"tab.m_kin.all\",\"ssuid\":\"kin\",\"ssuidExtra\":\"fender_renderer-kin\",\"xQuerySource\":\"\"},\"refs\":{\"blockId\":\"kin/prs_template_v2_kin_tab_mo.ts\"},\"rootElementAttrs\":{\"className\":\"\"},\"body\":{\"props\":{\"children\":[{\"props\":{\"color\":\"g90\",\"size\":\"sm\"},\"templateId\":\"sdsHorzDivider\"},{\"props\":{\"children\":[{\"props\":{\"answer\":\" 달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/60202/docs/493209800?answerNo=3&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer3\",\"answerImagesCount\":0,\"author\":\"이해수\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=3&dirId=60202&docId=493209800&kinsrch_src=m_tab_kin\",\"badgeText\":\"변호사\",\"category\":\"교통사고, 위반\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d65c8c8_3\",\"r\":1,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d65c8c8_3\",\"r\":1,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d65c8c8_3\",\"r\":1,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d65c8c8_3\",\"r\":1,\"source\":\"*k\"}},\"createdDate\":\"3일 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=http%3A%2F%2Fkinimage.naver.net%2Fexphoto%2Fexpert%2F53%2FKMR_1761641625871_small.jpg&type=f32_32\",\"isExpert\":true,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d65c8c8_3\",\"r\":1,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=1&i=10000009_00001d65c8c8_3&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=1&i=10000009_00001d65c8c8_3&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=1&i=10000009_00001d65c8c8_3&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=1&i=10000009_00001d65c8c8_3&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=60202&docId=493209800\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\" <mark>인테리어</mark> 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 <mark>인테리어</mark>... <mark>인테리어</mark> 15평도 안되는곳 철거 비용 많이든다며 4천씩이나... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/60202/docs/493209800?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"<mark>인테리어</mark> 사기\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\" 김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/70306/docs/493200635?answerNo=1&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer1\",\"answerImagesCount\":0,\"author\":\"임웅진\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=1&dirId=70306&docId=493200635&kinsrch_src=m_tab_kin\",\"badgeText\":\"한의사\",\"category\":\"한방재활의학과\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d65a4fb_1\",\"r\":2,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d65a4fb_1\",\"r\":2,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d65a4fb_1\",\"r\":2,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d65a4fb_1\",\"r\":2,\"source\":\"*k\"}},\"createdDate\":\"3일 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=http%3A%2F%2Fkinimage.naver.net%2Fexphoto%2Fexpert%2F41%2FJOc_1711697295889_small.jpg&type=f32_32\",\"isExpert\":true,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d65a4fb_1\",\"r\":2,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=2&i=10000009_00001d65a4fb_1&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=2&i=10000009_00001d65a4fb_1&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=2&i=10000009_00001d65a4fb_1&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=2&i=10000009_00001d65a4fb_1&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=70306&docId=493200635\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\"김현우가 '하시5'의 <mark>인테리어</mark> 디렉터로 참여했다는 소식을... 특히 그가 <mark>인테리어</mark>에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 <mark>인테리어</mark>에서 눈에... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/70306/docs/493200635?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"하시5 <mark>인테리어</mark>, 김현우 참여로 달라진 점 있나요?\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\" 아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/40309/docs/488887753?answerNo=2&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer2\",\"answerImages\":[{\"imageSrc\":\"https://search.pstatic.net/common/?src=http%3A%2F%2Fkinimage.naver.net%2F20260316_111%2F17736362329311aGk8_PNG%2F%EA%B3%B5%ED%86%B51%28%EA%B8%B0%EC%9E%A5%29.png&type=f96_96\",\"imageHref\":\"https://m.kin.naver.com/qna/dirs/40309/docs/488887753?answerNo=2&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer2\",\"clickLog\":{\"image\":{\"element\":\".image\",\"i\":\"10000009_00001d23d5c9_2\",\"r\":3,\"source\":\"*k\"}}}],\"answerImagesCount\":1,\"author\":\"서혁진 세무사\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=2&dirId=40309&docId=488887753&kinsrch_src=m_tab_kin\",\"badgeText\":\"세무사\",\"category\":\"세무사\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d23d5c9_2\",\"r\":3,\"source\":\"*k\"},\"author\":{\"element\":\".expertprofile\",\"i\":\"10000009_00001d23d5c9_2\",\"r\":3,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d23d5c9_2\",\"r\":3,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d23d5c9_2\",\"r\":3,\"source\":\"*k\"}},\"createdDate\":\"2026.03.16.\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=https%3A%2F%2Fkin-phinf.pstatic.net%2F20210428_299%2F1619588813701hqzp6_PNG%2Fhyukjin225_1617342405497.png%3Ftype%3Df360_360&type=f32_32\",\"isExpert\":true,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d23d5c9_2\",\"r\":3,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=3&i=10000009_00001d23d5c9_2&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=3&i=10000009_00001d23d5c9_2&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=3&i=10000009_00001d23d5c9_2&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=3&i=10000009_00001d23d5c9_2&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=40309&docId=488887753\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\"현재 아파트(도소매 업체 사장님 거주)에 <mark>인테리어</mark> 공사를... a업체 : <mark>인테리어</mark> 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 <mark>인테리어</mark>... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/40309/docs/488887753?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"거주하는 아파트 <mark>인테리어</mark> 공사 후 개인사업자로 세금계산서 발행 가능한가요?\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\" 인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/60216/docs/492941734?answerNo=2&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer2\",\"answerImagesCount\":0,\"author\":\"송명호변호사\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=2&dirId=60216&docId=492941734&kinsrch_src=m_tab_kin\",\"badgeText\":\"변호사\",\"category\":\"변호사\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d61b1a6_2\",\"r\":4,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d61b1a6_2\",\"r\":4,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d61b1a6_2\",\"r\":4,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d61b1a6_2\",\"r\":4,\"source\":\"*k\"}},\"createdDate\":\"2주 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=https%3A%2F%2Fkin-phinf.pstatic.net%2F20260306_169%2F1772762543239MjCLr_PNG%2F1772762543230.png%3Ftype%3Df360_360&type=f32_32\",\"isExpert\":true,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d61b1a6_2\",\"r\":4,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=4&i=10000009_00001d61b1a6_2&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=4&i=10000009_00001d61b1a6_2&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=4&i=10000009_00001d61b1a6_2&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=4&i=10000009_00001d61b1a6_2&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=60216&docId=492941734\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\"<mark>인테리어</mark> 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 <mark>인테리어</mark>업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/60216/docs/492941734?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"<mark>인테리어</mark> 마감 안하고 감옥감\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\" ★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/8080103/docs/493171940?answerNo=5&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer5\",\"answerImagesCount\":0,\"author\":\"이파엘지종합특수방수\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=5&dirId=8080103&docId=493171940&kinsrch_src=m_tab_kin\",\"category\":\"주방\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d6534e4_5\",\"r\":5,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d6534e4_5\",\"r\":5,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d6534e4_5\",\"r\":5,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d6534e4_5\",\"r\":5,\"source\":\"*k\"}},\"createdDate\":\"23시간 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=https%3A%2F%2Fkin-phinf.pstatic.net%2F20180222_142%2F1519229702933fI1Yl_PNG%2F160306_%25C1%25F6%25BD%25C4%25C0%25CE_%25C7%25C1%25B7%25CE%25C7%25CA%25BB%25E7%25C1%25F8-.png&type=f32_32\",\"isExpert\":false,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d6534e4_5\",\"r\":5,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=5&i=10000009_00001d6534e4_5&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=5&i=10000009_00001d6534e4_5&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=5&i=10000009_00001d6534e4_5&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=5&i=10000009_00001d6534e4_5&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=8080103&docId=493171940\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\" , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ <mark>인테리어</mark> 고수분들의 고견을 듣고싶습니다.\",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/8080103/docs/493171940?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"구옥<mark>인테리어</mark> 중 시멘벽에 가로 크랙을 발견했습니다.\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\" 결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/60215/docs/493208834?answerNo=1&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer1\",\"answerImagesCount\":0,\"author\":\"로톡\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=1&dirId=60215&docId=493208834&kinsrch_src=m_tab_kin\",\"badgeText\":\"변호사\",\"category\":\"재판, 소송 절차\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d65c502_1\",\"r\":6,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d65c502_1\",\"r\":6,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d65c502_1\",\"r\":6,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d65c502_1\",\"r\":6,\"source\":\"*k\"}},\"createdDate\":\"3일 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=http%3A%2F%2Fkinimage.naver.net%2Fexphoto%2Fexpert%2F66%2Fhrl_1686620685309_small.jpg&type=f32_32\",\"isExpert\":true,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d65c502_1\",\"r\":6,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=6&i=10000009_00001d65c502_1&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=6&i=10000009_00001d65c502_1&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=6&i=10000009_00001d65c502_1&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=6&i=10000009_00001d65c502_1&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=60215&docId=493208834\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\"<mark>인테리어</mark> 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/60215/docs/493208834?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"<mark>인테리어</mark> 공정 분리 협의 결렬 시 계약 해지 가능성\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\" 인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/60202/docs/468618641?answerNo=4&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer4\",\"answerImagesCount\":0,\"author\":\"신용훈\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=4&dirId=60202&docId=468618641&kinsrch_src=m_tab_kin\",\"badgeText\":\"변호사\",\"category\":\"교통사고, 위반\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001bee8d91_4\",\"r\":7,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001bee8d91_4\",\"r\":7,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001bee8d91_4\",\"r\":7,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001bee8d91_4\",\"r\":7,\"source\":\"*k\"}},\"createdDate\":\"1주 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=http%3A%2F%2Fkinimage.naver.net%2Fexphoto%2Fexpert%2F73%2FxBw_1775525948558_small.jpg&type=f32_32\",\"isExpert\":true,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001bee8d91_4\",\"r\":7,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=7&i=10000009_00001bee8d91_4&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=7&i=10000009_00001bee8d91_4&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=7&i=10000009_00001bee8d91_4&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=7&i=10000009_00001bee8d91_4&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=60202&docId=468618641\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\"큰 돈을 들여 아파트 <mark>인테리어</mark> 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... <mark>인테리어</mark> 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/60202/docs/468618641?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"아파트 <mark>인테리어</mark> 공사, 건설산업기본법에 따른 무상수리\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\"안녕하세요, 건축인테리어학원 비스쿨이 답변 드립니다.... 돼용~ 인테리어 분야 취업에서 가장 중요한 것은 학벌보다 실력(포트폴리오)입니다. 학원과 협약이 맺어진 인테리어... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/313/docs/326675604?answerNo=2&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer2\",\"answerImagesCount\":0,\"author\":\"비스쿨디자인\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=2&dirId=313&docId=326675604&kinsrch_src=m_tab_kin\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001378ac94_2\",\"r\":8,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001378ac94_2\",\"r\":8,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001378ac94_2\",\"r\":8,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001378ac94_2\",\"r\":8,\"source\":\"*k\"}},\"createdDate\":\"4주 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=https%3A%2F%2Fssl.pstatic.net%2Fsstatic%2Fsearch%2Fpc%2Fimg%2Fimg_grade6_s.png&type=f32_32\",\"isExpert\":false,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001378ac94_2\",\"r\":8,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=8&i=10000009_00001378ac94_2&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=8&i=10000009_00001378ac94_2&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=8&i=10000009_00001378ac94_2&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=8&i=10000009_00001378ac94_2&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=313&docId=326675604\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\" 건축<mark>인테리어</mark>학원에서 취업도 지원해주는지 궁금합니다. <mark>인테리어</mark>분야로 취업을 하고 싶고, 공부도 진짜 열심히 할... 건축<mark>인테리어</mark>학원 다니면서 취업도 가능하다면 좋겠는데 진짜... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/313/docs/326675604?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"건축<mark>인테리어</mark>학원 취업도 지원해주나요?\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\" 가능 인테리어 공사에서 말하는 “하자보수 제척기간”은 보통 공사대금 완불 시점이... 또한 인테리어 하자의 담보기간을 1년으로 보는 주장도 사건 성격에 따라 달라질 수 있는데... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/60221/docs/491796631?answerNo=5&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer5\",\"answerImagesCount\":0,\"author\":\"유수완\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=5&dirId=60221&docId=491796631&kinsrch_src=m_tab_kin\",\"badgeText\":\"변호사\",\"category\":\"부동산, 건축\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d503897_5\",\"r\":9,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d503897_5\",\"r\":9,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d503897_5\",\"r\":9,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d503897_5\",\"r\":9,\"source\":\"*k\"}},\"createdDate\":\"2026.03.16.\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=http%3A%2F%2Fkinimage.naver.net%2Fexphoto%2Fexpert%2F96%2FAoC_1747732502808_small.jpg&type=f32_32\",\"isExpert\":true,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d503897_5\",\"r\":9,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=9&i=10000009_00001d503897_5&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=9&i=10000009_00001d503897_5&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=9&i=10000009_00001d503897_5&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=9&i=10000009_00001d503897_5&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=60221&docId=491796631\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\"2021년 05월 독서실 <mark>인테리어</mark>를 하고 공사완료후 공사대금을 2억3천가량 받지 못하여... 제가 궁금한거는 <mark>인테리어</mark> 하자보수기간은 1년인데 상대방에서는 대금완불후 1년으로 알았다고... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/60221/docs/491796631?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"건설법 <mark>인테리어</mark> 하자보수 제척기간에 대해서\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\"실내 인테리어로 가려면 굳이 건축공학과 갈 필요 없습니다. 물론 건축공학과 나와도 실내 인테리어 충분히 합니다. 그걸 포함한 게 건축공학이니까. 그런데 실내 인테리어는 전문대... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/1119/docs/492859151?answerNo=1&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer1\",\"answerImagesCount\":0,\"author\":\"중서문하성낭사\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=1&dirId=1119&docId=492859151&kinsrch_src=m_tab_kin\",\"badgeText\":\"우주신\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d606f0f_1\",\"r\":10,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d606f0f_1\",\"r\":10,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d606f0f_1\",\"r\":10,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d606f0f_1\",\"r\":10,\"source\":\"*k\"}},\"createdDate\":\"3주 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=https%3A%2F%2Fkin-phinf.pstatic.net%2F20201022_212%2F16033445795061wzmL_JPEG%2F%25B4%25D9%25BF%25EE%25B7%25CE%25B5%25E5_%25281%2529.jpg&type=f32_32\",\"isExpert\":false,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d606f0f_1\",\"r\":10,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=10&i=10000009_00001d606f0f_1&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=10&i=10000009_00001d606f0f_1&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=10&i=10000009_00001d606f0f_1&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=10&i=10000009_00001d606f0f_1&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=1119&docId=492859151\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\"저희 학교가 2학년부터 건축학과랑 건축공학으로 나뉘는데 건축공학 선택해도 실내 <mark>인테리어</mark>쪽으로 빠질 수 있나요?\",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/1119/docs/492859151?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"건축공학과 실내<mark>인테리어</mark>\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\"도배전체 실크벽지 약 300예상 주방 전체인테리어 (ㄱ자형) 한샘가구로 약 400예상 화장실 2개 전체인테리어 화장실 2칸 600 신발장 120예상 작은 펜트리장 만들기 도면 제공 80... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/808/docs/493003501?answerNo=6&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer6\",\"answerImagesCount\":0,\"author\":\"목공팀장\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=6&dirId=808&docId=493003501&kinsrch_src=m_tab_kin\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d62a2ed_6\",\"r\":11,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d62a2ed_6\",\"r\":11,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d62a2ed_6\",\"r\":11,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d62a2ed_6\",\"r\":11,\"source\":\"*k\"}},\"createdDate\":\"1주 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=https%3A%2F%2Fkin-phinf.pstatic.net%2F20260121_126%2F1768980203724vDQar_JPEG%2Fimage.jpg&type=f32_32\",\"isExpert\":false,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d62a2ed_6\",\"r\":11,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=11&i=10000009_00001d62a2ed_6&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=11&i=10000009_00001d62a2ed_6&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=11&i=10000009_00001d62a2ed_6&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=11&i=10000009_00001d62a2ed_6&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=808&docId=493003501\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\" 대략적인 <mark>인테리어</mark>비용을 알아야 매매에 좀더 도움이 될까싶어 문의드려요!! 도배전체 실크벽지 주방 전체<mark>인테리어</mark> (ㄱ자형) 화장실 2개 전체<mark>인테리어</mark> 신발장 작은 펜트리장... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/808/docs/493003501?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"복층<mark>인테리어</mark>비용 질문이요!!\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\"===> 네 전입신고를 한 후 인테리어를 진행되어야 합니다. 그렇지 않은 경우 많은 재촉을 받을 것으로 보입니다.\",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/60103/docs/492942851?answerNo=1&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer1\",\"answerImagesCount\":0,\"author\":\"고경훈 행정사\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=1&dirId=60103&docId=492942851&kinsrch_src=m_tab_kin\",\"badgeText\":\"절대신\",\"category\":\"행정사\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d61b603_1\",\"r\":12,\"source\":\"*k\"},\"author\":{\"element\":\".expertprofile\",\"i\":\"10000009_00001d61b603_1\",\"r\":12,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d61b603_1\",\"r\":12,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d61b603_1\",\"r\":12,\"source\":\"*k\"}},\"createdDate\":\"2주 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=https%3A%2F%2Fkin-phinf.pstatic.net%2F20230403_82%2F1680486745986oUYsz_JPEG%2F1680486745972.jpg%3Ftype%3Df360_360&type=f32_32\",\"isExpert\":false,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d61b603_1\",\"r\":12,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=12&i=10000009_00001d61b603_1&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=12&i=10000009_00001d61b603_1&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=12&i=10000009_00001d61b603_1&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=12&i=10000009_00001d61b603_1&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=60103&docId=492942851\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\" 세입자 만기가 27년 1월 10일이고, 잔금일은 26년 10월20일입니다. 이 경우에 세입자가 만기일에 퇴거한 후에 1달 정도 <mark>인테리어</mark>를 하고 실입주를 해도 되는지 궁금합니다\",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/60103/docs/492942851?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"다주택자 세낀 매물 <mark>인테리어</mark> 가능할까요?\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\" 수원 다담인테리어입니다. 저희에게 시공의뢰해주셨던 고객님들은 대부분 회사 사무실 인테리어나, 다른 상가 인테리어 등 지인분들 소개로도 많이 유입되는 편입니다. 수원/화성... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/50501/docs/492610041?answerNo=2&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer2\",\"answerImagesCount\":0,\"author\":\"수원다담 0312230402\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=2&dirId=50501&docId=492610041&kinsrch_src=m_tab_kin\",\"badgeText\":\"바람신\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d5ca1f9_2\",\"r\":13,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d5ca1f9_2\",\"r\":13,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d5ca1f9_2\",\"r\":13,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d5ca1f9_2\",\"r\":13,\"source\":\"*k\"}},\"createdDate\":\"2026.03.23.\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=https%3A%2F%2Fkin-phinf.pstatic.net%2F20221118_143%2F1668740799887iVb0e_PNG%2F1668740799874.png&type=f32_32\",\"isExpert\":false,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d5ca1f9_2\",\"r\":13,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=13&i=10000009_00001d5ca1f9_2&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=13&i=10000009_00001d5ca1f9_2&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=13&i=10000009_00001d5ca1f9_2&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=13&i=10000009_00001d5ca1f9_2&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=50501&docId=492610041\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\"안녕하세요. <mark>인테리어</mark>는 소통이 중요하다고 하는데 소통이 기본적으로 무조건 잘 되는 화성<mark>인테리어</mark> 잘 하는 곳 아시나요 화성<mark>인테리어</mark> 괜찮은 곳 아시면 부탁드립니다.\",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/50501/docs/492610041?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"화성<mark>인테리어</mark> 해주는 곳 찾고 있어요\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\" 질문자님께서는 인테리어 사기로 인해 9천만 원의 금전적... ▪ 민사소송의 기본 방향 ① 인테리어 사기와 관련하여... 피고(인테리어 업체 또는 대표)의 불법행위(사기, 계약위반 등)... \",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/60221/docs/490102780?answerNo=3&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer3\",\"answerImagesCount\":0,\"author\":\"이유림\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=3&dirId=60221&docId=490102780&kinsrch_src=m_tab_kin\",\"badgeText\":\"변호사\",\"category\":\"교통사고, 위반\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d365ffc_3\",\"r\":14,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d365ffc_3\",\"r\":14,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d365ffc_3\",\"r\":14,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d365ffc_3\",\"r\":14,\"source\":\"*k\"}},\"createdDate\":\"2025.11.11.\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=http%3A%2F%2Fkinimage.naver.net%2Fexphoto%2Fexpert%2F79%2FQVH_1758689100112_small.jpg&type=f32_32\",\"isExpert\":true,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d365ffc_3\",\"r\":14,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=14&i=10000009_00001d365ffc_3&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=14&i=10000009_00001d365ffc_3&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=14&i=10000009_00001d365ffc_3&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=14&i=10000009_00001d365ffc_3&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=60221&docId=490102780\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\"<mark>인테리어</mark> 사기로 6개월전에 1억4천만원중 9천만원의 피해를 입었습니다 그런데.. 검찰 재판결과 공소기각판결이 나왔습니다… 민사소송을 걸어야하는데 돈도 많이 잃었고 저는... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/60221/docs/490102780?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"<mark>인테리어</mark> 사기 민사소송\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"},{\"props\":{\"answer\":\"인테리어업체가 배관을 건든게아니라면 상관없는걸로보입니다 질문자님 집 누수공사를하신분께 여쭤보면 왜누수가생겼는지 말해줄텐데요~\",\"answerEllipsisLine\":2,\"answerHref\":\"https://m.kin.naver.com/qna/dirs/80902/docs/493150614?answerNo=1&enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0#answer1\",\"answerImagesCount\":0,\"author\":\"비손누수탐지공사\",\"authorHref\":\"https://m.kin.naver.com/mobile/search/profileLink?answerNo=1&dirId=80902&docId=493150614&kinsrch_src=m_tab_kin\",\"clickLog\":{\"answer\":{\"element\":\".answer\",\"i\":\"10000009_00001d64e196_1\",\"r\":15,\"source\":\"*k\"},\"author\":{\"element\":\".profile\",\"i\":\"10000009_00001d64e196_1\",\"r\":15,\"source\":\"*k\"},\"questionContent\":{\"element\":\".question\",\"i\":\"10000009_00001d64e196_1\",\"r\":15,\"source\":\"*k\"},\"questionTitle\":{\"element\":\".title\",\"i\":\"10000009_00001d64e196_1\",\"r\":15,\"source\":\"*k\"}},\"createdDate\":\"1주 전\",\"deviceType\":\"mo\",\"imageAlt\":\"alt\",\"imageSrc\":\"https://search.pstatic.net/common/?src=https%3A%2F%2Fkin-phinf.pstatic.net%2F20240129_235%2F1706532143785cyFLJ_JPEG%2F1706532143660.jpg&type=f32_32\",\"isExpert\":false,\"isVideo\":false,\"keep\":{\"clickLog\":{\"keepLink\":{\"element\":\".kephome\",\"i\":\"10000009_00001d64e196_1\",\"r\":15,\"source\":\"*k\"}},\"keepOffClickLog\":\"a=kin*k.kepoff&r=15&i=10000009_00001d64e196_1&u=javascript\",\"keepOnClickLog\":\"a=kin*k.kepon&r=15&i=10000009_00001d64e196_1&u=javascript\",\"keepTriggerOffClickLog\":\"a=kin*k.kep&r=15&i=10000009_00001d64e196_1&u=javascript\",\"keepTriggerOnClickLog\":\"a=kin*k.kep&r=15&i=10000009_00001d64e196_1&u=javascript\",\"keepTriggerUrl\":\"https://kin.naver.com/qna/detail.naver?dirId=80902&docId=493150614\",\"keepURL\":\"https://m.keep.naver.com/\",\"type\":\"basic\",\"use\":[\"keep\",\"mykeep\"],\"version\":\"2\"},\"questionContent\":\"작년 11월에 <mark>인테리어</mark> 공사를 하면서 누수나 결로가 없도록... <mark>인테리어</mark> 사장님은 누수없다고 배관공사 안해도 된다고 하여 배관공사를 제외한 전체공사를 하였습니다. <mark>인테리어</mark>가... \",\"questionHref\":\"https://m.kin.naver.com/qna/dirs/80902/docs/493150614?enc=utf8&kinsrch_src=m_tab_kin&qb=7J247YWM66as7Ja0\",\"questionImagesCount\":0,\"questionTitle\":\"<mark>인테리어</mark> 한지 얼마되지 않아 누수되어 아랫집과 저희집이 엉망입니다.\",\"type\":\"searchBasic\"},\"templateId\":\"kinItem\"}],\"className\":\"fds-kin-item-list-tab\",\"type\":\"vertical\"},\"templateId\":\"layout\"}],\"type\":\"vertical\"},\"templateId\":\"layout\"},\"cr\":\"CR_OBJECT_REPLACEMENT\"}, { renderer: \"module\", onRendered: function(detail) {                }});     });   };      if (window.naver && window.naver.common && typeof window.naver.common.load_js === \"function\") {     var isDomLoading = document.readyState === \"loading\";          naver.common.load_js(null, startApplication, isDomLoading, 150, !isDomLoading);   } else {     setTimeout(startApplication, 150);   } })();    \t(function() { \t\tvar jsControllerUrl = \"https:\\/\\/ssl.pstatic.net\\/sstatic\\/fe\\/sfe\\/commonPortal\\/mobile\\/Controller_231017_a.js\"; \t\tvar xloadUrl = \"https:\\/\\/ssl.pstatic.net\\/sstatic\\/fe\\/sfe\\/x-load\\/index.umd-3.4.1.js\";  \t\tvar startApplication = function() { \t\t\tvar require = window.require.config({ \t\t\t\t\"context\": \"_fe_web_commonportal\", \t\t\t\t\"paths\": { \t\t\t\t\t\"Controller\": jsControllerUrl.replace(/\\.js$/, \"\"), \t\t\t\t\t\"@sfe/x-load\": xloadUrl.replace(/\\.js$/, \"\") \t\t\t\t} \t\t\t}); \t\t\t  \t\t\tdefine(\"jquery\", [], function() { \t\t\t\treturn jQuery; \t\t\t}); \t\t\trequire([\"Controller\", \"@sfe/x-load\"], function(Controller, XLoad) { \t\t\t\t  \t\t\t\tvar $base = jQuery(\"._fe_kin_collection\"); \t\t\t\tvar oController = new Controller($base); \t\t\t\tvar xload = new XLoad({ \t\t\t\t\t  \t\t\t\t\t\"url\": \"https:\\/\\/s.search.naver.com\\/p\\/kin\\/53\\/search.naver?abt=\\u0026ac=0\\u0026answer=0\\u0026aq=0\\u0026c_id=\\u0026c_name=\\u0026kin_age=0\\u0026kin_display=15\\u0026kin_start=16\\u0026nid_year_age_div10=0\\u0026nlu_query=%7B%22r_category%22%3A%2219%22%7D\\u0026nqx_theme=%7B%22theme%22%3A%7B%22main%22%3A%7B%22name%22%3A%22living%22%2C%22source%22%3A%22NLU%22%7D%7D%7D\\u0026nso=\\u0026nx_and_query=\\u0026nx_search_hlquery=\\u0026nx_search_query=%EC%9D%B8%ED%85%8C%EB%A6%AC%EC%96%B4\\u0026nx_sub_query=\\u0026query=%EC%9D%B8%ED%85%8C%EB%A6%AC%EC%96%B4\\u0026spq=0\\u0026ssc=api.tab.m.kin\\u0026x_tab-kin=\", \t\t\t\t\t\"headers\": { \t\t\t\t\t\t\"X-Prs-Query-Info\": \"\" \t\t\t\t\t}, \t\t\t\t\t\"insertTarget\": \"._infinite_list\", \t\t\t\t\t\"failUi\": \"._infinite_error\", \t\t\t\t\t\"retryTrigger\": \"._infinite_retry\", \t\t\t\t\t\"observeTarget\": \"._infinite_loading\" \t\t\t\t}); \t\t\t}); \t\t}; \t\tnaver.common.load_js(null, startApplication, true, 150); \t})();",
+    "fontSize": 16,
+    "y": 121,
+    "tag": "DIV"
+  },
+  {
+    "text": "전체1시간1일1주옵션옵션기간전체 1시간 1일 1주 1개월 3개월 6개월 1년 직접입력옵션펼치기접기기간 설정시작 2026.05.04. ~ 기간 설정끝 2026.05.04.년(Year)1990199119921993199419951996199719981999200020012002200320042005200620072008200920102011201220132014201520162017201820192020202120222023202420252026월(Month)12345일(Day)1234적용답변전체 eXpert 전문가 변호사 변리사 법무사 노무사 회계사 세무사 의사 한의사 수의사 약사 영양사 운동전문가 손해사정사 경영지도사 기술지도사 기술사 관세사 지식파트너 분야별 지식인 지존이상옵션 초기화 검색옵션 가이드",
+    "fontSize": 16,
+    "y": 121,
+    "tag": "DIV"
+  },
+  {
+    "text": "전체1시간1일1주옵션",
+    "fontSize": 16,
+    "y": 121,
+    "tag": "DIV"
+  },
+  {
+    "text": "전체1시간1일1주옵션",
+    "fontSize": 15,
+    "y": 121,
+    "tag": "DIV"
+  },
+  {
+    "text": "전체1시간1일1주",
+    "fontSize": 15,
+    "y": 121,
+    "tag": "DIV"
+  },
+  {
+    "text": "전체",
+    "fontSize": 15,
+    "y": 121,
+    "tag": "A"
+  },
+  {
+    "text": "1시간",
+    "fontSize": 15,
+    "y": 121,
+    "tag": "A"
+  },
+  {
+    "text": "1일",
+    "fontSize": 15,
+    "y": 121,
+    "tag": "A"
+  },
+  {
+    "text": "1주",
+    "fontSize": 15,
+    "y": 121,
+    "tag": "A"
+  },
+  {
+    "text": "옵션",
+    "fontSize": 15,
+    "y": 121,
+    "tag": "DIV"
+  },
+  {
+    "text": "옵션",
+    "fontSize": 15,
+    "y": 121,
+    "tag": "A"
+  },
+  {
+    "text": "인테리어 사기Keep에 저장Keep에 바로가기 인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...  달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...  김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...  아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...  인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기 , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다. ★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...  결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...  인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전건축인테리어학원 취업도 지원해주나요?Keep에 저장Keep에 바로가기 건축인테리어학원에서 취업도 지원해주는지 궁금합니다. 인테리어분야로 취업을 하고 싶고, 공부도 진짜 열심히 할... 건축인테리어학원 다니면서 취업도 가능하다면 좋겠는데 진짜... 안녕하세요, 건축인테리어학원 비스쿨이 답변 드립니다.... 돼용~ 인테리어 분야 취업에서 가장 중요한 것은 학벌보다 실력(포트폴리오)입니다. 학원과 협약이 맺어진 인테리어... 비스쿨디자인4주 전건설법 인테리어 하자보수 제척기간에 대해서Keep에 저장Keep에 바로가기2021년 05월 독서실 인테리어를 하고 공사완료후 공사대금을 2억3천가량 받지 못하여... 제가 궁금한거는 인테리어 하자보수기간은 1년인데 상대방에서는 대금완불후 1년으로 알았다고...  가능 인테리어 공사에서 말하는 “하자보수 제척기간”은 보통 공사대금 완불 시점이... 또한 인테리어 하자의 담보기간을 1년으로 보는 주장도 사건 성격에 따라 달라질 수 있는데... 유수완변호사부동산, 건축2026.03.16.건축공학과 실내인테리어Keep에 저장Keep에 바로가기저희 학교가 2학년부터 건축학과랑 건축공학으로 나뉘는데 건축공학 선택해도 실내 인테리어쪽으로 빠질 수 있나요?실내 인테리어로 가려면 굳이 건축공학과 갈 필요 없습니다. 물론 건축공학과 나와도 실내 인테리어 충분히 합니다. 그걸 포함한 게 건축공학이니까. 그런데 실내 인테리어는 전문대... 중서문하성낭사우주신3주 전복층인테리어비용 질문이요!!Keep에 저장Keep에 바로가기 대략적인 인테리어비용을 알아야 매매에 좀더 도움이 될까싶어 문의드려요!! 도배전체 실크벽지 주방 전체인테리어 (ㄱ자형) 화장실 2개 전체인테리어 신발장 작은 펜트리장... 도배전체 실크벽지 약 300예상 주방 전체인테리어 (ㄱ자형) 한샘가구로 약 400예상 화장실 2개 전체인테리어 화장실 2칸 600 신발장 120예상 작은 펜트리장 만들기 도면 제공 80... 목공팀장1주 전다주택자 세낀 매물 인테리어 가능할까요?Keep에 저장Keep에 바로가기 세입자 만기가 27년 1월 10일이고, 잔금일은 26년 10월20일입니다. 이 경우에 세입자가 만기일에 퇴거한 후에 1달 정도 인테리어를 하고 실입주를 해도 되는지 궁금합니다===> 네 전입신고를 한 후 인테리어를 진행되어야 합니다. 그렇지 않은 경우 많은 재촉을 받을 것으로 보입니다.고경훈 행정사절대신행정사2주 전화성인테리어 해주는 곳 찾고 있어요Keep에 저장Keep에 바로가기안녕하세요. 인테리어는 소통이 중요하다고 하는데 소통이 기본적으로 무조건 잘 되는 화성인테리어 잘 하는 곳 아시나요 화성인테리어 괜찮은 곳 아시면 부탁드립니다. 수원 다담인테리어입니다. 저희에게 시공의뢰해주셨던 고객님들은 대부분 회사 사무실 인테리어나, 다른 상가 인테리어 등 지인분들 소개로도 많이 유입되는 편입니다. 수원/화성... 수원다담 0312230402바람신2026.03.23.인테리어 사기 민사소송Keep에 저장Keep에 바로가기인테리어 사기로 6개월전에 1억4천만원중 9천만원의 피해를 입었습니다 그런데.. 검찰 재판결과 공소기각판결이 나왔습니다… 민사소송을 걸어야하는데 돈도 많이 잃었고 저는...  질문자님께서는 인테리어 사기로 인해 9천만 원의 금전적... ▪ 민사소송의 기본 방향 ① 인테리어 사기와 관련하여... 피고(인테리어 업체 또는 대표)의 불법행위(사기, 계약위반 등)... 이유림변호사교통사고, 위반2025.11.11.인테리어 한지 얼마되지 않아 누수되어 아랫집과 저희집이 엉망입니다.Keep에 저장Keep에 바로가기작년 11월에 인테리어 공사를 하면서 누수나 결로가 없도록... 인테리어 사장님은 누수없다고 배관공사 안해도 된다고 하여 배관공사를 제외한 전체공사를 하였습니다. 인테리어가... 인테리어업체가 배관을 건든게아니라면 상관없는걸로보입니다 질문자님 집 누수공사를하신분께 여쭤보면 왜누수가생겼는지 말해줄텐데요~비손누수탐지공사1주 전  \t\t \t \t \t\t \t\t\t \t\t\t\t \t\t\t\t일시적인 오류로 정보를 표시할 수 없습니다. \t\t\t\t다시 시도해 주세요. \t\t\t\t재시도",
+    "fontSize": 16,
+    "y": 177,
+    "tag": "SECTION"
+  },
+  {
+    "text": "인테리어 사기Keep에 저장Keep에 바로가기 인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...  달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...  김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...  아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...  인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기 , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다. ★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...  결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...  인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전건축인테리어학원 취업도 지원해주나요?Keep에 저장Keep에 바로가기 건축인테리어학원에서 취업도 지원해주는지 궁금합니다. 인테리어분야로 취업을 하고 싶고, 공부도 진짜 열심히 할... 건축인테리어학원 다니면서 취업도 가능하다면 좋겠는데 진짜... 안녕하세요, 건축인테리어학원 비스쿨이 답변 드립니다.... 돼용~ 인테리어 분야 취업에서 가장 중요한 것은 학벌보다 실력(포트폴리오)입니다. 학원과 협약이 맺어진 인테리어... 비스쿨디자인4주 전건설법 인테리어 하자보수 제척기간에 대해서Keep에 저장Keep에 바로가기2021년 05월 독서실 인테리어를 하고 공사완료후 공사대금을 2억3천가량 받지 못하여... 제가 궁금한거는 인테리어 하자보수기간은 1년인데 상대방에서는 대금완불후 1년으로 알았다고...  가능 인테리어 공사에서 말하는 “하자보수 제척기간”은 보통 공사대금 완불 시점이... 또한 인테리어 하자의 담보기간을 1년으로 보는 주장도 사건 성격에 따라 달라질 수 있는데... 유수완변호사부동산, 건축2026.03.16.건축공학과 실내인테리어Keep에 저장Keep에 바로가기저희 학교가 2학년부터 건축학과랑 건축공학으로 나뉘는데 건축공학 선택해도 실내 인테리어쪽으로 빠질 수 있나요?실내 인테리어로 가려면 굳이 건축공학과 갈 필요 없습니다. 물론 건축공학과 나와도 실내 인테리어 충분히 합니다. 그걸 포함한 게 건축공학이니까. 그런데 실내 인테리어는 전문대... 중서문하성낭사우주신3주 전복층인테리어비용 질문이요!!Keep에 저장Keep에 바로가기 대략적인 인테리어비용을 알아야 매매에 좀더 도움이 될까싶어 문의드려요!! 도배전체 실크벽지 주방 전체인테리어 (ㄱ자형) 화장실 2개 전체인테리어 신발장 작은 펜트리장... 도배전체 실크벽지 약 300예상 주방 전체인테리어 (ㄱ자형) 한샘가구로 약 400예상 화장실 2개 전체인테리어 화장실 2칸 600 신발장 120예상 작은 펜트리장 만들기 도면 제공 80... 목공팀장1주 전다주택자 세낀 매물 인테리어 가능할까요?Keep에 저장Keep에 바로가기 세입자 만기가 27년 1월 10일이고, 잔금일은 26년 10월20일입니다. 이 경우에 세입자가 만기일에 퇴거한 후에 1달 정도 인테리어를 하고 실입주를 해도 되는지 궁금합니다===> 네 전입신고를 한 후 인테리어를 진행되어야 합니다. 그렇지 않은 경우 많은 재촉을 받을 것으로 보입니다.고경훈 행정사절대신행정사2주 전화성인테리어 해주는 곳 찾고 있어요Keep에 저장Keep에 바로가기안녕하세요. 인테리어는 소통이 중요하다고 하는데 소통이 기본적으로 무조건 잘 되는 화성인테리어 잘 하는 곳 아시나요 화성인테리어 괜찮은 곳 아시면 부탁드립니다. 수원 다담인테리어입니다. 저희에게 시공의뢰해주셨던 고객님들은 대부분 회사 사무실 인테리어나, 다른 상가 인테리어 등 지인분들 소개로도 많이 유입되는 편입니다. 수원/화성... 수원다담 0312230402바람신2026.03.23.인테리어 사기 민사소송Keep에 저장Keep에 바로가기인테리어 사기로 6개월전에 1억4천만원중 9천만원의 피해를 입었습니다 그런데.. 검찰 재판결과 공소기각판결이 나왔습니다… 민사소송을 걸어야하는데 돈도 많이 잃었고 저는...  질문자님께서는 인테리어 사기로 인해 9천만 원의 금전적... ▪ 민사소송의 기본 방향 ① 인테리어 사기와 관련하여... 피고(인테리어 업체 또는 대표)의 불법행위(사기, 계약위반 등)... 이유림변호사교통사고, 위반2025.11.11.인테리어 한지 얼마되지 않아 누수되어 아랫집과 저희집이 엉망입니다.Keep에 저장Keep에 바로가기작년 11월에 인테리어 공사를 하면서 누수나 결로가 없도록... 인테리어 사장님은 누수없다고 배관공사 안해도 된다고 하여 배관공사를 제외한 전체공사를 하였습니다. 인테리어가... 인테리어업체가 배관을 건든게아니라면 상관없는걸로보입니다 질문자님 집 누수공사를하신분께 여쭤보면 왜누수가생겼는지 말해줄텐데요~비손누수탐지공사1주 전",
+    "fontSize": 16,
+    "y": 177,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 사기Keep에 저장Keep에 바로가기 인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...  달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...  김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...  아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...  인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기 , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다. ★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...  결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...  인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전건축인테리어학원 취업도 지원해주나요?Keep에 저장Keep에 바로가기 건축인테리어학원에서 취업도 지원해주는지 궁금합니다. 인테리어분야로 취업을 하고 싶고, 공부도 진짜 열심히 할... 건축인테리어학원 다니면서 취업도 가능하다면 좋겠는데 진짜... 안녕하세요, 건축인테리어학원 비스쿨이 답변 드립니다.... 돼용~ 인테리어 분야 취업에서 가장 중요한 것은 학벌보다 실력(포트폴리오)입니다. 학원과 협약이 맺어진 인테리어... 비스쿨디자인4주 전건설법 인테리어 하자보수 제척기간에 대해서Keep에 저장Keep에 바로가기2021년 05월 독서실 인테리어를 하고 공사완료후 공사대금을 2억3천가량 받지 못하여... 제가 궁금한거는 인테리어 하자보수기간은 1년인데 상대방에서는 대금완불후 1년으로 알았다고...  가능 인테리어 공사에서 말하는 “하자보수 제척기간”은 보통 공사대금 완불 시점이... 또한 인테리어 하자의 담보기간을 1년으로 보는 주장도 사건 성격에 따라 달라질 수 있는데... 유수완변호사부동산, 건축2026.03.16.건축공학과 실내인테리어Keep에 저장Keep에 바로가기저희 학교가 2학년부터 건축학과랑 건축공학으로 나뉘는데 건축공학 선택해도 실내 인테리어쪽으로 빠질 수 있나요?실내 인테리어로 가려면 굳이 건축공학과 갈 필요 없습니다. 물론 건축공학과 나와도 실내 인테리어 충분히 합니다. 그걸 포함한 게 건축공학이니까. 그런데 실내 인테리어는 전문대... 중서문하성낭사우주신3주 전복층인테리어비용 질문이요!!Keep에 저장Keep에 바로가기 대략적인 인테리어비용을 알아야 매매에 좀더 도움이 될까싶어 문의드려요!! 도배전체 실크벽지 주방 전체인테리어 (ㄱ자형) 화장실 2개 전체인테리어 신발장 작은 펜트리장... 도배전체 실크벽지 약 300예상 주방 전체인테리어 (ㄱ자형) 한샘가구로 약 400예상 화장실 2개 전체인테리어 화장실 2칸 600 신발장 120예상 작은 펜트리장 만들기 도면 제공 80... 목공팀장1주 전다주택자 세낀 매물 인테리어 가능할까요?Keep에 저장Keep에 바로가기 세입자 만기가 27년 1월 10일이고, 잔금일은 26년 10월20일입니다. 이 경우에 세입자가 만기일에 퇴거한 후에 1달 정도 인테리어를 하고 실입주를 해도 되는지 궁금합니다===> 네 전입신고를 한 후 인테리어를 진행되어야 합니다. 그렇지 않은 경우 많은 재촉을 받을 것으로 보입니다.고경훈 행정사절대신행정사2주 전화성인테리어 해주는 곳 찾고 있어요Keep에 저장Keep에 바로가기안녕하세요. 인테리어는 소통이 중요하다고 하는데 소통이 기본적으로 무조건 잘 되는 화성인테리어 잘 하는 곳 아시나요 화성인테리어 괜찮은 곳 아시면 부탁드립니다. 수원 다담인테리어입니다. 저희에게 시공의뢰해주셨던 고객님들은 대부분 회사 사무실 인테리어나, 다른 상가 인테리어 등 지인분들 소개로도 많이 유입되는 편입니다. 수원/화성... 수원다담 0312230402바람신2026.03.23.인테리어 사기 민사소송Keep에 저장Keep에 바로가기인테리어 사기로 6개월전에 1억4천만원중 9천만원의 피해를 입었습니다 그런데.. 검찰 재판결과 공소기각판결이 나왔습니다… 민사소송을 걸어야하는데 돈도 많이 잃었고 저는...  질문자님께서는 인테리어 사기로 인해 9천만 원의 금전적... ▪ 민사소송의 기본 방향 ① 인테리어 사기와 관련하여... 피고(인테리어 업체 또는 대표)의 불법행위(사기, 계약위반 등)... 이유림변호사교통사고, 위반2025.11.11.인테리어 한지 얼마되지 않아 누수되어 아랫집과 저희집이 엉망입니다.Keep에 저장Keep에 바로가기작년 11월에 인테리어 공사를 하면서 누수나 결로가 없도록... 인테리어 사장님은 누수없다고 배관공사 안해도 된다고 하여 배관공사를 제외한 전체공사를 하였습니다. 인테리어가... 인테리어업체가 배관을 건든게아니라면 상관없는걸로보입니다 질문자님 집 누수공사를하신분께 여쭤보면 왜누수가생겼는지 말해줄텐데요~비손누수탐지공사1주 전",
+    "fontSize": 16,
+    "y": 177,
+    "tag": "UL"
+  },
+  {
+    "text": "인테리어 사기Keep에 저장Keep에 바로가기 인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...  달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...  김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...  아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...  인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기 , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다. ★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...  결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...  인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전건축인테리어학원 취업도 지원해주나요?Keep에 저장Keep에 바로가기 건축인테리어학원에서 취업도 지원해주는지 궁금합니다. 인테리어분야로 취업을 하고 싶고, 공부도 진짜 열심히 할... 건축인테리어학원 다니면서 취업도 가능하다면 좋겠는데 진짜... 안녕하세요, 건축인테리어학원 비스쿨이 답변 드립니다.... 돼용~ 인테리어 분야 취업에서 가장 중요한 것은 학벌보다 실력(포트폴리오)입니다. 학원과 협약이 맺어진 인테리어... 비스쿨디자인4주 전건설법 인테리어 하자보수 제척기간에 대해서Keep에 저장Keep에 바로가기2021년 05월 독서실 인테리어를 하고 공사완료후 공사대금을 2억3천가량 받지 못하여... 제가 궁금한거는 인테리어 하자보수기간은 1년인데 상대방에서는 대금완불후 1년으로 알았다고...  가능 인테리어 공사에서 말하는 “하자보수 제척기간”은 보통 공사대금 완불 시점이... 또한 인테리어 하자의 담보기간을 1년으로 보는 주장도 사건 성격에 따라 달라질 수 있는데... 유수완변호사부동산, 건축2026.03.16.건축공학과 실내인테리어Keep에 저장Keep에 바로가기저희 학교가 2학년부터 건축학과랑 건축공학으로 나뉘는데 건축공학 선택해도 실내 인테리어쪽으로 빠질 수 있나요?실내 인테리어로 가려면 굳이 건축공학과 갈 필요 없습니다. 물론 건축공학과 나와도 실내 인테리어 충분히 합니다. 그걸 포함한 게 건축공학이니까. 그런데 실내 인테리어는 전문대... 중서문하성낭사우주신3주 전복층인테리어비용 질문이요!!Keep에 저장Keep에 바로가기 대략적인 인테리어비용을 알아야 매매에 좀더 도움이 될까싶어 문의드려요!! 도배전체 실크벽지 주방 전체인테리어 (ㄱ자형) 화장실 2개 전체인테리어 신발장 작은 펜트리장... 도배전체 실크벽지 약 300예상 주방 전체인테리어 (ㄱ자형) 한샘가구로 약 400예상 화장실 2개 전체인테리어 화장실 2칸 600 신발장 120예상 작은 펜트리장 만들기 도면 제공 80... 목공팀장1주 전다주택자 세낀 매물 인테리어 가능할까요?Keep에 저장Keep에 바로가기 세입자 만기가 27년 1월 10일이고, 잔금일은 26년 10월20일입니다. 이 경우에 세입자가 만기일에 퇴거한 후에 1달 정도 인테리어를 하고 실입주를 해도 되는지 궁금합니다===> 네 전입신고를 한 후 인테리어를 진행되어야 합니다. 그렇지 않은 경우 많은 재촉을 받을 것으로 보입니다.고경훈 행정사절대신행정사2주 전화성인테리어 해주는 곳 찾고 있어요Keep에 저장Keep에 바로가기안녕하세요. 인테리어는 소통이 중요하다고 하는데 소통이 기본적으로 무조건 잘 되는 화성인테리어 잘 하는 곳 아시나요 화성인테리어 괜찮은 곳 아시면 부탁드립니다. 수원 다담인테리어입니다. 저희에게 시공의뢰해주셨던 고객님들은 대부분 회사 사무실 인테리어나, 다른 상가 인테리어 등 지인분들 소개로도 많이 유입되는 편입니다. 수원/화성... 수원다담 0312230402바람신2026.03.23.인테리어 사기 민사소송Keep에 저장Keep에 바로가기인테리어 사기로 6개월전에 1억4천만원중 9천만원의 피해를 입었습니다 그런데.. 검찰 재판결과 공소기각판결이 나왔습니다… 민사소송을 걸어야하는데 돈도 많이 잃었고 저는...  질문자님께서는 인테리어 사기로 인해 9천만 원의 금전적... ▪ 민사소송의 기본 방향 ① 인테리어 사기와 관련하여... 피고(인테리어 업체 또는 대표)의 불법행위(사기, 계약위반 등)... 이유림변호사교통사고, 위반2025.11.11.인테리어 한지 얼마되지 않아 누수되어 아랫집과 저희집이 엉망입니다.Keep에 저장Keep에 바로가기작년 11월에 인테리어 공사를 하면서 누수나 결로가 없도록... 인테리어 사장님은 누수없다고 배관공사 안해도 된다고 하여 배관공사를 제외한 전체공사를 하였습니다. 인테리어가... 인테리어업체가 배관을 건든게아니라면 상관없는걸로보입니다 질문자님 집 누수공사를하신분께 여쭤보면 왜누수가생겼는지 말해줄텐데요~비손누수탐지공사1주 전",
+    "fontSize": 16,
+    "y": 177,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 사기Keep에 저장Keep에 바로가기 인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...  달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...  김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...  아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...  인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기 , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다. ★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...  결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...  인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전건축인테리어학원 취업도 지원해주나요?Keep에 저장Keep에 바로가기 건축인테리어학원에서 취업도 지원해주는지 궁금합니다. 인테리어분야로 취업을 하고 싶고, 공부도 진짜 열심히 할... 건축인테리어학원 다니면서 취업도 가능하다면 좋겠는데 진짜... 안녕하세요, 건축인테리어학원 비스쿨이 답변 드립니다.... 돼용~ 인테리어 분야 취업에서 가장 중요한 것은 학벌보다 실력(포트폴리오)입니다. 학원과 협약이 맺어진 인테리어... 비스쿨디자인4주 전건설법 인테리어 하자보수 제척기간에 대해서Keep에 저장Keep에 바로가기2021년 05월 독서실 인테리어를 하고 공사완료후 공사대금을 2억3천가량 받지 못하여... 제가 궁금한거는 인테리어 하자보수기간은 1년인데 상대방에서는 대금완불후 1년으로 알았다고...  가능 인테리어 공사에서 말하는 “하자보수 제척기간”은 보통 공사대금 완불 시점이... 또한 인테리어 하자의 담보기간을 1년으로 보는 주장도 사건 성격에 따라 달라질 수 있는데... 유수완변호사부동산, 건축2026.03.16.건축공학과 실내인테리어Keep에 저장Keep에 바로가기저희 학교가 2학년부터 건축학과랑 건축공학으로 나뉘는데 건축공학 선택해도 실내 인테리어쪽으로 빠질 수 있나요?실내 인테리어로 가려면 굳이 건축공학과 갈 필요 없습니다. 물론 건축공학과 나와도 실내 인테리어 충분히 합니다. 그걸 포함한 게 건축공학이니까. 그런데 실내 인테리어는 전문대... 중서문하성낭사우주신3주 전복층인테리어비용 질문이요!!Keep에 저장Keep에 바로가기 대략적인 인테리어비용을 알아야 매매에 좀더 도움이 될까싶어 문의드려요!! 도배전체 실크벽지 주방 전체인테리어 (ㄱ자형) 화장실 2개 전체인테리어 신발장 작은 펜트리장... 도배전체 실크벽지 약 300예상 주방 전체인테리어 (ㄱ자형) 한샘가구로 약 400예상 화장실 2개 전체인테리어 화장실 2칸 600 신발장 120예상 작은 펜트리장 만들기 도면 제공 80... 목공팀장1주 전다주택자 세낀 매물 인테리어 가능할까요?Keep에 저장Keep에 바로가기 세입자 만기가 27년 1월 10일이고, 잔금일은 26년 10월20일입니다. 이 경우에 세입자가 만기일에 퇴거한 후에 1달 정도 인테리어를 하고 실입주를 해도 되는지 궁금합니다===> 네 전입신고를 한 후 인테리어를 진행되어야 합니다. 그렇지 않은 경우 많은 재촉을 받을 것으로 보입니다.고경훈 행정사절대신행정사2주 전화성인테리어 해주는 곳 찾고 있어요Keep에 저장Keep에 바로가기안녕하세요. 인테리어는 소통이 중요하다고 하는데 소통이 기본적으로 무조건 잘 되는 화성인테리어 잘 하는 곳 아시나요 화성인테리어 괜찮은 곳 아시면 부탁드립니다. 수원 다담인테리어입니다. 저희에게 시공의뢰해주셨던 고객님들은 대부분 회사 사무실 인테리어나, 다른 상가 인테리어 등 지인분들 소개로도 많이 유입되는 편입니다. 수원/화성... 수원다담 0312230402바람신2026.03.23.인테리어 사기 민사소송Keep에 저장Keep에 바로가기인테리어 사기로 6개월전에 1억4천만원중 9천만원의 피해를 입었습니다 그런데.. 검찰 재판결과 공소기각판결이 나왔습니다… 민사소송을 걸어야하는데 돈도 많이 잃었고 저는...  질문자님께서는 인테리어 사기로 인해 9천만 원의 금전적... ▪ 민사소송의 기본 방향 ① 인테리어 사기와 관련하여... 피고(인테리어 업체 또는 대표)의 불법행위(사기, 계약위반 등)... 이유림변호사교통사고, 위반2025.11.11.인테리어 한지 얼마되지 않아 누수되어 아랫집과 저희집이 엉망입니다.Keep에 저장Keep에 바로가기작년 11월에 인테리어 공사를 하면서 누수나 결로가 없도록... 인테리어 사장님은 누수없다고 배관공사 안해도 된다고 하여 배관공사를 제외한 전체공사를 하였습니다. 인테리어가... 인테리어업체가 배관을 건든게아니라면 상관없는걸로보입니다 질문자님 집 누수공사를하신분께 여쭤보면 왜누수가생겼는지 말해줄텐데요~비손누수탐지공사1주 전",
+    "fontSize": 16,
+    "y": 177,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 사기Keep에 저장Keep에 바로가기 인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...  달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...  김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...  아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...  인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기 , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다. ★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...  결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...  인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전건축인테리어학원 취업도 지원해주나요?Keep에 저장Keep에 바로가기 건축인테리어학원에서 취업도 지원해주는지 궁금합니다. 인테리어분야로 취업을 하고 싶고, 공부도 진짜 열심히 할... 건축인테리어학원 다니면서 취업도 가능하다면 좋겠는데 진짜... 안녕하세요, 건축인테리어학원 비스쿨이 답변 드립니다.... 돼용~ 인테리어 분야 취업에서 가장 중요한 것은 학벌보다 실력(포트폴리오)입니다. 학원과 협약이 맺어진 인테리어... 비스쿨디자인4주 전건설법 인테리어 하자보수 제척기간에 대해서Keep에 저장Keep에 바로가기2021년 05월 독서실 인테리어를 하고 공사완료후 공사대금을 2억3천가량 받지 못하여... 제가 궁금한거는 인테리어 하자보수기간은 1년인데 상대방에서는 대금완불후 1년으로 알았다고...  가능 인테리어 공사에서 말하는 “하자보수 제척기간”은 보통 공사대금 완불 시점이... 또한 인테리어 하자의 담보기간을 1년으로 보는 주장도 사건 성격에 따라 달라질 수 있는데... 유수완변호사부동산, 건축2026.03.16.건축공학과 실내인테리어Keep에 저장Keep에 바로가기저희 학교가 2학년부터 건축학과랑 건축공학으로 나뉘는데 건축공학 선택해도 실내 인테리어쪽으로 빠질 수 있나요?실내 인테리어로 가려면 굳이 건축공학과 갈 필요 없습니다. 물론 건축공학과 나와도 실내 인테리어 충분히 합니다. 그걸 포함한 게 건축공학이니까. 그런데 실내 인테리어는 전문대... 중서문하성낭사우주신3주 전복층인테리어비용 질문이요!!Keep에 저장Keep에 바로가기 대략적인 인테리어비용을 알아야 매매에 좀더 도움이 될까싶어 문의드려요!! 도배전체 실크벽지 주방 전체인테리어 (ㄱ자형) 화장실 2개 전체인테리어 신발장 작은 펜트리장... 도배전체 실크벽지 약 300예상 주방 전체인테리어 (ㄱ자형) 한샘가구로 약 400예상 화장실 2개 전체인테리어 화장실 2칸 600 신발장 120예상 작은 펜트리장 만들기 도면 제공 80... 목공팀장1주 전다주택자 세낀 매물 인테리어 가능할까요?Keep에 저장Keep에 바로가기 세입자 만기가 27년 1월 10일이고, 잔금일은 26년 10월20일입니다. 이 경우에 세입자가 만기일에 퇴거한 후에 1달 정도 인테리어를 하고 실입주를 해도 되는지 궁금합니다===> 네 전입신고를 한 후 인테리어를 진행되어야 합니다. 그렇지 않은 경우 많은 재촉을 받을 것으로 보입니다.고경훈 행정사절대신행정사2주 전화성인테리어 해주는 곳 찾고 있어요Keep에 저장Keep에 바로가기안녕하세요. 인테리어는 소통이 중요하다고 하는데 소통이 기본적으로 무조건 잘 되는 화성인테리어 잘 하는 곳 아시나요 화성인테리어 괜찮은 곳 아시면 부탁드립니다. 수원 다담인테리어입니다. 저희에게 시공의뢰해주셨던 고객님들은 대부분 회사 사무실 인테리어나, 다른 상가 인테리어 등 지인분들 소개로도 많이 유입되는 편입니다. 수원/화성... 수원다담 0312230402바람신2026.03.23.인테리어 사기 민사소송Keep에 저장Keep에 바로가기인테리어 사기로 6개월전에 1억4천만원중 9천만원의 피해를 입었습니다 그런데.. 검찰 재판결과 공소기각판결이 나왔습니다… 민사소송을 걸어야하는데 돈도 많이 잃었고 저는...  질문자님께서는 인테리어 사기로 인해 9천만 원의 금전적... ▪ 민사소송의 기본 방향 ① 인테리어 사기와 관련하여... 피고(인테리어 업체 또는 대표)의 불법행위(사기, 계약위반 등)... 이유림변호사교통사고, 위반2025.11.11.인테리어 한지 얼마되지 않아 누수되어 아랫집과 저희집이 엉망입니다.Keep에 저장Keep에 바로가기작년 11월에 인테리어 공사를 하면서 누수나 결로가 없도록... 인테리어 사장님은 누수없다고 배관공사 안해도 된다고 하여 배관공사를 제외한 전체공사를 하였습니다. 인테리어가... 인테리어업체가 배관을 건든게아니라면 상관없는걸로보입니다 질문자님 집 누수공사를하신분께 여쭤보면 왜누수가생겼는지 말해줄텐데요~비손누수탐지공사1주 전",
+    "fontSize": 16,
+    "y": 177,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 사기Keep에 저장Keep에 바로가기 인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...  달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...  김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...  아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...  인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기 , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다. ★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...  결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...  인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전건축인테리어학원 취업도 지원해주나요?Keep에 저장Keep에 바로가기 건축인테리어학원에서 취업도 지원해주는지 궁금합니다. 인테리어분야로 취업을 하고 싶고, 공부도 진짜 열심히 할... 건축인테리어학원 다니면서 취업도 가능하다면 좋겠는데 진짜... 안녕하세요, 건축인테리어학원 비스쿨이 답변 드립니다.... 돼용~ 인테리어 분야 취업에서 가장 중요한 것은 학벌보다 실력(포트폴리오)입니다. 학원과 협약이 맺어진 인테리어... 비스쿨디자인4주 전건설법 인테리어 하자보수 제척기간에 대해서Keep에 저장Keep에 바로가기2021년 05월 독서실 인테리어를 하고 공사완료후 공사대금을 2억3천가량 받지 못하여... 제가 궁금한거는 인테리어 하자보수기간은 1년인데 상대방에서는 대금완불후 1년으로 알았다고...  가능 인테리어 공사에서 말하는 “하자보수 제척기간”은 보통 공사대금 완불 시점이... 또한 인테리어 하자의 담보기간을 1년으로 보는 주장도 사건 성격에 따라 달라질 수 있는데... 유수완변호사부동산, 건축2026.03.16.건축공학과 실내인테리어Keep에 저장Keep에 바로가기저희 학교가 2학년부터 건축학과랑 건축공학으로 나뉘는데 건축공학 선택해도 실내 인테리어쪽으로 빠질 수 있나요?실내 인테리어로 가려면 굳이 건축공학과 갈 필요 없습니다. 물론 건축공학과 나와도 실내 인테리어 충분히 합니다. 그걸 포함한 게 건축공학이니까. 그런데 실내 인테리어는 전문대... 중서문하성낭사우주신3주 전복층인테리어비용 질문이요!!Keep에 저장Keep에 바로가기 대략적인 인테리어비용을 알아야 매매에 좀더 도움이 될까싶어 문의드려요!! 도배전체 실크벽지 주방 전체인테리어 (ㄱ자형) 화장실 2개 전체인테리어 신발장 작은 펜트리장... 도배전체 실크벽지 약 300예상 주방 전체인테리어 (ㄱ자형) 한샘가구로 약 400예상 화장실 2개 전체인테리어 화장실 2칸 600 신발장 120예상 작은 펜트리장 만들기 도면 제공 80... 목공팀장1주 전다주택자 세낀 매물 인테리어 가능할까요?Keep에 저장Keep에 바로가기 세입자 만기가 27년 1월 10일이고, 잔금일은 26년 10월20일입니다. 이 경우에 세입자가 만기일에 퇴거한 후에 1달 정도 인테리어를 하고 실입주를 해도 되는지 궁금합니다===> 네 전입신고를 한 후 인테리어를 진행되어야 합니다. 그렇지 않은 경우 많은 재촉을 받을 것으로 보입니다.고경훈 행정사절대신행정사2주 전화성인테리어 해주는 곳 찾고 있어요Keep에 저장Keep에 바로가기안녕하세요. 인테리어는 소통이 중요하다고 하는데 소통이 기본적으로 무조건 잘 되는 화성인테리어 잘 하는 곳 아시나요 화성인테리어 괜찮은 곳 아시면 부탁드립니다. 수원 다담인테리어입니다. 저희에게 시공의뢰해주셨던 고객님들은 대부분 회사 사무실 인테리어나, 다른 상가 인테리어 등 지인분들 소개로도 많이 유입되는 편입니다. 수원/화성... 수원다담 0312230402바람신2026.03.23.인테리어 사기 민사소송Keep에 저장Keep에 바로가기인테리어 사기로 6개월전에 1억4천만원중 9천만원의 피해를 입었습니다 그런데.. 검찰 재판결과 공소기각판결이 나왔습니다… 민사소송을 걸어야하는데 돈도 많이 잃었고 저는...  질문자님께서는 인테리어 사기로 인해 9천만 원의 금전적... ▪ 민사소송의 기본 방향 ① 인테리어 사기와 관련하여... 피고(인테리어 업체 또는 대표)의 불법행위(사기, 계약위반 등)... 이유림변호사교통사고, 위반2025.11.11.인테리어 한지 얼마되지 않아 누수되어 아랫집과 저희집이 엉망입니다.Keep에 저장Keep에 바로가기작년 11월에 인테리어 공사를 하면서 누수나 결로가 없도록... 인테리어 사장님은 누수없다고 배관공사 안해도 된다고 하여 배관공사를 제외한 전체공사를 하였습니다. 인테리어가... 인테리어업체가 배관을 건든게아니라면 상관없는걸로보입니다 질문자님 집 누수공사를하신분께 여쭤보면 왜누수가생겼는지 말해줄텐데요~비손누수탐지공사1주 전",
+    "fontSize": 16,
+    "y": 178,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 사기Keep에 저장Keep에 바로가기 인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...  달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전",
+    "fontSize": 16,
+    "y": 194,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 사기Keep에 저장Keep에 바로가기 인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...",
+    "fontSize": 16,
+    "y": 194,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 사기Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 194,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 사기",
+    "fontSize": 16,
+    "y": 194,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 사기",
+    "fontSize": 16,
+    "y": 194,
+    "tag": "A"
+  },
+  {
+    "text": "인테리어 사기",
+    "fontSize": 17,
+    "y": 194,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 17,
+    "y": 193,
+    "tag": "MARK"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 194,
+    "tag": "DIV"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 198,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...",
+    "fontSize": 16,
+    "y": 222,
+    "tag": "A"
+  },
+  {
+    "text": "인테리어 맡겼습니다. 2월 말부터 운영중이구요.. 정화조 위치를 찾으려고 뒤편 불법건축물? 공간 뜯었는데 인테리어... 인테리어 15평도 안되는곳 철거 비용 많이든다며 4천씩이나...",
+    "fontSize": 16,
+    "y": 222,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 223,
+    "tag": "MARK"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 247,
+    "tag": "MARK"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 247,
+    "tag": "MARK"
+  },
+  {
+    "text": "달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전",
+    "fontSize": 16,
+    "y": 258,
+    "tag": "DIV"
+  },
+  {
+    "text": "달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및... 이해수변호사교통사고, 위반3일 전",
+    "fontSize": 16,
+    "y": 270,
+    "tag": "DIV"
+  },
+  {
+    "text": "달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및...",
+    "fontSize": 16,
+    "y": 270,
+    "tag": "A"
+  },
+  {
+    "text": "달간 인테리어 공사를 맡겼으나, 공사 후 불법건축물... ▪ 민사상 손해배상 및 계약 위반 책임 추궁 ① 인테리어... ④ 인테리어 하자보수 요구서를 내용증명으로 보내 시정 요구 및...",
+    "fontSize": 16,
+    "y": 270,
+    "tag": "SPAN"
+  },
+  {
+    "text": "이해수변호사교통사고, 위반3일 전",
+    "fontSize": 16,
+    "y": 326,
+    "tag": "DIV"
+  },
+  {
+    "text": "이해수변호사교통사고, 위반3일 전",
+    "fontSize": 16,
+    "y": 326,
+    "tag": "DIV"
+  },
+  {
+    "text": "이해수변호사교통사고, 위반",
+    "fontSize": 16,
+    "y": 326,
+    "tag": "DIV"
+  },
+  {
+    "text": "이해수",
+    "fontSize": 14,
+    "y": 326,
+    "tag": "SPAN"
+  },
+  {
+    "text": "이해수",
+    "fontSize": 14,
+    "y": 326,
+    "tag": "A"
+  },
+  {
+    "text": "이해수",
+    "fontSize": 14,
+    "y": 326,
+    "tag": "SPAN"
+  },
+  {
+    "text": "변호사교통사고, 위반",
+    "fontSize": 16,
+    "y": 329,
+    "tag": "DIV"
+  },
+  {
+    "text": "변호사",
+    "fontSize": 16,
+    "y": 329,
+    "tag": "DIV"
+  },
+  {
+    "text": "변호사",
+    "fontSize": 11,
+    "y": 331,
+    "tag": "SPAN"
+  },
+  {
+    "text": "교통사고, 위반",
+    "fontSize": 14,
+    "y": 329,
+    "tag": "SPAN"
+  },
+  {
+    "text": "3일 전",
+    "fontSize": 16,
+    "y": 329,
+    "tag": "DIV"
+  },
+  {
+    "text": "3일 전",
+    "fontSize": 14,
+    "y": 329,
+    "tag": "SPAN"
+  },
+  {
+    "text": "하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...  김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전",
+    "fontSize": 16,
+    "y": 378,
+    "tag": "DIV"
+  },
+  {
+    "text": "하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...",
+    "fontSize": 16,
+    "y": 395,
+    "tag": "DIV"
+  },
+  {
+    "text": "하시5 인테리어, 김현우 참여로 달라진 점 있나요?Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 395,
+    "tag": "DIV"
+  },
+  {
+    "text": "하시5 인테리어, 김현우 참여로 달라진 점 있나요?",
+    "fontSize": 16,
+    "y": 395,
+    "tag": "DIV"
+  },
+  {
+    "text": "하시5 인테리어, 김현우 참여로 달라진 점 있나요?",
+    "fontSize": 16,
+    "y": 395,
+    "tag": "A"
+  },
+  {
+    "text": "하시5 인테리어, 김현우 참여로 달라진 점 있나요?",
+    "fontSize": 17,
+    "y": 395,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 17,
+    "y": 394,
+    "tag": "MARK"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 395,
+    "tag": "DIV"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 399,
+    "tag": "DIV"
+  },
+  {
+    "text": "김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...",
+    "fontSize": 16,
+    "y": 423,
+    "tag": "A"
+  },
+  {
+    "text": "김현우가 '하시5'의 인테리어 디렉터로 참여했다는 소식을... 특히 그가 인테리어에서 중요하게 생각하는 '살던 느낌'이나... 혹시 이전 시즌과 비교해서 이번 시즌의 인테리어에서 눈에...",
+    "fontSize": 16,
+    "y": 423,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 424,
+    "tag": "MARK"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 424,
+    "tag": "MARK"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 448,
+    "tag": "MARK"
+  },
+  {
+    "text": "김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전",
+    "fontSize": 16,
+    "y": 459,
+    "tag": "DIV"
+  },
+  {
+    "text": "김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)... 임웅진한의사한방재활의학과3일 전",
+    "fontSize": 16,
+    "y": 471,
+    "tag": "DIV"
+  },
+  {
+    "text": "김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)...",
+    "fontSize": 16,
+    "y": 471,
+    "tag": "A"
+  },
+  {
+    "text": "김현우가 인테리어 디렉터로 참여한 하트시그널 시즌 5... 하시5 인테리어의 진짜 포인트는 여기입니다. 자연스럽게... 이걸 인테리어로 풀어냈습니다 이전 시즌과 비교 (핵심 변화)...",
+    "fontSize": 16,
+    "y": 471,
+    "tag": "SPAN"
+  },
+  {
+    "text": "임웅진한의사한방재활의학과3일 전",
+    "fontSize": 16,
+    "y": 527,
+    "tag": "DIV"
+  },
+  {
+    "text": "임웅진한의사한방재활의학과3일 전",
+    "fontSize": 16,
+    "y": 527,
+    "tag": "DIV"
+  },
+  {
+    "text": "임웅진한의사한방재활의학과",
+    "fontSize": 16,
+    "y": 527,
+    "tag": "DIV"
+  },
+  {
+    "text": "임웅진",
+    "fontSize": 14,
+    "y": 527,
+    "tag": "SPAN"
+  },
+  {
+    "text": "임웅진",
+    "fontSize": 14,
+    "y": 527,
+    "tag": "A"
+  },
+  {
+    "text": "임웅진",
+    "fontSize": 14,
+    "y": 527,
+    "tag": "SPAN"
+  },
+  {
+    "text": "한의사한방재활의학과",
+    "fontSize": 16,
+    "y": 530,
+    "tag": "DIV"
+  },
+  {
+    "text": "한의사",
+    "fontSize": 16,
+    "y": 530,
+    "tag": "DIV"
+  },
+  {
+    "text": "한의사",
+    "fontSize": 11,
+    "y": 532,
+    "tag": "SPAN"
+  },
+  {
+    "text": "한방재활의학과",
+    "fontSize": 14,
+    "y": 530,
+    "tag": "SPAN"
+  },
+  {
+    "text": "3일 전",
+    "fontSize": 16,
+    "y": 530,
+    "tag": "DIV"
+  },
+  {
+    "text": "3일 전",
+    "fontSize": 14,
+    "y": 530,
+    "tag": "SPAN"
+  },
+  {
+    "text": "거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...  아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.",
+    "fontSize": 16,
+    "y": 579,
+    "tag": "DIV"
+  },
+  {
+    "text": "거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...",
+    "fontSize": 16,
+    "y": 596,
+    "tag": "DIV"
+  },
+  {
+    "text": "거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 596,
+    "tag": "DIV"
+  },
+  {
+    "text": "거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?",
+    "fontSize": 16,
+    "y": 596,
+    "tag": "DIV"
+  },
+  {
+    "text": "거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?",
+    "fontSize": 16,
+    "y": 596,
+    "tag": "A"
+  },
+  {
+    "text": "거주하는 아파트 인테리어 공사 후 개인사업자로 세금계산서 발행 가능한가요?",
+    "fontSize": 17,
+    "y": 596,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 17,
+    "y": 595,
+    "tag": "MARK"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 596,
+    "tag": "DIV"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 600,
+    "tag": "DIV"
+  },
+  {
+    "text": "현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...",
+    "fontSize": 16,
+    "y": 624,
+    "tag": "A"
+  },
+  {
+    "text": "현재 아파트(도소매 업체 사장님 거주)에 인테리어 공사를... a업체 : 인테리어 시공업체 / b업체 : 도소매 업체 사장님... 나중에 b업체 사장님이 아파트를 파시게 되면 해당 인테리어...",
+    "fontSize": 16,
+    "y": 624,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 625,
+    "tag": "MARK"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 625,
+    "tag": "MARK"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 649,
+    "tag": "MARK"
+  },
+  {
+    "text": "아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.",
+    "fontSize": 16,
+    "y": 660,
+    "tag": "DIV"
+  },
+  {
+    "text": "아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를... 서혁진 세무사세무사세무사2026.03.16.",
+    "fontSize": 16,
+    "y": 672,
+    "tag": "DIV"
+  },
+  {
+    "text": "아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를...",
+    "fontSize": 16,
+    "y": 672,
+    "tag": "A"
+  },
+  {
+    "text": "아파트 인테리어 비용을 사업자(도소매업) 명의로 세금계산서 발행하는 것은 문제가 될 가능성이 큽니다. 인테리어... 인테리어 업체(A)가 도소매업체(B) 명의로 세금계산서를...",
+    "fontSize": 16,
+    "y": 672,
+    "tag": "SPAN"
+  },
+  {
+    "text": "서혁진 세무사세무사세무사2026.03.16.",
+    "fontSize": 16,
+    "y": 728,
+    "tag": "DIV"
+  },
+  {
+    "text": "서혁진 세무사세무사세무사2026.03.16.",
+    "fontSize": 16,
+    "y": 728,
+    "tag": "DIV"
+  },
+  {
+    "text": "서혁진 세무사세무사세무사",
+    "fontSize": 16,
+    "y": 728,
+    "tag": "DIV"
+  },
+  {
+    "text": "서혁진 세무사",
+    "fontSize": 14,
+    "y": 728,
+    "tag": "SPAN"
+  },
+  {
+    "text": "서혁진 세무사",
+    "fontSize": 14,
+    "y": 728,
+    "tag": "A"
+  },
+  {
+    "text": "서혁진 세무사",
+    "fontSize": 14,
+    "y": 728,
+    "tag": "SPAN"
+  },
+  {
+    "text": "세무사세무사",
+    "fontSize": 16,
+    "y": 731,
+    "tag": "DIV"
+  },
+  {
+    "text": "세무사",
+    "fontSize": 16,
+    "y": 731,
+    "tag": "DIV"
+  },
+  {
+    "text": "세무사",
+    "fontSize": 11,
+    "y": 733,
+    "tag": "SPAN"
+  },
+  {
+    "text": "세무사",
+    "fontSize": 14,
+    "y": 731,
+    "tag": "SPAN"
+  },
+  {
+    "text": "2026.03.16.",
+    "fontSize": 16,
+    "y": 731,
+    "tag": "DIV"
+  },
+  {
+    "text": "2026.03.16.",
+    "fontSize": 14,
+    "y": 731,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...  인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전",
+    "fontSize": 16,
+    "y": 780,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...",
+    "fontSize": 16,
+    "y": 797,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 마감 안하고 감옥감Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 797,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 마감 안하고 감옥감",
+    "fontSize": 16,
+    "y": 797,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 마감 안하고 감옥감",
+    "fontSize": 16,
+    "y": 797,
+    "tag": "A"
+  },
+  {
+    "text": "인테리어 마감 안하고 감옥감",
+    "fontSize": 17,
+    "y": 797,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 17,
+    "y": 796,
+    "tag": "MARK"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 797,
+    "tag": "DIV"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 801,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...",
+    "fontSize": 16,
+    "y": 825,
+    "tag": "A"
+  },
+  {
+    "text": "인테리어 업자가 마지막 공정을 남겨두고 저번 주 금요일날 감옥에 갔습니다. 지인분들은... 다른 지인 인테리어업자분이 마무리를 해준다고는 하는데, 완공시점이 미뤄지고, 감옥에서...",
+    "fontSize": 16,
+    "y": 825,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 826,
+    "tag": "MARK"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 850,
+    "tag": "MARK"
+  },
+  {
+    "text": "인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전",
+    "fontSize": 16,
+    "y": 861,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며... 송명호변호사변호사변호사2주 전",
+    "fontSize": 16,
+    "y": 873,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며...",
+    "fontSize": 16,
+    "y": 873,
+    "tag": "A"
+  },
+  {
+    "text": "인테리어 업자가 공사 마무리를 앞두고 법정 구속되어 공사가 중단된 상황입니다. 2.... 1. 인테리어 업자가 구속되어 공사를 이행하지 못하는 것은 명백한 계약 위반에 해당하며...",
+    "fontSize": 16,
+    "y": 873,
+    "tag": "SPAN"
+  },
+  {
+    "text": "송명호변호사변호사변호사2주 전",
+    "fontSize": 16,
+    "y": 929,
+    "tag": "DIV"
+  },
+  {
+    "text": "송명호변호사변호사변호사2주 전",
+    "fontSize": 16,
+    "y": 929,
+    "tag": "DIV"
+  },
+  {
+    "text": "송명호변호사변호사변호사",
+    "fontSize": 16,
+    "y": 929,
+    "tag": "DIV"
+  },
+  {
+    "text": "송명호변호사",
+    "fontSize": 14,
+    "y": 929,
+    "tag": "SPAN"
+  },
+  {
+    "text": "송명호변호사",
+    "fontSize": 14,
+    "y": 929,
+    "tag": "A"
+  },
+  {
+    "text": "송명호변호사",
+    "fontSize": 14,
+    "y": 929,
+    "tag": "SPAN"
+  },
+  {
+    "text": "변호사변호사",
+    "fontSize": 16,
+    "y": 932,
+    "tag": "DIV"
+  },
+  {
+    "text": "변호사",
+    "fontSize": 16,
+    "y": 932,
+    "tag": "DIV"
+  },
+  {
+    "text": "변호사",
+    "fontSize": 11,
+    "y": 934,
+    "tag": "SPAN"
+  },
+  {
+    "text": "변호사",
+    "fontSize": 14,
+    "y": 932,
+    "tag": "SPAN"
+  },
+  {
+    "text": "2주 전",
+    "fontSize": 16,
+    "y": 932,
+    "tag": "DIV"
+  },
+  {
+    "text": "2주 전",
+    "fontSize": 14,
+    "y": 932,
+    "tag": "SPAN"
+  },
+  {
+    "text": "구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기 , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다. ★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전",
+    "fontSize": 16,
+    "y": 981,
+    "tag": "DIV"
+  },
+  {
+    "text": "구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기 , 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다.",
+    "fontSize": 16,
+    "y": 998,
+    "tag": "DIV"
+  },
+  {
+    "text": "구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 998,
+    "tag": "DIV"
+  },
+  {
+    "text": "구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.",
+    "fontSize": 16,
+    "y": 998,
+    "tag": "DIV"
+  },
+  {
+    "text": "구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.",
+    "fontSize": 16,
+    "y": 998,
+    "tag": "A"
+  },
+  {
+    "text": "구옥인테리어 중 시멘벽에 가로 크랙을 발견했습니다.",
+    "fontSize": 17,
+    "y": 998,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 17,
+    "y": 997,
+    "tag": "MARK"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 998,
+    "tag": "DIV"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 1002,
+    "tag": "DIV"
+  },
+  {
+    "text": ", 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다.",
+    "fontSize": 16,
+    "y": 1026,
+    "tag": "A"
+  },
+  {
+    "text": ", 단열을 하자니 크게 튀어나온 벽 때문에 단열재가 잘 붙을지 고민이 됩니다. 그냥 오래된 합판 위에 단열재를 덧방하는게 좋을까요? ㅠㅠ 인테리어 고수분들의 고견을 듣고싶습니다.",
+    "fontSize": 16,
+    "y": 1026,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 1051,
+    "tag": "MARK"
+  },
+  {
+    "text": "★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전",
+    "fontSize": 16,
+    "y": 1062,
+    "tag": "DIV"
+  },
+  {
+    "text": "★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에... 이파엘지종합특수방수주방23시간 전",
+    "fontSize": 16,
+    "y": 1074,
+    "tag": "DIV"
+  },
+  {
+    "text": "★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에...",
+    "fontSize": 16,
+    "y": 1074,
+    "tag": "A"
+  },
+  {
+    "text": "★ 인테리어의 완성은 눈에 보이는 내부도 중요하지만, 그 내부를 지켜주는 '껍데기(외벽)'의 건강 상태에 달려 있습니다. 내부 합판 위에 덧방하는 임시방편보다는, 이번 기회에...",
+    "fontSize": 16,
+    "y": 1074,
+    "tag": "SPAN"
+  },
+  {
+    "text": "이파엘지종합특수방수주방23시간 전",
+    "fontSize": 16,
+    "y": 1130,
+    "tag": "DIV"
+  },
+  {
+    "text": "이파엘지종합특수방수주방23시간 전",
+    "fontSize": 16,
+    "y": 1130,
+    "tag": "DIV"
+  },
+  {
+    "text": "이파엘지종합특수방수주방",
+    "fontSize": 16,
+    "y": 1130,
+    "tag": "DIV"
+  },
+  {
+    "text": "이파엘지종합특수방수",
+    "fontSize": 14,
+    "y": 1130,
+    "tag": "SPAN"
+  },
+  {
+    "text": "이파엘지종합특수방수",
+    "fontSize": 14,
+    "y": 1130,
+    "tag": "A"
+  },
+  {
+    "text": "이파엘지종합특수방수",
+    "fontSize": 14,
+    "y": 1130,
+    "tag": "SPAN"
+  },
+  {
+    "text": "주방",
+    "fontSize": 16,
+    "y": 1133,
+    "tag": "DIV"
+  },
+  {
+    "text": "주방",
+    "fontSize": 14,
+    "y": 1133,
+    "tag": "SPAN"
+  },
+  {
+    "text": "23시간 전",
+    "fontSize": 16,
+    "y": 1133,
+    "tag": "DIV"
+  },
+  {
+    "text": "23시간 전",
+    "fontSize": 14,
+    "y": 1133,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...  결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전",
+    "fontSize": 16,
+    "y": 1182,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...",
+    "fontSize": 16,
+    "y": 1199,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 공정 분리 협의 결렬 시 계약 해지 가능성Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 1199,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 공정 분리 협의 결렬 시 계약 해지 가능성",
+    "fontSize": 16,
+    "y": 1199,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 공정 분리 협의 결렬 시 계약 해지 가능성",
+    "fontSize": 16,
+    "y": 1199,
+    "tag": "A"
+  },
+  {
+    "text": "인테리어 공정 분리 협의 결렬 시 계약 해지 가능성",
+    "fontSize": 17,
+    "y": 1199,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 17,
+    "y": 1198,
+    "tag": "MARK"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 1199,
+    "tag": "DIV"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 1203,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...",
+    "fontSize": 16,
+    "y": 1227,
+    "tag": "A"
+  },
+  {
+    "text": "인테리어 공사 중 공정 분리 협의가 결렬돼 공사가 중단된 상태입니다. 계약 해지 후 정산하려고 하는데 법적으로 문제 없는지 확인하고 싶습니다. 1. 지금 상황에서 계약 해지하면...",
+    "fontSize": 16,
+    "y": 1227,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 1228,
+    "tag": "MARK"
+  },
+  {
+    "text": "결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전",
+    "fontSize": 16,
+    "y": 1263,
+    "tag": "DIV"
+  },
+  {
+    "text": "결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고... 로톡변호사재판, 소송 절차3일 전",
+    "fontSize": 16,
+    "y": 1275,
+    "tag": "DIV"
+  },
+  {
+    "text": "결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고...",
+    "fontSize": 16,
+    "y": 1275,
+    "tag": "A"
+  },
+  {
+    "text": "결론부터 말씀드리면, 인테리어 계약은 민법상 '도급계약'에 해당하여 계약 해지 자체는 가능합니다. 수급인(업체)이 일을 완성하기 전에는 도급인(의뢰인)이 손해를 배상하고...",
+    "fontSize": 16,
+    "y": 1275,
+    "tag": "SPAN"
+  },
+  {
+    "text": "로톡변호사재판, 소송 절차3일 전",
+    "fontSize": 16,
+    "y": 1331,
+    "tag": "DIV"
+  },
+  {
+    "text": "로톡변호사재판, 소송 절차3일 전",
+    "fontSize": 16,
+    "y": 1331,
+    "tag": "DIV"
+  },
+  {
+    "text": "로톡변호사재판, 소송 절차",
+    "fontSize": 16,
+    "y": 1331,
+    "tag": "DIV"
+  },
+  {
+    "text": "로톡",
+    "fontSize": 14,
+    "y": 1331,
+    "tag": "SPAN"
+  },
+  {
+    "text": "로톡",
+    "fontSize": 14,
+    "y": 1331,
+    "tag": "A"
+  },
+  {
+    "text": "로톡",
+    "fontSize": 14,
+    "y": 1331,
+    "tag": "SPAN"
+  },
+  {
+    "text": "변호사재판, 소송 절차",
+    "fontSize": 16,
+    "y": 1334,
+    "tag": "DIV"
+  },
+  {
+    "text": "변호사",
+    "fontSize": 16,
+    "y": 1334,
+    "tag": "DIV"
+  },
+  {
+    "text": "변호사",
+    "fontSize": 11,
+    "y": 1336,
+    "tag": "SPAN"
+  },
+  {
+    "text": "재판, 소송 절차",
+    "fontSize": 14,
+    "y": 1334,
+    "tag": "SPAN"
+  },
+  {
+    "text": "3일 전",
+    "fontSize": 16,
+    "y": 1334,
+    "tag": "DIV"
+  },
+  {
+    "text": "3일 전",
+    "fontSize": 14,
+    "y": 1334,
+    "tag": "SPAN"
+  },
+  {
+    "text": "아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...  인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전",
+    "fontSize": 16,
+    "y": 1383,
+    "tag": "DIV"
+  },
+  {
+    "text": "아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...",
+    "fontSize": 16,
+    "y": 1400,
+    "tag": "DIV"
+  },
+  {
+    "text": "아파트 인테리어 공사, 건설산업기본법에 따른 무상수리Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 1400,
+    "tag": "DIV"
+  },
+  {
+    "text": "아파트 인테리어 공사, 건설산업기본법에 따른 무상수리",
+    "fontSize": 16,
+    "y": 1400,
+    "tag": "DIV"
+  },
+  {
+    "text": "아파트 인테리어 공사, 건설산업기본법에 따른 무상수리",
+    "fontSize": 16,
+    "y": 1400,
+    "tag": "A"
+  },
+  {
+    "text": "아파트 인테리어 공사, 건설산업기본법에 따른 무상수리",
+    "fontSize": 17,
+    "y": 1400,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 17,
+    "y": 1399,
+    "tag": "MARK"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 1400,
+    "tag": "DIV"
+  },
+  {
+    "text": "Keep에 저장Keep에 바로가기",
+    "fontSize": 16,
+    "y": 1404,
+    "tag": "DIV"
+  },
+  {
+    "text": "큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...",
+    "fontSize": 16,
+    "y": 1428,
+    "tag": "A"
+  },
+  {
+    "text": "큰 돈을 들여 아파트 인테리어 전체 공사를 하였습니다. 현재 1년 반정도 됐습니다.... 인테리어 회사는 실내건축업허가증도 있고 작은 동네 업체는 아닙니다. 건설산업기본법에 따른...",
+    "fontSize": 16,
+    "y": 1428,
+    "tag": "SPAN"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 1429,
+    "tag": "MARK"
+  },
+  {
+    "text": "인테리어",
+    "fontSize": 16,
+    "y": 1429,
+    "tag": "MARK"
+  },
+  {
+    "text": "인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전",
+    "fontSize": 16,
+    "y": 1464,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생... 신용훈변호사교통사고, 위반1주 전",
+    "fontSize": 16,
+    "y": 1476,
+    "tag": "DIV"
+  },
+  {
+    "text": "인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생...",
+    "fontSize": 16,
+    "y": 1476,
+    "tag": "A"
+  },
+  {
+    "text": "인테리어 공사 이후 일정 기간이 지난 뒤 하자가 발생하는... 단순 인테리어 공사가 이에 포함되는지 여부는 공사의... 연결 ▼ ⚖ 인테리어 공사 범위 및 시공책임 정리 ⚖ 누수 발생...",
+    "fontSize": 16,
+    "y": 1476,
+    "tag": "SPAN"
+  }
+]
