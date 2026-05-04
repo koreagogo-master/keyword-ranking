@@ -131,6 +131,7 @@ function KeywordVolumeContent() {
     const keywords = item.keyword.split(',').map((k: string) => k.trim()).filter(Boolean);
     setInputText(keywords.join('\n'));
     // 자동 조회 제거 — 사용자가 [조회수 확인] 버튼을 직접 클릭해야 시작
+    setResults([]); // 🌟 이전 검색 결과 초기화
   };
 
   const handleSubmitWithKeywords = async (keywords: string[]) => {

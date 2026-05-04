@@ -226,7 +226,17 @@ function SeoTitleContent() {
     const handleApplySavedSetting = (item: any) => {
         setIsDrawerOpen(false);
         setKeyword(item.keyword);
-        handleAnalyze(item.keyword);
+        // 자동 분석 해제 및 모든 결과 초기화
+        setCategoryStats([]);
+        setTop40Titles([]);
+        setVisibleTitleCount(10);
+        setInitialTags([]);
+        setResults([]);
+        setRecommendedTags([]);
+        setExcludeKeyword('');
+        setAiTags([]);
+        setAiRefinedTitles([]);
+        setAnalyzedKeyword('');
     };
 
     const handleCopy = (text: string) => {

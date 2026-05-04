@@ -38,9 +38,10 @@ export async function POST(request: Request) {
     // =====================================================================
 
     // 🌟 1. 블로그 공식 명칭 및 소개글 추출 (Channel 정보)
-    const blogTitleMatch = rssText.match(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/);
-    const blogDescMatch = rssText.match(/<description>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/description>/);
-    const blogTitle = blogTitleMatch ? blogTitleMatch[1] : "네이버 블로그";
+    // 줄바꿈이 있는 소개글도 매칭되도록 .*? 대신 [\s\S]*? 사용
+    const blogTitleMatch = rssText.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/);
+    const blogDescMatch = rssText.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/);
+    const blogTitle = blogTitleMatch ? blogTitleMatch[1].trim() : "네이버 블로그";
     const blogDescription = blogDescMatch ? blogDescMatch[1] : "";
 
     // 2. 전체 글 리스트업
@@ -54,6 +55,7 @@ export async function POST(request: Request) {
       const itemContent = match[1];
       const titleMatch = itemContent.match(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/);
       const linkMatch = itemContent.match(/<link>(.*?)<\/link>/);
+      const categoryMatch = itemContent.match(/<category>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/category>/);
       // 🌟 정확한 발행 시간(시/분/초) 포함을 위해 원본 날짜 그대로 가져옴
       const pubDateMatch = itemContent.match(/<pubDate>(.*?)<\/pubDate>/);
 
@@ -61,6 +63,7 @@ export async function POST(request: Request) {
         allItems.push({
           title: titleMatch[1].replace(/<[^>]*>?/gm, "").trim(),
           link: linkMatch[1],
+          category: categoryMatch ? categoryMatch[1].trim() : '일반',
           pubDate: pubDateMatch ? pubDateMatch[1] : new Date().toISOString(),
           status: "pending",
         });

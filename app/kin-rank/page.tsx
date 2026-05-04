@@ -154,10 +154,8 @@ function KinRankContent() {
           }
           setInputs(paddedInputs);
 
-          // 딜레이를 주고 자동 검색 실행
-          setTimeout(() => {
-            handleCheck(loadedInputs);
-          }, 300);
+          // URL 파라미터 유입 시 자동 검색 제거
+          setResults([]);
         }
       } catch (e) {
         console.error("지식인 데이터 파싱 에러:", e);
@@ -203,7 +201,7 @@ function KinRankContent() {
       }
 
       setInputs(paddedInputs);
-      handleCheck(loadedInputs);
+      setResults([]); // 자동 검색 제외 및 결과 초기화
     }
   };
 
@@ -308,16 +306,16 @@ function KinRankContent() {
 
           <div className="mt-4">
             {/* 💡 버튼을 감싸는 div를 추가하여 우측 정렬(justify-end) 시켰습니다. */}
-            <div className="flex justify-end mt-4">
-              <button
-                onClick={() => handleCheck()}
-                disabled={loading}
-                className={`px-10 py-3 rounded-md font-bold text-white transition-all shadow-md
-                  ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9]'}`}
-              >
-                {loading ? progress : '순위 확인하기 (입력된 항목 일괄 조회)'}
-              </button>
-            </div>
+            <div className="pt-2 border-t border-gray-100 flex justify-center mt-2">
+            <button
+              onClick={() => handleCheck()}
+              disabled={loading}
+              className={`h-[50px] px-10 rounded-sm font-bold text-white transition-all shadow-sm
+                ${loading ? 'bg-gray-400' : 'bg-[#5244e8] hover:bg-[#4336c9] hover:-translate-y-0.5'}`}
+            >
+              {loading ? progress : '순위 확인'}
+            </button>
+          </div>
           </div>
         </div>
       </div>

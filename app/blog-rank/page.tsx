@@ -162,6 +162,7 @@ function BlogRankContent() {
     setTargetNickname(item.nickname);
     setKeywordInput(slicedKeywords);
     // 자동 조회 제거 — 사용자가 직접 버튼 클릭 시에만 검색
+    setResults([]); // 🌟 이전 검색 결과 초기화
   };
 
   return (

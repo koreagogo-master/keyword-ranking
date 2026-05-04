@@ -22,6 +22,9 @@ interface SearchResultRow {
   isSuccess: boolean;
   isLoading?: boolean;
   error?: string;
+  reason?: 'NOT_FOUND' | 'ERROR' | null;
+  deepSearched?: boolean;
+  url?: string;
 }
 
 const AUTHOR_COLORS = [
@@ -51,9 +54,7 @@ function BlogRankContent() {
   const [saveToast, setSaveToast] = useState(false);
   const [showToast, setShowToast] = useState(false);
 
-  // 🌟 재조회 순차 대기열
-  const retryQueue = useRef<{ keyword: string; nickname: string }[]>([]);
-  const isRetrying = useRef<boolean>(false);
+  const [deepSearchingKeyword, setDeepSearchingKeyword] = useState<string | null>(null);
 
   const nicknames = targetNickname.split(',').map(s => s.trim()).filter(Boolean);
 
@@ -97,14 +98,14 @@ function BlogRankContent() {
 
         if (res.success && Array.isArray(res.data)) {
           const rows = res.data.map(item => ({
-            keyword, rank: item.rank, date: item.date, title: item.title, author: item.author, isSuccess: true,
+            keyword, rank: item.rank, date: item.date, title: item.title, author: item.author, isSuccess: true, url: item.url, reason: null
           }));
           setResults(prev => [...prev, ...rows]);
         } else {
-          setResults(prev => [...prev, { keyword, rank: 'X', date: '-', title: '순위 내 없음', author: '-', isSuccess: false }]);
+          setResults(prev => [...prev, { keyword, rank: 'X', date: '-', title: '순위 밖', author: '-', isSuccess: false, reason: res.reason || 'NOT_FOUND' }]);
         }
       } catch {
-        setResults(prev => [...prev, { keyword, rank: 'Err', date: '-', title: '오류 발생', author: '-', isSuccess: false }]);
+        setResults(prev => [...prev, { keyword, rank: 'Err', date: '-', title: '오류 발생', author: '-', isSuccess: false, reason: 'ERROR' }]);
       }
     }
 
@@ -112,61 +113,7 @@ function BlogRankContent() {
     setProgress('완료');
   };
 
-  // 🌟 재조회 함수 (포인트 차감 없이 해당 키워드만 재시도)
-  const processRetryQueue = async () => {
-    if (isRetrying.current || retryQueue.current.length === 0) return;
-    isRetrying.current = true;
-
-    while (retryQueue.current.length > 0) {
-      const { keyword: retryKeyword, nickname: retryNickname } = retryQueue.current.shift()!;
-
-      try {
-        const res = await checkNaverBlogRank(retryKeyword, retryNickname);
-
-        setResults(prev => prev.map(item => {
-          if (item.keyword !== retryKeyword) return item;
-          if (res.success && Array.isArray(res.data)) {
-            const matched = res.data.find((d: any) =>
-              retryNickname.split(',').map((s: string) => s.trim()).some(nick => d.author?.includes(nick))
-            ) || res.data[0];
-            if (matched) {
-              return { ...item, rank: matched.rank, date: matched.date, title: matched.title, author: matched.author, isSuccess: true, isLoading: false, error: undefined };
-            }
-          }
-          return { ...item, rank: 'X', date: '-', title: '순위 내 없음', author: '-', isSuccess: false, isLoading: false, error: undefined };
-        }));
-      } catch (e: any) {
-        setResults(prev => prev.map(item =>
-          item.keyword === retryKeyword
-            ? { ...item, isLoading: false, error: e.message || '조회 실패' }
-            : item
-        ));
-      }
-
-      if (retryQueue.current.length > 0) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-    }
-
-    isRetrying.current = false;
-  };
-
-  const handleRetry = (retryKeyword: string) => {
-    const retryNickname = targetNickname;
-    const alreadyQueued = retryQueue.current.some(q => q.keyword === retryKeyword);
-    const currentItem = results.find(r => r.keyword === retryKeyword);
-    if (alreadyQueued || currentItem?.isLoading) return;
-
-    retryQueue.current.push({ keyword: retryKeyword, nickname: retryNickname });
-
-    setResults(prev => prev.map(item =>
-      item.keyword === retryKeyword
-        ? { ...item, isLoading: true, error: undefined }
-        : item
-    ));
-
-    processRetryQueue();
-  };
+  // 재조회 큐 제거 (개별 async 직접 실행으로 대체)
 
   // 🌟 결과 복사 함수 (닉네임 헤더 + 닉네임별 키워드/순위 TSV)
   const handleCopyResults = () => {
@@ -230,6 +177,7 @@ function BlogRankContent() {
     setTargetNickname(item.nickname);
     setKeywordInput(slicedKeywords);
     // 자동 검색 제거: 입력값만 채워주고 사용자가 직접 '순위 확인하기'를 누르도록 함
+    setResults([]); // 🌟 이전 검색 결과 초기화
   };
 
   const uniqueKeywords = Array.from(new Set(results.map(r => r.keyword)));
@@ -363,48 +311,97 @@ function BlogRankContent() {
                       {uniqueKeywords.map((kw, i) => {
                         const kwRows = results.filter(r => r.keyword === kw);
                         const matchedRow = kwRows.find(r => getMatchedNicknameIndex(r.author) === idx);
-                        const displayRow = matchedRow || kwRows.find(r => r.author === '-') || {
-                          keyword: kw, rank: 'X', date: '-', title: '순위 내 없음', author: '-'
+                        const displayRow: SearchResultRow = matchedRow || kwRows.find(r => r.author === '-') || {
+                          keyword: kw, rank: 'X', date: '-', title: '순위 밖', author: '-', isSuccess: false, reason: 'NOT_FOUND'
                         };
 
                         const isRanked = displayRow.rank !== 'X' && displayRow.rank !== 'Err';
-                        const isRowLoading = (displayRow as SearchResultRow).isLoading === true;
-                        const isRowError = (displayRow as SearchResultRow).error != null || displayRow.rank === 'Err';
+                        const isRowError = displayRow.reason === 'ERROR' || displayRow.rank === 'Err';
 
                         return (
                           <tr key={i} className="hover:bg-gray-50 transition-colors">
-                            <td className="p-3 font-bold text-gray-900 text-center">{kw}</td>
+                            <td className="p-3 font-bold !text-gray-900 text-center">{kw}</td>
                             <td className="p-3 text-center">
-                              {isRowLoading ? (
-                                <div className="flex justify-center"><div className="w-5 h-5 border-2 rounded-full animate-spin border-indigo-100 border-t-[#5244e8]" /></div>
-                              ) : isRowError ? (
-                                <span className="text-xs font-bold text-red-500">검색 실패</span>
+                              {isRowError ? (
+                                <span className="text-[12px] font-bold px-2 py-0.5 bg-rose-50 !text-rose-500 rounded-md">조회 오류</span>
+                              ) : !isRanked ? (
+                                <span className="text-[12px] font-bold px-2 py-0.5 bg-gray-100 !text-gray-400 rounded-md whitespace-nowrap">순위 없음</span>
                               ) : (
-                                <span className={`font-extrabold text-lg ${isRanked ? 'text-[#5244e8]' : 'text-gray-300'}`}>
+                                <span className="font-extrabold text-lg !text-[#5244e8]">
                                   {displayRow.rank}
                                 </span>
                               )}
                             </td>
                             <td className="p-3 text-center">
-                              {isRowLoading ? (
-                                <div className="w-5 h-5 border-2 rounded-full animate-spin border-indigo-100 border-t-[#5244e8] mx-auto" />
-                              ) : (!isRanked || isRowError) ? (
+                              {displayRow.reason === 'NOT_FOUND' && !displayRow.deepSearched ? (
                                 <button
-                                  onClick={() => handleRetry(kw)}
-                                  title="재조회"
-                                  className="w-8 h-8 flex items-center justify-center mx-auto rounded-full hover:bg-indigo-50 text-slate-400 hover:text-[#5244e8] transition-all"
+                                  disabled={deepSearchingKeyword === kw}
+                                  onClick={async () => {
+                                    setDeepSearchingKeyword(kw);
+                                    try {
+                                      const { checkNaverBlogRankDeep } = await import('./actions');
+                                      const res = await checkNaverBlogRankDeep(kw, targetNickname);
+                                      setResults(prev => {
+                                        const filtered = prev.filter(r => r.keyword !== kw);
+                                        if (res.success && Array.isArray(res.data)) {
+                                          const rows = res.data.map(item => ({
+                                            keyword: kw, rank: item.rank, date: item.date, title: item.title, author: item.author, isSuccess: true, url: item.url, reason: null, deepSearched: true
+                                          }));
+                                          return [...filtered, ...rows];
+                                        } else {
+                                          return [...filtered, { keyword: kw, rank: 'X', date: '-', title: '순위 없음 (50위 밖)', author: '-', isSuccess: false, reason: 'NOT_FOUND', deepSearched: true }];
+                                        }
+                                      });
+                                    } catch (e) {
+                                      setResults(prev => prev.map(item => item.keyword === kw ? { ...item, reason: 'ERROR', rank: 'Err' } : item));
+                                    } finally {
+                                      setDeepSearchingKeyword(null);
+                                    }
+                                  }}
+                                  className="text-[11px] font-bold px-3 py-1 rounded-md bg-amber-50 !text-amber-600 border border-amber-200 hover:bg-amber-100 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-wait"
                                 >
-                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                                  </svg>
+                                  {deepSearchingKeyword === kw ? '검색 중...' : '50위까지 추가 검색'}
                                 </button>
-                              ) : null}
+                              ) : displayRow.reason === 'ERROR' ? (
+                                <button
+                                  disabled={deepSearchingKeyword === kw}
+                                  onClick={async () => {
+                                    setDeepSearchingKeyword(kw);
+                                    try {
+                                      const { checkNaverBlogRank } = await import('./actions');
+                                      const res = await checkNaverBlogRank(kw, targetNickname);
+                                      setResults(prev => {
+                                        const filtered = prev.filter(r => r.keyword !== kw);
+                                        if (res.success && Array.isArray(res.data)) {
+                                          const rows = res.data.map(item => ({
+                                            keyword: kw, rank: item.rank, date: item.date, title: item.title, author: item.author, isSuccess: true, url: item.url, reason: null
+                                          }));
+                                          return [...filtered, ...rows];
+                                        } else {
+                                          return [...filtered, { keyword: kw, rank: 'X', date: '-', title: '순위 밖', author: '-', isSuccess: false, reason: 'NOT_FOUND' }];
+                                        }
+                                      });
+                                    } catch (e) {} finally { setDeepSearchingKeyword(null); }
+                                  }}
+                                  className="text-[11px] font-bold px-3 py-1 rounded-md bg-rose-50 !text-rose-500 border border-rose-200 hover:bg-rose-100 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-wait"
+                                >
+                                  {deepSearchingKeyword === kw ? '조회 중...' : '재조회'}
+                                </button>
+                              ) : (
+                                <span className="!text-gray-300">—</span>
+                              )}
                             </td>
-                            <td className="p-3 text-center text-[13px] font-medium text-gray-500 whitespace-nowrap">
+                            <td className="p-3 text-center text-[13px] font-medium !text-gray-500 whitespace-nowrap">
                               {displayRow.date}
                             </td>
-                            <td className="p-3 text-[14px] font-medium text-gray-700 pr-4">
-                              {displayRow.title}
+                            <td className="p-3 text-[14px] font-medium !text-gray-700 pr-4">
+                              {displayRow.url ? (
+                                <a href={displayRow.url} target="_blank" rel="noopener noreferrer" className="hover:underline !text-[#5244e8]">
+                                  {displayRow.title}
+                                </a>
+                              ) : (
+                                displayRow.title
+                              )}
                             </td>
                           </tr>
                         );
@@ -418,13 +415,13 @@ function BlogRankContent() {
 
           {/* 🌟 결과 복사 버튼 */}
           {!loading && (
-            <div className="flex justify-center mt-8">
+            <div className="flex justify-end mt-3">
               <button
                 onClick={handleCopyResults}
-                className="flex items-center gap-2 px-8 py-3 bg-slate-800 text-white text-sm font-bold rounded-full shadow-md hover:bg-slate-700 transition-all hover:-translate-y-0.5"
+                className="flex items-center gap-2 px-5 py-2 bg-slate-700 hover:bg-slate-800 !text-white text-sm font-bold rounded-md shadow-sm transition-colors"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                 </svg>
                 결과 복사
               </button>
