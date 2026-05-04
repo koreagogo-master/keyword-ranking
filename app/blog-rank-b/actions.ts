@@ -56,7 +56,6 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
         return { success: false, message: '네이버 접속 시간 초과 (프록시 재시도 필요)' };
     }
 
-    const screenshotBase64 = await page.screenshot({ encoding: 'base64' });
 
     // 5. 스크롤 (데이터 로딩)
     for (let i = 0; i < 3; i++) { 
@@ -122,9 +121,9 @@ export async function checkNaverBlogRank(keyword: string, targetNicknames: strin
     await browser.close();
 
     if (foundItems.length > 0) {
-      return { success: true, message: `총 ${foundItems.length}건 발견`, data: foundItems, screenshot: screenshotBase64 };
+      return { success: true, message: `총 ${foundItems.length}건 발견`, data: foundItems };
     } else {
-      return { success: false, message: '순위 밖', screenshot: screenshotBase64, reason: 'NOT_FOUND' };
+      return { success: false, message: '순위 밖', reason: 'NOT_FOUND' };
     }
 
   } catch (error: any) {
