@@ -10,7 +10,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import AdminTabs from '@/components/AdminTabs';
 
 // 통계 제외용 관리자 이메일
-const adminEmails = ['a01091944465@gmail.com', 'lboll@naver.com', 'qairs@nate.com'];
+const adminEmails = ['a01091944465@gmail.com', 'lboll@naver.com'];
 
 export default function AdminUsersPage() {
   // 🌟 권한 확인을 위한 수문장 호출
