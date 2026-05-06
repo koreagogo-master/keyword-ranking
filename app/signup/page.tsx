@@ -38,6 +38,17 @@ export default function SignupPage() {
       if (error) {
         alert("회원가입 실패: " + error.message);
       } else {
+        // 성공 시: 관리자에게 신규 회원 가입 알림 메일 발송 (실패해도 회원가입 흐름에 영향 없음)
+        try {
+            await fetch('/api/notify-signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ newUserEmail: email }),
+            });
+        } catch (mailErr) {
+            console.error('관리자 알림 메일 발송 실패:', mailErr);
+        }
+
         // 성공 시 안내 문구 표시
         setIsSent(true);
       }
