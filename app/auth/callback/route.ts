@@ -3,9 +3,17 @@ import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/'
+
+  // Cloud Run 환경에서는 request.url의 origin이 localhost:8080으로 잡히는 문제 방지
+  // X-Forwarded-Host 헤더를 우선 사용하여 실제 외부 도메인(tmgad.com)을 가져옴
+  const forwardedHost = request.headers.get('x-forwarded-host')
+  const forwardedProto = request.headers.get('x-forwarded-proto') ?? 'https'
+  const origin = forwardedHost
+      ? `${forwardedProto}://${forwardedHost}`
+      : new URL(request.url).origin
 
   if (code) {
     const cookieStore = await cookies()
@@ -26,9 +34,9 @@ export async function GET(request: Request) {
                 
                 cookieStore.set(name, value, {
                   ...options,
-                  // ⚠️ 로컬 개발 환경 강제 설정
                   sameSite: 'lax',
-                  secure: false, 
+                  // 라이브(HTTPS) 환경에서는 secure: true, 로컬(HTTP)에서는 false
+                  secure: process.env.NODE_ENV === 'production',
                   httpOnly: true,
                 })
               })
