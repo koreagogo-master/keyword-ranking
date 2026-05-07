@@ -328,7 +328,9 @@ function PlaceRankContent() {
 
     const pointsToDeduct = mode === 'multi-place' ? 10 : 10 * validKws.length;
     const itemsCount = mode === 'multi-place' ? 1 : validKws.length;
-    const targetQuery = mode === 'multi-place' ? keyword.trim() : singlePlace.trim();
+    const targetQuery = mode === 'multi-place'
+      ? `업체별 조회 / ${keyword.trim()} / 업체: ${validPlaces.join(', ')}`
+      : `키워드별 조회 / ${singlePlace.trim()} / 키워드: ${validKws.join(', ')}`;
 
     const deducted = await deductPoints(user?.id, pointsToDeduct, itemsCount, targetQuery);
     if (!deducted) return;

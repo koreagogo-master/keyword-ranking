@@ -45,12 +45,19 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'GOOGLE': { name: '구글 키워드 분석', url: '/google-analysis' },
   'YOUTUBE': { name: '유튜브 트렌드', url: '/youtube-trend' },
   'SHOPPING': { name: '쇼핑 인사이트', url: '/shopping-insight' },
-  'SEO_TITLE': { name: '쇼핑 상품명 최적화', url: '/seo-title' }, /* 🌟 이 줄이 추가되었습니다! */
+  'SEO_TITLE': { name: '쇼핑 상품명 최적화', url: '/seo-title' },
+  'SEO_CHECK': { name: '내 상품명 진단', url: '/diagnosis' },
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
   'MANUAL': { name: '관리자 수동 조작', url: '/admin' },
   'CHARGE': { name: '포인트 자동 충전', url: '/charge' },
-  'AIBLOG': { name: 'AI 블로그', url: '/ai-blog' },       // 💡 새로 추가!
-  'AI_BLOG': { name: 'AI 블로그', url: '/ai-blog' }       // 💡 과거 내역 호환을 위해 추가!
+  'AIBLOG': { name: 'AI 블로그', url: '/ai-blog' },
+  'AI_BLOG': { name: 'AI 블로그', url: '/ai-blog' },
+  'AI_PRESS': { name: 'AI 언론 보도자료', url: '/ai-press' },
+  'REVIEW_AI': { name: '리뷰 답글 AI', url: '/review-ai' },
+  'INDEX_CHECK': { name: '블로그 노출 진단', url: '/index-check' },
+  'KEYWORD_VOLUME': { name: '키워드별 조회수', url: '/keyword-volume' },
+  'KEYWORD_GENERATOR': { name: '키워드 생성기', url: '/keyword-generator' },
+  'PLACE_RANK': { name: '플레이스 순위 조회', url: '/place-rank' },
 };
 export default function AdminHistoryPage() {
   // 🌟 권한 확인을 위한 수문장 호출

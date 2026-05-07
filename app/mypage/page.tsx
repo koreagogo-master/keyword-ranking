@@ -17,14 +17,18 @@ const PAGE_META: Record<string, string> = {
   'YOUTUBE': '유튜브 트렌드',
   'SHOPPING': '쇼핑 인사이트',
   'SEO_TITLE': '쇼핑 상품명 최적화',
+  'SEO_CHECK': '내 상품명 진단',
   'SHOPPING_RANK': '상품 노출 순위 분석',
   'MANUAL': '관리자 조정 포인트',
   'CHARGE': '포인트 자동 충전',
-  'AI_BLOG': 'Dual AI 포스팅',
+  'AIBLOG': 'AI 블로그',
+  'AI_BLOG': 'AI 블로그',
   'AI_PRESS': 'AI 언론 보도자료',
   'REVIEW_AI': '리뷰 답글 AI',
   'INDEX_CHECK': '블로그 노출 진단',
-  'PLACE_RANK': '플레이스 순위 조회'
+  'KEYWORD_VOLUME': '키워드별 조회수',
+  'KEYWORD_GENERATOR': '키워드 생성기',
+  'PLACE_RANK': '플레이스 순위 조회',
 };
 
 const getPastDate = (months: number) => {
@@ -286,81 +290,83 @@ function MyPageContent() {
     <div className="flex bg-gray-50 min-h-[calc(100vh-4rem)]">
       
       <div className="flex-1 ml-64 p-6 md:p-10">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-6xl mx-auto">
 
           <h1 className="text-2xl font-bold mb-6 text-gray-900 text-center">
             마이페이지
           </h1>
 
-          {/* 기본 정보 */}
-          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-6">
-            <div className="flex flex-col gap-4">
+          {/* 기본 정보 + 포인트 및 결제 - 1열 가로 배치 */}
+          <div className="flex gap-6 mb-6 items-stretch">
+
+            {/* 기본 정보 (1/3) */}
+            <div className="w-1/3 bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
+              <div className="flex flex-col gap-4">
+                <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5 mb-2">
+                  <div className="w-1 h-5 bg-[#5244e8] rounded-sm"></div>
+                  기본 정보
+                </h2>
+                <div className="flex items-center">
+                  <label className="text-gray-500 text-sm font-semibold w-24 shrink-0">ID (이메일)</label>
+                  <p className="text-sm font-medium text-gray-900 truncate">{profile.email}</p>
+                </div>
+                <div className="flex items-center">
+                  <label className="text-gray-500 text-sm font-semibold w-24 shrink-0">내 등급</label>
+                  <span className={`text-sm font-bold uppercase ${profile.grade === 'agency' ? 'text-purple-600' :
+                    profile.grade === 'pro' ? 'text-blue-600' :
+                      profile.grade === 'starter' ? 'text-green-600' :
+                        'text-gray-600'
+                    }`}>
+                    {profile.grade || 'FREE'}
+                  </span>
+                </div>
+                <div className="flex flex-col gap-3 pt-4 mt-2 border-t border-gray-100">
+                  <div className="flex items-center">
+                    <label className="text-gray-400 text-sm font-semibold w-24 shrink-0">가입일</label>
+                    <p className="text-sm text-gray-700">{formatDate(user?.created_at)}</p>
+                  </div>
+                  <div className="flex items-center">
+                    <label className="text-gray-400 text-sm font-semibold w-24 shrink-0">최근 접속일</label>
+                    <p className="text-sm text-gray-700">{formatDate(profile?.last_login_at || user?.last_sign_in_at)}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 포인트 및 결제 (2/3) */}
+            <div className="w-2/3 bg-white p-8 rounded-2xl border border-gray-200 shadow-sm">
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5 mb-6">
                 <div className="w-1 h-5 bg-[#5244e8] rounded-sm"></div>
-                기본 정보
+                포인트 및 결제
               </h2>
-              <div className="flex items-center">
-                <label className="text-gray-500 text-sm font-semibold w-28">ID (이메일)</label>
-                <p className="text-base font-medium text-gray-900">{profile.email}</p>
-              </div>
-              <div className="flex items-center">
-                <label className="text-gray-500 text-sm font-semibold w-28">내 등급</label>
-                <span className={`text-base font-bold uppercase ${profile.grade === 'agency' ? 'text-purple-600' :
-                  profile.grade === 'pro' ? 'text-blue-600' :
-                    profile.grade === 'starter' ? 'text-green-600' :
-                      'text-gray-600'
-                  }`}>
-                  {profile.grade || 'FREE'}
-                </span>
-              </div>
-              <div className="flex items-center gap-8 pt-4 mt-2 border-t border-gray-100">
-                <div className="flex items-center gap-3">
-                  <label className="text-gray-400 text-sm font-semibold">가입일</label>
-                  <p className="text-sm text-gray-700">{formatDate(user?.created_at)}</p>
+              <div className="flex flex-col md:flex-row gap-6">
+                <div className="flex-1 bg-[#5244e8]/5 border border-[#5244e8]/20 rounded-xl p-6 flex flex-col items-center justify-center">
+                  <span className="text-sm font-bold text-gray-500 mb-2">총 사용 가능 포인트</span>
+                  <div className="text-3xl font-bold text-[#5244e8]">
+                    {totalPoints.toLocaleString()} <span className="text-lg font-bold ml-0.5">P</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <label className="text-gray-400 text-sm font-semibold">최근 접속일</label>
-                  <p className="text-sm text-gray-700">{formatDate(profile?.last_login_at || user?.last_sign_in_at)}</p>
+                <div className="flex-1 flex flex-col justify-center gap-3">
+                  <div className="flex justify-between items-center px-2">
+                    <span className="text-sm font-semibold text-gray-600">결제한 포인트</span>
+                    <span className="text-[15px] font-semibold text-gray-700">{profile?.purchased_points?.toLocaleString() || 0} P</span>
+                  </div>
+                  <div className="flex justify-between items-center px-2">
+                    <span className="text-sm font-semibold text-green-600">보너스 포인트</span>
+                    <span className="text-[15px] font-semibold text-green-600">{profile?.bonus_points?.toLocaleString() || 0} P</span>
+                  </div>
+                  <div className="w-full h-px bg-gray-100 my-2"></div>
+                  <button
+                    onClick={() => router.push('/charge')}
+                    className="cursor-pointer w-full py-3 bg-[#5244e8] hover:bg-[#4336c9] text-white rounded-xl text-[14px] font-bold transition-colors shadow-sm flex items-center justify-center gap-2 mt-1"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+                    포인트 충전하기
+                  </button>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* 포인트 잔액 정보 */}
-          <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm mb-6">
-            <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2.5 mb-6">
-              <div className="w-1 h-5 bg-[#5244e8] rounded-sm"></div>
-              포인트 및 결제
-            </h2>
-
-            <div className="flex flex-col md:flex-row gap-6">
-              <div className="flex-1 bg-[#5244e8]/5 border border-[#5244e8]/20 rounded-xl p-6 flex flex-col items-center justify-center">
-                <span className="text-sm font-bold text-gray-500 mb-2">총 사용 가능 포인트</span>
-                <div className="text-3xl font-bold text-[#5244e8]">
-                  {totalPoints.toLocaleString()} <span className="text-lg font-bold ml-0.5">P</span>
-                </div>
-              </div>
-
-              <div className="flex-1 flex flex-col justify-center gap-3">
-                <div className="flex justify-between items-center px-2">
-                  <span className="text-sm font-semibold text-gray-600">결제한 포인트</span>
-                  <span className="text-[15px] font-semibold text-gray-700">{profile?.purchased_points?.toLocaleString() || 0} P</span>
-                </div>
-                <div className="flex justify-between items-center px-2">
-                  <span className="text-sm font-semibold text-green-600">보너스 포인트</span>
-                  <span className="text-[15px] font-semibold text-green-600">{profile?.bonus_points?.toLocaleString() || 0} P</span>
-                </div>
-                <div className="w-full h-px bg-gray-100 my-2"></div>
-
-                <button
-                  onClick={() => router.push('/charge')}
-                  className="cursor-pointer w-full py-3 bg-[#5244e8] hover:bg-[#4336c9] text-white rounded-xl text-[14px] font-bold transition-colors shadow-sm flex items-center justify-center gap-2 mt-1"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-                  포인트 충전하기
-                </button>
-              </div>
-            </div>
           </div>
 
           {/* 포인트 이용 내역 */}
@@ -415,18 +421,19 @@ function MyPageContent() {
               <table className="w-full text-left border-collapse">
                 <thead className="bg-slate-50 text-slate-600 text-[13px] font-bold border-b border-gray-200">
                   <tr>
-                    <th className="px-5 py-3.5 text-center w-20">유형</th>
-                    <th className="px-5 py-3.5">상세 내용</th>
-                    <th className="px-5 py-3.5 w-[180px] text-center">이용 일시</th>
-                    <th className="px-5 py-3.5 text-right w-28">포인트</th>
-                    {activeTab === 'ALL' && <th className="px-5 py-3.5 text-right w-28 bg-slate-100/50">잔여</th>}
+                    <th className="px-3 py-2.5 w-[110px] text-center">이용 일시</th>
+                    <th className="px-3 py-2.5 text-center w-16">유형</th>
+                    <th className="px-3 py-2.5 w-48">사용처</th>
+                    <th className="px-3 py-2.5">상세 내역</th>
+                    <th className="px-3 py-2.5 text-right w-24">포인트</th>
+                    {activeTab === 'ALL' && <th className="px-3 py-2.5 text-right w-24 bg-slate-100/50">잔여</th>}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-[14px]">
                   {loadingHistory ? (
-                    <tr><td colSpan={activeTab === 'ALL' ? 5 : 4} className="text-center py-10 text-slate-500 font-medium">이용 내역을 불러오는 중입니다...</td></tr>
+                    <tr><td colSpan={activeTab === 'ALL' ? 6 : 5} className="text-center py-10 text-slate-500 font-medium">이용 내역을 불러오는 중입니다...</td></tr>
                   ) : history.length === 0 ? (
-                    <tr><td colSpan={activeTab === 'ALL' ? 5 : 4} className="text-center py-10 text-slate-500 font-medium">해당 내역이 없습니다.</td></tr>
+                    <tr><td colSpan={activeTab === 'ALL' ? 6 : 5} className="text-center py-10 text-slate-500 font-medium">해당 내역이 없습니다.</td></tr>
                   ) : (
                     history.map((item) => {
                       const isUse = item.change_amount < 0;
@@ -435,8 +442,21 @@ function MyPageContent() {
 
                       return (
                         <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-5 py-2 text-center">
-                            <span className={`inline-block px-2 py-1 rounded-md text-[11px] font-bold border
+                          <td className="px-3 py-2 text-slate-500 text-[12px] text-center font-medium">
+                            {(() => {
+                              const dt = new Date(item.created_at);
+                              const datePart = dt.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+                              const timePart = dt.toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+                              return (
+                                <>
+                                  <div>{datePart}</div>
+                                  <div className="text-[11px] text-slate-400 mt-0.5">{timePart}</div>
+                                </>
+                              );
+                            })()}
+                          </td>
+                          <td className="px-3 py-2 text-center">
+                            <span className={`inline-block px-2 py-0.5 rounded-md text-[11px] font-bold border
                               ${isSignup ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
                                 isUse ? 'bg-rose-50 text-rose-600 border-rose-200' :
                                   'bg-indigo-50 text-indigo-600 border-indigo-200'}
@@ -444,30 +464,28 @@ function MyPageContent() {
                               {isSignup ? '가입' : isUse ? '사용' : '충전'}
                             </span>
                           </td>
-                          <td className="px-5 py-2">
-                            {/* 🌟 3. 상세 내용 옆에 IP 주소 뱃지 추가 */}
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-slate-800 text-[13px]">{displayPage}</span>
-                              {item.ip_address && (
-                                <span className="text-[10px] font-bold bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded border border-slate-200" title="사용 기기 IP">
-                                  IP: {item.ip_address}
-                               </span>
-                              )}
-                            </div>
-                            {item.description && item.page_type !== 'SIGNUP' && (
-                              <div className="text-[12px] text-slate-500 mt-0.5">{item.description}</div>
+                          <td className="px-3 py-2 align-middle">
+                            <span className="font-semibold text-slate-700 text-[13px]">{displayPage}</span>
+                            {item.ip_address && (
+                              <div className="text-[10px] font-bold text-slate-400 mt-0.5" title="사용 기기 IP">
+                                IP: {item.ip_address}
+                              </div>
                             )}
                           </td>
-                          <td className="px-5 py-2 text-slate-500 text-[12px] text-center font-medium">
-                            {formatDate(item.created_at)}
+                          <td className="px-3 py-2 align-middle">
+                            {item.description && item.page_type !== 'SIGNUP' ? (
+                              <span className="text-[12px] text-slate-500">{item.description}</span>
+                            ) : (
+                              <span className="text-[12px] text-slate-300">—</span>
+                            )}
                           </td>
-                          <td className="px-5 py-2 text-right">
+                          <td className="px-3 py-2 text-right">
                             <span className={`font-bold text-[14px] ${isUse ? 'text-rose-600' : 'text-indigo-600'}`}>
                               {isUse ? '' : '+'}{item.change_amount.toLocaleString()}
                             </span>
                           </td>
                           {activeTab === 'ALL' && (
-                            <td className="px-5 py-2 text-right bg-slate-50/50 font-bold text-slate-600 text-[13px]">
+                            <td className="px-3 py-2 text-right bg-slate-50/50 font-bold text-slate-600 text-[13px]">
                               {item.running_balance.toLocaleString()}
                             </td>
                           )}

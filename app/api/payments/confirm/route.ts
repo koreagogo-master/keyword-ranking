@@ -8,6 +8,9 @@ export async function POST(request: Request) {
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+               request.headers.get('x-real-ip') || null;
+
     const body = await request.json();
     const { paymentKey, orderId, amount, userId } = body;
 
@@ -69,7 +72,8 @@ export async function POST(request: Request) {
       change_type: '충전',
       change_amount: basePoints + bonusPoints,
       page_type: '결제',
-      description: `요금제 결제 (${planId.toUpperCase()})`
+      description: `요금제 결제 (${planId.toUpperCase()})`,
+      ip_address: ip
     });
 
     return NextResponse.json({ success: true, data: data });
