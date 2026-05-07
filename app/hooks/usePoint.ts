@@ -146,15 +146,16 @@ export const usePoint = () => {
     });
 
     if (error || !data || data.success === false) {
-      const costPerItem = data?.cost_per_item || (fallbackPoints / itemCount);
       const totalRequired = data?.required || fallbackPoints;
-      
-      const goCharge = window.confirm(
-        `잔여 포인트가 부족합니다. (1건당 ${costPerItem}P 차감)\n\n현재 총 ${itemCount}건을 조회하려면 ${totalRequired}P가 필요합니다.\n포인트 충전 페이지로 이동하시겠습니까?`
-      );
-      if (goCharge) router.push('/charge'); // 충전 페이지 경로 보정
-      
-      return false; 
+
+      // 🌟 window.confirm 대신 커스텀 알림창 (0P 소진)
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('show-point-alert', {
+          detail: { level: 0, remaining: 0, required: totalRequired }
+        }));
+      }
+
+      return false;
     }
 
     // ====================================================================
@@ -177,7 +178,56 @@ export const usePoint = () => {
       console.warn("IP 기록 업데이트 실패:", ipErr);
     }
 
-    return true; 
+    // ====================================================================
+    // 🌟 5. 잔액 임계값 알림 체크 (시스템 설정 기반)
+    // ====================================================================
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('purchased_points, bonus_points')
+        .eq('id', userId)
+        .single();
+
+      if (profile && typeof window !== 'undefined') {
+        const remaining = (profile.purchased_points || 0) + (profile.bonus_points || 0);
+        
+        // 시스템 설정에서 임계값 가져오기
+        const { data: alertData } = await supabase
+          .from('system_settings')
+          .select('*')
+          .in('setting_key', ['alert_threshold_low', 'alert_threshold_mid']);
+          
+        let lowThreshold = 500;
+        let midThreshold = 1000;
+        
+        if (alertData) {
+          const lowStr = alertData.find(d => d.setting_key === 'alert_threshold_low')?.setting_value;
+          const midStr = alertData.find(d => d.setting_key === 'alert_threshold_mid')?.setting_value;
+          if (lowStr) lowThreshold = parseInt(lowStr, 10);
+          if (midStr) midThreshold = parseInt(midStr, 10);
+        }
+
+        const thresholds = [lowThreshold, midThreshold].sort((a, b) => a - b); // 낮은 것부터 확인
+
+        // 가장 낮은 미표시 알림 하나 찾기
+        for (const threshold of thresholds) {
+          if (remaining <= threshold) {
+            const key = `point_alert_shown_${threshold}`;
+            // 사용자가 'X'를 눌러서 강제로 닫은 기록이 없으면 알림 띄움
+            if (!localStorage.getItem(key)) {
+              window.dispatchEvent(new CustomEvent('show-point-alert', {
+                detail: { level: threshold, remaining }
+              }));
+              break;
+            }
+          }
+        }
+      }
+    } catch (err) {
+      console.warn('포인트 잔액 알림 체크 실패:', err);
+    }
+
+    return true;
   };
 
   return { deductPoints };

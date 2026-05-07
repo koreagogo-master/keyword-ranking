@@ -10,6 +10,7 @@ import MemoSidebar from "@/components/MemoSidebar";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/app/contexts/AuthContext";
 import MobileBlocker from "@/components/MobileBlocker";
+import PointAlertBanner from "@/components/PointAlertBanner";
 
 // 🌟 1. 사이드바를 뼈대용으로 불러옵니다.
 
@@ -91,6 +92,7 @@ export default function RootLayout({
           <Sidebar />
 
           <MemoSidebar />
+          <PointAlertBanner />
 
           <div className="pt-16 flex-1 bg-gray-50 text-slate-800">
             {children}

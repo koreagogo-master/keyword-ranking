@@ -39,6 +39,11 @@ function ReceiptContent() {
         const data = await response.json();
 
         if (response.ok) {
+          // 🌟 결제 성공 시 잔여 포인트 알림 상태 초기화
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('point_alert_shown_500');
+            localStorage.removeItem('point_alert_shown_1000');
+          }
           setStatus('success'); 
         } else {
           setStatus('fail');

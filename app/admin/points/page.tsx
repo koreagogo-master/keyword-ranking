@@ -66,6 +66,11 @@ export default function AdminPointsPage() {
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<string | null>(null);
 
+  // 🌟 시스템 설정 (알림 임계값) 상태
+  const [alertSettings, setAlertSettings] = useState({ low: '500', mid: '1000' });
+  const [originalAlert, setOriginalAlert] = useState({ low: '500', mid: '1000' });
+  const [isSavingAlert, setIsSavingAlert] = useState(false);
+
   useEffect(() => {
     if (!isAuthLoading) {
       if (!user || profile?.role?.toLowerCase() !== 'admin') {
@@ -86,11 +91,22 @@ export default function AdminPointsPage() {
 
   const fetchPolicies = async () => {
     const supabase = createClient();
-    const { data, error } = await supabase.from('point_policies').select('*');
-
-    if (data) {
-      setPolicies(data.map(p => ({ ...p, original_cost: p.point_cost })));
+    
+    // 1. 단가표 로드
+    const { data: policyData } = await supabase.from('point_policies').select('*');
+    if (policyData) {
+      setPolicies(policyData.map(p => ({ ...p, original_cost: p.point_cost })));
     }
+
+    // 2. 알림 설정 로드
+    const { data: alertData } = await supabase.from('system_settings').select('*').in('setting_key', ['alert_threshold_low', 'alert_threshold_mid']);
+    if (alertData && alertData.length > 0) {
+      const low = alertData.find(d => d.setting_key === 'alert_threshold_low')?.setting_value || '500';
+      const mid = alertData.find(d => d.setting_key === 'alert_threshold_mid')?.setting_value || '1000';
+      setAlertSettings({ low, mid });
+      setOriginalAlert({ low, mid });
+    }
+    
     setLoading(false);
   };
 
@@ -121,6 +137,26 @@ export default function AdminPointsPage() {
       router.refresh();
     } else {
       alert(`저장에 실패했습니다. 관리자에게 문의하세요. (${error.message})`);
+    }
+  };
+
+  const handleSaveAlerts = async () => {
+    setIsSavingAlert(true);
+    const supabase = createClient();
+    
+    // UPSERT(값이 없으면 생성, 있으면 업데이트)를 위한 upsert 쿼리
+    const { error } = await supabase.from('system_settings').upsert([
+      { setting_key: 'alert_threshold_low', setting_value: alertSettings.low },
+      { setting_key: 'alert_threshold_mid', setting_value: alertSettings.mid }
+    ], { onConflict: 'setting_key' });
+
+    setIsSavingAlert(false);
+
+    if (!error) {
+      alert('포인트 알림 기준이 저장되었습니다.');
+      setOriginalAlert(alertSettings);
+    } else {
+      alert(`저장에 실패했습니다. (${error.message})`);
     }
   };
 
@@ -161,6 +197,59 @@ export default function AdminPointsPage() {
                 각 분석 페이지에서 1건(또는 1회) 검색 시 차감될 포인트를 개별적으로 설정할 수 있습니다.<br/>
                 수정 후 [저장] 버튼을 누르면 유저들의 검색 환경에 즉시 반영됩니다.
               </p>
+            </div>
+
+            {/* 🌟 시스템 설정: 포인트 알림 기준 */}
+            <div className="bg-white border border-gray-200 shadow-sm rounded-lg p-6 mb-10 flex flex-col md:flex-row items-center justify-between gap-6">
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-1.5 h-4 bg-orange-400 rounded-full"></div>
+                  <h2 className="font-extrabold text-gray-800 text-[16px] tracking-wide">사용자 포인트 부족 알림 기준</h2>
+                </div>
+                <p className="text-[13px] text-slate-500">잔여 포인트가 아래 설정된 금액 이하로 내려가면 화면 우측 하단에 알림창이 뜹니다.</p>
+              </div>
+
+              <div className="flex items-center gap-6">
+                <div className="flex flex-col items-end">
+                  <span className="text-[11px] font-bold text-yellow-600 mb-1">1단계 알림 (주의)</span>
+                  <div className="flex items-center">
+                    <input 
+                      type="text" 
+                      pattern="[0-9]*"
+                      value={alertSettings.mid}
+                      onChange={(e) => setAlertSettings(p => ({ ...p, mid: e.target.value.replace(/[^0-9]/g, '') }))}
+                      className="w-24 px-3 py-2 text-right border border-gray-300 rounded-md focus:border-yellow-500 focus:ring-yellow-500 font-extrabold text-[15px] bg-yellow-50/30"
+                    />
+                    <span className="ml-1.5 font-bold text-slate-500">P 이하</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-end">
+                  <span className="text-[11px] font-bold text-orange-600 mb-1">2단계 알림 (긴급)</span>
+                  <div className="flex items-center">
+                    <input 
+                      type="text" 
+                      pattern="[0-9]*"
+                      value={alertSettings.low}
+                      onChange={(e) => setAlertSettings(p => ({ ...p, low: e.target.value.replace(/[^0-9]/g, '') }))}
+                      className="w-24 px-3 py-2 text-right border border-gray-300 rounded-md focus:border-orange-500 focus:ring-orange-500 font-extrabold text-[15px] bg-orange-50/30"
+                    />
+                    <span className="ml-1.5 font-bold text-slate-500">P 이하</span>
+                  </div>
+                </div>
+
+                <button 
+                  onClick={handleSaveAlerts}
+                  disabled={isSavingAlert || (alertSettings.low === originalAlert.low && alertSettings.mid === originalAlert.mid)}
+                  className={`px-5 py-2 mt-4 font-bold text-[13px] rounded-md transition-all whitespace-nowrap shadow-sm h-10 flex items-center justify-center ${
+                    isSavingAlert ? 'bg-slate-400 text-white cursor-wait' :
+                    (alertSettings.low !== originalAlert.low || alertSettings.mid !== originalAlert.mid) ? 'bg-gray-800 hover:bg-gray-900 text-white' : 
+                    'bg-slate-600 text-white opacity-40 cursor-not-allowed hover:opacity-40'
+                  }`}
+                >
+                  {isSavingAlert ? '...' : '알림 설정 저장'}
+                </button>
+              </div>
             </div>
 
             {loading ? (
