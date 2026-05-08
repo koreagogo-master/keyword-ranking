@@ -7,6 +7,7 @@ import { useAuth } from "@/app/contexts/AuthContext";
 import { usePoint } from "@/app/hooks/usePoint";
 import { createClient } from "@/app/utils/supabase/client";
 import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
+import HelpButton from "@/components/HelpButton";
 
 function PostXRayContent() {
   const { user } = useAuth();
@@ -198,7 +199,10 @@ function PostXRayContent() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <h1 className="text-2xl font-bold text-gray-900">포스팅 X-Ray (경쟁사 분석)</h1>
-                  <span className="bg-[#5244e8]/10 text-[#5244e8] text-[10px] font-bold px-2 py-0.5 rounded uppercase">Beta</span>
+                  <HelpButton
+                    href="https://blog.naver.com/lboll/224267680747"
+                    tooltip="도움말"
+                  />
                 </div>
                 <p className="text-sm text-slate-500 mt-1 leading-relaxed">
                   네이버 블로그 포스팅 URL을 입력하면, 상위 노출을 위해 숨겨진 타겟 키워드와 작성 전략을 AI가 역엔지니어링하여 분석합니다.
