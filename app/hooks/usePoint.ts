@@ -19,13 +19,14 @@ const PATH_TO_PAGE_TYPE: Record<string, string> = {
   '/seo-check': 'SEO_CHECK',
   '/ai-blog': 'AI_BLOG',
   '/ai-press': 'AI_PRESS',
+  '/review-ai': 'REVIEW_AI',
   '/keyword-volume': 'KEYWORD_VOLUME',
-  '/place-rank': 'PLACE_RANK'
-
+  '/place-rank': 'PLACE_RANK',
+  '/post-xray': 'POST_XRAY',
 };
 
 // 무료 횟수를 절대 쓸 수 없는 유료 전용 기능 목록
-const PAID_ONLY_PAGES = ['AI_BLOG', 'AI_PRESS'];
+const PAID_ONLY_PAGES = ['AI_BLOG', 'AI_PRESS', 'POST_XRAY'];
 
 const getKSTDateString = () => {
   const now = new Date();

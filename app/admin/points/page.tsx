@@ -32,6 +32,7 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'AI_BLOG': { name: '+ Dual AI 포스팅', url: '/ai-blog' },           
   'AI_PRESS': { name: '+ AI 언론 보도자료', url: '/ai-press' },
   'REVIEW_AI': { name: '+ 리뷰 답글 AI', url: '/review-ai' },
+  'POST_XRAY': { name: '+ 포스팅 X-Ray', url: '/post-xray' },
   'KEYWORD_VOLUME': { name: '키워드별 조회수', url: '/keyword-volume' },
   'KEYWORD_GENERATOR': { name: '키워드 생성기', url: '/keyword-generator' },
   'PLACE_RANK': { name: '플레이스 순위', url: '/place-rank' }
@@ -44,7 +45,7 @@ const MENU_GROUPS = [
   },
   {
     title: 'AI TOOLS',     
-    items: ['AI_BLOG', 'AI_PRESS', 'REVIEW_AI'] 
+    items: ['AI_BLOG', 'AI_PRESS', 'REVIEW_AI', 'POST_XRAY'] 
   },
   {
     title: 'SELLER TOOLS',

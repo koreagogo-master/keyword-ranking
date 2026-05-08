@@ -11,6 +11,7 @@ export default function AiTabs() {
     { name: '블로그 포스팅 AI', href: '/ai-blog' },
     { name: '언론보도 보도자료 AI', href: '/ai-press' },
     { name: '리뷰 답글 AI', href: '/review-ai' },
+    { name: '포스팅 X-Ray', href: '/post-xray' },
   ];
 
   return (
