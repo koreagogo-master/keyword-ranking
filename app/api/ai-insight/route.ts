@@ -2,8 +2,17 @@ import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import axios from 'axios';
 import { jsonrepair } from 'jsonrepair';
+import { HttpsProxyAgent } from 'https-proxy-agent';
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+
+// � 한국 모바일 프록시 (Smartproxy)
+const PROXY_HOST = 'proxy.smartproxy.net';
+const PROXY_PORT = '3120';
+const PROXY_USER = 'smart-tmgad01_area-KR';
+const PROXY_PASS = 'bsh103501';
+const PROXY_URL = `http://${PROXY_USER}:${PROXY_PASS}@${PROXY_HOST}:${PROXY_PORT}`;
+const proxyAgent = new HttpsProxyAgent(PROXY_URL);
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -78,7 +87,7 @@ async function analyzeOnePost(url: string, keyword: string): Promise<PostData> {
 
   const targetUrl = `https://m.blog.naver.com/${blogId}/${logNo}`;
 
-  // --- (1-B) 모바일 뷰 HTML 가져오기 (post-xray 방식) ---
+  // --- (1-B) 모바일 뷰 HTML 가져오기 (프록시 적용) ---
   let $: cheerio.CheerioAPI;
   try {
     const response = await axios.get(targetUrl, {
@@ -87,6 +96,8 @@ async function analyzeOnePost(url: string, keyword: string): Promise<PostData> {
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
       },
+      // @ts-ignore
+      httpsAgent: proxyAgent,
       timeout: 15000,
     });
     $ = cheerio.load(response.data);
