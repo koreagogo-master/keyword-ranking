@@ -26,6 +26,7 @@ const PAGE_META: Record<string, string> = {
   'AI_PRESS': 'AI 언론 보도자료',
   'REVIEW_AI': '리뷰 답글 AI',
   'POST_XRAY': '포스팅 X-Ray',
+  'AI_INSIGHT': 'AI 포스팅 인사이트',
   'INDEX_CHECK': '블로그 노출 진단',
   'KEYWORD_VOLUME': '키워드별 조회수',
   'KEYWORD_GENERATOR': '키워드 생성기',

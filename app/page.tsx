@@ -54,7 +54,8 @@ export default function Home() {
     { category: "AI TOOLS", label: "+ AI 포스팅 생성/리뉴얼", href: "/ai-blog", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /> },
     { category: "AI TOOLS", label: "+ AI 보도자료 작성/리뉴얼", href: "/ai-press", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15" /> },
     { category: "AI TOOLS", label: "+ 리뷰 답변 AI 자동 생성기", href: "/review-ai", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.8 7.5a1.84 1.84 0 0 0-2.6 0l-.2.3-.3-.3a1.84 1.84 0 1 0-2.4 2.8L12 13l2.7-2.7c.9-.9.8-2.1.1-2.8z" /></> },
-    { category: "AI TOOLS", label: "+ 포스팅 X-Ray (경쟁사 분석)", href: "/post-xray", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></> },
+    { category: "AI TOOLS", label: "+ Naver 포스팅 X-Ray", href: "/post-xray", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></> },
+    { category: "AI TOOLS", label: "+ AI 포스팅 인사이트", href: "/ai-insight", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></> },
     // --- NAVER TOOLS ---
     { category: "NAVER TOOLS", label: "키워드 정밀 분석", href: "/analysis", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /> },
     { category: "NAVER TOOLS", label: "연관 키워드 조회", href: "/related-fast", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /> },
@@ -253,7 +254,7 @@ export default function Home() {
 
           <FadeInUp delay={0.3}>
             <div className="mt-16 max-w-[1200px] mx-auto grid lg:grid-cols-5 gap-6">
-              
+
               {/* 좌측 60%: 최근 공지사항 */}
               <div className="lg:col-span-3 flex flex-col">
                 <div className="flex items-end justify-between mb-3 px-2">
@@ -319,7 +320,7 @@ export default function Home() {
                       </div>
                       <svg className="w-4 h-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
                     </Link>
-                    
+
                     <Link href="/contact" className="group bg-gray-50 hover:bg-indigo-50 text-gray-700 hover:text-indigo-600 transition-all duration-300 rounded-xl px-5 py-4 flex items-center justify-between border border-gray-100 hover:border-indigo-100">
                       <div className="flex items-center gap-3">
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>

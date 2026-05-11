@@ -66,7 +66,7 @@ function PostXRayContent() {
       page_type: 'POST_XRAY',
       nickname: '',
       keyword: title,
-      settings: { url }
+      settings: { url, searchKeyword }
     });
 
     if (!error) {
@@ -82,6 +82,9 @@ function PostXRayContent() {
     const settings = typeof item.settings === 'string' ? JSON.parse(item.settings) : (item.settings || {});
     if (settings.url) {
       setUrl(settings.url);
+    }
+    if (settings.searchKeyword) {
+      setSearchKeyword(settings.searchKeyword);
     }
   };
 
@@ -198,7 +201,7 @@ function PostXRayContent() {
             <div className="flex justify-between items-start mb-8">
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <h1 className="text-2xl font-bold text-gray-900">포스팅 X-Ray (경쟁사 분석)</h1>
+                  <h1 className="text-2xl font-bold text-gray-900">Naver 포스팅 X-Ray </h1>
                   <HelpButton
                     href="https://blog.naver.com/lboll/224267680747"
                     tooltip="도움말"
@@ -213,8 +216,8 @@ function PostXRayContent() {
                   onClick={handleSaveCurrentSetting}
                   disabled={!url.trim()}
                   className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm transition-colors flex items-center gap-1.5 ${url.trim()
-                      ? 'bg-slate-700 hover:bg-slate-800 cursor-pointer'
-                      : 'bg-slate-400 cursor-not-allowed opacity-60'
+                    ? 'bg-slate-700 hover:bg-slate-800 cursor-pointer'
+                    : 'bg-slate-400 cursor-not-allowed opacity-60'
                     }`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg> 현재 설정 저장

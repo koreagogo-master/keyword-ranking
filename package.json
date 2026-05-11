@@ -19,6 +19,7 @@
     "cheerio": "^1.2.0",
     "framer-motion": "^12.35.2",
     "https-proxy-agent": "^7.0.6",
+    "jsonrepair": "^3.14.0",
     "lucide-react": "^1.11.0",
     "next": "16.1.1",
     "nodemailer": "^8.0.7",

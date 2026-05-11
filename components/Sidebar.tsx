@@ -26,7 +26,8 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/keyword-volume': 'KEYWORD_VOLUME',
   '/keyword-generator': 'KEYWORD_GENERATOR',
   '/place-rank': 'PLACE_RANK',
-  '/post-xray': 'POST_XRAY'
+  '/post-xray': 'POST_XRAY',
+  '/ai-insight': 'AI_INSIGHT'
 };
 
 export default function Sidebar() {
@@ -54,6 +55,7 @@ export default function Sidebar() {
         { name: "+ AI 언론 보도자료", href: "/ai-press" },
         { name: "+ 리뷰 답글 AI", href: "/review-ai" },
         { name: "+ 포스팅 X-Ray", href: "/post-xray" },
+        { name: "+ AI 포스팅 인사이트", href: "/ai-insight" },
       ]
     },
     {

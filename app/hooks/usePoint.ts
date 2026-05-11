@@ -23,10 +23,11 @@ const PATH_TO_PAGE_TYPE: Record<string, string> = {
   '/keyword-volume': 'KEYWORD_VOLUME',
   '/place-rank': 'PLACE_RANK',
   '/post-xray': 'POST_XRAY',
+  '/ai-insight': 'AI_INSIGHT',
 };
 
 // 무료 횟수를 절대 쓸 수 없는 유료 전용 기능 목록
-const PAID_ONLY_PAGES = ['AI_BLOG', 'AI_PRESS', 'POST_XRAY'];
+const PAID_ONLY_PAGES = ['AI_BLOG', 'AI_PRESS', 'POST_XRAY', 'AI_INSIGHT'];
 
 const getKSTDateString = () => {
   const now = new Date();
