@@ -13,7 +13,11 @@ function AiInsightContent() {
   const { deductPoints } = usePoint();
 
   const [keyword, setKeyword] = useState("");
-  const [urls, setUrls] = useState<string[]>(['', '']);
+  // 🔧 Fix #2: stable key를 위해 {id, value} 구조로 관리
+  const [urls, setUrls] = useState<{id: number; value: string}[]>(
+    () => [{ id: Date.now(), value: '' }, { id: Date.now() + 1, value: '' }]
+  );
+  const nextId = { current: Date.now() + 2 };
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isAnalyzed, setIsAnalyzed] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -25,23 +29,19 @@ function AiInsightContent() {
   const [isResetToastOpen, setIsResetToastOpen] = useState(false);
 
   const handleUrlChange = (index: number, value: string) => {
-    const newUrls = [...urls];
-    newUrls[index] = value;
-    setUrls(newUrls);
+    setUrls(prev => prev.map((u, i) => i === index ? { ...u, value } : u));
     setIsAnalyzed(false);
   };
 
   const handleRemoveUrl = (index: number) => {
-    const newUrls = [...urls];
-    newUrls.splice(index, 1);
-    setUrls(newUrls);
+    setUrls(prev => prev.filter((_, i) => i !== index));
     setIsAnalyzed(false);
   };
 
   const handleReset = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setKeyword("");
-    setUrls(["", ""]);
+    setUrls([{ id: Date.now(), value: '' }, { id: Date.now() + 1, value: '' }]);
     setIsAnalyzed(false);
     setResult(null);
     setErrorMsg("");
@@ -60,7 +60,7 @@ function AiInsightContent() {
       page_type: 'AI_INSIGHT',
       nickname: '',
       keyword: title,
-      settings: { keyword, urls }
+      settings: { keyword, urls: urls.map(u => u.value) }
     });
     if (!error) { setSaveToast(true); setTimeout(() => setSaveToast(false), 3000); }
     else alert(`저장 실패: ${error.message}`);
@@ -82,7 +82,8 @@ function AiInsightContent() {
     setResult(null);
     setIsAnalyzed(false);
 
-    const validUrls = urls.filter((u) => u.trim() !== "");
+    // 🔧 Fix #2: value만 추출
+    const validUrls = urls.map(u => u.value).filter((u) => u.trim() !== "");
 
     if (!keyword.trim()) {
       setErrorMsg("타겟 검색 키워드를 입력해주세요.");
@@ -98,10 +99,12 @@ function AiInsightContent() {
       return;
     }
 
-    // 포인트 차감 (100P)
+    // 🔧 Fix #1: 포인트 먼저 차감 후, API 실패 시 롤백
+    let pointDeducted = false;
     if (deductPoints) {
       const isPaySuccess = await deductPoints(user.id, 100, 1, `[${keyword}] 검색 (1건)`);
       if (!isPaySuccess) return;
+      pointDeducted = true;
     }
 
     setIsAnalyzing(true);
@@ -113,10 +116,22 @@ function AiInsightContent() {
         body: JSON.stringify({ keyword, urls: validUrls }),
       });
 
-      const data = await response.json();
+      // 🔧 Fix #3: HTML 에러 페이지가 내려올 경우 JSON 파싱 오류 방어
+      let data: any;
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        throw new Error(`서버 응답 오류 (${response.status}): 잠시 후 다시 시도해 주세요.`);
+      }
 
       if (!response.ok) {
-        throw new Error(data.error || '분석 중 오류가 발생했습니다.');
+        // 🔧 Fix #1: API 실패 시 포인트 롤백 (환불)
+        if (pointDeducted && deductPoints) {
+          await deductPoints(user.id, -100, 0, `[${keyword}] 분석 실패 포인트 환불`);
+        }
+        throw new Error(data?.error || '분석 중 오류가 발생했습니다.');
       }
 
       setResult(data);
@@ -204,8 +219,9 @@ function AiInsightContent() {
 
                     {/* URL 입력 목록 (동적 배열) */}
                     <div className="flex flex-col gap-5 w-full">
-                      {urls.map((url, idx) => (
-                        <div key={idx} className="flex-1 min-w-0">
+                      {/* 🔧 Fix #2: stable key (id 기반) */}
+                      {urls.map((urlItem, idx) => (
+                        <div key={urlItem.id} className="flex-1 min-w-0">
                           <h3 className="text-sm font-bold text-slate-700 mb-2 flex items-center justify-between">
                             <div className="flex items-center gap-2">
                               <span className="w-5 h-5 rounded bg-[#5244e8]/10 text-[#5244e8] flex items-center justify-center text-[10px] font-extrabold">{idx + 1}</span>
@@ -225,7 +241,7 @@ function AiInsightContent() {
                           <div className="relative">
                             <input
                               type="text"
-                              value={url}
+                              value={urlItem.value}
                               onChange={(e) => handleUrlChange(idx, e.target.value)}
                               className="w-full py-2.5 pl-3 pr-10 border border-gray-300 rounded-md outline-none text-sm focus:border-[#5244e8] transition-colors bg-slate-50 focus:bg-white"
                               placeholder="https://blog.naver.com/..."
@@ -267,7 +283,11 @@ function AiInsightContent() {
                       {/* 포스팅 추가 버튼 (최대 5개까지) */}
                       {urls.length < 5 && (
                         <button
-                          onClick={() => { setUrls([...urls, '']); setIsAnalyzed(false); }}
+                          onClick={() => {
+                            // 🔧 Fix #2: 새 항목도 고유 id 부여
+                            setUrls(prev => [...prev, { id: Date.now(), value: '' }]);
+                            setIsAnalyzed(false);
+                          }}
                           className="w-full py-2.5 px-3 bg-white border border-gray-300 !text-[#5244e8] text-[13px] font-extrabold rounded-md hover:border-[#5244e8] hover:bg-slate-50 transition-colors flex items-center justify-center shadow-sm"
                         >
                           + 포스팅 추가
@@ -280,8 +300,8 @@ function AiInsightContent() {
                 <div className="flex justify-center w-full gap-3">
                   <button
                     onClick={handleAnalyze}
-                    disabled={isAnalyzing || isAnalyzed || !keyword.trim() || urls.filter(u => u.trim()).length < 2}
-                    className={`px-12 py-4 rounded-lg font-bold text-[15px] shadow-sm flex items-center justify-center gap-2 transition-all ${isAnalyzing || !keyword.trim() || urls.filter(u => u.trim()).length < 2
+                    disabled={isAnalyzing || isAnalyzed || !keyword.trim() || urls.filter(u => u.value.trim()).length < 2}
+                    className={`px-12 py-4 rounded-lg font-bold text-[15px] shadow-sm flex items-center justify-center gap-2 transition-all ${isAnalyzing || !keyword.trim() || urls.filter(u => u.value.trim()).length < 2
                       ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
                       : isAnalyzed
                         ? 'bg-emerald-600 text-white cursor-default shadow-emerald-200'
@@ -351,14 +371,15 @@ function AiInsightContent() {
                       </div>
                       {/* 내용 */}
                       <div className="p-6 space-y-3">
-                        {result.finalInsights ? (
+                        {/* 🔧 Fix #4: 빈 배열도 안내 문구로 처리 */}
+                        {Array.isArray(result?.finalInsights) && result.finalInsights.length > 0 ? (
                           result.finalInsights.map((insight: any, i: number) => (
                             <p key={i} className="text-[14px] text-slate-800 font-medium leading-relaxed break-keep">
-                              <strong className="text-[#5244e8] font-extrabold mr-1">「{insight.title}」</strong>
-                              {insight.content}
+                              <strong className="text-[#5244e8] font-extrabold mr-1">「{insight?.title}」</strong>
+                              {insight?.content}
                             </p>
                           ))
-                        ) : result.finalInsight ? (
+                        ) : result?.finalInsight ? (
                           result.finalInsight
                             ?.split('\n')
                             .filter((line: string) => line.trim() !== '')
@@ -367,7 +388,9 @@ function AiInsightContent() {
                                 {line}
                               </p>
                             ))
-                        ) : null}
+                        ) : (
+                          <p className="text-[13px] text-slate-400 py-2">AI 가이드를 불러오지 못했습니다. 다시 분석해 주세요.</p>
+                        )}
                       </div>
                     </div>
 
@@ -406,15 +429,16 @@ function AiInsightContent() {
                       <div className="p-6 flex flex-wrap gap-4 justify-center">
                         <div className="text-center px-6 py-3 bg-indigo-50/50 rounded-lg border border-indigo-100 w-full sm:w-auto">
                           <div className="text-[11px] font-bold text-indigo-500 mb-1">평균 글자수</div>
-                          <div className="text-[18px] font-extrabold text-indigo-700">{result.averages.textLength.toLocaleString()}자</div>
+                          {/* 🔧 Fix #4: optional chaining으로 화이트스크린 방지 */}
+                          <div className="text-[18px] font-extrabold text-indigo-700">{result?.averages?.textLength?.toLocaleString() ?? '-'}자</div>
                         </div>
                         <div className="text-center px-6 py-3 bg-indigo-50/50 rounded-lg border border-indigo-100 w-full sm:w-auto">
                           <div className="text-[11px] font-bold text-indigo-500 mb-1">평균 이미지 수</div>
-                          <div className="text-[18px] font-extrabold text-indigo-700">{result.averages.imageCount}장</div>
+                          <div className="text-[18px] font-extrabold text-indigo-700">{result?.averages?.imageCount ?? '-'}장</div>
                         </div>
                         <div className="text-center px-6 py-3 bg-indigo-50/50 rounded-lg border border-indigo-100 w-full sm:w-auto">
                           <div className="text-[11px] font-bold text-indigo-500 mb-1">평균 키워드 반복</div>
-                          <div className="text-[18px] font-extrabold text-indigo-700">{result.averages.keywordCount}회</div>
+                          <div className="text-[18px] font-extrabold text-indigo-700">{result?.averages?.keywordCount ?? '-'}회</div>
                         </div>
                       </div>
                     </div>
