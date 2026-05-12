@@ -1,7 +1,7 @@
 'use client';
 
 // 🌟 useRef 추가
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useState, useMemo, useRef, Fragment } from 'react';
 // 🌟 수문장 역할을 할 모듈 추가
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -58,6 +58,8 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'KEYWORD_VOLUME': { name: '키워드별 조회수', url: '/keyword-volume' },
   'KEYWORD_GENERATOR': { name: '키워드 생성기', url: '/keyword-generator' },
   'PLACE_RANK': { name: '플레이스 순위 조회', url: '/place-rank' },
+  'POST_XRAY': { name: '포스트 엑스레이', url: '/post-xray' },
+  'AI_INSIGHT': { name: 'AI 포스팅 인사이트', url: '/ai-insight' },
 };
 export default function AdminHistoryPage() {
   // 🌟 권한 확인을 위한 수문장 호출
@@ -78,6 +80,7 @@ export default function AdminHistoryPage() {
   const [endDate, setEndDate] = useState<string>('');
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedRowId, setExpandedRowId] = useState<string | null>(null);
   const itemsPerPage = 20;
   const [chartOffset, setChartOffset] = useState(0);
 
@@ -241,6 +244,35 @@ export default function AdminHistoryPage() {
 
   const totalPages = Math.max(1, Math.ceil(filteredHistory.length / itemsPerPage));
   const paginatedHistory = filteredHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  // 🌟 description 축약 헬퍼: "[태그] 키워드1, 키워드2, ..." → "[태그] 키워드1 외 N건"
+  const summarizeDescription = (desc: string | null) => {
+    if (!desc) return { short: '-', full: '-', hasMore: false };
+
+    // 콤마가 없으면 축약할 목록이 아니라고 판단
+    if (!desc.includes(',')) {
+      return { short: desc, full: desc, hasMore: false };
+    }
+
+    const firstCommaIndex = desc.indexOf(',');
+    const firstPart = desc.substring(0, firstCommaIndex);
+    
+    // "검색 (N건)" 또는 "(N건)" 추출
+    const suffixMatch = desc.match(/(\s*검색\s*\(\d+건\)|\s*\(\d+건\))\s*$/);
+    const suffix = suffixMatch ? suffixMatch[1] : '';
+    
+    // 전체 문자열에서 콤마 갯수로 항목 수 계산
+    const keywordCount = (desc.match(/,/g) || []).length + 1;
+    
+    // 괄호 밸런싱 (잘린 firstPart에 여는 괄호가 닫는 괄호보다 많으면 닫아줌)
+    const openBrackets = (firstPart.match(/\[/g) || []).length;
+    const closeBrackets = (firstPart.match(/\]/g) || []).length;
+    const missingBrackets = Math.max(0, openBrackets - closeBrackets);
+    const closingBracket = ']'.repeat(missingBrackets);
+
+    const short = `${firstPart}${closingBracket} 외 ${keywordCount - 1}건${suffix}`;
+    return { short, full: desc, hasMore: true };
+  };
 
   const getPageNumbers = () => {
     const maxPagesToShow = 5;
@@ -441,50 +473,95 @@ export default function AdminHistoryPage() {
                       const displayPageName = meta ? meta.name : (item.page_type || '-');
                       const displayPageUrl = meta ? meta.url : '';
 
+                      const { short, full, hasMore } = summarizeDescription(item.description);
+                      const isExpanded = expandedRowId === item.id;
+
                       return (
-                        <tr key={item.id} className="hover:bg-slate-50 transition-colors">
-                          <td className="px-6 py-4 text-slate-500 font-medium text-[13px]">
-                            {formatDateTime(item.created_at)}
-                          </td>
-                          <td className="px-6 py-4 font-bold text-slate-800 truncate" title={item.profiles?.email}>
-                            {item.profiles?.email || '탈퇴한 유저'}
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            <span className={`inline-flex items-center justify-center w-7 h-7 rounded-md text-[13px] font-black border shadow-sm ${label.color}`}>
-                              {label.text}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-center">
-                            <span
-                              className={`font-bold ${item.page_type === 'SIGNUP' ? 'text-emerald-600 bg-emerald-50' : 'text-slate-600 bg-slate-100'} text-[13px] px-2 py-1.5 rounded-sm cursor-help whitespace-nowrap`}
-                              title={displayPageUrl ? `페이지 경로: ${displayPageUrl}` : ''}
-                            >
-                              {displayPageName}
-                            </span>
-                          </td>
-                          <td className="px-3 py-1">
-                            <div className="flex flex-col gap-0.5">
-                              <div className="text-slate-700 font-medium leading-tight">
-                                {item.description || '-'}
+                        <Fragment key={item.id}>
+                          <tr
+                            className={`transition-colors ${isExpanded ? 'bg-indigo-50/40' : 'hover:bg-slate-50'}`}
+                          >
+                            <td className="px-6 py-4 text-slate-500 font-medium text-[13px]">
+                              {formatDateTime(item.created_at)}
+                            </td>
+                            <td className="px-6 py-4 font-bold text-slate-800 truncate" title={item.profiles?.email}>
+                              {item.profiles?.email || '탈퇴한 유저'}
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              <span className={`inline-flex items-center justify-center w-7 h-7 rounded-md text-[13px] font-black border shadow-sm ${label.color}`}>
+                                {label.text}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-center">
+                              <span
+                                className={`font-bold ${item.page_type === 'SIGNUP' ? 'text-emerald-600 bg-emerald-50' : 'text-slate-600 bg-slate-100'} text-[13px] px-2 py-1.5 rounded-sm cursor-help whitespace-nowrap`}
+                                title={displayPageUrl ? `페이지 경로: ${displayPageUrl}` : ''}
+                              >
+                                {displayPageName}
+                              </span>
+                            </td>
+                            <td className="px-3 py-3">
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className="text-slate-700 font-medium text-[13px] leading-tight whitespace-nowrap overflow-hidden text-ellipsis max-w-[340px] block"
+                                  title={full}
+                                >
+                                  {short}
+                                </span>
+                                {hasMore && (
+                                  <button
+                                    onClick={() => setExpandedRowId(isExpanded ? null : item.id)}
+                                    title={isExpanded ? '접기' : '전체 키워드 보기'}
+                                    className={`shrink-0 inline-flex items-center justify-center w-5 h-5 rounded-full text-[11px] font-black transition-all ${
+                                      isExpanded
+                                        ? '!bg-[#5244e8] !text-white'
+                                        : '!bg-[#e2e8f0] !text-slate-600 hover:!bg-[#5244e8] hover:!text-white'
+                                    }`}
+                                  >
+                                    {isExpanded ? '−' : '+'}
+                                  </button>
+                                )}
                               </div>
                               {item.ip_address && (
-                                <div className="text-[11px] font-medium text-slate-400 tracking-tight leading-none">
+                                <div className="text-[11px] font-medium text-slate-400 tracking-tight mt-0.5">
                                   {item.ip_address}
                                 </div>
                               )}
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 text-right">
-                            <span className={`font-black text-[15px] ${isMinus ? 'text-rose-600' : 'text-indigo-600'}`}>
-                              {isMinus ? '' : '+'}{item.change_amount.toLocaleString()} P
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 text-right bg-slate-50/50">
-                            <span className="font-extrabold text-[14px] text-slate-600">
-                              {(item.running_balance || 0).toLocaleString()} <span className="text-[12px] font-bold text-slate-400">P</span>
-                            </span>
-                          </td>
-                        </tr>
+                            </td>
+                            <td className="px-6 py-4 text-right">
+                              <span className={`font-black text-[15px] ${isMinus ? 'text-rose-600' : 'text-indigo-600'}`}>
+                                {isMinus ? '' : '+'}{item.change_amount.toLocaleString()} P
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-right bg-slate-50/50">
+                              <span className="font-extrabold text-[14px] text-slate-600">
+                                {(item.running_balance || 0).toLocaleString()} <span className="text-[12px] font-bold text-slate-400">P</span>
+                              </span>
+                            </td>
+                          </tr>
+                          {/* 🌟 확장 패널: 전체 키워드 목록 */}
+                          {isExpanded && (
+                            <tr className="bg-indigo-50/60">
+                              <td colSpan={7} className="px-8 py-3">
+                                <div className="flex items-start gap-2">
+                                  <span className="shrink-0 mt-0.5 text-[11px] font-extrabold text-indigo-400 uppercase tracking-widest">전체</span>
+                                  <p className="text-[13px] text-slate-700 font-medium leading-relaxed break-all">
+                                    {full}
+                                  </p>
+                                  <button
+                                    onClick={() => setExpandedRowId(null)}
+                                    className="shrink-0 ml-auto text-slate-400 hover:text-slate-600 transition-colors"
+                                    title="닫기"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          )}
+                        </Fragment>
                       );
                     })
                   )}

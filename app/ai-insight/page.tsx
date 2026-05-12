@@ -100,7 +100,7 @@ function AiInsightContent() {
 
     // 포인트 차감 (100P)
     if (deductPoints) {
-      const isPaySuccess = await deductPoints(user.id, 100, 1, `[AI 포스팅 인사이트] ${keyword}`);
+      const isPaySuccess = await deductPoints(user.id, 100, 1, `[${keyword}] 검색 (1건)`);
       if (!isPaySuccess) return;
     }
 
