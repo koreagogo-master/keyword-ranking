@@ -29,9 +29,8 @@ export async function updateSession(request: NextRequest) {
             // 응답(Response)에 쿠키 심기 (⚠️ 여기가 핵심!)
             supabaseResponse.cookies.set(name, value, {
               ...options,
-              // 로컬 환경(127.0.0.1)에서는 보안을 해제합니다.
               sameSite: 'lax',
-              secure: false, 
+              secure: process.env.NODE_ENV === 'production',
             })
           })
         },

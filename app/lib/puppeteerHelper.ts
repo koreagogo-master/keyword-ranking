@@ -1,10 +1,5 @@
 import puppeteer from 'puppeteer';
-
-// 1. 프록시 정보 설정 (나중에 변경사항이 생기면 여기만 고치면 됩니다)
-const PROXY_HOST = 'proxy.smartproxy.net';
-const PROXY_PORT = '3120';
-const PROXY_USER = 'smart-tmgad01_area-KR';
-const PROXY_PASS = 'bsh103501';
+import { PROXY_HOST, PROXY_PORT, PROXY_USER, PROXY_PASS } from '@/app/lib/proxyConfig';
 
 // 2. 브라우저 실행 함수 (공통 사용)
 export async function launchProxyBrowser() {

@@ -1,16 +1,7 @@
 // app/api/google-related/route.ts
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
-import { HttpsProxyAgent } from 'https-proxy-agent';
-
-// 🌟 대표님이 공유해주신 Smartproxy 정보 그대로 적용
-const PROXY_HOST = 'proxy.smartproxy.net';
-const PROXY_PORT = '3120';
-const PROXY_USER = 'smart-tmgad01_area-KR';
-const PROXY_PASS = 'bsh103501';
-
-const PROXY_URL = `http://${PROXY_USER}:${PROXY_PASS}@${PROXY_HOST}:${PROXY_PORT}`;
-const proxyAgent = new HttpsProxyAgent(PROXY_URL);
+import { proxyAgent } from '@/app/lib/proxyConfig';
 
 export async function POST(request: Request) {
   try {

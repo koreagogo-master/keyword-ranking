@@ -1,19 +1,7 @@
 // app/api/debug-mobile/route.ts
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
-// ✅ 프록시 경유를 위해 에이전트가 필요합니다. 
-// 터미널에서 설치 필수: npm install https-proxy-agent
-import { HttpsProxyAgent } from 'https-proxy-agent';
-
-// 1. puppeteerHelper.ts의 Smartproxy 정보를 그대로 가져와 연결 고리를 만듭니다.
-const PROXY_HOST = 'proxy.smartproxy.net';
-const PROXY_PORT = '3120';
-const PROXY_USER = 'smart-tmgad01_area-KR';
-const PROXY_PASS = 'bsh103501';
-
-// 프록시 URL 조립 (인증정보 포함)
-const PROXY_URL = `http://${PROXY_USER}:${PROXY_PASS}@${PROXY_HOST}:${PROXY_PORT}`;
-const proxyAgent = new HttpsProxyAgent(PROXY_URL);
+import { proxyAgent } from '@/app/lib/proxyConfig';
 
 type SectionItem = { 
   name: string; 
