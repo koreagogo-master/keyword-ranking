@@ -1,8 +1,9 @@
 import puppeteer from 'puppeteer';
-import { PROXY_HOST, PROXY_PORT, PROXY_USER, PROXY_PASS } from '@/app/lib/proxyConfig';
+import { getProxyVars } from '@/app/lib/proxyConfig';
 
 // 2. 브라우저 실행 함수 (공통 사용)
 export async function launchProxyBrowser() {
+  const { PROXY_HOST, PROXY_PORT } = getProxyVars();
   const isProduction = process.env.NODE_ENV === 'production';
 
   // 실행 경로 설정 (배포 vs 로컬)
@@ -37,6 +38,7 @@ export async function launchProxyBrowser() {
 
 // 3. 페이지 설정 함수 (공통 사용 - 인증 및 모바일 위장)
 export async function setupPage(page: any) {
+  const { PROXY_USER, PROXY_PASS } = getProxyVars();
   // 프록시 인증
   await page.authenticate({ username: PROXY_USER, password: PROXY_PASS });
 

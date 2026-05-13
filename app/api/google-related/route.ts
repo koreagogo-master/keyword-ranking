@@ -1,7 +1,7 @@
 // app/api/google-related/route.ts
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
-import { proxyAgent } from '@/app/lib/proxyConfig';
+import { getProxyAgent } from '@/app/lib/proxyConfig';
 
 export async function POST(request: Request) {
   try {
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
           'Accept-Language': 'ko-KR,ko;q=0.9',
         },
         // @ts-ignore
-        agent: proxyAgent,
+        agent: getProxyAgent(),
         cache: 'no-store',
       });
 

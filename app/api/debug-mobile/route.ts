@@ -1,7 +1,7 @@
 // app/api/debug-mobile/route.ts
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
-import { proxyAgent } from '@/app/lib/proxyConfig';
+import { getProxyAgent } from '@/app/lib/proxyConfig';
 
 type SectionItem = { 
   name: string; 
@@ -57,7 +57,7 @@ async function fetchMobileDebug(keyword: string): Promise<SectionItem[]> {
         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
       },
       // @ts-ignore (Next.js fetch와 agent 타입 호환성 무시)
-      agent: proxyAgent, 
+      agent: getProxyAgent(), 
       cache: 'no-store',
     });
 

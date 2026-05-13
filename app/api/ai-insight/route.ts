@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import axios from 'axios';
 import { jsonrepair } from 'jsonrepair';
-import { proxyAgent } from '@/app/lib/proxyConfig';
+import { getProxyAgent } from '@/app/lib/proxyConfig';
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 
@@ -89,7 +89,7 @@ async function analyzeOnePost(url: string, keyword: string): Promise<PostData> {
         'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
       },
       // @ts-ignore
-      httpsAgent: proxyAgent,
+      httpsAgent: getProxyAgent(),
       timeout: 15000,
     });
     $ = cheerio.load(response.data);
