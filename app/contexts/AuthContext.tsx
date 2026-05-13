@@ -152,6 +152,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!user || !profile) return;
 
+    // cleanup에서 채널을 제거하기 위해 참조를 보관합니다.
+    let isCancelled = false;
+    let activeChannel: ReturnType<typeof supabase.channel> | null = null;
+
     const enforceSingleSession = async (currentUser: any, localSessionIdStr: string) => {
       try {
         // 1. DB에서 현재 유저의 프로필 정보(등급, 세션ID, 최근 IP 등)를 가져옵니다.
@@ -202,14 +206,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               .eq('id', currentUser.id);
 
             // Realtime 감시 시작 후 종료
-            const channel = supabase.channel('session_listener')
+            if (isCancelled) return;
+            activeChannel = supabase.channel('session_listener')
               .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${currentUser.id}` }, (payload: any) => {
                 if (payload.new.current_session_id && payload.new.current_session_id !== localSessionIdStr) {
                   alert("⚠️ 다른 기기에서 새로운 로그인이 감지되어 현재 접속이 종료됩니다.");
                   handleLogout();
                 }
               }).subscribe();
-            return () => { supabase.removeChannel(channel); };
+            return;
           }
 
           // [3단계] 세션 ID도 다르고 IP도 다른 경우 (진짜 중복 접속 시도)
@@ -251,7 +256,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         // Realtime 감시: 누군가 내 세션을 뺏어가는지 실시간 감시 (Supabase Realtime)
-        const channel = supabase.channel('session_listener')
+        if (isCancelled) return;
+        activeChannel = supabase.channel('session_listener')
           .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${currentUser.id}` }, (payload: any) => {
             if (payload.new.current_session_id && payload.new.current_session_id !== localSessionIdStr) {
               alert("⚠️ 다른 기기에서 새로운 로그인이 감지되어 현재 접속이 종료됩니다.");
@@ -259,14 +265,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           }).subscribe();
 
-        return () => { supabase.removeChannel(channel); };
-
       } catch (err) {
         console.error("단일 세션 검증 중 예기치 않은 오류가 발생했습니다.", err);
       }
     };
 
     enforceSingleSession(user, localSessionId.current);
+
+    // useEffect가 직접 등록하는 동기 cleanup 함수
+    // 컴포넌트 언마운트 또는 의존성 변경 시 반드시 실행됩니다.
+    return () => {
+      isCancelled = true;
+      if (activeChannel) {
+        supabase.removeChannel(activeChannel);
+        activeChannel = null;
+      }
+    };
   }, [user, profile?.grade, supabase]);
 
   const value = { user, profile, isLoading, handleLogout, refreshProfile };
