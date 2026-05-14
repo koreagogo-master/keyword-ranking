@@ -122,23 +122,24 @@ export default function AdminPointsPage() {
     if (policy.point_cost === policy.original_cost) return;
 
     setSavingId(policy.page_type);
-    const supabase = createClient();
-    
-    const { error } = await supabase
-      .from('point_policies')
-      .update({ point_cost: policy.point_cost })
-      .eq('page_type', policy.page_type);
+
+    const res = await fetch('/api/admin/update-point-policy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ page_type: policy.page_type, point_cost: policy.point_cost }),
+    });
 
     setSavingId(null);
 
-    if (!error) {
+    if (res.ok) {
       const metaName = PAGE_META[policy.page_type]?.name || policy.page_name;
       alert(`[${metaName}] 포인트가 ${policy.point_cost}P로 저장되었습니다.`);
       setPolicies(prev => prev.map(p => p.page_type === policy.page_type ? { ...p, original_cost: policy.point_cost } : p));
-      
+
       router.refresh();
     } else {
-      alert(`저장에 실패했습니다. 관리자에게 문의하세요. (${error.message})`);
+      const data = await res.json().catch(() => ({}));
+      alert(`저장에 실패했습니다. 관리자에게 문의하세요. (${data.error ?? res.statusText})`);
     }
   };
 
