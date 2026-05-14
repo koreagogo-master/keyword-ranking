@@ -144,38 +144,30 @@ export default function AdminUsersPage() {
       return;
     }
 
-    const diff = newVal - currentVal;
-    if (diff === 0) return;
+    if (newVal === (currentVal || 0)) return;
 
     const memo = window.prompt(
       `[히스토리 기록용]\n유저에게 지급/차감하는 사유를 입력해주세요.\n(예: CS 보상, 오류 복구, 이벤트 당첨 등)\n*취소를 눌러도 포인트는 변경되지만 '사유 없음'으로 기록됩니다.`
     );
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ [column]: newVal })
-      .eq('id', userId);
-
-    if (!error) {
-      // 🌟 '충전' : '사용' 이었던 부분을 데이터베이스가 아는 'CHARGE' : 'USE' 로 되돌립니다.
-      const { error: historyError } = await supabase.from('point_history').insert({
-        user_id: userId,
-        change_type: diff > 0 ? 'CHARGE' : 'USE', 
-        change_amount: diff,
-        page_type: 'MANUAL',
-        description: `[관리자 조정] ${label} : ${currentVal.toLocaleString()} -> ${newVal.toLocaleString()} | ${memo || '사유 없음'}`
+    try {
+      const response = await fetch('/api/admin/update-point', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, column, newVal, label, memo: memo || '사유 없음' }),
       });
 
-      // 🌟 장부 기록이 실패하면 조용히 넘어가지 않고 원인을 알려주도록 수정
-      if (historyError) {
-        alert(`내역 기록에 실패했습니다: ${historyError.message}`);
-      } else {
-        alert("포인트가 변경되고 히스토리에 안전하게 기록되었습니다.");
-      }
+      const result = await response.json();
 
-      fetchUsers();
-    } else {
-      alert("포인트 수정 중 오류가 발생했습니다.");
+      if (response.ok) {
+        alert("포인트가 변경되고 히스토리에 안전하게 기록되었습니다.");
+        fetchUsers();
+      } else {
+        alert(`포인트 수정 중 오류가 발생했습니다: ${result.error}`);
+      }
+    } catch (error) {
+      console.error(error);
+      alert('서버와의 통신에 실패했습니다. (API 라우트를 확인해주세요.)');
     }
   };
 
