@@ -1,8 +1,37 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerSupabaseClient } from '@/app/utils/supabase/server';
 
 export async function POST(request: Request) {
     try {
+        // ============================================================
+        // [보안 1단계] 요청 쿠키로 현재 로그인 사용자 확인
+        // 브라우저가 보낸 쿠키에서 세션을 읽어 실제 로그인 여부를 서버에서 검증합니다.
+        // ============================================================
+        const supabaseServer = await createServerSupabaseClient();
+        const { data: { user: requestingUser }, error: authError } = await supabaseServer.auth.getUser();
+
+        if (authError || !requestingUser) {
+            return NextResponse.json({ error: '로그인이 필요합니다.' }, { status: 401 });
+        }
+
+        // ============================================================
+        // [보안 2단계] 요청자의 profiles.role이 'admin'인지 확인
+        // body의 userId가 아닌, 실제 세션 사용자의 role을 조회합니다.
+        // ============================================================
+        const { data: requestingProfile, error: profileError } = await supabaseServer
+            .from('profiles')
+            .select('role')
+            .eq('id', requestingUser.id)
+            .single();
+
+        if (profileError || !requestingProfile || requestingProfile.role?.toLowerCase() !== 'admin') {
+            return NextResponse.json({ error: '관리자 권한이 필요합니다.' }, { status: 403 });
+        }
+
+        // ============================================================
+        // [본 처리] 위 검증을 통과한 경우에만 삭제 대상 userId로 회원 삭제 실행
+        // ============================================================
         const { userId } = await request.json();
 
         if (!userId) {
