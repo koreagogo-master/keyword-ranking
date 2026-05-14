@@ -73,15 +73,21 @@ export default function AdminUsersPage() {
   };
 
   const updateGrade = async (userId: string, newGrade: string) => {
-    const { error } = await supabase
-      .from('profiles')
-      .update({ grade: newGrade })
-      .eq('id', userId);
+    try {
+      const res = await fetch('/api/admin/update-grade', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, grade: newGrade }),
+      });
 
-    if (!error) {
-      alert("등급이 성공적으로 변경되었습니다!");
-      fetchUsers();
-    } else {
+      if (res.ok) {
+        alert("등급이 성공적으로 변경되었습니다!");
+        fetchUsers();
+      } else {
+        const data = await res.json();
+        alert(data.error || "등급 변경 중 오류가 발생했습니다.");
+      }
+    } catch {
       alert("등급 변경 중 오류가 발생했습니다.");
     }
   };
