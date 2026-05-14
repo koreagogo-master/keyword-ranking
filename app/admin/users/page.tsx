@@ -123,15 +123,21 @@ export default function AdminUsersPage() {
 
     if (newVal === (currentVal ?? 0)) return;
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ free_search_count: newVal })
-      .eq('id', userId);
+    try {
+      const res = await fetch('/api/admin/update-free-count', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, newVal }),
+      });
 
-    if (!error) {
-      alert("무료 잔여 횟수가 변경되었습니다.");
-      fetchUsers();
-    } else {
+      if (res.ok) {
+        alert("무료 잔여 횟수가 변경되었습니다.");
+        fetchUsers();
+      } else {
+        const data = await res.json();
+        alert(data.error || "무료 횟수 수정 중 오류가 발생했습니다.");
+      }
+    } catch {
       alert("무료 횟수 수정 중 오류가 발생했습니다.");
     }
   };
