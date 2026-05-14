@@ -29,12 +29,6 @@ const PATH_TO_PAGE_TYPE: Record<string, string> = {
 // 무료 횟수를 절대 쓸 수 없는 유료 전용 기능 목록
 const PAID_ONLY_PAGES = ['AI_BLOG', 'AI_PRESS', 'POST_XRAY', 'AI_INSIGHT'];
 
-const getKSTDateString = () => {
-  const now = new Date();
-  const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
-  const kst = new Date(utc + (9 * 3600000));
-  return kst.toISOString().split('T')[0];
-};
 
 export const usePoint = () => {
   const router = useRouter();
@@ -92,46 +86,24 @@ export const usePoint = () => {
     // ====================================================================
     if (!PAID_ONLY_PAGES.includes(pageType)) {
       try {
-        const { data: profile, error: profileError } = await supabase
-          .from('profiles')
-          .select('free_search_count, last_free_reset_date')
-          .eq('id', userId)
-          .single();
+        const res = await fetch('/api/use-free-count', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ userId, itemCount }),
+        });
 
-        if (!profileError && profile) {
-          const today = getKSTDateString();
-          let currentFreeCount = profile.free_search_count ?? 0;
-          let lastResetDate = profile.last_free_reset_date;
-
-          if (lastResetDate !== today) {
-            currentFreeCount = 5;
-            lastResetDate = today;
-          }
-
-          if (currentFreeCount >= itemCount) {
-            const newFreeCount = currentFreeCount - itemCount;
-            await supabase
-              .from('profiles')
-              .update({
-                free_search_count: newFreeCount,
-                last_free_reset_date: lastResetDate
-              })
-              .eq('id', userId);
-
-            console.log(`✅ 회원 무료 검색 통과! (남은 횟수: ${newFreeCount}회)`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success === true) {
+            console.log(`✅ 회원 무료 검색 통과! (남은 횟수: ${data.newCount}회)`);
             return true; // 회원 5회 무료 통과!
-          } else if (profile.last_free_reset_date !== today) {
-            await supabase
-              .from('profiles')
-              .update({
-                free_search_count: 5,
-                last_free_reset_date: today
-              })
-              .eq('id', userId);
           }
+          // success === false && reason === 'exhausted' → 유료 포인트 단계로 계속 진행
         }
+        // API 호출 실패(네트워크 오류 등) → 유료 포인트 단계로 계속 진행
       } catch (error) {
         console.error("회원 무료 횟수 체크 중 오류 발생:", error);
+        // 오류 발생 시에도 유료 포인트 단계로 계속 진행
       }
     }
 
