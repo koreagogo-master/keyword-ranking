@@ -145,21 +145,24 @@ export default function AdminPointsPage() {
 
   const handleSaveAlerts = async () => {
     setIsSavingAlert(true);
-    const supabase = createClient();
-    
-    // UPSERT(값이 없으면 생성, 있으면 업데이트)를 위한 upsert 쿼리
-    const { error } = await supabase.from('system_settings').upsert([
-      { setting_key: 'alert_threshold_low', setting_value: alertSettings.low },
-      { setting_key: 'alert_threshold_mid', setting_value: alertSettings.mid }
-    ], { onConflict: 'setting_key' });
+
+    const res = await fetch('/api/admin/update-system-settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        alert_threshold_low: alertSettings.low,
+        alert_threshold_mid: alertSettings.mid,
+      }),
+    });
 
     setIsSavingAlert(false);
 
-    if (!error) {
+    if (res.ok) {
       alert('포인트 알림 기준이 저장되었습니다.');
       setOriginalAlert(alertSettings);
     } else {
-      alert(`저장에 실패했습니다. (${error.message})`);
+      const data = await res.json().catch(() => ({}));
+      alert(`저장에 실패했습니다. (${data.error ?? res.statusText})`);
     }
   };
 
