@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/contexts/AuthContext";
 
 import { createClient } from "@/app/utils/supabase/client";
@@ -44,11 +44,6 @@ function MyPageContent() {
   const { user, profile, isLoading } = useAuth();
   const router = useRouter();
 
-  const searchParams = useSearchParams();
-  const paymentKey = searchParams.get('paymentKey');
-  const orderId = searchParams.get('orderId');
-  const amount = searchParams.get('amount');
-
   const [activeTab, setActiveTab] = useState<'ALL' | 'CHARGE' | 'USE'>('ALL');
 
   const [filterMonths, setFilterMonths] = useState<number>(1);
@@ -62,89 +57,6 @@ function MyPageContent() {
   const [currentPage, setCurrentPage] = useState(1);
 
   const itemsPerPage = 10;
-  const isProcessingRef = useRef(false);
-
-  useEffect(() => {
-    if (paymentKey && orderId && amount && user && profile) {
-      if (isProcessingRef.current) return;
-      isProcessingRef.current = true; 
-
-      processPayment();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paymentKey, orderId, amount, user, profile]);
-
-  const processPayment = async () => {
-    const supabase = createClient();
-    
-    const { data: existingPayment } = await supabase
-      .from('payments')
-      .select('id')
-      .eq('order_id', orderId)
-      .maybeSingle();
-
-    if (existingPayment) {
-      router.replace('/mypage'); 
-      return;
-    }
-
-    try {
-      const res = await fetch('/api/payments/confirm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ paymentKey, orderId, amount: Number(amount) })
-      });
-      const result = await res.json();
-
-      if (result.success) {
-        let pointsToAdd = 0;
-        let planId = '';
-        if (Number(amount) === 10000) { pointsToAdd = 10000; planId = 'starter'; }
-        else if (Number(amount) === 30000) { pointsToAdd = 36000; planId = 'pro'; }
-        else if (Number(amount) === 50000) { pointsToAdd = 60000; planId = 'agency'; }
-
-        if (pointsToAdd > 0) {
-          await supabase.from('payments').insert({
-            user_id: user.id,
-            order_id: orderId,
-            payment_key: paymentKey,
-            plan_id: planId,
-            amount: Number(amount),
-            status: 'DONE',
-          });
-
-          const newPoints = (profile.purchased_points || 0) + pointsToAdd;
-          await supabase.from('profiles').update({
-            purchased_points: newPoints,
-            grade: planId
-          }).eq('id', user.id);
-
-          const { error: historyError } = await supabase.from('point_history').insert({
-            user_id: user.id,
-            change_amount: pointsToAdd,
-            page_type: 'CHARGE',
-            change_type: '충전', 
-            description: `${planId.toUpperCase()} 요금제`
-          });
-
-          if (historyError) {
-            console.error('내역 저장 에러:', historyError);
-            alert(`내역 기록 실패 원인: ${historyError.message}`); 
-          } else {
-            alert('결제가 성공적으로 완료되어 포인트가 지급되었습니다!');
-            window.location.href = '/mypage'; 
-          }
-        }
-      } else {
-        alert(`결제 승인 실패: ${result.message}`);
-        router.replace('/mypage');
-      }
-    } catch (err) {
-      console.error(err);
-      alert('결제 처리 중 서버와 연결이 끊어졌습니다.');
-      router.replace('/mypage');
-    }
-  };
 
   useEffect(() => {
     if (!isLoading && !user) {
