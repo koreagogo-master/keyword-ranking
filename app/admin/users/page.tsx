@@ -94,15 +94,22 @@ export default function AdminUsersPage() {
 
   const handleTogglePin = async (userId: string, currentState: boolean) => {
     const newState = !currentState;
-    const { error } = await supabase
-      .from('profiles')
-      .update({ is_pinned: newState })
-      .eq('id', userId);
 
-    if (!error) {
-      fetchUsers(); 
-    } else {
-      alert("고정 상태 변경 중 오류가 발생했습니다. (SQL 명령어로 is_pinned 컬럼을 추가했는지 확인해주세요!)");
+    try {
+      const res = await fetch('/api/admin/toggle-pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId, newState }),
+      });
+
+      if (res.ok) {
+        fetchUsers();
+      } else {
+        const data = await res.json();
+        alert(data.error || "고정 상태 변경 중 오류가 발생했습니다.");
+      }
+    } catch {
+      alert("고정 상태 변경 중 오류가 발생했습니다.");
     }
   };
 
