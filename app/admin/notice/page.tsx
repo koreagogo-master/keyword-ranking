@@ -97,12 +97,15 @@ export default function AdminNoticePage() {
     const isConfirm = window.confirm('정말로 이 공지사항을 삭제하시겠습니까?');
     if (!isConfirm) return;
 
-    const supabase = createClient();
-    const { error } = await supabase.from('notices').delete().eq('id', id);
+    const res = await fetch('/api/admin/delete-notice', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
 
-    if (error) {
-      alert('삭제 중 오류가 발생했습니다.');
-      console.error(error);
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      alert(`삭제 중 오류가 발생했습니다. (${data.error ?? res.statusText})`);
     } else {
       alert('성공적으로 삭제되었습니다.');
       fetchNotices();
@@ -121,23 +124,30 @@ export default function AdminNoticePage() {
     }
 
     setIsSubmitting(true);
-    const supabase = createClient();
 
     try {
       const submitDate = new Date(createdDate).toISOString();
 
+      const res = await fetch('/api/admin/upsert-notice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: editId ?? undefined,
+          title,
+          content,
+          is_pinned: isPinned,
+          created_at: submitDate,
+        }),
+      });
+
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? res.statusText);
+      }
+
       if (editId) {
-        const { error } = await supabase
-          .from('notices')
-          .update({ title, content, is_pinned: isPinned, created_at: submitDate }) 
-          .eq('id', editId);
-        if (error) throw error;
         alert('공지사항이 수정되었습니다.');
       } else {
-        const { error } = await supabase
-          .from('notices')
-          .insert({ title, content, is_pinned: isPinned, created_at: submitDate }); 
-        if (error) throw error;
         alert('새 공지사항이 등록되었습니다.');
       }
 
