@@ -106,29 +106,30 @@ export default function AdminCSPage() {
     }
 
     setIsSubmitting(true);
-    const supabase = createClient();
 
     try {
-      const now = new Date().toISOString();
-      const { error } = await supabase
-        .from('inquiries')
-        .update({
-          answer: answerText,
-          status: '답변완료',
-          answered_at: now,
-        })
-        .eq('id', inquiryId);
+      const response = await fetch('/api/admin/answer-inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inquiryId, answerText }),
+      });
 
-      if (error) throw error;
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.error ?? response.statusText);
+      }
+
+      const data = await response.json();
+      const answeredAt = data.answered_at;
 
       alert('답변이 성공적으로 등록되었습니다.');
-      
+
       window.dispatchEvent(new Event('inquiryAnswered'));
-      
+
       setInquiries((prev) =>
         prev.map((inq) =>
           inq.id === inquiryId
-            ? { ...inq, answer: answerText, status: '답변완료', answered_at: now }
+            ? { ...inq, answer: answerText.trim(), status: '답변완료', answered_at: answeredAt }
             : inq
         )
       );
