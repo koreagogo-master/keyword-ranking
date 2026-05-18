@@ -214,14 +214,14 @@ export default function Home() {
                 {/* 비로그인 혜택 안내 */}
                 {!authLoading && !user && (
                   <div className="mt-5 flex flex-col gap-1">
-                    <p className="text-[13.5px] text-gray-400 font-medium flex items-center gap-1.5">
+                    <p className="text-[14px] text-gray-500 font-medium flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0 inline-block"></span>
                       가입 후 매일 무료 검색 <span className="text-indigo-500 font-bold">5회</span>와{" "}
                       <span className="text-[#ff8533] font-bold">3,000 Point</span>를 받을 수 있습니다.
                     </p>
-                    <p className="text-[13.5px] text-gray-400 font-medium flex items-center gap-1.5">
+                    <p className="text-[14px] text-gray-500 font-medium flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0 inline-block"></span>
-                      네이버·구글 아이디로 간편하게 시작할 수 있습니다.
+                      네이버·구글 아이디로 간편하게 시작할 수 있습니다. 
                     </p>
                   </div>
                 )}
@@ -300,12 +300,69 @@ export default function Home() {
       </main>
 
       {/* ─────────────────────────────────────────────────────
+          1-1. 사용 예시 영상
+      ───────────────────────────────────────────────────── */}
+      <section className="bg-white py-12 px-6 border-b border-gray-100">
+        <div className="max-w-[1200px] mx-auto">
+          <FadeInUp>
+            <div className="grid lg:grid-cols-5 gap-10 xl:gap-12 items-center">
+
+              {/* 좌측: 영상 설명 */}
+              <div className="lg:col-span-2 text-left">
+                <span className="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[12px] font-bold mb-4 border border-indigo-100">
+                  실제 사용 흐름
+                </span>
+                <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-4 font-title leading-tight break-keep">
+                  키워드 분석부터 콘텐츠 기획까지
+                </h2>
+                <p className="text-[15px] text-gray-500 break-keep leading-relaxed mb-6">
+                  검색어를 입력하면 검색량, 연관 키워드, 콘텐츠 흐름을 빠르게 확인하고 블로그·마케팅 콘텐츠 기획까지 자연스럽게 이어갈 수 있습니다.
+                </p>
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2.5 text-[14px] font-semibold text-gray-700">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
+                    키워드 입력 후 바로 분석 페이지 이동
+                  </div>
+                  <div className="flex items-center gap-2.5 text-[14px] font-semibold text-gray-700">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
+                    검색량과 연관 키워드 흐름 확인
+                  </div>
+                  <div className="flex items-center gap-2.5 text-[14px] font-semibold text-gray-700">
+                    <span className="w-2 h-2 rounded-full bg-indigo-500 shrink-0"></span>
+                    콘텐츠 작성 업무로 자연스럽게 연결
+                  </div>
+                </div>
+              </div>
+
+              {/* 우측: Vimeo 데모 영상 */}
+              <div className="lg:col-span-3">
+                <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg bg-black">
+                  <div className="relative w-full pt-[56.25%]">
+                    <iframe
+                      src="https://player.vimeo.com/video/1193109070?background=1&autoplay=1&muted=1&loop=1&autopause=0"
+                      className="absolute top-0 left-0 w-full h-full"
+                      frameBorder="0"
+                      allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      title="랭킹프로 사용 설명서"
+                    />
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </FadeInUp>
+        </div>
+      </section>
+
+      {/* ─────────────────────────────────────────────────────
           2. 전체 도구 목록
       ───────────────────────────────────────────────────── */}
       <section id="toolkit" className="bg-gray-100 py-20 px-6 border-b border-gray-200">
         <div className="max-w-[1200px] mx-auto">
           <FadeInUp>
-            <div className="text-center px-4 mb-10">
+            <div className="text-center px-4 mb-8">
               <h2 className="text-2xl md:text-3xl font-black text-gray-900 mb-2 font-title">
                 랭킹프로로 할 수 있는 일
               </h2>
