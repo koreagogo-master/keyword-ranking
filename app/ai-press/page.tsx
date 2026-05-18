@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react"; 
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/app/contexts/AuthContext";
 import { usePoint } from "@/app/hooks/usePoint";
@@ -10,8 +11,9 @@ import AiTabs from "@/components/AiTabs";
 import HelpButton from "@/components/HelpButton";
 
 export default function AiPressPage() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const { deductPoints } = usePoint();
+  const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<'new' | 'renewal'>('new');
 
@@ -32,6 +34,7 @@ export default function AiPressPage() {
 
   const [isFormVisible, setIsFormVisible] = useState(true);
   const [hasGeneratedOnce, setHasGeneratedOnce] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   
   const [progressMessage, setProgressMessage] = useState("");
 
@@ -52,6 +55,11 @@ export default function AiPressPage() {
     };
     fetchBasePoint();
   }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
+    setIsLoginModalOpen(!user);
+  }, [isLoading, user]);
 
   const isSaveDisabled = activeTab === 'new' 
     ? !user || !companyName.trim() || !newsTopic.trim() || !details.trim()
@@ -117,7 +125,7 @@ export default function AiPressPage() {
       }
     }
 
-    if (!user) return alert("로그인이 필요한 서비스입니다.");
+    if (!user) { setIsLoginModalOpen(true); return; }
 
     if (deductPoints) {
       const isPaySuccess = await deductPoints(user.id, totalPoints, 1, `AI ${docType} 작성 (${activeTab === 'new' ? '신규' : '리뉴얼'})`);
@@ -386,6 +394,39 @@ export default function AiPressPage() {
       )}
 
       <SavedSearchesDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} pageType="AI_PRESS" onSelect={handleApplySavedSetting} />
+
+      {isLoginModalOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8 flex flex-col items-center">
+            <div className="w-14 h-14 rounded-full bg-indigo-50 flex items-center justify-center mb-5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 !text-[#5244e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-black !text-gray-900 mb-3 text-center">로그인이 필요한 메뉴입니다</h2>
+            <p className="text-sm !text-gray-500 text-center leading-relaxed mb-7">
+              이 기능은 로그인 후 이용할 수 있습니다.<br />
+              회원가입 후 매일 무료 검색 5회와<br />
+              3,000 Point를 받을 수 있습니다.
+            </p>
+            <div className="flex flex-col w-full gap-3">
+              <button
+                onClick={() => router.push('/login?redirect=/ai-press')}
+                className="w-full py-3 bg-[#5244e8] rounded-lg font-bold !text-white hover:bg-[#4336c9] transition-colors"
+              >
+                로그인하기
+              </button>
+              <button
+                onClick={() => router.push('/signup')}
+                className="w-full py-3 bg-white border-2 border-[#5244e8] rounded-lg font-bold !text-[#5244e8] hover:bg-indigo-50 transition-colors"
+              >
+                무료 회원가입
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

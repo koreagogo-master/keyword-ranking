@@ -21,8 +21,17 @@ export default function NaverProcessingPage() {
     const scheduleRedirect = () => {
       if (redirectScheduled) return;
       redirectScheduled = true;
+
+      // sessionStorage에서 redirect 경로 읽기 — open redirect 방어 포함
+      const rawRedirect = sessionStorage.getItem('loginRedirect') ?? '/';
+      sessionStorage.removeItem('loginRedirect');
+      const dest =
+        rawRedirect.startsWith('/') && !rawRedirect.startsWith('//')
+          ? rawRedirect
+          : '/';
+
       setTimeout(() => {
-        window.location.href = '/';
+        window.location.href = dest;
       }, 1500); // 쿠키 물리 저장 여유 1.5초
     };
 

@@ -1,11 +1,17 @@
 'use client';
 
-import { useState } from "react";
+import { useState, Suspense } from "react";
 import { createClient } from "@/app/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 
-export default function LoginPage() {
+// open redirect 방어 — 내부 경로만 허용
+function getSafeRedirect(raw: string | null): string {
+  if (raw && raw.startsWith('/') && !raw.startsWith('//')) return raw;
+  return '/';
+}
+
+function LoginContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,6 +21,8 @@ export default function LoginPage() {
   const [resetLoading, setResetLoading] = useState(false);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const safeRedirect = getSafeRedirect(searchParams.get('redirect'));
   const supabase = createClient();
 
   // 기존 로그인 핸들러
@@ -31,7 +39,7 @@ export default function LoginPage() {
       if (error) {
         alert("로그인 실패: " + error.message);
       } else {
-        router.push("/");
+        router.push(safeRedirect);
       }
     } catch (err: any) {
       if (err.name === 'AbortError' || err.message?.includes('aborted')) {
@@ -77,7 +85,7 @@ export default function LoginPage() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/`,
+        redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(safeRedirect)}`,
       },
     });
   };
@@ -101,7 +109,10 @@ export default function LoginPage() {
               {/* 네이버 로그인 버튼 */}
               <button
                 type="button"
-                onClick={() => { window.location.href = '/api/auth/naver'; }}
+                onClick={() => {
+                  sessionStorage.setItem('loginRedirect', safeRedirect);
+                  window.location.href = '/api/auth/naver';
+                }}
                 className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold transition-all active:scale-95 cursor-pointer shadow-sm !text-white"
                 style={{ backgroundColor: '#03C75A' }}
               >
@@ -220,5 +231,13 @@ export default function LoginPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-[calc(100vh-160px)] flex items-center justify-center text-gray-400 font-bold">로딩 중...</div>}>
+      <LoginContent />
+    </Suspense>
   );
 }

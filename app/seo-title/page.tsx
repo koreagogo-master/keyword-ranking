@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, Suspense } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter } from 'next/navigation';
 
 import SellerTabs from '@/components/SellerTabs';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -27,12 +28,21 @@ interface GeneratedTitle {
 function SeoTitleContent() {
     const { user, isLoading } = useAuth();
     const { deductPoints } = usePoint();
+    const router = useRouter();
 
     // 입력 상태
     const [keyword, setKeyword] = useState(''); // Step 1
     const [productName, setProductName] = useState(''); // Step 2
     const [attribute, setAttribute] = useState(''); // Step 2
     const [excludeKeyword, setExcludeKeyword] = useState(''); // Step 2
+
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+    // 비로그인 상태 확정 시 즉시 모달 표시 / 로그인 상태면 닫기
+    useEffect(() => {
+        if (isLoading) return;
+        setIsLoginModalOpen(!user);
+    }, [isLoading, user]);
 
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [isCombining, setIsCombining] = useState(false);
@@ -63,6 +73,8 @@ function SeoTitleContent() {
     const handleAnalyze = async (overrideKeyword?: string) => {
         const kwToSearch = overrideKeyword !== undefined ? overrideKeyword : keyword;
         if (!kwToSearch.trim()) return alert("핵심 품목명을 입력해주세요.");
+
+        if (!user) { setIsLoginModalOpen(true); return; }
 
         const isPaySuccess = await deductPoints(user?.id, 10, 1, kwToSearch);
         if (!isPaySuccess) return;
@@ -107,6 +119,7 @@ function SeoTitleContent() {
 
     // [기능 2] Step 2: 내 정보(브랜드, 사양, 제외키워드) 섞어서 조합
     const handleCombine = async () => {
+        if (!user) { setIsLoginModalOpen(true); return; }
         setIsCombining(true);
         setResults([]);
         setRecommendedTags([]);
@@ -214,6 +227,7 @@ function SeoTitleContent() {
     };
 
     const handleSaveCurrentSetting = async () => {
+        if (!user) { setIsLoginModalOpen(true); return; }
         if (!keyword.trim()) return alert("저장할 핵심 품목명을 입력해주세요.");
         const supabase = createClient();
         const { error } = await supabase.from('saved_searches').insert({
@@ -248,7 +262,6 @@ function SeoTitleContent() {
     const isStep2Completed = results.length > 0 && excludeKeyword.trim() === combinedExcludeKeyword;
 
     if (isLoading) return <div className="min-h-[50vh] flex items-center justify-center font-bold !text-slate-500">권한 확인 중...</div>;
-    if (!user) return null;
 
     return (
         <>
@@ -440,6 +453,40 @@ function SeoTitleContent() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           현재 설정이 성공적으로 저장되었습니다.
+        </div>
+      )}
+
+      {/* ── 로그인 필요 모달 — 오버레이 클릭으로 닫히지 않음 / 나중에 보기 없음 */}
+      {isLoginModalOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8 flex flex-col items-center">
+            <div className="w-14 h-14 rounded-full bg-indigo-50 flex items-center justify-center mb-5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 !text-[#5244e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-black !text-gray-900 mb-3 text-center">로그인이 필요한 메뉴입니다</h2>
+            <p className="text-sm !text-gray-500 text-center leading-relaxed mb-7">
+              이 기능은 로그인 후 이용할 수 있습니다.<br />
+              회원가입 후 매일 무료 검색 5회와<br />
+              3,000 Point를 받을 수 있습니다.
+            </p>
+            <div className="flex flex-col w-full gap-3">
+              <button
+                onClick={() => router.push('/login?redirect=/seo-title')}
+                className="w-full py-3 bg-[#5244e8] rounded-lg font-bold !text-white hover:bg-[#4336c9] transition-colors"
+              >
+                로그인하기
+              </button>
+              <button
+                onClick={() => router.push('/signup')}
+                className="w-full py-3 bg-white border-2 border-[#5244e8] rounded-lg font-bold !text-[#5244e8] hover:bg-indigo-50 transition-colors"
+              >
+                무료 회원가입
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
