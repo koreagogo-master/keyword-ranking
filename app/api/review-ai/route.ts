@@ -18,14 +18,16 @@ interface RequestBody {
   tone: string;          // 톤앤매너 id
   isEmojiOff?: boolean;  // 이모지 사용 금지 여부
   reviews: ReviewItem[];
+  isRetry?: boolean;     // 실패 카드 단건 재생성 시 true — 포인트 미차감
 }
 
 // ── 톤앤매너 → 한국어 설명 매핑
 const TONE_LABELS: Record<string, string> = {
-  friendly:   '친절하고 공감하는 따뜻한 말투',
-  expert:     '전문적이고 신뢰감 있는 말투',
-  apologize:  '진심으로 사과하고 문제를 해결하려는 말투',
-  repurchase: '재구매를 자연스럽게 유도하는 말투',
+  'friendly-repurchase': '친절하게 공감하면서 재구매를 자연스럽게 유도하는 말투',
+  friendly:              '친절하고 공감하는 따뜻한 말투',
+  expert:                '전문적이고 신뢰감 있는 말투',
+  apologize:             '진심으로 사과하고 문제를 해결하려는 말투',
+  repurchase:            '재구매를 자연스럽게 유도하는 말투',
 };
 
 // ── Claude 단건 호출 함수
@@ -64,9 +66,11 @@ async function generateReply(
     messages: [{ role: 'user', content: userPrompt }],
   });
 
-  // 텍스트 블록만 추출
+  // 텍스트 블록만 추출 — 없거나 빈 문자열이면 실패로 처리
   const textBlock = message.content.find(b => b.type === 'text');
-  return textBlock?.type === 'text' ? textBlock.text.trim() : '';
+  const text = textBlock?.type === 'text' ? textBlock.text.trim() : '';
+  if (!text) throw new Error('Claude 응답에서 텍스트를 추출하지 못했습니다.');
+  return text;
 }
 
 // ── POST 핸들러
@@ -83,13 +87,21 @@ export async function POST(req: NextRequest) {
 
     // 2. 요청 파싱
     const body: RequestBody = await req.json();
-    const { productName, productDesc, tone, isEmojiOff, reviews } = body;
+    const { productName, productDesc, tone, isEmojiOff, reviews, isRetry } = body;
 
     const validReviews = reviews.filter(r => r.text && r.text.trim() !== '');
 
     if (!validReviews || validReviews.length === 0) {
       return NextResponse.json(
         { error: '리뷰 데이터가 없습니다.' },
+        { status: 400 }
+      );
+    }
+
+    // 재생성 요청은 반드시 1건만 허용
+    if (isRetry && validReviews.length !== 1) {
+      return NextResponse.json(
+        { error: '재생성 요청은 1건만 가능합니다.' },
         { status: 400 }
       );
     }
@@ -102,28 +114,42 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: '인증되지 않은 사용자입니다.' }, { status: 401 });
     }
 
-    // 나/다. 차감할 포인트 계산 및 차감 함수 실행
-    const { data: pointData, error: pointError } = await supabase.rpc('deduct_points_dynamic', {
-      p_user_id: user.id,
-      p_page_type: 'REVIEW_AI',
-      p_item_count: validReviews.length,
-      p_description: `리뷰 답글 생성 (${validReviews.length}건)`
-    });
+    // 나/다. 포인트 차감 — 재생성(isRetry) 요청은 차감하지 않음
+    if (!isRetry) {
+      const { data: pointData, error: pointError } = await supabase.rpc('deduct_points_dynamic', {
+        p_user_id: user.id,
+        p_page_type: 'REVIEW_AI',
+        p_item_count: validReviews.length,
+        p_description: `리뷰 답글 생성 (${validReviews.length}건)`
+      });
 
-    // 라. 유저 잔여 포인트 부족 처리
-    if (pointError || !pointData || pointData.success === false) {
-      return NextResponse.json({ error: '포인트가 부족합니다.' }, { status: 400 });
+      // 라. 유저 잔여 포인트 부족 처리
+      if (pointError || !pointData || pointData.success === false) {
+        return NextResponse.json({ error: '포인트가 부족합니다.' }, { status: 400 });
+      }
     }
 
     // 3. Anthropic 클라이언트 초기화
     const client = new Anthropic({ apiKey });
 
-    // 4. 모든 리뷰 병렬 처리
-    const settled = await Promise.allSettled(
-      validReviews.map(review =>
-        generateReply(client, { productName, productDesc, tone, isEmojiOff, review })
-      )
-    );
+    // 4. 배치 단위 순차 처리 (rate limit 대응 — 최대 3건씩 묶어서 처리)
+    const BATCH_SIZE = 3;
+    const settled: PromiseSettledResult<string>[] = [];
+
+    for (let i = 0; i < validReviews.length; i += BATCH_SIZE) {
+      const batch = validReviews.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.allSettled(
+        batch.map(review =>
+          generateReply(client, { productName, productDesc, tone, isEmojiOff, review })
+        )
+      );
+      settled.push(...batchResults);
+
+      // 마지막 배치가 아니면 rate limit 방지를 위해 잠시 대기
+      if (i + BATCH_SIZE < validReviews.length) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
 
     // 5. 결과 정리 (실패한 항목은 에러 메시지 대체)
     const results = settled.map((result, i) => ({

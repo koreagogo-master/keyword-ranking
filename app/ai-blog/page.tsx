@@ -264,7 +264,7 @@ export default function AiBlogPage() {
       <link href="https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@2.0/nanumsquare.css" rel="stylesheet" type="text/css" />
 
       <div className="flex min-h-screen bg-[#f8f9fa] text-[#3c4043] antialiased tracking-tight" style={{ fontFamily: "'NanumSquare', sans-serif" }}>
-        
+
 
         <main className="flex-1 ml-64 relative">
 
@@ -284,6 +284,9 @@ export default function AiBlogPage() {
                   <div className="space-y-1">
                     <p className="text-sm text-slate-500">* 타겟 키워드와 상품의 장점만 입력하면, 상위 노출에 최적화된 고품질 정보성 블로그 원고를 AI가 즉시 작성합니다.</p>
                     <p className="text-sm text-indigo-600 font-bold">* GPT-4o(구조 기획)와 Claude 3.5(자연스러운 문장) 듀얼 엔진이 가동됩니다.</p>
+                    <p className="text-sm text-amber-600 font-bold">
+                      * AI가 생성한 글은 초안으로 활용하고, 실제 경험·사진·업체 정보·후기 등을 추가해 수정 후 게시하는 것을 권장합니다.
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
@@ -372,9 +375,9 @@ export default function AiBlogPage() {
                             <button
                               key={type} onClick={() => { setPostPurpose(type); if (type.includes('정보성') && wordCount === '3000') setWordCount('2000'); }}
                               className={`flex-1 h-[32px] flex items-center justify-center text-[12px] font-bold rounded transition-all border tracking-tight px-1
-                                  ${postPurpose === type 
-                                    ? (activeTab === "auto" ? 'bg-indigo-600 !text-white border-indigo-600 shadow-sm' : 'bg-teal-700 !text-white border-teal-700 shadow-sm') 
-                                    : 'bg-white !text-slate-600 border-slate-300 hover:bg-slate-50'}`}
+                                  ${postPurpose === type
+                                  ? (activeTab === "auto" ? 'bg-indigo-600 !text-white border-indigo-600 shadow-sm' : 'bg-teal-700 !text-white border-teal-700 shadow-sm')
+                                  : 'bg-white !text-slate-600 border-slate-300 hover:bg-slate-50'}`}
                             >
                               {type}
                             </button>
@@ -588,13 +591,13 @@ export default function AiBlogPage() {
                     💡 이미지를 블로그에 직접 넣으려면 <strong>마우스 우클릭 → [이미지 복사]</strong>를 선택하세요.
                   </p>
                   <div className="flex gap-3 w-full sm:w-auto">
-                    <button 
+                    <button
                       onClick={() => {
                         navigator.clipboard.writeText(selectedImage).then(() => {
                           setShowToast(true);
                           setTimeout(() => setShowToast(false), 2500); // 2.5초 뒤에 자동으로 사라짐
                         });
-                      }} 
+                      }}
                       className="flex-1 sm:flex-none px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-[14px] font-bold rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
@@ -622,7 +625,7 @@ export default function AiBlogPage() {
               <span className="text-[14.5px] font-bold tracking-wide">이미지 주소가 복사되었습니다!</span>
             </div>
           )}
-          
+
         </main>
       </div>
 

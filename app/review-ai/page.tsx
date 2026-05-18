@@ -173,12 +173,13 @@ function ReviewAiContent() {
 
   // ── 톤앤매너 / 공통 설정
   const [selectedTone, setSelectedTone] = useState<ToneId>('friendly-repurchase');
-  const [isEmojiOff, setIsEmojiOff] = useState(false);
+  const [isEmojiOff, setIsEmojiOff] = useState(true);
 
   // ── 리뷰 카드 상태
   const [cards, setCards] = useState<ReviewCard[]>(INITIAL_CARDS);
   const [results, setResults] = useState<AiResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [retryingIds, setRetryingIds] = useState<Set<number>>(new Set());
   const [allCopied, setAllCopied] = useState(false);
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [isGenerated, setIsGenerated] = useState(false);
@@ -277,10 +278,77 @@ function ReviewAiContent() {
     }
   };
 
+  // ── 단건 재생성 핸들러 (isRetry: true — 포인트 미차감)
+  const handleRetry = async (cardId: number) => {
+    const card = cards.find(c => c.id === cardId);
+    if (!card || card.text.trim() === '') return;
+
+    const preset = card.presetId !== null ? presets.find(p => p.id === card.presetId) : null;
+
+    setRetryingIds(prev => new Set(prev).add(cardId));
+
+    try {
+      const res = await fetch('/api/review-ai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tone: selectedTone,
+          isEmojiOff,
+          isRetry: true,
+          reviews: [{
+            id: card.id,
+            text: card.text,
+            isPhoto: card.isPhoto,
+            isNegative: card.isNegative,
+            presetName: preset ? (preset.name.trim() || `제품 ${preset.id}`) : undefined,
+            presetDesc: preset ? preset.desc.trim() : undefined,
+          }],
+        }),
+      });
+
+      if (!res.ok) {
+        const { error } = await res.json();
+        throw new Error(error || `HTTP 오류 ${res.status}`);
+      }
+
+      const { results: apiResults } = await res.json();
+      setResults(prev => {
+        const next = [...prev];
+        apiResults.forEach((apiRes: AiResult) => {
+          const existingIdx = next.findIndex(r => r.id === apiRes.id);
+          if (existingIdx >= 0) next[existingIdx] = apiRes;
+          else next.push(apiRes);
+        });
+        return next;
+      });
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : '알 수 없는 오류';
+      alert(`답글 재생성 중 오류가 발생했습니다:\n${msg}`);
+    } finally {
+      setRetryingIds(prev => {
+        const next = new Set(prev);
+        next.delete(cardId);
+        return next;
+      });
+    }
+  };
+
   // ── 복사
   const copyAll = () => {
-    const all = results.map((r, i) => `[답글 ${i + 1}]\n${r.text}`).join('\n\n');
-    navigator.clipboard.writeText(all).then(() => {
+    const validCards = cards.filter(c => c.text.trim() !== '');
+    const lines = validCards.map((card, i) => {
+      const preset = card.presetId !== null ? presets.find(p => p.id === card.presetId) : null;
+      const productName = preset
+        ? (preset.name.trim() || `제품 ${preset.id}`)
+        : '제품 미선택';
+      const resultText = results.find(r => r.id === card.id)?.text ?? '';
+      const isError = resultText.startsWith('[오류]');
+      const replyLine = (!resultText || isError)
+        ? '--> "답변 생성 실패 또는 미생성"'
+        : `--> "${resultText}"`;
+      return `#${i + 1} [${productName}]\n"${card.text}"\n${replyLine}`;
+    });
+    navigator.clipboard.writeText(lines.join('\n\n')).then(() => {
       setAllCopied(true);
       setTimeout(() => setAllCopied(false), 2500);
     }).catch(() => { });
@@ -481,7 +549,9 @@ function ReviewAiContent() {
               {cards.map((card, idx) => {
                 const color = getColor(card.presetId);
                 const resultText = resultMap.get(card.id) ?? '';
+                const isError = resultText.startsWith('[오류]');
                 const isCopied = copiedId === card.id;
+                const isRetrying = retryingIds.has(card.id);
 
                 // select 배경 클래스 동적 결정
                 const selectBgClass = color
@@ -567,7 +637,8 @@ function ReviewAiContent() {
 
 
                     {/* ── 우측: 결과 카드 */}
-                    <div className="bg-white border border-gray-200 rounded-sm shadow-sm p-4 flex flex-col">
+                    <div className={`bg-white rounded-sm shadow-sm p-4 flex flex-col border
+                      ${isError ? 'border-red-300' : 'border-gray-200'}`}>
                       <div className="flex items-center justify-between mb-2.5 shrink-0">
                         <div className="flex items-center gap-2">
                           <span className="!text-xs font-bold !text-[#5244e8]">
@@ -581,27 +652,74 @@ function ReviewAiContent() {
                             <span className="!text-[11px] px-2 py-0.5 rounded-full bg-red-50 !text-red-500
                                              font-bold border border-red-100">악플 대응</span>
                           )}
+                          {isError && (
+                            <span className="!text-[11px] px-2 py-0.5 rounded-full bg-red-100 !text-red-600
+                                             font-bold border border-red-200">생성 실패</span>
+                          )}
                         </div>
+                        {/* 복사 버튼 — 오류 상태이면 비활성 */}
                         <button
                           id={`copy-one-${card.id}`}
                           onClick={() => copyOne(resultText, card.id)}
-                          disabled={!resultText}
+                          disabled={!resultText || isError}
                           className={`px-3 py-1.5 !text-xs font-bold rounded-sm border transition-all
                             ${isCopied
                               ? 'bg-green-600 border-green-600 !text-white'
-                              : resultText
-                                ? 'bg-[#5244e8] border-[#5244e8] !text-white hover:bg-[#4336c9]'
+                              : resultText && !isError
+                                ? 'bg-[#5244e8] border-[#5244e8] !text-white hover:bg-[#4336c9] hover:!text-white'
                                 : 'bg-gray-100 border-gray-200 !text-gray-400 cursor-not-allowed'
                             }`}
                         >
                           {isCopied ? '복사됨!' : '복사'}
                         </button>
                       </div>
-                      <p className="!text-sm !text-gray-700 leading-relaxed whitespace-pre-wrap flex-1 min-h-[40px]">
-                        {resultText ? resultText : (
-                          <span className="!text-gray-300 italic">생성 버튼을 눌러 답글을 생성해 주세요.</span>
-                        )}
-                      </p>
+
+                      {/* 본문 — 오류/정상/미생성 분기 */}
+                      {isError ? (
+                        <div className="flex-1 flex flex-col gap-2">
+                          <div className="bg-red-50 border border-red-200 rounded-sm px-3 py-2.5">
+                            <p className="!text-xs font-bold !text-red-600 mb-1">답글 생성에 실패했습니다.</p>
+                            <p className="!text-xs !text-red-400 leading-relaxed whitespace-pre-wrap break-all">
+                              {resultText.replace(/^\[오류\]\s*답글 생성에 실패했습니다:\s*/, '')}
+                            </p>
+                          </div>
+                          <button
+                            id={`retry-btn-${card.id}`}
+                            onClick={() => handleRetry(card.id)}
+                            disabled={isRetrying}
+                            className={`w-full py-2 rounded-sm border !text-xs font-bold transition-all flex items-center justify-center gap-1.5
+                              ${isRetrying
+                                ? 'bg-gray-100 border-gray-200 !text-gray-400 cursor-not-allowed'
+                                : 'bg-red-500 border-red-500 !text-white hover:bg-red-600 hover:border-red-600 hover:!text-white'
+                              }`}
+                          >
+                            {isRetrying ? (
+                              <>
+                                <svg className="animate-spin h-3 w-3 !text-gray-400" viewBox="0 0 24 24" fill="none">
+                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                                </svg>
+                                재생성 중...
+                              </>
+                            ) : (
+                              <>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                                  fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                  <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
+                                  <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+                                </svg>
+                                이 답글 다시 생성 (포인트 미차감)
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      ) : (
+                        <p className="!text-sm !text-gray-700 leading-relaxed whitespace-pre-wrap flex-1 min-h-[40px]">
+                          {resultText ? resultText : (
+                            <span className="!text-gray-300 italic">생성 버튼을 눌러 답글을 생성해 주세요.</span>
+                          )}
+                        </p>
+                      )}
                     </div>
                   </div>
                 );
@@ -615,10 +733,15 @@ function ReviewAiContent() {
                 <button
                   id="add-card-btn"
                   onClick={addCard}
-                  className="flex-1 py-3 rounded-sm border border-dashed border-gray-300 !text-gray-700 !text-sm font-bold flex items-center justify-center gap-2 hover:border-[#5244e8] hover:!text-[#5244e8] hover:!bg-gray-200 transition-all !bg-gray-100"
+                  disabled={cards.length >= 10}
+                  className={`flex-1 py-3 rounded-sm border border-dashed !text-sm font-bold flex items-center justify-center gap-2 transition-all
+                    ${cards.length >= 10
+                      ? '!bg-gray-50 border-gray-200 !text-gray-300 cursor-not-allowed'
+                      : '!bg-gray-100 border-gray-300 !text-gray-700 hover:border-[#5244e8] hover:!text-[#5244e8] hover:!bg-gray-200'
+                    }`}
                 >
                   <IconPlus />
-                  리뷰 추가
+                  {cards.length >= 10 ? `리뷰 추가 (10/10)` : '리뷰 추가'}
                 </button>
                 {cards.length > 1 && (
                   <button
@@ -638,13 +761,13 @@ function ReviewAiContent() {
                   <button
                     id="copy-all-btn"
                     onClick={copyAll}
-                    className={`w-[calc(50%-4px)] py-3 !text-sm font-bold rounded-sm border border-dashed transition-all flex items-center justify-center
+                    className={`w-[calc(50%-4px)] py-3 !text-sm font-bold rounded-sm border transition-all flex items-center justify-center
                       ${allCopied
-                        ? 'bg-green-600 border-green-600 !text-white'
-                        : '!bg-gray-100 border-gray-300 !text-gray-700 hover:border-[#5244e8] hover:!text-[#5244e8] hover:!bg-gray-200'
+                        ? 'bg-green-600 border-green-600 !text-white hover:!text-white'
+                        : 'bg-[#5244e8] border-[#5244e8] !text-white hover:bg-[#4336c9] hover:border-[#4336c9] hover:!text-white'
                       }`}
                   >
-                    {allCopied ? '전체 복사 완료!' : '전체 결과 복사'}
+                    {allCopied ? '✓ 전체 복사 완료!' : '전체 결과 복사'}
                   </button>
                 ) : (
                   <div className="w-[calc(50%-4px)]"></div>
