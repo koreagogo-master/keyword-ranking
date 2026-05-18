@@ -231,7 +231,7 @@ export default function Home() {
             </div>
 
             {/* ── 오른쪽: 카테고리 탭 + 설명 카드 ── */}
-            <div className="w-full lg:w-[45%] shrink-0 lg:mt-[70px] xl:mt-[85px]">
+            <div className="w-full lg:w-[45%] shrink-0 lg:mt-[62px] xl:mt-[75px]">
               <FadeInUp delay={0.1}>
 
                 {/* 4개 탭 */}
@@ -475,9 +475,9 @@ export default function Home() {
               필요한 만큼만 충전해서 사용하세요.
             </h2>
             <p className="text-[15px] text-gray-500 break-keep leading-relaxed mb-6">
-              무료 사용 후 필요한 기능만 포인트로 이용할 수 있습니다.
+              처음에는 무료 검색과 기본 포인트로 주요 기능을 먼저 사용해 볼 수 있습니다.
               <br />
-              사용량에 맞춰 필요한 만큼만 충전해 계속 사용할 수 있습니다.
+              이후 필요한 기능만 포인트로 계속 이용할 수 있습니다.
             </p>
             <Link
               href="/charge"
