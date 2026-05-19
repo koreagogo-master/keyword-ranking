@@ -192,7 +192,8 @@ function BlogRankContent() {
           </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
             블로그 닉네임과 키워드를 입력하여 N 모바일 블로그 탭의 노출 순위를 확인하세요.<br />
-            여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다. <span className="font-bold text-amber-500">(최대 10개)</span>
+            여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다. <span className="font-bold text-amber-500">(최대 10개)</span><br /><br />
+            검색 결과는 서버에서 네이버 모바일 검색 화면을 열어 분석한 결과입니다. <br />네이버 노출 환경과 로딩 상태에 따라 실제 화면과 다소 차이가 있을 수 있습니다.
           </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
@@ -360,7 +361,7 @@ function BlogRankContent() {
                                   }}
                                   className="text-[11px] font-bold px-3 py-1 rounded-md bg-amber-50 !text-amber-600 border border-amber-200 hover:bg-amber-100 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-wait"
                                 >
-                                  {deepSearchingKeyword === kw ? '검색 중...' : '50위까지 추가 검색'}
+                                  {deepSearchingKeyword === kw ? '검색 중...' : '50위까지 재검색'}
                                 </button>
                               ) : displayRow.reason === 'ERROR' ? (
                                 <button
