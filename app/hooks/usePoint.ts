@@ -69,9 +69,10 @@ export const usePoint = () => {
           console.log(`✅ 비회원 1일 1회 무료 검색 통과 (IP: ${clientIp})`);
           return true; // 1회 무료 통과!
         } else {
-          // 이미 1회를 사용했다면 가입 유도 팝업
-          const goSignup = window.confirm("비로그인 사용자는 하루 1회만 검색 가능합니다.\n\n회원가입 시 매일 5회의 무료 검색 혜택이 제공됩니다! 지금 가입하시겠습니까?");
-          if (goSignup) router.push('/signup');
+          // 이미 1회를 사용했다면 랭킹프로 스타일 안내 모달 표시
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('show-guest-limit-modal'));
+          }
           return false;
         }
       } catch (err) {
