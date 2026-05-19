@@ -649,7 +649,7 @@ export default function AiBlogPage() {
       <SavedSearchesDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} pageType="AIBLOG" onSelect={handleApplySavedSetting} />
 
       {isLoginModalOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+        <div className="fixed top-16 left-64 right-0 bottom-0 z-[9999] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8 flex flex-col items-center">
             <div className="w-14 h-14 rounded-full bg-indigo-50 flex items-center justify-center mb-5">
