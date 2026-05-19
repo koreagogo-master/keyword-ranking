@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import AiTabs from "@/components/AiTabs";
 import { useAuth } from "@/app/contexts/AuthContext";
 import { usePoint } from "@/app/hooks/usePoint";
@@ -10,14 +10,21 @@ import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 import HelpButton from "@/components/HelpButton";
 
 function PostXRayContent() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const { deductPoints } = usePoint();
+  const router = useRouter();
 
   const [url, setUrl] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [errorMsg, setErrorMsg] = useState("");
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (isLoading) return;
+    setIsLoginModalOpen(!user);
+  }, [isLoading, user]);
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [saveToast, setSaveToast] = useState(false);
@@ -49,7 +56,7 @@ function PostXRayContent() {
 
   const handleSaveCurrentSetting = async () => {
     if (!user) {
-      alert('로그인 정보가 만료되었거나 확인할 수 없습니다. 다시 로그인해주세요.');
+      setIsLoginModalOpen(true);
       return;
     }
     if (!url.trim()) {
@@ -94,7 +101,7 @@ function PostXRayContent() {
       return;
     }
     if (!user) {
-      alert("로그인이 필요합니다.");
+      setIsLoginModalOpen(true);
       return;
     }
 
@@ -507,6 +514,40 @@ function PostXRayContent() {
         pageType={"POST_XRAY" as any}
         onSelect={handleApplySavedSetting}
       />
+
+      {/* ── 로그인 필요 모달 — 오버레이 클릭으로 닫히지 않음 / 나중에 보기 없음 */}
+      {isLoginModalOpen && (
+        <div className="fixed top-16 left-64 right-0 bottom-0 z-[9999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8 flex flex-col items-center">
+            <div className="w-14 h-14 rounded-full bg-indigo-50 flex items-center justify-center mb-5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 !text-[#5244e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-black !text-gray-900 mb-3 text-center">로그인이 필요한 메뉴입니다</h2>
+            <p className="text-sm !text-gray-500 text-center leading-relaxed mb-7">
+              이 기능은 로그인 후 이용할 수 있습니다.<br />
+              회원가입 후 매일 무료 검색 5회와<br />
+              3,000 Point를 받을 수 있습니다.
+            </p>
+            <div className="flex flex-col w-full gap-3">
+              <button
+                onClick={() => router.push('/login?redirect=/post-xray')}
+                className="w-full py-3 bg-[#5244e8] rounded-lg font-bold !text-white hover:bg-[#4336c9] transition-colors"
+              >
+                로그인하기
+              </button>
+              <button
+                onClick={() => router.push('/signup')}
+                className="w-full py-3 bg-white border-2 border-[#5244e8] rounded-lg font-bold !text-[#5244e8] hover:bg-indigo-50 transition-colors"
+              >
+                무료 회원가입
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
