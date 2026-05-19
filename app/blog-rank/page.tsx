@@ -3,7 +3,7 @@
 // 🌟 Suspense 추가
 import { useState, useEffect, useRef, Suspense } from 'react';
 // 🌟 URL 파라미터를 읽기 위해 추가
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { checkNaverRank } from './actions';
 
 import RankTabs from '@/components/RankTabs';
@@ -29,8 +29,15 @@ interface SearchResult {
 
 // 🌟 메인 로직을 별도의 컴포넌트로 분리 (Suspense로 감싸기 위함)
 function BlogRankContent() {
-  const { user } = useAuth();
-  const { deductPoints } = usePoint(); 
+  const { user, isLoading: authLoading } = useAuth();
+  const { deductPoints } = usePoint();
+  const router = useRouter();
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (authLoading) return;
+    setIsLoginModalOpen(!user);
+  }, [authLoading, user]);
 
   // 🌟 URL 쿼리 파라미터 읽기
   const searchParams = useSearchParams();
@@ -60,8 +67,8 @@ function BlogRankContent() {
     }
 
     if (!user) {
-        alert('로그인 정보가 만료되었거나 확인할 수 없습니다. 다시 로그인해주세요.');
-        return;
+      setIsLoginModalOpen(true);
+      return;
     }
 
     const keywords = kwToSearch
@@ -431,6 +438,40 @@ function BlogRankContent() {
         pageType="TOTAL" 
         onSelect={handleApplySavedSetting} 
       />
+
+      {/* ── 로그인 필요 모달 — 오버레이 클릭으로 닫히지 않음 / 나중에 보기 없음 */}
+      {isLoginModalOpen && (
+        <div className="fixed top-16 left-64 right-0 bottom-0 z-[9999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8 flex flex-col items-center">
+            <div className="w-14 h-14 rounded-full bg-indigo-50 flex items-center justify-center mb-5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 !text-[#5244e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-black !text-gray-900 mb-3 text-center">로그인이 필요한 메뉴입니다</h2>
+            <p className="text-sm !text-gray-500 text-center leading-relaxed mb-7">
+              이 기능은 로그인 후 이용할 수 있습니다.<br />
+              회원가입 후 매일 무료 검색 5회와<br />
+              3,000 Point를 받을 수 있습니다.
+            </p>
+            <div className="flex flex-col w-full gap-3">
+              <button
+                onClick={() => router.push('/login?redirect=/blog-rank')}
+                className="w-full py-3 bg-[#5244e8] rounded-lg font-bold !text-white hover:bg-[#4336c9] transition-colors"
+              >
+                로그인하기
+              </button>
+              <button
+                onClick={() => router.push('/signup')}
+                className="w-full py-3 bg-white border-2 border-[#5244e8] rounded-lg font-bold !text-[#5244e8] hover:bg-indigo-50 transition-colors"
+              >
+                무료 회원가입
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

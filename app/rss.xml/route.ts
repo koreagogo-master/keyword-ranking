@@ -36,8 +36,8 @@ export async function GET() {
 
       <item>
         <title>통검 노출/순위 확인 | Ranking Pro</title>
-        <link>${siteURL}/section-check</link>
-        <description>네이버 통합검색 화면에서 브랜드와 타겟 키워드가 어떤 섹션에 노출되고 있는지 종합적으로 분석합니다.</description>
+        <link>${siteURL}/blog-rank</link>
+        <description>네이버 통합검색 화면에서 블로그, 카페, 뉴스 등 주요 섹션의 노출 순위와 내 콘텐츠의 위치를 종합적으로 분석합니다.</description>
       </item>
 
       <item>
