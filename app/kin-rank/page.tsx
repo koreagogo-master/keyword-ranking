@@ -3,7 +3,7 @@
 // 🌟 Suspense 추가
 import { useState, useEffect, useRef, Suspense } from 'react';
 // 🌟 URL 파라미터를 읽기 위해 추가
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter } from 'next/navigation';
 
 import { checkNaverKinRank } from './actions';
 
@@ -34,6 +34,9 @@ interface InputRow {
 function KinRankContent() {
   const { user } = useAuth();
   const { deductPoints } = usePoint();
+  const router = useRouter();
+
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   // 🌟 URL 파라미터 읽기 (지식인 데이터 전용)
   const searchParams = useSearchParams();
@@ -203,6 +206,10 @@ function KinRankContent() {
   };
 
   const handleSaveCurrentSetting = async () => {
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
     const validInputs = inputs.filter(input => input.keyword.trim() !== '' && input.targetTitle.trim() !== '');
     if (validInputs.length === 0) {
       alert("최소 하나의 키워드와 찾을 제목을 입력한 후 저장해주세요.");
@@ -254,15 +261,21 @@ function KinRankContent() {
         <div className="flex items-center gap-2 mt-1 shrink-0">
           <button
             onClick={handleSaveCurrentSetting}
-            disabled={results.length === 0 || !user}
+            disabled={results.length === 0}
             className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
-              ${(results.length === 0 || !user) ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
+              ${results.length === 0 ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
             현재 설정 저장
           </button>
           <button
-            onClick={() => setIsDrawerOpen(true)}
+            onClick={() => {
+              if (!user) {
+                setIsLoginModalOpen(true);
+                return;
+              }
+              setIsDrawerOpen(true);
+            }}
             className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
@@ -463,6 +476,49 @@ function KinRankContent() {
         pageType="JISIKIN"
         onSelect={handleApplySavedSetting}
       />
+
+      {isLoginModalOpen && (
+        <div className="fixed top-16 left-64 right-0 bottom-0 z-[9999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/50" />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-8 flex flex-col items-center">
+            <button
+              onClick={() => setIsLoginModalOpen(false)}
+              className="absolute top-4 right-4 !text-gray-400 hover:!text-gray-800 transition-colors bg-transparent border-none p-1 rounded-full hover:bg-gray-100"
+              aria-label="닫기"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="w-14 h-14 rounded-full bg-indigo-50 flex items-center justify-center mb-5">
+              <svg xmlns="http://www.w3.org/2000/svg" className="w-7 h-7 !text-[#5244e8]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h2 className="text-xl font-black !text-gray-900 mb-3 text-center">로그인이 필요한 기능입니다</h2>
+            <p className="text-sm !text-gray-500 text-center leading-relaxed mb-2">
+              저장 기능은 로그인 후 사용할 수 있습니다.
+            </p>
+            <p className="text-xs !text-indigo-500 font-bold text-center leading-relaxed mb-7">
+              회원가입하면 매일 무료 검색 5회와 3,000 Point를 받을 수 있습니다.
+            </p>
+            <div className="flex flex-col w-full gap-3">
+              <button
+                onClick={() => router.push('/login?redirect=/kin-rank')}
+                className="w-full py-3 bg-[#5244e8] rounded-lg font-bold !text-white hover:bg-[#4336c9] transition-colors"
+              >
+                로그인하기
+              </button>
+              <button
+                onClick={() => router.push('/signup')}
+                className="w-full py-3 bg-white border-2 border-[#5244e8] rounded-lg font-bold !text-[#5244e8] hover:bg-indigo-50 transition-colors"
+              >
+                무료 회원가입
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }

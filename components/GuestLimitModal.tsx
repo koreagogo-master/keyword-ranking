@@ -57,13 +57,13 @@ export default function GuestLimitModal() {
         {/* 버튼 */}
         <div className="flex flex-col w-full gap-3">
           <button
-            onClick={() => router.push('/login')}
+            onClick={() => { setIsOpen(false); router.push('/login'); }}
             className="w-full py-3 bg-[#5244e8] rounded-lg font-bold !text-white hover:bg-[#4336c9] transition-colors"
           >
             로그인하기
           </button>
           <button
-            onClick={() => router.push('/signup')}
+            onClick={() => { setIsOpen(false); router.push('/signup'); }}
             className="w-full py-3 bg-white border-2 border-[#5244e8] rounded-lg font-bold !text-[#5244e8] hover:bg-indigo-50 transition-colors"
           >
             무료 회원가입
