@@ -38,6 +38,9 @@ function AnalysisContent() {
   const [relatedKeywords, setRelatedKeywords] = useState<string[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [saveToast, setSaveToast] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [loginModalMessage, setLoginModalMessage] = useState('저장 기능은 로그인 후 사용할 수 있습니다.');
+  const [loginModalSubMessage, setLoginModalSubMessage] = useState('로그인 후 자주 사용하는 설정을 저장할 수 있습니다.');
 
   const lastProcessedKeyword = useRef<string | null>(null);
 
@@ -103,12 +106,14 @@ function AnalysisContent() {
   };
 
   const handleSaveCurrentSetting = async () => {
-    if (!searchedKeyword) {
-      alert("키워드를 입력한 후 저장해주세요.");
+    if (!user) {
+      setLoginModalMessage('저장 기능은 로그인 후 사용할 수 있습니다.');
+      setLoginModalSubMessage('로그인 후 자주 사용하는 설정을 저장할 수 있습니다.');
+      setIsLoginModalOpen(true);
       return;
     }
-    if (!user) {
-      alert('로그인 정보가 만료되었거나 확인할 수 없습니다. 다시 로그인해주세요.');
+    if (!searchedKeyword) {
+      alert("키워드를 입력한 후 저장해주세요.");
       return;
     }
     const supabase = createClient();
@@ -214,15 +219,23 @@ function AnalysisContent() {
               <div className="flex items-center gap-2 mt-1 shrink-0">
                 <button
                   onClick={handleSaveCurrentSetting}
-                  disabled={!searchedKeyword || !user}
+                  disabled={!searchedKeyword}
                   className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors
-                    ${(!searchedKeyword || !user) ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
+                    ${!searchedKeyword ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
                   현재 설정 저장
                 </button>
                 <button
-                  onClick={() => setIsDrawerOpen(true)}
+                  onClick={() => {
+                    if (!user) {
+                      setLoginModalMessage('저장된 목록은 로그인 후 확인할 수 있습니다.');
+                      setLoginModalSubMessage('로그인 후 저장한 설정을 불러올 수 있습니다.');
+                      setIsLoginModalOpen(true);
+                      return;
+                    }
+                    setIsDrawerOpen(true);
+                  }}
                   className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
@@ -367,6 +380,46 @@ function AnalysisContent() {
         pageType="ANALYSIS"
         onSelect={handleApplySavedSetting}
       />
+
+      {/* ── 로그인 필요 모달 — 버튼 클릭 시에만 표시 / 오버레이 클릭으로 닫히지 않음 */}
+      {isLoginModalOpen && (
+        <div className="fixed top-16 left-64 right-0 bottom-0 z-[9999] flex items-center justify-center">
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-sm mx-4 relative">
+            <button
+              onClick={() => setIsLoginModalOpen(false)}
+              className="absolute top-4 right-4 !text-gray-400 hover:!text-gray-600 transition-colors"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <div className="text-center">
+              <div className="w-14 h-14 bg-indigo-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-7 h-7 !text-[#5244e8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+              <h2 className="text-lg font-bold !text-gray-900 mb-2">로그인이 필요한 기능입니다</h2>
+              <p className="text-sm !text-slate-500 leading-relaxed break-keep max-w-[300px] mx-auto mb-1">{loginModalMessage}</p>
+              <p className="text-sm !text-slate-400 leading-relaxed break-keep max-w-[300px] mx-auto mb-6">{loginModalSubMessage}</p>
+              <div className="flex flex-col gap-3">
+                <button
+                  onClick={() => router.push('/login?redirect=/analysis')}
+                  className="w-full py-3 bg-[#5244e8] hover:bg-indigo-700 !text-white font-bold rounded-xl transition-colors"
+                >
+                  로그인하기
+                </button>
+                <button
+                  onClick={() => router.push('/signup')}
+                  className="w-full py-3 bg-white border-2 border-[#5244e8] rounded-xl font-bold !text-[#5244e8] hover:bg-indigo-50 transition-colors"
+                >
+                  무료 회원가입
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
