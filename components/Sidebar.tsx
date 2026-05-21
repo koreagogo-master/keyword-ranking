@@ -27,7 +27,8 @@ const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/keyword-generator': 'KEYWORD_GENERATOR',
   '/place-rank': 'PLACE_RANK',
   '/post-xray': 'POST_XRAY',
-  '/ai-insight': 'AI_INSIGHT'
+  '/ai-insight': 'AI_INSIGHT',
+  '/postcode-bulk': 'POSTCODE_BULK'
 };
 
 export default function Sidebar() {
@@ -80,6 +81,7 @@ export default function Sidebar() {
         { name: "쇼핑 상품명 최적화", href: "/seo-title" },
         { name: "내 상품명 진단", href: "/seo-check" },
         { name: "상품 노출 순위 분석", href: "/shopping-rank" },
+        { name: "우편번호 대량 변환기", href: "/postcode-bulk" },
       ]
     },
     {

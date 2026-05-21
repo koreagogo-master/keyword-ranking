@@ -11,6 +11,7 @@ export default function SellerTabs() {
     { name: '쇼핑 상품명 최적화', href: '/seo-title' },
     { name: '내 상품명 진단', href: '/seo-check' },
     { name: '상품 노출 순위 분석', href: '/shopping-rank' },
+    { name: '우편번호 대량 변환기', href: '/postcode-bulk' },
   ];
 
   return (
