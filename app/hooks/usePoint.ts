@@ -67,6 +67,12 @@ export const usePoint = () => {
 
         if (isAllowed) {
           console.log(`✅ 비회원 1일 1회 무료 검색 통과 (IP: ${clientIp})`);
+          // 비회원 무료 사용 기록 (fire-and-forget: 실패해도 검색 흐름 유지)
+          fetch('/api/log-guest-free', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pageType, keyword: keyword || null }),
+          }).catch((err) => console.error('비회원 무료 사용 기록 실패:', err));
           return true; // 1회 무료 통과!
         } else {
           // 이미 1회를 사용했다면 랭킹프로 스타일 안내 모달 표시
