@@ -20,6 +20,9 @@ function LoginContent() {
   const [isResetMode, setIsResetMode] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
 
+  // 이메일 로그인 폼 접힘/펼침
+  const [showEmailForm, setShowEmailForm] = useState(false);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const safeRedirect = getSafeRedirect(searchParams.get('redirect'));
@@ -139,59 +142,86 @@ function LoginContent() {
               </button>
             </div>
 
-            {/* ── 2. 구분선 ── */}
-            <div className="flex items-center gap-3 my-6">
+            {/* ── 2. 이메일 로그인 토글 버튼 ── */}
+            <div className="flex items-center gap-3">
               <div className="flex-1 h-px bg-gray-200"></div>
-              <span className="text-xs text-gray-400 font-medium whitespace-nowrap">또는 이메일로 계속하기</span>
+              <button
+                type="button"
+                onClick={() => setShowEmailForm(v => !v)}
+                className="flex items-center gap-1.5 text-xs !text-gray-400 font-medium whitespace-nowrap hover:!text-gray-600 transition-colors cursor-pointer"
+              >
+                <span>이메일/비밀번호 가입자 로그인</span>
+                <svg
+                  className={`w-3.5 h-3.5 transition-transform duration-200 ${showEmailForm ? 'rotate-180' : ''}`}
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
               <div className="flex-1 h-px bg-gray-200"></div>
             </div>
 
-            {/* ── 3. 전통적인 이메일 폼 ── */}
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-1 ml-1">이메일</label>
-                <input
-                  type="email"
-                  className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:border-indigo-500 transition-all text-gray-900"
-                  placeholder="example@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <div className="flex justify-between items-end mb-1 ml-1 mr-1">
-                  <label className="block text-sm font-bold text-gray-700">비밀번호</label>
-                  <button
-                    type="button"
-                    onClick={() => setIsResetMode(true)}
-                    className="text-xs font-bold !text-gray-700 hover:text-indigo-700 transition-colors cursor-pointer"
-                  >
-                    비밀번호를 잊으셨나요?
-                  </button>
+            {/* ── 3. 이메일 로그인 폼 (접힘/펼침) ── */}
+            {showEmailForm && (
+              <div className="space-y-4">
+                {/* 안내 박스 */}
+                <div className="flex items-start gap-2 bg-blue-50 border border-blue-100 rounded-xl px-4 py-3">
+                  <svg className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <p className="text-xs text-blue-600 font-medium leading-relaxed">
+                    이메일로 직접 회원가입한 계정만 사용할 수 있습니다.<br />
+                    구글·네이버로 가입하셨다면 <span className="font-bold">위의 소셜 로그인 버튼</span>을 이용해 주세요.
+                  </p>
                 </div>
-                <input
-                  type="password"
-                  className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:border-indigo-500 transition-all text-gray-900"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+
+                <form onSubmit={handleLogin} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-1 ml-1">이메일</label>
+                    <input
+                      type="email"
+                      className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:border-indigo-500 transition-all text-gray-900"
+                      placeholder="example@email.com"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <div className="flex justify-between items-end mb-1 ml-1 mr-1">
+                      <label className="block text-sm font-bold text-gray-700">비밀번호</label>
+                      <button
+                        type="button"
+                        onClick={() => setIsResetMode(true)}
+                        className="text-xs font-bold !text-gray-500 hover:!text-indigo-600 transition-colors cursor-pointer"
+                      >
+                        비밀번호를 잊으셨나요?
+                      </button>
+                    </div>
+                    <input
+                      type="password"
+                      className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:border-indigo-500 transition-all text-gray-900"
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-3/5 mx-auto block bg-gray-800 !text-white py-4 rounded-2xl font-black hover:bg-gray-900 transition-all active:scale-95 shadow-lg disabled:bg-gray-300 mt-2 cursor-pointer"
+                  >
+                    {loading ? "로그인 중..." : "로그인"}
+                  </button>
+                </form>
               </div>
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-3/5 mx-auto block bg-gray-800 text-white py-4 rounded-2xl font-black hover:bg-gray-900 transition-all active:scale-95 shadow-lg disabled:bg-gray-300 mt-2 cursor-pointer"
-              >
-                {loading ? "로그인 중..." : "로그인"}
-              </button>
-            </form>
+            )}
 
             {/* ── 4. 회원가입 유도 영역 ── */}
             <div className="pt-4 text-center text-sm border-t border-gray-100">
               <span className="text-gray-400">계정이 없으신가요? </span>
-              <Link href="/signup" className="text-indigo-600 font-bold hover:underline cursor-pointer">이메일로 회원가입</Link>
+              <Link href="/signup" className="text-indigo-600 font-bold hover:underline cursor-pointer">회원가입</Link>
             </div>
           </div>
         ) : (

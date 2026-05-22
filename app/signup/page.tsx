@@ -11,6 +11,7 @@ export default function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSent, setIsSent] = useState(false);
+  const [showEmailForm, setShowEmailForm] = useState(false);
   const router = useRouter();
   const supabase = createClient();
 
@@ -137,56 +138,83 @@ export default function SignupPage() {
             </button>
           </div>
 
-          {/* ── 2. 구분선 ── */}
+          {/* ── 2. 이메일 가입 토글 버튼 ── */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-gray-200"></div>
-            <span className="text-xs text-gray-400 font-medium whitespace-nowrap">또는 이메일로 회원가입</span>
+            <button
+              type="button"
+              onClick={() => setShowEmailForm(v => !v)}
+              className="flex items-center gap-1.5 text-xs !text-gray-400 font-medium whitespace-nowrap hover:!text-gray-600 transition-colors cursor-pointer"
+            >
+              <span>이메일로 회원가입하기</span>
+              <svg
+                className={`w-3.5 h-3.5 transition-transform duration-200 ${showEmailForm ? 'rotate-180' : ''}`}
+                fill="none" stroke="currentColor" viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
             <div className="flex-1 h-px bg-gray-200"></div>
           </div>
 
-          {/* ── 3. 이메일 회원가입 폼 (기존 로직 그대로) ── */}
-          <form onSubmit={handleSignup} className="space-y-4">
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1 ml-1">이메일 주소</label>
-              <input
-                type="email"
-                className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:border-indigo-500 transition-all text-gray-900"
-                placeholder="example@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+          {/* ── 3. 이메일 회원가입 폼 (접힘/펼침) ── */}
+          {showEmailForm && (
+            <div className="space-y-4">
+              {/* 안내 박스 */}
+              <div className="flex items-start gap-2 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
+                <svg className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p className="text-xs text-amber-700 font-medium leading-relaxed">
+                  이메일로 가입하면 입력한 주소로 <span className="font-bold">인증 메일</span>이 발송됩니다.<br />
+                  구글 계정으로 가입하려면 위의 <span className="font-bold">Google로 계속하기</span>를 이용해 주세요.
+                </p>
+              </div>
+
+              <form onSubmit={handleSignup} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1 ml-1">이메일 주소</label>
+                  <input
+                    type="email"
+                    className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:border-indigo-500 transition-all text-gray-900"
+                    placeholder="example@email.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1 ml-1">비밀번호</label>
+                  <input
+                    type="password"
+                    className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:border-indigo-500 transition-all text-gray-900"
+                    placeholder="8자 이상 입력"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1 ml-1">비밀번호 확인</label>
+                  <input
+                    type="password"
+                    className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:border-indigo-500 transition-all text-gray-900"
+                    placeholder="한 번 더 입력"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-3/5 mx-auto block bg-gray-800 !text-white py-4 rounded-2xl font-black hover:bg-gray-900 transition-all active:scale-95 shadow-lg disabled:bg-gray-300 mt-4 cursor-pointer"
+                >
+                  {loading ? "처리 중..." : "이메일로 회원가입"}
+                </button>
+              </form>
             </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1 ml-1">비밀번호</label>
-              <input
-                type="password"
-                className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:border-indigo-500 transition-all text-gray-900"
-                placeholder="8자 이상 입력"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-bold text-gray-700 mb-1 ml-1">비밀번호 확인</label>
-              <input
-                type="password"
-                className="w-full px-5 py-4 rounded-2xl bg-gray-50 border border-gray-100 outline-none focus:border-indigo-500 transition-all text-gray-900"
-                placeholder="한 번 더 입력"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-3/5 mx-auto block bg-gray-800 text-white py-4 rounded-2xl font-black hover:bg-gray-900 transition-all active:scale-95 shadow-lg disabled:bg-gray-300 mt-4 cursor-pointer"
-            >
-              {loading ? "처리 중..." : "이메일로 회원가입"}
-            </button>
-          </form>
+          )}
 
           {/* ── 4. 로그인 유도 ── */}
           <div className="pt-2 text-center text-sm border-t border-gray-100">
