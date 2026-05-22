@@ -22,6 +22,7 @@ const ALLOWED_PAGE_TYPES = new Set([
   'SEO_TITLE',
   'SEO_CHECK',
   'SHOPPING_RANK',
+  'POSTCODE_BULK',
   'GOOGLE',
   'YOUTUBE',
 ]);

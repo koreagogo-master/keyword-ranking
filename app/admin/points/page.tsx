@@ -29,6 +29,7 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'SEO_TITLE': { name: '쇼핑 상품명 최적화', url: '/seo-title' },
   'SEO_CHECK': { name: '내 상품명 진단', url: '/diagnosis' },      
   'SHOPPING_RANK': { name: '상품 노출 순위 분석', url: '/shopping-rank' },
+  'POSTCODE_BULK': { name: '우편번호 대량 변환기', url: '/postcode-bulk' },
   'AI_BLOG': { name: '+ Dual AI 포스팅', url: '/ai-blog' },           
   'AI_PRESS': { name: '+ AI 언론 보도자료', url: '/ai-press' },
   'REVIEW_AI': { name: '+ 리뷰 답글 AI', url: '/review-ai' },
@@ -41,16 +42,16 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
 
 const MENU_GROUPS = [
   {
+    title: 'AI TOOLS',
+    items: ['AI_BLOG', 'AI_PRESS', 'REVIEW_AI', 'POST_XRAY', 'AI_INSIGHT']
+  },
+  {
     title: 'NAVER TOOLS',
     items: ['ANALYSIS', 'RELATED', 'BLOG', 'INDEX_CHECK', 'JISIKIN', 'TOTAL', 'KEYWORD_VOLUME', 'KEYWORD_GENERATOR', 'PLACE_RANK']
   },
   {
-    title: 'AI TOOLS',     
-    items: ['AI_BLOG', 'AI_PRESS', 'REVIEW_AI', 'POST_XRAY', 'AI_INSIGHT'] 
-  },
-  {
     title: 'SELLER TOOLS',
-    items: ['SHOPPING', 'SEO_TITLE', 'SEO_CHECK', 'SHOPPING_RANK'] 
+    items: ['SHOPPING', 'SEO_TITLE', 'SEO_CHECK', 'SHOPPING_RANK', 'POSTCODE_BULK']
   },
   {
     title: 'GOOGLE & YOUTUBE',
@@ -261,9 +262,9 @@ export default function AdminPointsPage() {
             {loading ? (
               <div className="text-center py-20 text-gray-500 font-bold">단가표를 불러오는 중입니다...</div>
             ) : (
-              <div className="space-y-10 animate-in fade-in duration-500">
+              <div className="space-y-6 animate-in fade-in duration-500 max-w-[960px] mx-auto">
                 {MENU_GROUPS.map((group, groupIndex) => (
-                  <div key={groupIndex} className="mb-4">
+                  <div key={groupIndex} className="mb-2">
                     
                     <div className="flex items-center gap-2 mb-3 ml-1">
                       <div className="w-1.5 h-4 bg-[#5244e8] rounded-full"></div>
@@ -272,11 +273,11 @@ export default function AdminPointsPage() {
 
                     <div className="bg-white border border-gray-200 shadow-sm rounded-lg overflow-hidden">
                       <table className="w-full text-left border-collapse table-fixed">
-                        <thead className="bg-slate-50 border-b border-gray-200 text-slate-600 font-bold text-[13px]">
+                          <thead className="bg-slate-50 border-b border-gray-200 text-slate-600 font-bold text-[13px]">
                           <tr>
-                            <th className="px-6 py-3 w-[50%]">페이지 이름 및 경로</th>
-                            <th className="px-6 py-3 w-[20%] text-center">기존 포인트</th>
-                            <th className="px-6 py-3 w-[30%] text-right pr-28">수정 포인트</th>
+                            <th className="px-6 py-2.5 w-[50%]">페이지 이름 및 경로</th>
+                            <th className="px-6 py-2.5 w-[20%] text-center">기존 포인트</th>
+                            <th className="px-6 py-2.5 w-[30%] text-right pr-28">수정 포인트</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
@@ -293,7 +294,7 @@ export default function AdminPointsPage() {
 
                             return (
                               <tr key={policy.page_type} className={`transition-colors ${isChanged ? 'bg-orange-50/30' : 'hover:bg-slate-50'}`}>
-                                <td className="px-6 py-4">
+                                <td className="px-6 py-2">
                                   <div className="flex items-baseline gap-2">
                                     <span className="font-bold text-gray-800 text-[14px]">
                                       {displayName}
@@ -304,18 +305,18 @@ export default function AdminPointsPage() {
                                   </div>
                                 </td>
                                 
-                                <td className="px-6 py-4 text-center">
+                                <td className="px-6 py-2 text-center">
                                   <span className="font-extrabold text-slate-500 text-[15px]">{policy.original_cost}P</span>
                                 </td>
 
-                                <td className="px-6 py-4 flex justify-end items-center gap-3">
+                                <td className="px-6 py-2 flex justify-end items-center gap-3">
                                   <div className="flex items-center">
                                     <input 
                                       type="text"
                                       pattern="[0-9]*"
                                       value={policy.point_cost}
                                       onChange={(e) => handleCostChange(policy.page_type, e.target.value)}
-                                      className={`w-24 px-3 py-2 text-right border rounded-md focus:outline-none focus:ring-1 font-extrabold text-[15px] transition-colors ${
+                                      className={`w-24 px-3 py-1.5 text-right border rounded-md focus:outline-none focus:ring-1 font-extrabold text-[15px] transition-colors ${
                                         isChanged 
                                         ? 'border-orange-400 focus:border-orange-500 focus:ring-orange-500 text-orange-600 bg-white shadow-inner' 
                                         : 'border-gray-300 focus:border-[#5244e8] focus:ring-[#5244e8] text-[#5244e8] bg-gray-50'
@@ -327,7 +328,7 @@ export default function AdminPointsPage() {
                                   <button 
                                     onClick={() => handleSaveSingle(policy)}
                                     disabled={!isChanged || isSavingThis}
-                                    className={`ml-2 w-16 py-2 font-bold text-[13px] rounded-md transition-all whitespace-nowrap shadow-sm flex items-center justify-center ${
+                                    className={`ml-2 w-16 py-1.5 font-bold text-[13px] rounded-md transition-all whitespace-nowrap shadow-sm flex items-center justify-center ${
                                       isSavingThis ? 'bg-slate-400 text-white cursor-wait' :
                                       isChanged ? 'bg-[#5244e8] hover:bg-[#4336c9] text-white ring-2 ring-[#5244e8]/30' : 
                                       'bg-slate-600 text-white opacity-40 cursor-not-allowed hover:opacity-40' 

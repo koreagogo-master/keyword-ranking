@@ -60,7 +60,7 @@ export default function Home() {
       color: 'orange' as const,
       title: '셀러 최적화',
       desc: ['상품명, 키워드, 쇼핑 노출 순위를 점검합니다.', '온라인 셀러의 상품 등록과 노출 개선에 활용할 수 있습니다.'],
-      features: ['키워드 인사이트', '상품명 최적화', '내 상품명 진단', '쇼핑 노출 순위 분석'],
+      features: ['키워드 인사이트', '상품명 최적화', '내 상품명 진단', '쇼핑 노출 순위 분석', '우편번호 대량 변환'],
     },
     {
       label: '구글·유튜브 트렌드',
@@ -154,6 +154,7 @@ export default function Home() {
     { category: "SELLER TOOLS", label: "상품명 최적화", href: "/seo-title", iconBg: "bg-orange-50", iconColor: "text-orange-500", hoverBorder: "hover:border-orange-400", textHover: "group-hover:text-orange-500", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /> },
     { category: "SELLER TOOLS", label: "내 상품명 진단", href: "/seo-check", iconBg: "bg-orange-50", iconColor: "text-orange-500", hoverBorder: "hover:border-orange-400", textHover: "group-hover:text-orange-500", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /> },
     { category: "SELLER TOOLS", label: "쇼핑 노출 순위 분석", href: "/shopping-rank", iconBg: "bg-orange-50", iconColor: "text-orange-500", hoverBorder: "hover:border-orange-400", textHover: "group-hover:text-orange-500", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /> },
+    { category: "SELLER TOOLS", label: "우편번호 대량 변환기", href: "/postcode-bulk", iconBg: "bg-orange-50", iconColor: "text-orange-500", hoverBorder: "hover:border-orange-400", textHover: "group-hover:text-orange-500", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /> },
     // --- GOOGLE & YOUTUBE ---
     { category: "GOOGLE & YOUTUBE", label: "구글 키워드 분석", href: "/google-analysis", iconBg: "bg-red-50", iconColor: "text-red-500", hoverBorder: "hover:border-red-400", textHover: "group-hover:text-red-500", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /> },
     { category: "GOOGLE & YOUTUBE", label: "유튜브 트렌드", href: "/youtube-trend", iconBg: "bg-red-50", iconColor: "text-red-500", hoverBorder: "hover:border-red-400", textHover: "group-hover:text-red-500", icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></> },
