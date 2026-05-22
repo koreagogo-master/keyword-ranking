@@ -90,7 +90,7 @@ export const usePoint = () => {
         const res = await fetch('/api/use-free-count', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ userId, itemCount }),
+          body: JSON.stringify({ userId, itemCount, pageType, keyword: keyword || null }),
         });
 
         if (res.ok) {
