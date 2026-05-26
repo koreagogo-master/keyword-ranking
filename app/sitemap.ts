@@ -20,6 +20,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/seo-title',         // 쇼핑 상품명 최적화
     '/seo-check',         // 내 상품명 진단
     '/shopping-rank',     // 상품 노출 순위 분석
+    '/keyword-volume',    // 검색량 조회
+    '/index-check',       // 색인 체크
+    '/place-rank',        // 네이버 플레이스 순위 조회
+    '/post-xray',         // 포스팅 X-Ray
     '/postcode-bulk',     // 우편번호 대량 변환기
     '/contact',           // 고객센터 (FAQ)
     '/notice',            // 공지사항

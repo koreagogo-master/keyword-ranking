@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import SellerTabs from '@/components/SellerTabs';
+import HelpButton from '@/components/HelpButton';
 
 const MAX_ADDRESSES = 20;
 
@@ -171,7 +172,10 @@ function PostcodeBulkContent() {
 
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-2xl font-bold !text-gray-900 mb-2">우편번호 대량 변환기</h1>
+          <div className="flex items-center gap-2 mb-2">
+            <h1 className="text-2xl font-bold !text-gray-900">우편번호 대량 변환기</h1>
+            <HelpButton href="https://blog.naver.com/lboll/224296765841" tooltip="도움말" />
+          </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
             주소를 한 줄에 하나씩 입력하면 우편번호만 빠르게 확인할 수 있습니다.
           </p>
@@ -208,6 +212,9 @@ function PostcodeBulkContent() {
               }}
               placeholder={`서울특별시 강남구 테헤란로 152\n경기도 성남시 분당구 판교역로 235\n부산광역시 해운대구 해운대해변로 264`}
               rows={10}
+              spellCheck={false}
+              autoCorrect="off"
+              autoCapitalize="off"
               className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#5244e8] focus:bg-white transition-colors text-sm font-medium resize-none leading-relaxed"
             />
             {isOverLimit && (
@@ -357,6 +364,9 @@ function PostcodeBulkContent() {
                               return updated;
                             })
                           }
+                          spellCheck={false}
+                          autoCorrect="off"
+                          autoCapitalize="off"
                           className="w-full px-3 py-1.5 bg-white border border-red-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-400 text-sm font-medium text-gray-700"
                           placeholder="주소를 수정하고 재검색하세요"
                         />

@@ -511,7 +511,7 @@ function PlaceRankContent() {
               <div>
                 <div className="flex items-center gap-2 mb-1">
                   <h1 className="text-2xl font-bold !text-gray-900">네이버 플레이스 순위 조회</h1>
-                  <HelpButton href="https://blog.naver.com/lboll" tooltip="도움말" />
+                  <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
                 </div>
                 <p className="!text-slate-500 text-sm">
                   업체의 해당 키워드로 플레이스의 순위를 확인 합니다.(업체명 + 키워드 최대 10개)<br />
