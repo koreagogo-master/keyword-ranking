@@ -413,7 +413,7 @@ function ReviewAiContent() {
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <h1 className="!text-2xl font-bold !text-gray-900">리뷰 답글 AI 어시스턴트</h1>
-                  <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
+                  <HelpButton href="https://blog.naver.com/lboll/224297740359" tooltip="도움말" />
                 </div>
                 <p className="!text-sm !text-slate-500 leading-relaxed">
                   제품 프리셋을 등록하고 고객 리뷰를 붙여넣으면 AI가 브랜드 톤앤매너에 맞는 답글을 자동으로 작성합니다.<br />
@@ -455,6 +455,9 @@ function ReviewAiContent() {
                           value={p.name}
                           onChange={e => updatePreset(p.id, { name: e.target.value })}
                           placeholder="제품명 입력"
+                          spellCheck={false}
+                          autoCorrect="off"
+                          autoCapitalize="off"
                           className={`w-full p-2.5 pr-8 h-[38px] rounded-sm border !text-sm !text-gray-900
                                      focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8]
                                      transition-all shadow-sm ${color.selectBg} ${color.border}`}
@@ -638,6 +641,9 @@ function ReviewAiContent() {
                         onChange={e => updateCard(card.id, { text: e.target.value })}
                         placeholder="고객 리뷰 원문을 붙여넣어 주세요..."
                         rows={2}
+                        spellCheck={false}
+                        autoCorrect="off"
+                        autoCapitalize="off"
                         className="w-full flex-1 p-2.5 rounded-sm border border-gray-300
                                    focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8]
                                    !text-sm !text-gray-900 resize-none overflow-y-auto transition-all"

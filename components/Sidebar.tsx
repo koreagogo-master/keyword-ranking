@@ -73,7 +73,6 @@ export default function Sidebar() {
         { name: "플레이스 순위 조회", href: "/place-rank" },
       ]
     },
-
     {
       title: "Seller Tools",
       items: [
@@ -233,9 +232,9 @@ export default function Sidebar() {
                   <div
                     onClick={() => toggleGroup(group.title)}
                     className={`px-4 py-2 text-[11.5px] font-extrabold tracking-widest uppercase border-b flex items-center justify-between cursor-pointer transition-all font-sans antialiased
-      ${isGroupActive
-                        ? 'text-[#5244e8] border-[#5244e8]/40 bg-[#5244e8]/5'
-                        : 'text-slate-600 border-transparent hover:text-slate-900 hover:bg-slate-50'}`}
+                      ${isGroupActive
+                        ? 'bg-indigo-50 text-[#5244e8] border-b-[#5244e8]/30'
+                        : 'bg-white text-slate-600 border-b-transparent hover:bg-slate-50 hover:text-slate-800'}`}
                   >
                     {group.title}
                     <svg

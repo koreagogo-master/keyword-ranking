@@ -278,7 +278,7 @@ function AnalysisContent() {
                   ))}
                 </div>
               ) : (
-                <div className="text-gray-400 text-sm font-bold ml-2">검색 결과에 연관 키워드가 있으면 이곳에 노출됩니다.</div>
+                <div className="text-gray-400 text-sm font-bold ml-2">추천 키워드가 확인되면 이곳에 노출됩니다.</div>
               )}
             </div>
 

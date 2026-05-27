@@ -233,7 +233,7 @@ function BlogRankContent() {
               value={targetNickname}
               onChange={e => setTargetNickname(e.target.value)}
               className="w-full p-3 h-[50px] border border-gray-300 rounded-sm focus:outline-none focus:border-[#5244e8] focus:ring-1 focus:ring-[#5244e8] transition-all shadow-sm"
-              placeholder="예: 연세베스트치과"
+              placeholder="예: OO치과"
             />
             {nicknames.length > 0 && (
               <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
