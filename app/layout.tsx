@@ -12,6 +12,7 @@ import { AuthProvider } from "@/app/contexts/AuthContext";
 import MobileBlocker from "@/components/MobileBlocker";
 import PointAlertBanner from "@/components/PointAlertBanner";
 import GuestLimitModal from "@/components/GuestLimitModal";
+import Script from "next/script";
 
 // 🌟 1. 사이드바를 뼈대용으로 불러옵니다.
 
@@ -85,6 +86,18 @@ export default function RootLayout({
       <body
         className={`${nanumBarunGothic.variable} ${nanumSquare.variable} antialiased flex flex-col min-h-screen`}
       >
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-986475461"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-tag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-986475461');
+          `}
+        </Script>
         <AuthProvider>
           <MobileBlocker />
           <Header />
