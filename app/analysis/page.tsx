@@ -35,7 +35,8 @@ function AnalysisContent() {
   const [isSearching, setIsSearching] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
 
-  const [relatedKeywords, setRelatedKeywords] = useState<string[]>([]);
+  const [autocompleteKeywords, setAutocompleteKeywords] = useState<string[]>([]);
+  const [autocompleteError, setAutocompleteError] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [saveToast, setSaveToast] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -68,7 +69,8 @@ function AnalysisContent() {
     setIsSearching(true);
     setIsCompleted(false);
     setData(null);
-    setRelatedKeywords([]);
+    setAutocompleteKeywords([]);
+    setAutocompleteError(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     const isPaySuccess = await deductPoints(user?.id, 10, 1, k);
@@ -90,6 +92,19 @@ function AnalysisContent() {
       alert(e?.message || "데이터를 가져오는 중 오류가 발생했습니다.");
     } finally {
       setIsSearching(false);
+    }
+
+    // 자동완성 키워드 조회 — 분석 성공/실패와 무관하게 독립 실행
+    try {
+      const acRes = await fetch(`/api/naver-autocomplete?keyword=${encodeURIComponent(k)}`);
+      const acData = await acRes.json();
+      if (acData.success && Array.isArray(acData.keywords)) {
+        setAutocompleteKeywords(acData.keywords);
+      } else {
+        setAutocompleteKeywords([]);
+      }
+    } catch {
+      setAutocompleteError(true);
     }
   };
 
@@ -244,7 +259,7 @@ function AnalysisContent() {
               </div>
             </div>
 
-            <div className="bg-white border border-gray-300 flex items-center mb-6 shadow-sm focus-within:border-indigo-500 transition-all rounded-sm max-w-4xl w-full">
+            <div className="bg-white border border-gray-300 flex items-center mb-3 shadow-sm focus-within:border-indigo-500 transition-all rounded-sm max-w-2xl w-full">
               <input
                 type="text" value={keyword} onChange={(e) => setKeyword(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -258,27 +273,37 @@ function AnalysisContent() {
               </button>
             </div>
 
-            <div className="max-w-4xl w-full mb-10 min-h-[40px] flex items-center justify-start">
+            <div className="w-full mb-10 min-h-[40px]">
               {isSearching ? (
-                <div className="flex gap-2 ml-2">
+                <div className="flex gap-2 ml-2 items-center h-[40px]">
                   <div className="w-2.5 h-2.5 bg-[#5244e8]/30 rounded-full animate-bounce"></div>
                   <div className="w-2.5 h-2.5 bg-[#5244e8]/60 rounded-full animate-bounce [animation-delay:0.2s]"></div>
                   <div className="w-2.5 h-2.5 bg-[#5244e8] rounded-full animate-bounce [animation-delay:0.4s]"></div>
                 </div>
-              ) : relatedKeywords.length > 0 ? (
-                <div className="flex flex-wrap gap-2 justify-start">
-                  {relatedKeywords.map((kw, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSearch(kw)}
-                      className="text-[13px] px-4 py-1.5 bg-white border border-gray-200 rounded-full !text-slate-600 !font-bold hover:!border-violet-500 hover:!text-violet-600 transition-all shadow-sm"
-                    >
-                      #{kw}
-                    </button>
-                  ))}
+              ) : autocompleteError ? (
+                <div className="text-gray-400 text-sm font-bold ml-2 flex items-center h-[40px]">자동완성 키워드를 불러오지 못했습니다.</div>
+              ) : autocompleteKeywords.length > 0 ? (
+                <div className="flex flex-col gap-1.5">
+                  <br/><span className="text-xs font-bold text-gray-500 ml-1">실시간 자동완성 키워드</span>
+                  <div className="flex flex-wrap gap-2">
+                    {autocompleteKeywords.map((kw, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => handleSearch(kw)}
+                        className="flex items-center gap-1 text-[13px] px-3 py-1.5 bg-white border border-gray-200 rounded-full !text-slate-600 !font-bold hover:!border-violet-500 hover:!text-violet-600 transition-all shadow-sm"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        {kw}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+              ) : searchedKeyword ? (
+                <div className="text-gray-400 text-sm font-bold ml-2 flex items-center h-[40px]">확인된 자동완성 키워드가 없습니다.</div>
               ) : (
-                <div className="text-gray-400 text-sm font-bold ml-2">추천 키워드가 확인되면 이곳에 노출됩니다.</div>
+                <div className="text-gray-400 text-sm font-bold ml-2 flex items-center h-[40px]">입력한 키워드와 관련된 자동완성 키워드가 이곳에 표시됩니다.</div>
               )}
             </div>
 
@@ -298,7 +323,6 @@ function AnalysisContent() {
                     <div className="col-span-2">
                       <SectionOrder
                         keyword={searchedKeyword}
-                        onKeywordsFound={setRelatedKeywords}
                       />
                     </div>
                   </div>
