@@ -230,6 +230,15 @@ function AnalysisContent() {
                   검색량, 문서 포화도, 월간 트렌드부터 상위 노출 섹션 순서까지 한 번에 분석합니다.<br className="hidden md:block" />
                   데이터에 기반한 가장 확실한 키워드 전략을 수립해 보세요.
                 </p>
+
+                <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                  자주 확인하는 키워드 분석 조건은{" "}
+                  <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+                  <br />
+                  다음 조회 시{" "}
+                  <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 조건을 빠르게 다시 확인할 수 있습니다.{" "}
+                  <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+                </p>
               </div>
               <div className="flex items-center gap-2 mt-1 shrink-0">
                 <button

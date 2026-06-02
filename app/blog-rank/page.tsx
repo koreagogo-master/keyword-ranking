@@ -186,6 +186,15 @@ function BlogRankContent() {
             "사이트", "뉴스", "플레이스"는 순위에서 제외됩니다.<br />
             "지식인"은 블로그가 아니므로 순위 집계에서 제외됩니다. 검색 결과에 포함된 경우 제목 자리에 답변 내용이 길게 표시될 수 있습니다.
           </p>
+
+          <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+            자주 확인하는 블로거 닉네임과 키워드 조건은{" "}
+            <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+            <br />
+            다음 조회 시{" "}
+            <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 조건을 빠르게 다시 확인할 수 있습니다.{" "}
+            <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+          </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
           <button 

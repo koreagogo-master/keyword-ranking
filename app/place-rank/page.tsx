@@ -518,6 +518,15 @@ function PlaceRankContent() {
                   키워드 기준으로 경쟁 업체의 플레이스 순위와 노출 여부를 한 번에 비교합니다.(키워드 + 업체명 최대 5개)<br />
                   조회 실패 항목의 "재조회"는 포인트를 차감하지 않습니다.
                 </p>
+
+                <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                  자주 확인하는 업체명과 키워드 조건은{" "}
+                  <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+                  <br />
+                  다음 조회 시{" "}
+                  <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 조건을 빠르게 다시 확인할 수 있습니다.{" "}
+                  <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+                </p>
               </div>
               <div className="flex items-center gap-2 mt-1 shrink-0">
                 <button

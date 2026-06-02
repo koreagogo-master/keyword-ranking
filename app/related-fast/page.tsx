@@ -298,6 +298,15 @@ function RelatedFastContent() {
                 최종 선택된 키워드는 일괄 복사하여 메모장 등에 붙여넣을 수 있으며, 조회 키워드를 변경해도 유지됩니다.<br />
                 CPC 단가는 우측 상단의 순위 기준을 변경하면 해당 시점을 기준으로 즉시 업데이트됩니다.
               </p>
+
+              <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                자주 확인하는 연관 키워드 조회 조건은{" "}
+                <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+                <br />
+                다음 조회 시{" "}
+                <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 조건을 빠르게 다시 확인할 수 있습니다.{" "}
+                <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+              </p>
             </div>
             <div className="flex items-center gap-2 mt-1 shrink-0">
               <button 

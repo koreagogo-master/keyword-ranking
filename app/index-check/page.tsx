@@ -166,6 +166,15 @@ export default function IndexCheckPage() {
                   <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
                 </div>
                 <p className="text-sm text-slate-500 mt-1 leading-relaxed">아이디만 입력하면 최근 포스팅 50개를 분석하여 노출 여부를 판단합니다.</p>
+
+                <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                  자주 확인하는 색인 확인용 블로그 아이디는{" "}
+                  <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+                  <br />
+                  다음 조회 시{" "}
+                  <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 조건을 빠르게 다시 확인할 수 있습니다.{" "}
+                  <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+                </p>
               </div>
               <div className="flex items-center gap-2 mt-1 shrink-0">
                 <button 

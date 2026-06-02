@@ -273,6 +273,15 @@ function SeoTitleContent() {
                     <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
                 </div>
                     <p className="text-sm !text-slate-500 mt-1 leading-relaxed">네이버 쇼핑 로직에 최적화된 상품명을 조립하고 AI로 완벽하게 다듬어줍니다.</p>
+
+                    <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                        자주 사용하는 SEO 제목 생성 키워드는{" "}
+                        <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+                        <br />
+                        다음 생성 시{" "}
+                        <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 키워드로 빠르게 다시 생성할 수 있습니다.{" "}
+                        <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+                    </p>
                 </div>
                 <div className="flex items-center gap-2 mt-1 shrink-0">
                     <button onClick={handleSaveCurrentSetting} disabled={!keyword.trim()} className={`px-4 py-2 text-sm font-bold !text-white rounded-md shadow-sm transition-colors ${!keyword.trim() ? 'bg-slate-400 cursor-not-allowed' : 'bg-slate-700 hover:bg-slate-800'}`}>현재 설정 저장</button>

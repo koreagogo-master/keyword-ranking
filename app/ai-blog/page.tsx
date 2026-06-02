@@ -296,6 +296,15 @@ export default function AiBlogPage() {
                       * AI가 생성한 글은 초안으로 활용하고, 실제 경험·사진·업체 정보·후기 등을 추가해 수정 후 게시하는 것을 권장합니다.
                     </p>
                   </div>
+
+                  <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                    자주 사용하는 AI 블로그 작성 설정은{" "}
+                    <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+                    <br />
+                    다음 작성 시{" "}
+                    <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 구성으로 빠르게 다시 작성할 수 있습니다.{" "}
+                    <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <button onClick={() => !isSaveDisabled && handleSaveCurrentSetting()} disabled={isSaveDisabled} className={`px-4 py-2 text-sm font-bold text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors ${isSaveDisabled ? 'bg-slate-400 cursor-not-allowed opacity-60' : 'bg-slate-700 hover:bg-slate-800'}`}>

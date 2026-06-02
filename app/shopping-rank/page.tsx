@@ -198,6 +198,15 @@ function ShoppingRankContent() {
           </div>
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">여러 개의 키워드를 쉼표(,)로 구분하여 한 번에 순위를 검색할 수 있습니다.</p>
           <p className="text-sm font-bold text-blue-600 mt-1">※ 네이버 쇼핑 카테고리(가격비교 영역) 순수 검색 결과 기준 순위입니다.</p>
+
+          <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+            자주 확인하는 스토어명과 키워드 조건은{" "}
+            <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+            <br />
+            다음 조회 시{" "}
+            <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 조건을 빠르게 다시 확인할 수 있습니다.{" "}
+            <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+          </p>
         </div>
         
         <div className="flex items-center gap-2 mt-1 shrink-0">

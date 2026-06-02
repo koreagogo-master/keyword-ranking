@@ -225,6 +225,15 @@ export default function AiPressPage() {
                     <p className="text-sm text-slate-500">* 기업의 새로운 소식, 신제품 출시, 이벤트 등을 전문적인 기사 형식으로 완벽하게 작성합니다.</p>
                     <p className="text-sm text-indigo-600 font-bold">* 기자들이 선호하는 객관적이고 신뢰감 있는 톤앤매너가 자동 적용됩니다.</p>
                   </div>
+
+                  <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                    자주 사용하는 보도자료 작성 설정은{" "}
+                    <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+                    <br />
+                    다음 작성 시{" "}
+                    <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 구성으로 빠르게 다시 작성할 수 있습니다.{" "}
+                    <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 mt-1">
                   <button onClick={() => !isSaveDisabled && handleSaveCurrentSetting()} disabled={isSaveDisabled} className={`px-4 py-2 text-sm font-bold !text-white rounded-md shadow-sm flex items-center gap-1.5 transition-colors ${isSaveDisabled ? 'bg-slate-400 cursor-not-allowed opacity-60' : 'bg-slate-700 hover:bg-slate-800'}`}>

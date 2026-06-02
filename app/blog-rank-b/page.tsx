@@ -201,6 +201,15 @@ function BlogRankContent() {
             여러 개의 키워드는 쉼표(,)로 구분하여 한 번에 여러 개를 조회할 수 있습니다. <span className="font-bold text-amber-500">(최대 10개)</span><br /><br />
             검색 결과는 서버에서 네이버 모바일 검색 화면을 열어 분석한 결과입니다. <br />네이버 노출 환경과 로딩 상태에 따라 실제 화면과 다소 차이가 있을 수 있습니다.
           </p>
+
+          <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+            자주 확인하는 블로그/닉네임과 키워드 조건은{" "}
+            <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+            <br />
+            다음 조회 시{" "}
+            <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 조건을 빠르게 다시 확인할 수 있습니다.{" "}
+            <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+          </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">
           <button

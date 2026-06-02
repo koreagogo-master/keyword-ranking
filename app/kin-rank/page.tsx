@@ -253,9 +253,21 @@ function KinRankContent() {
             <h1 className="text-2xl font-bold text-gray-900">N 지식인 통검노출, 순위, 날짜 확인</h1>
             <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
           </div>
+
           <p className="text-sm text-slate-500 mt-1 leading-relaxed">
-            키워드와 찾을 제목(또는 게시물 URL)을 입력하여 지식인 탭 순위와 통검 노출 여부를 확인하세요. <span className="font-bold text-amber-500">(최대 30위까지만 검색합니다.)</span><br />
+            키워드와 찾을 제목(또는 게시물 URL)을 입력하여 지식인 탭 순위와 통검 노출 여부를 확인하세요.{" "}
+            <span className="font-bold text-amber-500">(최대 30위까지만 검색합니다.)</span>
+            <br />
             최대 10개까지 항목을 추가하여 일괄 조회할 수 있습니다.
+          </p>
+
+          <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+            자주 확인하는 키워드와 지식인 게시물 제목/URL 조건은{" "}
+            <span className="font-bold text-slate-700">‘현재 설정 저장’</span>으로 보관할 수 있습니다.
+            <br />
+            다음 조회 시{" "}
+            <span className="font-bold text-slate-700">‘저장된 목록 보기’</span>에서 불러와 같은 조건을 빠르게 다시 확인할 수 있습니다.{" "}
+            <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
           </p>
         </div>
         <div className="flex items-center gap-2 mt-1 shrink-0">

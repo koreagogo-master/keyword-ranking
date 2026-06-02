@@ -261,6 +261,15 @@ function ShoppingInsightContent() {
                   <HelpButton href="https://blog.naver.com/lboll/224254481124" tooltip="도움말" />
                 </div>
                 <p className="text-sm text-slate-500 mt-1 leading-relaxed">네이버 쇼핑 데이터 기반으로 상품 키워드의 경쟁력과 트렌드를 분석합니다.</p>
+
+                <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                  자주 확인하는 쇼핑 인사이트 조회 키워드는{" "}
+                  <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+                  <br />
+                  다음 조회 시{" "}
+                  <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 조건을 빠르게 다시 확인할 수 있습니다.{" "}
+                  <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
+                </p>
               </div>
               <div className="flex items-center gap-2 mt-1 shrink-0">
                 <button
