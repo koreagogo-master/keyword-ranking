@@ -52,8 +52,8 @@ export default function Home() {
       label: '네이버 노출 분석',
       color: 'green' as const,
       title: '네이버 노출 분석',
-      desc: ['키워드, 블로그, 플레이스, 지식인 노출 상태를 확인합니다.', '검색 결과에서 내 콘텐츠와 업체가 어떻게 보이는지 점검할 수 있습니다.'],
-      features: ['키워드 정밀 분석', '연관 키워드 조회', '블로그 순위 확인', '블로그 노출 진단', '지식인 순위 확인', '통합검색 노출/순위 확인', '키워드 조회수 확인', '키워드 생성기', '플레이스 순위 조회'],
+      desc: ['키워드, 검색결과 구성, 블로그, 플레이스, 지식인 노출 상태를 확인합니다.', '검색 결과에서 내 콘텐츠와 업체가 어떤 단락에 노출되는지 점검할 수 있습니다.'],
+      features: ['키워드 정밀 분석', '검색결과 구성 분석', '연관 키워드 조회', '블로그 순위 확인', '블로그 노출 진단', '지식인 순위 확인', '통합검색 노출/순위 확인', '키워드 조회수 확인', '키워드 생성기', '플레이스 순위 조회'],
     },
     {
       label: '셀러 최적화',
@@ -141,6 +141,7 @@ export default function Home() {
     { category: "AI TOOLS", label: "AI 포스팅 인사이트", href: "/ai-insight", iconBg: "bg-purple-50", iconColor: "text-purple-500", hoverBorder: "hover:border-purple-400", textHover: "group-hover:text-purple-600", icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></> },
     // --- NAVER TOOLS ---
     { category: "NAVER TOOLS", label: "키워드 정밀 분석", href: "/analysis", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /> },
+    { category: "NAVER TOOLS", label: "검색결과 구성 분석", href: "/search-structure", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h10M4 18h7" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 14l3 3m0 0l-3 3m3-3h-7" /></> },
     { category: "NAVER TOOLS", label: "연관 키워드 조회", href: "/related-fast", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /> },
     { category: "NAVER TOOLS", label: "블로그 순위 확인", href: "/blog-rank-b", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /> },
     { category: "NAVER TOOLS", label: "블로그 노출 진단", href: "/index-check", iconBg: "bg-[#03c75a]/10", iconColor: "text-[#03c75a]", hoverBorder: "hover:border-[#03c75a]/50", textHover: "group-hover:text-[#03c75a]", icon: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /> },
@@ -394,7 +395,7 @@ export default function Home() {
                         {item.icon}
                       </svg>
                     </div>
-                    <h3 className={`text-[14.5px] font-bold text-gray-700 ${item.textHover} transition-colors whitespace-nowrap`}>
+                    <h3 className={`text-[14.5px] font-bold text-gray-700 ${item.textHover} transition-colors leading-snug break-keep`}>
                       {item.label}
                     </h3>
                   </div>

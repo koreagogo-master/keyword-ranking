@@ -6,6 +6,7 @@ import { createClient } from '@/app/utils/supabase/client';
 
 const PATH_TO_PAGE_TYPE: Record<string, string> = {
   '/analysis': 'ANALYSIS',
+  '/search-structure': 'SEARCH_STRUCTURE',
   '/related-fast': 'RELATED',
   '/blog-rank-b': 'BLOG',
   '/index-check': 'INDEX_CHECK',

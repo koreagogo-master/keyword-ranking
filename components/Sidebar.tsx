@@ -9,6 +9,7 @@ import { createClient } from "@/app/utils/supabase/client";
 
 const URL_TO_PAGE_TYPE: Record<string, string> = {
   '/analysis': 'ANALYSIS',
+  '/search-structure': 'SEARCH_STRUCTURE',
   '/related-fast': 'RELATED',
   '/blog-rank-b': 'BLOG',
   '/index-check': 'INDEX_CHECK',
@@ -63,6 +64,7 @@ export default function Sidebar() {
       title: "Naver TOOLS",
       items: [
         { name: "키워드 정밀 분석", href: "/analysis" },
+        { name: "검색결과 구성 분석", href: "/search-structure" },
         { name: "연관 키워드 조회", href: "/related-fast" },
         { name: "블로그 순위 확인", href: "/blog-rank-b" },
         { name: "블로그 노출 진단", href: "/index-check" },
@@ -252,7 +254,7 @@ export default function Sidebar() {
                         const pageType = URL_TO_PAGE_TYPE[item.href as string];
                         const pointCost = pageType && pointPolicies[pageType] !== undefined
                           ? pointPolicies[pageType]
-                          : (item.href === '/ai-blog' ? 30 : item.href === '/ai-press' ? 50 : item.href === '/review-ai' ? 0 : item.href === '/post-xray' ? 20 : null);
+                          : (item.href === '/ai-blog' ? 30 : item.href === '/ai-press' ? 50 : item.href === '/review-ai' ? 0 : item.href === '/post-xray' ? 20 : item.href === '/search-structure' ? 0 : null);
 
                         return (
                           <li key={itemIdx}>

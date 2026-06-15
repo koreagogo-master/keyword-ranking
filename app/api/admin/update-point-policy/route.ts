@@ -5,6 +5,7 @@ import { createClient as createServerSupabaseClient } from '@/app/utils/supabase
 // PAGE_META와 동일한 page_type 화이트리스트
 const ALLOWED_PAGE_TYPES = new Set([
   'ANALYSIS',
+  'SEARCH_STRUCTURE',
   'RELATED',
   'BLOG',
   'INDEX_CHECK',
@@ -26,6 +27,11 @@ const ALLOWED_PAGE_TYPES = new Set([
   'GOOGLE',
   'YOUTUBE',
 ]);
+
+// DB row가 없을 수 있는 항목의 page_name 매핑 (upsert 시 필요)
+const PAGE_NAME_FOR_UPSERT: Record<string, string> = {
+  'SEARCH_STRUCTURE': '검색결과 구성 분석',
+};
 
 export async function POST(request: Request) {
   try {
@@ -80,12 +86,22 @@ export async function POST(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const { error: updateError } = await supabaseAdmin
-      .from('point_policies')
-      .update({ point_cost })
-      .eq('page_type', page_type);
-
-    if (updateError) throw updateError;
+    // DB row가 없을 수 있는 항목(SEARCH_STRUCTURE 등)은 upsert, 나머지는 update
+    if (PAGE_NAME_FOR_UPSERT[page_type]) {
+      const { error: upsertError } = await supabaseAdmin
+        .from('point_policies')
+        .upsert(
+          { page_type, page_name: PAGE_NAME_FOR_UPSERT[page_type], point_cost },
+          { onConflict: 'page_type' }
+        );
+      if (upsertError) throw upsertError;
+    } else {
+      const { error: updateError } = await supabaseAdmin
+        .from('point_policies')
+        .update({ point_cost })
+        .eq('page_type', page_type);
+      if (updateError) throw updateError;
+    }
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {

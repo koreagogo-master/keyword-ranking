@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from "@/app/contexts/AuthContext";
 import { createClient } from "@/app/utils/supabase/client";
-// import SavedSearchesDrawer from "@/components/SavedSearchesDrawer"; // review-ai 저장 기능 비활성화
+import SavedSearchesDrawer from "@/components/SavedSearchesDrawer";
 import AiTabs from "@/components/AiTabs";
 import HelpButton from "@/components/HelpButton";
 
@@ -76,8 +76,8 @@ const TONE_OPTIONS = [
 type ToneId = typeof TONE_OPTIONS[number]['id'];
 
 // ── 초기값 생성 헬퍼
-let nextPresetId = 2;
-let nextCardId = 6;
+const nextPresetId = 2;
+const nextCardId = 6;
 
 const createPreset = (id: number, colorIdx: number): ProductPreset =>
   ({ id, name: '', url: '', desc: '', isUrlAnalysisOn: false, colorIdx });
@@ -94,8 +94,8 @@ function ReviewAiContent() {
   // ── 제품 프리셋 상태
   const [presets, setPresets] = useState<ProductPreset[]>(INITIAL_PRESETS);
 
-  // const [isDrawerOpen, setIsDrawerOpen] = useState(false); // review-ai 저장 기능 비활성화
-  // const [saveToast, setSaveToast] = useState(false); // review-ai 저장 기능 비활성화
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [saveToast, setSaveToast] = useState(false);
   const { user, isLoading: authLoading } = useAuth();
   const router = useRouter();
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -129,38 +129,70 @@ function ReviewAiContent() {
     }
   }, [historyId]);
 
-  // review-ai 저장 기능 비활성화: handleSaveCurrentSetting 주석 처리
-  // const handleSaveCurrentSetting = async () => {
-  //   if (!user) {
-  //     setIsLoginModalOpen(true);
-  //     return;
-  //   }
-  //   const title = prompt("저장할 프리셋 목록의 이름을 입력하세요:", "나의 제품 프리셋");
-  //   if (!title) return;
-  //   const settingsToSave = { presets };
-  //   const supabase = createClient();
-  //   const { error } = await supabase.from('saved_searches').insert({
-  //     user_id: user.id,
-  //     page_type: 'REVIEW_AI',
-  //     nickname: '',
-  //     keyword: title,
-  //     settings: settingsToSave
-  //   });
-  //   if (!error) alert("현재 설정이 나만의 템플릿으로 안전하게 저장되었습니다.");
-  //   else alert(`저장 실패: ${error.message}`);
-  // };
+  const handleSaveCurrentSetting = async () => {
+    if (!user) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+    const hasName = presets.some(p => p.name.trim());
+    if (!hasName) {
+      alert('최소 하나 이상의 제품명을 입력한 후 저장해 주세요.');
+      return;
+    }
+    const presetNames = presets
+      .map(p => p.name.trim())
+      .filter(Boolean)
+      .join(', ');
+    const title = `리뷰 답글 AI - ${presetNames}`;
+    const settingsToSave = { presets, selectedTone, isEmojiOff };
+    const supabase = createClient();
+    const { error } = await supabase.from('saved_searches').insert({
+      user_id: user.id,
+      page_type: 'REVIEW_AI',
+      nickname: '',
+      keyword: title,
+      settings: settingsToSave,
+    });
+    if (!error) {
+      setSaveToast(true);
+      setTimeout(() => setSaveToast(false), 3000);
+    } else {
+      alert(`저장 실패: ${error.message}`);
+    }
+  };
 
-  // review-ai 저장 기능 비활성화: handleApplySavedSetting 주석 처리
-  // const handleApplySavedSetting = (item: any) => {
-  //   setIsDrawerOpen(false);
-  //   const settings = typeof item.settings === 'string' ? JSON.parse(item.settings) : (item.settings || {});
-  //   if (settings.presets && Array.isArray(settings.presets)) {
+  const handleApplySavedSetting = (item: { settings?: unknown; [key: string]: unknown }) => {
+    setIsDrawerOpen(false);
+    let raw: Record<string, unknown> | null = null;
+    const src = item?.settings ?? item;
+    if (typeof src === 'string') {
+      try { raw = JSON.parse(src); } catch { raw = null; }
+    } else if (src && typeof src === 'object') {
+      raw = src as Record<string, unknown>;
+    }
+    if (!raw) { alert('저장된 설정을 불러오지 못했습니다.'); return; }
 
-  // ── historyId URL 파라미터를 통한 설정 복원은 유지 (handleApplySavedSetting 대신 직접 처리)
-  const _unusedApplySaved = (item: any) => {
-    const settings = typeof item.settings === 'string' ? JSON.parse(item.settings) : (item.settings || {});
-    if (settings.presets && Array.isArray(settings.presets)) {
-      setPresets(settings.presets);
+    // 프리셋 복원
+    if (Array.isArray(raw.presets)) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const normalized = (raw.presets as any[]).map((p, idx) => ({
+        id: p.id ?? idx + 1,
+        name: p.name ?? '',
+        url: p.url ?? '',
+        desc: p.desc ?? '',
+        isUrlAnalysisOn: p.isUrlAnalysisOn ?? false,
+        colorIdx: p.colorIdx ?? idx % PRESET_COLORS.length,
+      } as ProductPreset));
+      setPresets(normalized.length > 0 ? normalized : INITIAL_PRESETS);
+    }
+    // 톤앤매너 복원
+    const toneIds = TONE_OPTIONS.map(t => t.id);
+    if (typeof raw.selectedTone === 'string' && toneIds.includes(raw.selectedTone as ToneId)) {
+      setSelectedTone(raw.selectedTone as ToneId);
+    }
+    // 이모지 복원
+    if (typeof raw.isEmojiOff === 'boolean') {
+      setIsEmojiOff(raw.isEmojiOff);
     }
   };
 
@@ -423,25 +455,42 @@ function ReviewAiContent() {
                   포토 리뷰나 악플 대응 옵션을 활용해 상황에 꼭 맞는 맞춤형 답변을 생성해 보세요!
                 </p>
 
-                {/* review-ai 저장 기능 비활성화: 저장 도움말 문구 주석 처리 */}
-                {/* <p className="text-sm text-slate-500 mt-2 leading-relaxed">
+                <p className="text-sm text-slate-500 mt-2 leading-relaxed">
                   자주 사용하는 리뷰 답변 생성 설정은{" "}
-                  <span className="font-bold text-slate-700">'현재 설정 저장'</span>으로 보관할 수 있습니다.
+                  <span className="font-bold text-slate-700">&#39;현재 설정 저장&#39;</span>으로 보관할 수 있습니다.
                   <br />
                   다음 생성 시{" "}
-                  <span className="font-bold text-slate-700">'저장된 목록 보기'</span>에서 불러와 같은 조건으로 빠르게 다시 사용할 수 있습니다.{" "}
+                  <span className="font-bold text-slate-700">&#39;저장된 목록 보기&#39;</span>에서 불러와 같은 조건으로 빠르게 다시 사용할 수 있습니다.{" "}
                   <span className="font-bold text-[#5244e8]">저장 기능은 로그인 후 사용할 수 있습니다.</span>
-                </p> */}
+                </p>
               </div>
-              {/* review-ai 저장 기능 비활성화: 저장/목록 버튼 주석 처리 */}
-              {/* <div className="flex items-center gap-2 mt-1 shrink-0">
-                <button onClick={handleSaveCurrentSetting} className="px-4 py-2 text-sm font-bold text-white bg-slate-400 rounded-md shadow-sm hover:bg-slate-500 transition-colors flex items-center gap-1.5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg> 현재 설정 저장
+              <div className="flex items-center gap-2 mt-1 shrink-0">
+                <button
+                  onClick={handleSaveCurrentSetting}
+                  className="px-4 py-2 text-sm font-bold text-white bg-slate-400 rounded-md shadow-sm hover:bg-slate-500 transition-colors flex items-center gap-1.5"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" /></svg>
+                  현재 설정 저장
                 </button>
-                <button onClick={() => setIsDrawerOpen(true)} className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg> 저장된 목록 보기
+                <button
+                  onClick={() => {
+                    if (!user) { setIsLoginModalOpen(true); return; }
+                    setIsDrawerOpen(true);
+                  }}
+                  className="px-4 py-2 text-sm font-bold text-white bg-slate-700 rounded-md hover:bg-slate-800 transition-colors shadow-sm flex items-center gap-1.5"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M5 19a2 2 0 01-2-2V7a2 2 0 012-2h4l2 2h4a2 2 0 012 2v1M5 19h14a2 2 0 002-2v-5a2 2 0 00-2-2H9a2 2 0 00-2 2v5a2 2 0 01-2 2z" /></svg>
+                  저장된 목록 보기
                 </button>
-              </div> */}
+              </div>
+
+              {/* 저장 완료 토스트 */}
+              {saveToast && (
+                <div className="fixed bottom-6 right-6 z-50 bg-slate-800 text-white text-sm font-bold px-5 py-3 rounded-xl shadow-lg flex items-center gap-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <svg className="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
+                  현재 설정이 저장되었습니다.
+                </div>
+              )}
             </div>
 
             {/* ══════════════════════════════════════════
@@ -841,8 +890,12 @@ function ReviewAiContent() {
           </div>
         </main>
       </div>
-      {/* review-ai 저장 기능 비활성화: SavedSearchesDrawer 주석 처리 */}
-      {/* <SavedSearchesDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} pageType={"REVIEW_AI" as any} onSelect={handleApplySavedSetting} /> */}
+      <SavedSearchesDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(false)}
+        pageType="REVIEW_AI"
+        onSelect={handleApplySavedSetting}
+      />
 
       {/* ── 로그인 필요 모달 — 오버레이 클릭으로 닫히지 않음 / 나중에 보기 없음 */}
       {isLoginModalOpen && (

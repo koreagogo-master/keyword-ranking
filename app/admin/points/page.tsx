@@ -1,7 +1,7 @@
 // app/admin/points/page.tsx
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/contexts/AuthContext';
 
@@ -37,7 +37,8 @@ const PAGE_META: Record<string, { name: string; url: string }> = {
   'AI_INSIGHT': { name: '+ AI 포스팅 인사이트', url: '/ai-insight' },
   'KEYWORD_VOLUME': { name: '키워드별 조회수', url: '/keyword-volume' },
   'KEYWORD_GENERATOR': { name: '키워드 생성기', url: '/keyword-generator' },
-  'PLACE_RANK': { name: '플레이스 순위', url: '/place-rank' }
+  'PLACE_RANK': { name: '플레이스 순위', url: '/place-rank' },
+  'SEARCH_STRUCTURE': { name: '검색결과 구성 분석', url: '/search-structure' },
 };
 
 const MENU_GROUPS = [
@@ -47,7 +48,7 @@ const MENU_GROUPS = [
   },
   {
     title: 'NAVER TOOLS',
-    items: ['ANALYSIS', 'RELATED', 'BLOG', 'INDEX_CHECK', 'JISIKIN', 'TOTAL', 'KEYWORD_VOLUME', 'KEYWORD_GENERATOR', 'PLACE_RANK']
+    items: ['ANALYSIS', 'SEARCH_STRUCTURE', 'RELATED', 'BLOG', 'INDEX_CHECK', 'JISIKIN', 'TOTAL', 'KEYWORD_VOLUME', 'KEYWORD_GENERATOR', 'PLACE_RANK']
   },
   {
     title: 'SELLER TOOLS',
@@ -58,6 +59,25 @@ const MENU_GROUPS = [
     items: ['GOOGLE', 'YOUTUBE']
   }
 ];
+
+// point_policies DB row가 없어도 화면에 표시할 기본 정책 (저장 전 fallback 표시용)
+const REQUIRED_DEFAULT_POLICIES: PointPolicy[] = [
+  {
+    page_type: 'SEARCH_STRUCTURE',
+    page_name: '검색결과 구성 분석',
+    point_cost: 0,
+    original_cost: 0,
+  },
+];
+
+const normalizePolicies = (rows: PointPolicy[]): PointPolicy[] => {
+  const normalized = rows.map(p => ({ ...p, original_cost: p.point_cost }));
+  for (const defaultPolicy of REQUIRED_DEFAULT_POLICIES) {
+    const exists = normalized.some(p => p.page_type === defaultPolicy.page_type);
+    if (!exists) normalized.push({ ...defaultPolicy, original_cost: defaultPolicy.original_cost ?? 0 });
+  }
+  return normalized;
+};
 
 export default function AdminPointsPage() {
   const { user, profile, isLoading: isAuthLoading } = useAuth();
@@ -86,20 +106,12 @@ export default function AdminPointsPage() {
     }
   }, [user, profile, isAuthLoading, router]);
 
-  useEffect(() => {
-    if (profile?.role?.toLowerCase() === 'admin') {
-      fetchPolicies();
-    }
-  }, [profile?.role]);
-
-  const fetchPolicies = async () => {
+  const fetchPolicies = useCallback(async () => {
     const supabase = createClient();
-    
-    // 1. 단가표 로드
+
+    // 1. 단가표 로드 (DB에 없는 항목은 normalizePolicies로 fallback 추가)
     const { data: policyData } = await supabase.from('point_policies').select('*');
-    if (policyData) {
-      setPolicies(policyData.map(p => ({ ...p, original_cost: p.point_cost })));
-    }
+    setPolicies(normalizePolicies(policyData ?? []));
 
     // 2. 알림 설정 로드
     const { data: alertData } = await supabase.from('system_settings').select('*').in('setting_key', ['alert_threshold_low', 'alert_threshold_mid']);
@@ -109,9 +121,15 @@ export default function AdminPointsPage() {
       setAlertSettings({ low, mid });
       setOriginalAlert({ low, mid });
     }
-    
+
     setLoading(false);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (profile?.role?.toLowerCase() === 'admin') {
+      fetchPolicies(); // eslint-disable-line react-hooks/set-state-in-effect
+    }
+  }, [profile?.role, fetchPolicies]);
 
   const handleCostChange = (page_type: string, newCost: string) => {
     const numericValue = newCost.replace(/[^0-9]/g, ''); 
@@ -295,10 +313,16 @@ export default function AdminPointsPage() {
                             return (
                               <tr key={policy.page_type} className={`transition-colors ${isChanged ? 'bg-orange-50/30' : 'hover:bg-slate-50'}`}>
                                 <td className="px-6 py-2">
-                                  <div className="flex items-baseline gap-2">
+                                  <div className="flex items-baseline gap-2 flex-wrap">
                                     <span className="font-bold text-gray-800 text-[14px]">
                                       {displayName}
                                     </span>
+                                    {policy.page_type === 'SEARCH_STRUCTURE' && (
+                                      <span className="inline-flex items-center gap-1">
+                                        <span className="rounded-full bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 text-[10px] font-bold text-emerald-600 leading-tight">FREE</span>
+                                        <span className="rounded-full bg-blue-50 border border-blue-200 px-1.5 py-0.5 text-[10px] font-bold text-blue-500 leading-tight">beta</span>
+                                      </span>
+                                    )}
                                     <span className="text-slate-400 font-medium text-[12px]">
                                       {displayUrl}
                                     </span>
@@ -345,6 +369,7 @@ export default function AdminPointsPage() {
                     </div>
                   </div>
                 ))}
+
               </div>
             )}
 
