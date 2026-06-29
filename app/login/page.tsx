@@ -110,20 +110,25 @@ function LoginContent() {
             {/* ── 1. 소셜 간편 로그인 영역 (최상단) ── */}
             <div className="space-y-3">
               {/* 네이버 로그인 버튼 */}
-              <button
-                type="button"
-                onClick={() => {
-                  sessionStorage.setItem('loginRedirect', safeRedirect);
-                  window.location.href = '/api/auth/naver';
-                }}
-                className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold transition-all active:scale-95 cursor-pointer shadow-sm !text-white"
-                style={{ backgroundColor: '#03C75A' }}
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="white">
-                  <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z" />
-                </svg>
-                네이버로 계속하기
-              </button>
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    sessionStorage.setItem('loginRedirect', safeRedirect);
+                    window.location.href = '/api/auth/naver';
+                  }}
+                  className="w-full flex items-center justify-center gap-3 py-4 rounded-2xl font-bold transition-all active:scale-95 cursor-pointer shadow-sm !text-white"
+                  style={{ backgroundColor: '#03C75A' }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="white">
+                    <path d="M16.273 12.845L7.376 0H0v24h7.727V11.155L16.624 24H24V0h-7.727z" />
+                  </svg>
+                  네이버로 계속하기
+                </button>
+                <span className="absolute -top-3 -left-3 bg-red-500 text-yellow-300 text-[13px] font-black px-3 py-1 rounded-full leading-tight pointer-events-none select-none shadow-md">
+                  심사중
+                </span>
+              </div>
 
               {/* 구글 로그인 버튼 */}
               <button
