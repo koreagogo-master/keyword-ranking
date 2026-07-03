@@ -125,9 +125,6 @@ function LoginContent() {
                   </svg>
                   네이버로 계속하기
                 </button>
-                <span className="absolute -top-3 -left-3 bg-red-500 text-yellow-300 text-[13px] font-black px-3 py-1 rounded-full leading-tight pointer-events-none select-none shadow-md">
-                  심사중
-                </span>
               </div>
 
               {/* 구글 로그인 버튼 */}
