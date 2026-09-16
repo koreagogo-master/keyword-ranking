@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { createClient } from '@/app/utils/supabase/client';
 import { REQUIRED_COLUMN_LABELS } from './types';
 import type { ParseResponse, ParseSuccess, ReviewRow } from './types';
 
@@ -44,6 +45,12 @@ function formatFileSize(bytes: number): string {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
+
+/**
+ * 관리자 확인 진행 상태.
+ * 'checking'인 동안에는 어떤 판정도 내리지 않고 "권한 확인 중..."을 유지합니다.
+ */
+type AccessState = 'checking' | 'anonymous' | 'denied' | 'granted';
 
 /** 만료 시각을 한국어로 표시합니다. 값이 없거나 해석할 수 없으면 '-' */
 function formatDateTime(value?: string): string {
@@ -114,8 +121,15 @@ export default function ReviewMigrationPage() {
   // 관리자 확인 (클라이언트 가드는 UX용이며, 실제 차단은 각 API의 서버 가드가 담당합니다)
   const { user, profile, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
+  const supabase = useMemo(() => createClient(), []);
   const alertShown = useRef(false);
-  const isAdmin = Boolean(user) && profile?.role?.toLowerCase() === 'admin';
+
+  /**
+   * AuthContext는 프로필 조회가 실패해도 isLoading을 false로 내리기 때문에
+   * "로그인은 되어 있지만 profile은 아직 없음" 상태가 생길 수 있습니다.
+   * 이 상태를 권한 없음으로 오판하지 않도록, 그때만 role을 한 번 더 직접 조회합니다.
+   */
+  const [roleFallback, setRoleFallback] = useState<{ userId: string; role: string | null } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -138,15 +152,54 @@ export default function ReviewMigrationPage() {
 
   const currentStep = result ? 2 : 1;
 
+  // 계정이 바뀌는 순간 이전 사용자의 profile이 잠시 남아 있을 수 있으므로,
+  // 반드시 현재 로그인 사용자의 profile인지 id까지 확인합니다.
+  const hasProfile = Boolean(user && profile && profile.id === user.id);
+  // 다른 계정으로 바뀌면 이전 조회 결과는 버립니다.
+  const fallbackForCurrentUser = user && roleFallback?.userId === user.id ? roleFallback : null;
+  const role: string | null = hasProfile
+    ? typeof profile.role === 'string'
+      ? profile.role
+      : null
+    : (fallbackForCurrentUser?.role ?? null);
+
+  const accessState: AccessState = isAuthLoading
+    ? 'checking'
+    : !user
+      ? 'anonymous'
+      : // 로그인은 됐는데 role을 아직 확정하지 못한 중간 상태
+        !hasProfile && !fallbackForCurrentUser
+        ? 'checking'
+        : role?.toLowerCase() === 'admin'
+          ? 'granted'
+          : 'denied';
+
+  // profile이 비어 있을 때만 role을 직접 확인합니다. (실패해도 반드시 끝나도록 결과를 저장)
   useEffect(() => {
-    if (isAuthLoading) return;
-    if (isAdmin) return;
+    if (isAuthLoading || !user || hasProfile || fallbackForCurrentUser) return;
+
+    let cancelled = false;
+
+    (async () => {
+      const { data } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
+      if (cancelled) return;
+      setRoleFallback({ userId: user.id, role: typeof data?.role === 'string' ? data.role : null });
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthLoading, user, hasProfile, fallbackForCurrentUser, supabase]);
+
+  // 확인이 완전히 끝난 뒤에만 이동시킵니다.
+  useEffect(() => {
+    if (accessState === 'checking' || accessState === 'granted') return;
     if (alertShown.current) return;
 
     alertShown.current = true;
-    alert('접근 권한이 없습니다.');
+    alert(accessState === 'anonymous' ? '로그인이 필요합니다.' : '접근 권한이 없습니다.');
     router.replace('/');
-  }, [isAuthLoading, isAdmin, router]);
+  }, [accessState, router]);
 
   const loadCafe24Status = useCallback(async () => {
     setIsStatusLoading(true);
@@ -173,7 +226,7 @@ export default function ReviewMigrationPage() {
 
   // OAuth 콜백이 붙여 준 결과(?cafe24=...)를 안내로 바꾸고 주소에서 지웁니다.
   useEffect(() => {
-    if (!isAdmin) return;
+    if (accessState !== 'granted') return;
 
     const params = new URLSearchParams(window.location.search);
     const outcome = params.get('cafe24');
@@ -190,7 +243,7 @@ export default function ReviewMigrationPage() {
     }
 
     void loadCafe24Status();
-  }, [isAdmin, loadCafe24Status]);
+  }, [accessState, loadCafe24Status]);
 
   const handleConnect = () => {
     // state 쿠키를 서버에서 심어야 하므로 authorize 라우트로 직접 이동합니다.
@@ -305,7 +358,8 @@ export default function ReviewMigrationPage() {
     setExpandedRows((prev) => ({ ...prev, [excelRow]: !prev[excelRow] }));
   };
 
-  if (isAuthLoading) {
+  // 관리자 확인이 끝나기 전에는 화면을 판정하지 않고 대기 화면을 유지합니다.
+  if (accessState === 'checking') {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">
         권한 확인 중...
@@ -313,7 +367,7 @@ export default function ReviewMigrationPage() {
     );
   }
 
-  if (!isAdmin) {
+  if (accessState !== 'granted') {
     return null;
   }
 
