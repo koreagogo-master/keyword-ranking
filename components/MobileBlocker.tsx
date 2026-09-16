@@ -1,13 +1,29 @@
 // components/MobileBlocker.tsx
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
+// 모바일에서도 그대로 사용해야 하는 경로입니다. 여기에 없는 경로의 동작은 기존과 같습니다.
+const MOBILE_ALLOWED_PREFIXES = ['/review-migration'];
+
 export default function MobileBlocker() {
+  const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
+  const isMobileAllowed = MOBILE_ALLOWED_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname?.startsWith(`${prefix}/`)
+  );
+
   useEffect(() => {
+    if (isMobileAllowed) {
+      // 예외 경로에서는 화면을 가리지 않고 스크롤도 막지 않습니다.
+      document.body.style.overflow = 'unset';
+      document.body.style.overscrollBehavior = 'auto';
+      return;
+    }
+
     // 화면 가로 길이가 768px (일반적인 태블릿/모바일 크기) 이하인지 체크
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
@@ -25,7 +41,7 @@ export default function MobileBlocker() {
     window.addEventListener('resize', checkMobile); // 화면 크기 조절 시 실시간 체크
 
     return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  }, [isMobileAllowed]);
 
   const handleCopyLink = async () => {
     try {
@@ -37,7 +53,7 @@ export default function MobileBlocker() {
     }
   };
 
-  if (isMobile) {
+  if (isMobile && !isMobileAllowed) {
     return (
       <div className="fixed inset-0 z-[999999] bg-[#0f172a] flex flex-col items-center justify-start p-6 text-center w-full overflow-x-hidden h-[100dvh] overflow-hidden overscroll-none">
 
