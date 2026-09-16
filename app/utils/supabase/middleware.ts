@@ -17,21 +17,19 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            // 요청(Request)에 쿠키 심기
+          // 요청(Request)에 모든 쿠키 심기
+          cookiesToSet.forEach(({ name, value }) => {
             request.cookies.set(name, value)
-            
-            // 응답(Response) 업데이트
-            supabaseResponse = NextResponse.next({
-              request,
-            })
-            
-            // 응답(Response)에 쿠키 심기 (⚠️ 여기가 핵심!)
-            supabaseResponse.cookies.set(name, value, {
-              ...options,
-              sameSite: 'lax',
-              secure: process.env.NODE_ENV === 'production',
-            })
+          })
+
+          // 갱신된 요청으로 응답 객체를 한 번만 재생성
+          supabaseResponse = NextResponse.next({
+            request,
+          })
+
+          // 응답(Response)에 모든 쿠키 누적
+          cookiesToSet.forEach(({ name, value, options }) => {
+            supabaseResponse.cookies.set(name, value, options)
           })
         },
       },

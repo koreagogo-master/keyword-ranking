@@ -37,7 +37,6 @@ export async function GET(request: Request) {
                   sameSite: 'lax',
                   // 라이브(HTTPS) 환경에서는 secure: true, 로컬(HTTP)에서는 false
                   secure: process.env.NODE_ENV === 'production',
-                  httpOnly: true,
                 })
               })
             } catch (error) {
