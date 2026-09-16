@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import * as XLSX from 'xlsx';
+import { adminGuardResponse, requireAdmin } from '@/app/lib/requireAdmin';
 import type {
   ParseResponse,
   ReviewRow,
@@ -193,6 +194,12 @@ function fail(error: string, status: number, missingColumns?: string[]) {
 }
 
 export async function POST(request: Request) {
+  // 엑셀 파싱은 관리자 전용 기능입니다. (아래 파싱 동작 자체는 그대로입니다)
+  const admin = await requireAdmin();
+  if (!admin.ok) {
+    return adminGuardResponse(admin);
+  }
+
   let formData: FormData;
   try {
     formData = await request.formData();

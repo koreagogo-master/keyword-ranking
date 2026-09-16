@@ -1,6 +1,8 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/app/contexts/AuthContext';
 import { REQUIRED_COLUMN_LABELS } from './types';
 import type { ParseResponse, ParseSuccess, ReviewRow } from './types';
 
@@ -15,10 +17,40 @@ const STEPS = [
   { no: 4, title: '카페24 등록', ready: false },
 ];
 
+/** 카페24 연결 상태 API(/api/review-migration/cafe24/status) 응답 */
+interface Cafe24Status {
+  connected: boolean;
+  mallId?: string;
+  shopNo?: number;
+  scopes?: string[];
+  accessTokenExpiresAt?: string;
+  refreshTokenExpiresAt?: string;
+}
+
+/** 콜백이 붙여 주는 짧은 오류 코드를 사용자용 한국어 문장으로 바꿉니다. */
+const CAFE24_ERROR_MESSAGES: Record<string, string> = {
+  forbidden: '관리자만 카페24를 연결할 수 있습니다. 다시 로그인한 뒤 시도해 주세요.',
+  config: '카페24 연동 설정이 올바르지 않습니다. 관리자에게 문의해 주세요.',
+  state: '연결 요청이 만료되었거나 올바르지 않습니다. 처음부터 다시 연결해 주세요.',
+  code: '카페24에서 인증 정보를 받지 못했습니다. 다시 연결해 주세요.',
+  denied: '카페24 화면에서 연결이 취소되었습니다.',
+  token: '카페24 토큰 발급에 실패했습니다. 잠시 후 다시 시도해 주세요.',
+  shop_no: '카페24 상점 정보를 확인하지 못했습니다. 다시 연결해 주세요.',
+  save: '연결 정보를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
+};
+
 function formatFileSize(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+/** 만료 시각을 한국어로 표시합니다. 값이 없거나 해석할 수 없으면 '-' */
+function formatDateTime(value?: string): string {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleString('ko-KR', { dateStyle: 'medium', timeStyle: 'short' });
 }
 
 /** 표 안에서는 줄바꿈을 공백으로 바꿔 한 줄로 보여줍니다. */
@@ -79,6 +111,12 @@ function SummaryCard({
 }
 
 export default function ReviewMigrationPage() {
+  // 관리자 확인 (클라이언트 가드는 UX용이며, 실제 차단은 각 API의 서버 가드가 담당합니다)
+  const { user, profile, isLoading: isAuthLoading } = useAuth();
+  const router = useRouter();
+  const alertShown = useRef(false);
+  const isAdmin = Boolean(user) && profile?.role?.toLowerCase() === 'admin';
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [file, setFile] = useState<File | null>(null);
@@ -91,7 +129,103 @@ export default function ReviewMigrationPage() {
   const [page, setPage] = useState(1);
   const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
 
+  // 카페24 연결 상태
+  const [cafe24Status, setCafe24Status] = useState<Cafe24Status | null>(null);
+  const [isStatusLoading, setIsStatusLoading] = useState(true);
+  const [cafe24Error, setCafe24Error] = useState('');
+  const [cafe24Notice, setCafe24Notice] = useState('');
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
+
   const currentStep = result ? 2 : 1;
+
+  useEffect(() => {
+    if (isAuthLoading) return;
+    if (isAdmin) return;
+    if (alertShown.current) return;
+
+    alertShown.current = true;
+    alert('접근 권한이 없습니다.');
+    router.replace('/');
+  }, [isAuthLoading, isAdmin, router]);
+
+  const loadCafe24Status = useCallback(async () => {
+    setIsStatusLoading(true);
+    setCafe24Error('');
+
+    try {
+      const res = await fetch('/api/review-migration/cafe24/status', { cache: 'no-store' });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setCafe24Status(null);
+        setCafe24Error(typeof data?.error === 'string' ? data.error : '연결 상태를 불러오지 못했습니다.');
+        return;
+      }
+
+      setCafe24Status(data as Cafe24Status);
+    } catch {
+      setCafe24Status(null);
+      setCafe24Error('연결 상태를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setIsStatusLoading(false);
+    }
+  }, []);
+
+  // OAuth 콜백이 붙여 준 결과(?cafe24=...)를 안내로 바꾸고 주소에서 지웁니다.
+  useEffect(() => {
+    if (!isAdmin) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const outcome = params.get('cafe24');
+
+    if (outcome === 'connected') {
+      setCafe24Notice('카페24 연결이 완료되었습니다.');
+    } else if (outcome === 'error') {
+      const code = params.get('code') ?? '';
+      setCafe24Error(CAFE24_ERROR_MESSAGES[code] ?? '카페24 연결에 실패했습니다. 다시 시도해 주세요.');
+    }
+
+    if (outcome) {
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+
+    void loadCafe24Status();
+  }, [isAdmin, loadCafe24Status]);
+
+  const handleConnect = () => {
+    // state 쿠키를 서버에서 심어야 하므로 authorize 라우트로 직접 이동합니다.
+    window.location.href = '/api/review-migration/cafe24/authorize';
+  };
+
+  const handleDisconnect = async () => {
+    if (isDisconnecting) return;
+    if (!window.confirm('카페24 연결을 해제할까요?')) return;
+
+    setIsDisconnecting(true);
+    setCafe24Error('');
+    setCafe24Notice('');
+
+    try {
+      const res = await fetch('/api/review-migration/cafe24/disconnect', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setCafe24Error(typeof data?.error === 'string' ? data.error : '연결 해제에 실패했습니다.');
+        return;
+      }
+
+      setCafe24Notice('카페24 연결을 해제했습니다.');
+      setCafe24Status({ connected: false, mallId: cafe24Status?.mallId });
+    } catch {
+      setCafe24Error('연결 해제 요청을 보내지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    } finally {
+      setIsDisconnecting(false);
+      void loadCafe24Status();
+    }
+  };
 
   const resetResult = () => {
     setResult(null);
@@ -171,6 +305,18 @@ export default function ReviewMigrationPage() {
     setExpandedRows((prev) => ({ ...prev, [excelRow]: !prev[excelRow] }));
   };
 
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">
+        권한 확인 중...
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return null;
+  }
+
   return (
     <>
     <link
@@ -243,6 +389,105 @@ export default function ReviewMigrationPage() {
               );
             })}
           </ol>
+
+          {/* 카페24 연결 */}
+          <section className="bg-white p-5 sm:p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
+            <h2 className="text-[15px] font-bold text-gray-900 mb-1">카페24 연결</h2>
+            <p className="text-[13px] text-gray-500 mb-4 leading-relaxed">
+              리뷰를 등록하려면 먼저 카페24 쇼핑몰과 연결해야 합니다. 연결 정보는 서버에 암호화해서 보관합니다.
+            </p>
+
+            {cafe24Notice && (
+              <div className="mb-4 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
+                <p className="text-[13px] font-bold text-emerald-700 leading-relaxed">{cafe24Notice}</p>
+              </div>
+            )}
+
+            {cafe24Error && (
+              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                <p className="text-[13px] font-bold text-red-600 leading-relaxed">{cafe24Error}</p>
+              </div>
+            )}
+
+            {isStatusLoading ? (
+              <p className="text-[13px] font-bold text-gray-400">연결 상태를 확인하는 중...</p>
+            ) : cafe24Status?.connected ? (
+              <>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <p className="text-[12px] font-bold text-gray-500 mb-1">쇼핑몰 ID</p>
+                    <p className="text-[14px] font-bold text-gray-800 break-all">{cafe24Status.mallId}</p>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <p className="text-[12px] font-bold text-gray-500 mb-1">연결 상태</p>
+                    <p className="text-[14px] font-bold text-emerald-600">
+                      연결됨 (상점 {cafe24Status.shopNo ?? 1}번)
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <p className="text-[12px] font-bold text-gray-500 mb-1">접속 권한 만료 예정</p>
+                    <p className="text-[14px] font-bold text-gray-800">
+                      {formatDateTime(cafe24Status.accessTokenExpiresAt)}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                    <p className="text-[12px] font-bold text-gray-500 mb-1">재연결 없이 사용 가능</p>
+                    <p className="text-[14px] font-bold text-gray-800">
+                      {formatDateTime(cafe24Status.refreshTokenExpiresAt)}까지
+                    </p>
+                  </div>
+                </div>
+
+                {(cafe24Status.scopes?.length ?? 0) > 0 && (
+                  <details className="mt-3 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+                    <summary className="text-[13px] font-bold text-gray-600 cursor-pointer">
+                      허용된 권한 보기
+                    </summary>
+                    <ul className="mt-2 flex flex-wrap gap-1.5">
+                      {cafe24Status.scopes?.map((scope) => (
+                        <li
+                          key={scope}
+                          className="px-2 py-0.5 bg-white border border-gray-200 rounded text-[12px] text-gray-600 break-all"
+                        >
+                          {scope}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-4">
+                  <button
+                    type="button"
+                    onClick={handleDisconnect}
+                    disabled={isDisconnecting}
+                    className="w-full sm:w-auto px-5 h-[46px] !bg-white hover:!bg-gray-100 border-2 border-gray-400 !text-gray-800 font-bold text-sm rounded-md transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {isDisconnecting && (
+                      <span className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
+                    )}
+                    {isDisconnecting ? '해제하는 중...' : '연결 해제'}
+                  </button>
+                  <p className="text-[12px] text-gray-400 leading-relaxed">
+                    연결을 해제하면 카페24에 저장된 접근 권한도 함께 폐기됩니다.
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                <button
+                  type="button"
+                  onClick={handleConnect}
+                  className="w-full sm:w-auto px-6 h-[46px] bg-[#5244e8] hover:bg-blue-700 !text-white font-bold text-sm rounded-md transition-colors shadow-sm"
+                >
+                  카페24 연결하기
+                </button>
+                <p className="text-[12px] text-gray-400 leading-relaxed">
+                  카페24 로그인 화면으로 이동한 뒤, 앱 권한에 동의하면 연결이 끝납니다.
+                </p>
+              </div>
+            )}
+          </section>
 
           {/* 1단계: 엑셀 선택 */}
           <section className="bg-white p-5 sm:p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
