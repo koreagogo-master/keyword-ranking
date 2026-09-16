@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { createClient } from '@/app/utils/supabase/client';
 import { REQUIRED_COLUMN_LABELS } from './types';
 import type { ParseResponse, ParseSuccess, ReviewRow } from './types';
 
@@ -47,10 +45,16 @@ function formatFileSize(bytes: number): string {
 }
 
 /**
- * 관리자 확인 진행 상태.
- * 'checking'인 동안에는 어떤 판정도 내리지 않고 "권한 확인 중..."을 유지합니다.
+ * 화면 접근 권한 상태.
+ *
+ * 판정 기준은 이미 requireAdmin() 가드가 걸려 있는 status API의 HTTP 상태 하나뿐입니다.
+ * 클라이언트에서 세션·role을 따로 추측하지 않습니다.
+ *  - 'checking' : status 요청 중 (이 동안에는 어떤 판정도 내리지 않습니다)
+ *  - 'granted'  : 200. 서버가 관리자로 확인해 준 상태
+ *  - 'denied'   : 401 또는 403
+ *  - 'error'    : 네트워크 오류 또는 5xx. 권한 없음으로 처리하지 않고 재시도를 안내합니다.
  */
-type AccessState = 'checking' | 'anonymous' | 'denied' | 'granted';
+type AccessState = 'checking' | 'granted' | 'denied' | 'error';
 
 /** 만료 시각을 한국어로 표시합니다. 값이 없거나 해석할 수 없으면 '-' */
 function formatDateTime(value?: string): string {
@@ -118,18 +122,8 @@ function SummaryCard({
 }
 
 export default function ReviewMigrationPage() {
-  // 관리자 확인 (클라이언트 가드는 UX용이며, 실제 차단은 각 API의 서버 가드가 담당합니다)
-  const { user, profile, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
-  const supabase = useMemo(() => createClient(), []);
   const alertShown = useRef(false);
-
-  /**
-   * AuthContext는 프로필 조회가 실패해도 isLoading을 false로 내리기 때문에
-   * "로그인은 되어 있지만 profile은 아직 없음" 상태가 생길 수 있습니다.
-   * 이 상태를 권한 없음으로 오판하지 않도록, 그때만 role을 한 번 더 직접 조회합니다.
-   */
-  const [roleFallback, setRoleFallback] = useState<{ userId: string; role: string | null } | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -143,91 +137,58 @@ export default function ReviewMigrationPage() {
   const [page, setPage] = useState(1);
   const [expandedRows, setExpandedRows] = useState<Record<number, boolean>>({});
 
-  // 카페24 연결 상태
+  // 접근 권한 + 카페24 연결 상태 (둘 다 status API 응답 하나로 결정됩니다)
+  const [accessState, setAccessState] = useState<AccessState>('checking');
+  const [deniedStatus, setDeniedStatus] = useState<401 | 403 | null>(null);
   const [cafe24Status, setCafe24Status] = useState<Cafe24Status | null>(null);
   const [isStatusLoading, setIsStatusLoading] = useState(true);
+  const [statusError, setStatusError] = useState('');
   const [cafe24Error, setCafe24Error] = useState('');
   const [cafe24Notice, setCafe24Notice] = useState('');
   const [isDisconnecting, setIsDisconnecting] = useState(false);
 
   const currentStep = result ? 2 : 1;
 
-  // 계정이 바뀌는 순간 이전 사용자의 profile이 잠시 남아 있을 수 있으므로,
-  // 반드시 현재 로그인 사용자의 profile인지 id까지 확인합니다.
-  const hasProfile = Boolean(user && profile && profile.id === user.id);
-  // 다른 계정으로 바뀌면 이전 조회 결과는 버립니다.
-  const fallbackForCurrentUser = user && roleFallback?.userId === user.id ? roleFallback : null;
-  const role: string | null = hasProfile
-    ? typeof profile.role === 'string'
-      ? profile.role
-      : null
-    : (fallbackForCurrentUser?.role ?? null);
-
-  const accessState: AccessState = isAuthLoading
-    ? 'checking'
-    : !user
-      ? 'anonymous'
-      : // 로그인은 됐는데 role을 아직 확정하지 못한 중간 상태
-        !hasProfile && !fallbackForCurrentUser
-        ? 'checking'
-        : role?.toLowerCase() === 'admin'
-          ? 'granted'
-          : 'denied';
-
-  // profile이 비어 있을 때만 role을 직접 확인합니다. (실패해도 반드시 끝나도록 결과를 저장)
-  useEffect(() => {
-    if (isAuthLoading || !user || hasProfile || fallbackForCurrentUser) return;
-
-    let cancelled = false;
-
-    (async () => {
-      const { data } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
-      if (cancelled) return;
-      setRoleFallback({ userId: user.id, role: typeof data?.role === 'string' ? data.role : null });
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [isAuthLoading, user, hasProfile, fallbackForCurrentUser, supabase]);
-
-  // 확인이 완전히 끝난 뒤에만 이동시킵니다.
-  useEffect(() => {
-    if (accessState === 'checking' || accessState === 'granted') return;
-    if (alertShown.current) return;
-
-    alertShown.current = true;
-    alert(accessState === 'anonymous' ? '로그인이 필요합니다.' : '접근 권한이 없습니다.');
-    router.replace('/');
-  }, [accessState, router]);
-
+  /**
+   * status API 한 번으로 접근 권한과 연결 상태를 동시에 처리합니다.
+   * 최초 로드, `?cafe24=connected` 복귀, 연결 해제 후 갱신, 다시 시도 모두 이 함수를 재사용합니다.
+   */
   const loadCafe24Status = useCallback(async () => {
     setIsStatusLoading(true);
-    setCafe24Error('');
+    setStatusError('');
 
     try {
       const res = await fetch('/api/review-migration/cafe24/status', { cache: 'no-store' });
-      const data = await res.json();
 
-      if (!res.ok) {
-        setCafe24Status(null);
-        setCafe24Error(typeof data?.error === 'string' ? data.error : '연결 상태를 불러오지 못했습니다.');
+      // 서버 가드가 명확히 거부한 경우에만 접근을 차단합니다.
+      if (res.status === 401 || res.status === 403) {
+        setDeniedStatus(res.status);
+        setAccessState('denied');
         return;
       }
 
-      setCafe24Status(data as Cafe24Status);
+      if (!res.ok) {
+        // 5xx 등 서버 오류는 로그아웃·권한 없음으로 처리하지 않습니다.
+        setAccessState((prev) => (prev === 'granted' ? prev : 'error'));
+        setStatusError('권한 확인 중 오류가 발생했습니다. 다시 시도해 주세요.');
+        return;
+      }
+
+      // 200이면 서버 requireAdmin()을 통과한 관리자입니다.
+      const data = (await res.json()) as Cafe24Status;
+      setCafe24Status(data);
+      setAccessState('granted');
     } catch {
-      setCafe24Status(null);
-      setCafe24Error('연결 상태를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+      // 네트워크 오류도 권한 없음으로 처리하지 않습니다.
+      setAccessState((prev) => (prev === 'granted' ? prev : 'error'));
+      setStatusError('권한 확인 중 오류가 발생했습니다. 다시 시도해 주세요.');
     } finally {
       setIsStatusLoading(false);
     }
   }, []);
 
-  // OAuth 콜백이 붙여 준 결과(?cafe24=...)를 안내로 바꾸고 주소에서 지웁니다.
+  // 최초 로드: OAuth 콜백 결과(?cafe24=...)를 안내로 바꾸고 주소에서 지운 뒤 status를 한 번만 호출합니다.
   useEffect(() => {
-    if (accessState !== 'granted') return;
-
     const params = new URLSearchParams(window.location.search);
     const outcome = params.get('cafe24');
 
@@ -243,7 +204,17 @@ export default function ReviewMigrationPage() {
     }
 
     void loadCafe24Status();
-  }, [accessState, loadCafe24Status]);
+  }, [loadCafe24Status]);
+
+  // 이동은 status API가 401/403을 돌려준 뒤에만 실행됩니다. (200 이전에는 실행될 수 없습니다)
+  useEffect(() => {
+    if (accessState !== 'denied') return;
+    if (alertShown.current) return;
+
+    alertShown.current = true;
+    alert(deniedStatus === 401 ? '로그인이 필요합니다.' : '접근 권한이 없습니다.');
+    router.replace('/');
+  }, [accessState, deniedStatus, router]);
 
   const handleConnect = () => {
     // state 쿠키를 서버에서 심어야 하므로 authorize 라우트로 직접 이동합니다.
@@ -358,7 +329,7 @@ export default function ReviewMigrationPage() {
     setExpandedRows((prev) => ({ ...prev, [excelRow]: !prev[excelRow] }));
   };
 
-  // 관리자 확인이 끝나기 전에는 화면을 판정하지 않고 대기 화면을 유지합니다.
+  // status 응답이 오기 전에는 어떤 판정도 내리지 않고 대기 화면을 유지합니다.
   if (accessState === 'checking') {
     return (
       <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center font-bold text-slate-500">
@@ -367,6 +338,30 @@ export default function ReviewMigrationPage() {
     );
   }
 
+  // 네트워크 오류·5xx: 메인으로 보내지 않고 재시도를 안내합니다.
+  if (accessState === 'error') {
+    return (
+      <div className="min-h-screen bg-[#f8f9fa] flex items-center justify-center p-4">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sm:p-8 text-center max-w-md w-full">
+          <p className="text-sm font-bold text-gray-800 leading-relaxed">
+            {statusError || '권한 확인 중 오류가 발생했습니다. 다시 시도해 주세요.'}
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setAccessState('checking');
+              void loadCafe24Status();
+            }}
+            className="mt-5 px-6 h-[46px] bg-[#5244e8] hover:bg-blue-700 !text-white font-bold text-sm rounded-md transition-colors shadow-sm"
+          >
+            다시 시도
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // 401/403: 위 useEffect가 안내 후 메인으로 이동시키는 동안 아무것도 그리지 않습니다.
   if (accessState !== 'granted') {
     return null;
   }
@@ -460,6 +455,20 @@ export default function ReviewMigrationPage() {
             {cafe24Error && (
               <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
                 <p className="text-[13px] font-bold text-red-600 leading-relaxed">{cafe24Error}</p>
+              </div>
+            )}
+
+            {/* 화면을 이미 보고 있는 상태에서 상태 갱신만 실패한 경우 */}
+            {statusError && (
+              <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                <p className="text-[13px] font-bold text-amber-700 leading-relaxed flex-1">{statusError}</p>
+                <button
+                  type="button"
+                  onClick={() => void loadCafe24Status()}
+                  className="shrink-0 px-4 py-2 !bg-white hover:!bg-gray-100 border-2 border-gray-400 !text-gray-800 font-bold text-[13px] rounded-md transition-colors shadow-sm"
+                >
+                  다시 시도
+                </button>
               </div>
             )}
 
