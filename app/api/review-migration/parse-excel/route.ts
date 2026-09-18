@@ -12,7 +12,7 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
-const PREVIEW_LIMIT = 2000; // 화면으로 내려보내는 최대 행 수
+const MAX_REVIEW_ROWS = 500; // 한 파일에서 처리할 수 있는 실제 데이터 행 수
 const MAX_CONTENT_LENGTH = 3000; // 리뷰 본문 1건당 최대 보관 길이
 const HEADER_SCAN_ROWS = 20; // 헤더 행을 찾기 위해 살펴볼 상단 행 수
 
@@ -193,6 +193,18 @@ function fail(error: string, status: number, missingColumns?: string[]) {
   return NextResponse.json(body, { status });
 }
 
+/** 행 수 제한 초과는 화면에서 안내 문구를 만들 수 있도록 코드와 숫자를 함께 돌려줍니다. */
+function failRowLimit(rowCount: number) {
+  const body: ParseResponse = {
+    ok: false,
+    error: `한 파일에서 처리할 수 있는 리뷰는 최대 ${MAX_REVIEW_ROWS.toLocaleString()}건입니다. (현재 ${rowCount.toLocaleString()}건) 기간을 나누어 업로드해 주세요.`,
+    code: 'row_limit_exceeded',
+    rowCount,
+    maxRowCount: MAX_REVIEW_ROWS,
+  };
+  return NextResponse.json(body, { status: 413 });
+}
+
 export async function POST(request: Request) {
   // 엑셀 파싱은 관리자 전용 기능입니다. (아래 파싱 동작 자체는 그대로입니다)
   const admin = await requireAdmin();
@@ -287,13 +299,38 @@ export async function POST(request: Request) {
     return idx === -1 ? '' : cleanText(row[idx]);
   };
 
-  // 1차 순회: 리뷰글번호 중복 여부를 먼저 집계합니다.
+  /**
+   * 값이 하나도 없는 행은 데이터로 세지 않습니다.
+   * (엑셀 실제 행 번호를 유지하려고 빈 행을 남겨 둔 상태이기 때문입니다)
+   */
+  const isDataRow = (row: unknown[]): boolean =>
+    Boolean(
+      cellOf(row, 'reviewNo') ||
+        cellOf(row, 'productNo') ||
+        cellOf(row, 'productName') ||
+        cellOf(row, 'reviewType') ||
+        cellOf(row, 'rating') ||
+        cellOf(row, 'content') ||
+        cellOf(row, 'orderNo')
+    );
+
+  // 1차 순회: 실제 데이터 행 수와 리뷰글번호 중복 여부를 먼저 집계합니다.
   const reviewNoCount = new Map<string, number>();
+  let dataRowCount = 0;
+
   for (const row of dataRows) {
-    const reviewNo = cellOf(row, 'reviewNo');
+    if (!isDataRow(row ?? [])) continue;
+    dataRowCount += 1;
+
+    const reviewNo = cellOf(row ?? [], 'reviewNo');
     if (reviewNo) {
       reviewNoCount.set(reviewNo, (reviewNoCount.get(reviewNo) ?? 0) + 1);
     }
+  }
+
+  // 행 수 제한은 서버에서 반드시 검사하고, 넘으면 파싱 결과를 내려보내지 않습니다.
+  if (dataRowCount > MAX_REVIEW_ROWS) {
+    return failRowLimit(dataRowCount);
   }
 
   const productNoSet = new Set<string>();
@@ -322,9 +359,8 @@ export async function POST(request: Request) {
     const writtenAt = cellOf(row, 'writtenAt');
     const orderNo = cellOf(row, 'orderNo');
 
-    const isEmptyRow =
-      !reviewNo && !productNo && !productName && !reviewType && !rating && !rawContent && !orderNo;
-    if (isEmptyRow) continue;
+    // 1차 순회와 같은 기준으로 빈 행을 건너뜁니다.
+    if (!isDataRow(row)) continue;
 
     summary.totalCount += 1;
     if (productNo) productNoSet.add(productNo);
@@ -366,27 +402,26 @@ export async function POST(request: Request) {
     const status: ReviewRowStatus = hasError ? 'error' : isDuplicate ? 'duplicate' : 'ok';
     if (hasError) summary.invalidCount += 1;
 
-    if (rows.length < PREVIEW_LIMIT) {
-      const contentTruncated = rawContent.length > MAX_CONTENT_LENGTH;
-      rows.push({
-        excelRow: headerIndex + 2 + i,
-        reviewNo,
-        productNo,
-        productName,
-        reviewType,
-        rating,
-        ratingValue,
-        writer,
-        writtenAt,
-        content: contentTruncated ? rawContent.slice(0, MAX_CONTENT_LENGTH) : rawContent,
-        contentTruncated,
-        imageRaw,
-        hasImage,
-        orderNo,
-        status,
-        issues,
-      });
-    }
+    // 500건 제한을 서버에서 이미 확인했으므로 모든 행을 그대로 내려보냅니다.
+    const contentTruncated = rawContent.length > MAX_CONTENT_LENGTH;
+    rows.push({
+      excelRow: headerIndex + 2 + i,
+      reviewNo,
+      productNo,
+      productName,
+      reviewType,
+      rating,
+      ratingValue,
+      writer,
+      writtenAt,
+      content: contentTruncated ? rawContent.slice(0, MAX_CONTENT_LENGTH) : rawContent,
+      contentTruncated,
+      imageRaw,
+      hasImage,
+      orderNo,
+      status,
+      issues,
+    });
   }
 
   if (summary.totalCount === 0) {
@@ -402,7 +437,7 @@ export async function POST(request: Request) {
     summary,
     rows,
     totalRowCount: summary.totalCount,
-    truncated: summary.totalCount > rows.length,
+    maxRowCount: MAX_REVIEW_ROWS,
   };
 
   return NextResponse.json(body);

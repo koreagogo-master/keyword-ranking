@@ -37,8 +37,58 @@ export const CAFE24_STATE_MAX_AGE_SECONDS = 600;
 export const ACCESS_TOKEN_TTL_MS = 2 * 60 * 60 * 1000;
 export const REFRESH_TOKEN_TTL_MS = 14 * 24 * 60 * 60 * 1000;
 
+/** 만료 직전 호출이 실패하지 않도록 이 시간만큼 남으면 미리 갱신합니다. */
+export const ACCESS_TOKEN_REFRESH_MARGIN_MS = 5 * 60 * 1000;
+
+/** refresh token이 이만큼도 안 남았으면 갱신을 시도하지 않고 재연결을 안내합니다. */
+export const REFRESH_TOKEN_MIN_REMAINING_MS = 60 * 1000;
+
 /** 토큰 암호화 키 버전 (키 교체 시 증가) */
 export const CAFE24_KEY_VERSION = 1;
+
+/** Admin API 요청 타임아웃 */
+export const CAFE24_API_TIMEOUT_MS = 15_000;
+
+/**
+ * 카페24 Leaky Bucket은 1초에 2회씩 비워집니다.
+ * 초당 2회를 넘지 않도록 요청 사이 최소 간격을 둡니다.
+ */
+export const CAFE24_MIN_REQUEST_INTERVAL_MS = 500;
+
+/** 429를 만났을 때 대기할 수 있는 최대 시간과 재시도 횟수 */
+export const CAFE24_MAX_RETRY_AFTER_MS = 5_000;
+export const CAFE24_MAX_RATE_LIMIT_RETRIES = 2;
+
+/** 상품 목록 조회: limit 최대값은 공식 문서 기준 100입니다. */
+export const CAFE24_PRODUCTS_PAGE_LIMIT = 100;
+
+/** 무한 반복 방지용 최대 페이지 수 (100 * 300 = 30,000개) */
+export const CAFE24_PRODUCTS_MAX_PAGES = 300;
+
+/** 게시글 목록 조회: limit 최대값은 공식 문서 기준 100입니다. */
+export const CAFE24_ARTICLES_PAGE_LIMIT = 100;
+
+/**
+ * 게시글은 offset 방식으로만 훑습니다.
+ * 카페24 offset 상한과 같은 8,000건에서 멈추고 truncated로 알려 줍니다.
+ */
+export const CAFE24_ARTICLES_MAX_COUNT = 8_000;
+
+/** 카페24 기본 상품후기 게시판 번호 */
+export const CAFE24_DEFAULT_REVIEW_BOARD_NO = 4;
+
+/**
+ * 리뷰 게시판 번호는 CAFE24_REVIEW_BOARD_NO 환경변수를 씁니다.
+ * 값이 없거나 형식이 잘못됐으면 기본 상품후기 게시판(4)을 사용합니다.
+ * 이 값은 URL 경로에 들어가므로 정수만 통과시킵니다.
+ */
+export function resolveReviewBoardNo(): number {
+  const raw = process.env.CAFE24_REVIEW_BOARD_NO?.trim() ?? '';
+  if (!/^\d{1,5}$/.test(raw)) return CAFE24_DEFAULT_REVIEW_BOARD_NO;
+
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : CAFE24_DEFAULT_REVIEW_BOARD_NO;
+}
 
 export type Cafe24ConfigError =
   | 'config_missing'

@@ -16,6 +16,8 @@ export interface Cafe24TokenResult {
   scopes: string[];
   /** 문자열로 올 수 있으므로 원본 그대로 넘기고 호출부에서 정수 변환합니다 */
   rawShopNo: unknown;
+  /** 응답의 mall_id. 저장된 연결과 같은 몰인지 확인하는 용도입니다. */
+  rawMallId: unknown;
 }
 
 export type Cafe24OAuthFailure =
@@ -63,17 +65,14 @@ export function buildAuthorizeUrl(config: Cafe24Config, state: string): string {
   return `${config.apiBaseUrl}/api/v2/oauth/authorize?${params.toString()}`;
 }
 
-/** authorization code를 access/refresh token으로 교환합니다. */
-export async function exchangeCodeForToken(
+/**
+ * /api/v2/oauth/token 공통 호출.
+ * grant_type만 다르고 인증 방식·응답 형식은 동일합니다.
+ */
+async function requestToken(
   config: Cafe24Config,
-  code: string
+  body: URLSearchParams
 ): Promise<Cafe24TokenExchangeResult> {
-  const body = new URLSearchParams({
-    grant_type: 'authorization_code',
-    code,
-    redirect_uri: config.redirectUri,
-  });
-
   let response: Response;
   try {
     response = await fetch(`${config.apiBaseUrl}/api/v2/oauth/token`, {
@@ -120,8 +119,43 @@ export async function exchangeCodeForToken(
       refreshToken,
       scopes,
       rawShopNo: payload.shop_no,
+      rawMallId: payload.mall_id,
     },
   };
+}
+
+/** authorization code를 access/refresh token으로 교환합니다. */
+export async function exchangeCodeForToken(
+  config: Cafe24Config,
+  code: string
+): Promise<Cafe24TokenExchangeResult> {
+  return requestToken(
+    config,
+    new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: config.redirectUri,
+    })
+  );
+}
+
+/**
+ * refresh token으로 access token을 재발급합니다.
+ *
+ * 카페24는 재발급 시 refresh token도 함께 교체하고 기존 refresh token을 폐기하므로,
+ * 호출부는 반드시 새로 받은 두 토큰을 같이 저장해야 합니다.
+ */
+export async function refreshAccessToken(
+  config: Cafe24Config,
+  refreshToken: string
+): Promise<Cafe24TokenExchangeResult> {
+  return requestToken(
+    config,
+    new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+    })
+  );
 }
 
 export type Cafe24RevokeResult =

@@ -3,18 +3,46 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { REQUIRED_COLUMN_LABELS } from './types';
-import type { ParseResponse, ParseSuccess, ReviewRow } from './types';
+import type {
+  DuplicateCheckRequestReview,
+  NaverProductGroup,
+  ParseFailure,
+  ParseResponse,
+  ParseSuccess,
+  ProductMatchEntry,
+  RegisterReviewInput,
+  ReviewRow,
+} from './types';
+import Step3ProductMatch, { type ProductMatchSummary } from './components/Step3ProductMatch';
+import Step4DuplicateCheck, { type Step4Phase } from './components/Step4DuplicateCheck';
+import SmartstoreAddress from './components/SmartstoreAddress';
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
+/** 서버(parse-excel)와 같은 값. 안내 문구에만 사용하고 실제 검증은 서버가 합니다. */
+const MAX_REVIEW_ROWS = 500;
 const ROWS_PER_PAGE = 50;
 const CONTENT_PREVIEW_CHARS = 60;
 
 const STEPS = [
-  { no: 1, title: '엑셀 선택', ready: true },
-  { no: 2, title: '데이터 확인', ready: true },
-  { no: 3, title: '상품 매칭', ready: false },
-  { no: 4, title: '카페24 등록', ready: false },
+  { no: 1, title: '엑셀 선택' },
+  { no: 2, title: '데이터 확인' },
+  { no: 3, title: '상품 매칭' },
+  { no: 4, title: '카페24 등록' },
 ];
+
+/**
+ * 4단계 배지 문구. 실제 등록 기능이 붙었으므로 '준비 중' 대신 현재 진행 상태를 보여 줍니다.
+ * 상태는 4단계 컴포넌트가 onPhaseChange로 올려 줍니다.
+ */
+const STEP4_PHASE_BADGES: Record<Step4Phase, { label: string; toneClass: string }> = {
+  blocked: { label: '이전 단계 필요', toneClass: 'bg-gray-200 text-gray-500' },
+  before_check: { label: '중복 검사 전', toneClass: 'bg-amber-100 text-amber-700' },
+  needs_decision: { label: '판정 필요', toneClass: 'bg-amber-100 text-amber-700' },
+  ready_to_register: { label: '등록 준비', toneClass: 'bg-[#5244e8]/10 text-[#5244e8]' },
+  registering: { label: '등록 중', toneClass: 'bg-[#5244e8]/10 text-[#5244e8]' },
+  registered: { label: '등록 완료', toneClass: 'bg-emerald-100 text-emerald-700' },
+  partial: { label: '일부 완료/중단', toneClass: 'bg-red-100 text-red-600' },
+};
 
 /** 카페24 연결 상태 API(/api/review-migration/cafe24/status) 응답 */
 interface Cafe24Status {
@@ -62,6 +90,24 @@ function formatDateTime(value?: string): string {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '-';
   return date.toLocaleString('ko-KR', { dateStyle: 'medium', timeStyle: 'short' });
+}
+
+/**
+ * 행 수 제한 초과를 한국어 안내 문구로 바꿉니다.
+ * 서버가 code·rowCount·maxRowCount를 함께 내려주므로 실제 건수까지 알려 줄 수 있습니다.
+ * 해당 오류가 아니면 null을 돌려주고 서버 메시지를 그대로 씁니다.
+ */
+function rowLimitMessage(failure: ParseFailure): string | null {
+  if (failure.code !== 'row_limit_exceeded') return null;
+
+  const max = failure.maxRowCount ?? MAX_REVIEW_ROWS;
+  const actual = failure.rowCount;
+
+  return (
+    `한 파일에서 처리할 수 있는 리뷰는 최대 ${max.toLocaleString()}건입니다.` +
+    (typeof actual === 'number' ? ` (이 파일 ${actual.toLocaleString()}건)` : '') +
+    ' 기간을 나누어 여러 파일로 올려 주세요.'
+  );
 }
 
 /** 표 안에서는 줄바꿈을 공백으로 바꿔 한 줄로 보여줍니다. */
@@ -146,8 +192,179 @@ export default function ReviewMigrationPage() {
   const [cafe24Error, setCafe24Error] = useState('');
   const [cafe24Notice, setCafe24Notice] = useState('');
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [isScopeModalOpen, setIsScopeModalOpen] = useState(false);
 
-  const currentStep = result ? 2 : 1;
+  // 3단계에서 올려 주는 매칭 진행 상황
+  const [matchSummary, setMatchSummary] = useState<ProductMatchSummary | null>(null);
+  /** 3단계에서 확정·건너뛰기가 끝난 상품만 올라옵니다. (4단계 중복 검사 대상 계산용) */
+  const [matchEntries, setMatchEntries] = useState<ProductMatchEntry[]>([]);
+
+  /** 확정된 스마트스토어 기본 주소. 미확정이면 빈 문자열 (3단계 상품번호 링크에 사용) */
+  const [smartstoreUrl, setSmartstoreUrl] = useState('');
+
+  /** 4단계가 올려 주는 진행 상태. 상단 단계 배지 문구에만 사용합니다. */
+  const [step4Phase, setStep4Phase] = useState<Step4Phase>('blocked');
+
+  const isMatchCompleted = matchSummary?.completed ?? false;
+
+  // 데이터 확인이 끝나면 3단계를 활성화하고, 매칭까지 끝나면 3단계도 완료로 표시합니다.
+  const currentStep = !result ? 1 : isMatchCompleted ? 4 : 3;
+
+  /**
+   * 엑셀 행을 네이버 상품번호로 묶습니다.
+   * 대표 상품명은 같은 상품번호에서 가장 많이 나온 이름을 씁니다.
+   */
+  const naverProductGroups = useMemo<NaverProductGroup[]>(() => {
+    if (!result) return [];
+
+    const grouped = new Map<string, { reviewCount: number; nameCounts: Map<string, number> }>();
+
+    for (const row of result.rows) {
+      const productNo = row.productNo.trim();
+      if (!productNo) continue;
+
+      let entry = grouped.get(productNo);
+      if (!entry) {
+        entry = { reviewCount: 0, nameCounts: new Map() };
+        grouped.set(productNo, entry);
+      }
+
+      entry.reviewCount += 1;
+
+      const name = row.productName.trim();
+      if (name) {
+        entry.nameCounts.set(name, (entry.nameCounts.get(name) ?? 0) + 1);
+      }
+    }
+
+    return [...grouped.entries()]
+      .map(([naverProductNo, entry]) => {
+        let productName = '';
+        let topCount = 0;
+
+        // Map은 삽입 순서를 지키므로 같은 횟수면 먼저 나온 이름이 뽑힙니다.
+        for (const [name, count] of entry.nameCounts) {
+          if (count > topCount) {
+            topCount = count;
+            productName = name;
+          }
+        }
+
+        return { naverProductNo, productName, reviewCount: entry.reviewCount };
+      })
+      .sort(
+        (a, b) => b.reviewCount - a.reviewCount || a.naverProductNo.localeCompare(b.naverProductNo)
+      );
+  }, [result]);
+
+  const handleMatchSummaryChange = useCallback((summary: ProductMatchSummary) => {
+    setMatchSummary(summary);
+  }, []);
+
+  const handleMatchEntriesChange = useCallback((entries: ProductMatchEntry[]) => {
+    setMatchEntries(entries);
+  }, []);
+
+  const matchEntryByNaverProductNo = useMemo(
+    () => new Map(matchEntries.map((entry) => [entry.naverProductNo, entry])),
+    [matchEntries]
+  );
+
+  /**
+   * 4단계 중복 검사에 보낼 리뷰와, 보내지 않는 리뷰의 수를 계산합니다.
+   *
+   * - 확정된 상품의 리뷰만 보냅니다. 건너뛴 상품의 리뷰는 수량만 따로 보여 줍니다.
+   * - 리뷰글번호가 없거나 파일 안에서 중복인 행은 서버가 거절하므로 미리 빼 둡니다.
+   * - 이 값이 새로 계산되면 4단계가 이전 검사 결과를 지웁니다.
+   */
+  const duplicateCheckInput = useMemo(() => {
+    const targets: DuplicateCheckRequestReview[] = [];
+    /** 같은 리뷰에 게시글 제목·첨부용 값을 더한 목록. 실제 등록에만 씁니다. */
+    const registerTargets: RegisterReviewInput[] = [];
+    const seenReviewNo = new Set<string>();
+
+    let skippedReviewCount = 0;
+    let unresolvedReviewCount = 0;
+    let excludedReviewCount = 0;
+
+    for (const row of result?.rows ?? []) {
+      const entry = matchEntryByNaverProductNo.get(row.productNo.trim());
+
+      if (!entry) {
+        unresolvedReviewCount += 1;
+        continue;
+      }
+
+      if (entry.status === 'skipped' || entry.cafe24ProductNo === null) {
+        skippedReviewCount += 1;
+        continue;
+      }
+
+      const naverReviewId = row.reviewNo.trim();
+      if (!naverReviewId || seenReviewNo.has(naverReviewId)) {
+        excludedReviewCount += 1;
+        continue;
+      }
+      seenReviewNo.add(naverReviewId);
+
+      const target: DuplicateCheckRequestReview = {
+        naverReviewId,
+        cafe24ProductNo: entry.cafe24ProductNo,
+        content: row.content,
+        rating: row.ratingValue,
+        writer: row.writer,
+        registeredAt: row.writtenAt,
+      };
+
+      targets.push(target);
+      registerTargets.push({
+        ...target,
+        productName: row.productName,
+        imageRaw: row.imageRaw,
+      });
+    }
+
+    return {
+      targets,
+      registerTargets,
+      skippedReviewCount,
+      unresolvedReviewCount,
+      excludedReviewCount,
+    };
+  }, [result, matchEntryByNaverProductNo]);
+
+  /** 중복 검사를 막는 이유. 비어 있으면 실행할 수 있습니다. */
+  const duplicateCheckBlockReasons = useMemo(() => {
+    const reasons: string[] = [];
+
+    if (!result) {
+      reasons.push('먼저 1~2단계에서 엑셀 파일을 검사해 주세요.');
+    }
+
+    if (!cafe24Status?.connected) {
+      reasons.push('카페24 연결이 필요합니다. 위 카페24 연결 영역에서 먼저 연결해 주세요.');
+    }
+
+    if (result && !isMatchCompleted) {
+      reasons.push('3단계에서 모든 네이버 상품을 확정하거나 건너뛰기로 정해 주세요.');
+    }
+
+    if (result && isMatchCompleted && (matchSummary?.confirmed ?? 0) === 0) {
+      reasons.push('확정한 카페24 상품이 없습니다. 상품을 최소 한 개 확정해 주세요.');
+    }
+
+    if (reasons.length === 0 && duplicateCheckInput.targets.length === 0) {
+      reasons.push('검사할 수 있는 리뷰가 없습니다. 상품 매칭과 리뷰글번호를 확인해 주세요.');
+    }
+
+    if (duplicateCheckInput.targets.length > MAX_REVIEW_ROWS) {
+      reasons.push(
+        `한 번에 검사할 수 있는 리뷰는 최대 ${MAX_REVIEW_ROWS.toLocaleString()}건입니다.`
+      );
+    }
+
+    return reasons;
+  }, [result, cafe24Status?.connected, isMatchCompleted, matchSummary, duplicateCheckInput]);
 
   /**
    * status API 한 번으로 접근 권한과 연결 상태를 동시에 처리합니다.
@@ -216,6 +433,18 @@ export default function ReviewMigrationPage() {
     router.replace('/');
   }, [accessState, deniedStatus, router]);
 
+  // 허용 권한 모달은 ESC로도 닫힙니다. (열려 있는 동안만 키 입력을 듣습니다)
+  useEffect(() => {
+    if (!isScopeModalOpen) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsScopeModalOpen(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isScopeModalOpen]);
+
   const handleConnect = () => {
     // state 쿠키를 서버에서 심어야 하므로 authorize 라우트로 직접 이동합니다.
     window.location.href = '/api/review-migration/cafe24/authorize';
@@ -256,6 +485,10 @@ export default function ReviewMigrationPage() {
     setShowProblemOnly(false);
     setPage(1);
     setExpandedRows({});
+    // 새 파일을 검사하면 상품 그룹이 바뀌므로 진행 상황도 초기화합니다.
+    // 매칭 결과가 비면 4단계 검사 대상도 새로 계산되어 이전 중복 검사 결과가 지워집니다.
+    setMatchSummary(null);
+    setMatchEntries([]);
   };
 
   const selectFile = (selected: File | null) => {
@@ -303,7 +536,7 @@ export default function ReviewMigrationPage() {
       const data: ParseResponse = await res.json();
 
       if (!data.ok) {
-        setErrorMessage(data.error);
+        setErrorMessage(rowLimitMessage(data) ?? data.error);
         setMissingColumns(data.missingColumns ?? []);
         return;
       }
@@ -390,48 +623,188 @@ export default function ReviewMigrationPage() {
             </p>
           </div>
 
-          {/* 단계 표시 */}
-          <ol className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-8">
+          {/*
+            상단 고정 설정 영역 (PC 전용).
+            왼쪽 6(카페24 연결) : 오른쪽 4(스마트스토어 주소) 비율이고,
+            격자 기본값인 items-stretch로 두 카드의 상단선·하단선을 맞춥니다.
+            진행 단계는 이 격자 밖에서 전체 너비를 씁니다.
+          */}
+          <div className="grid grid-cols-[6fr_4fr] gap-6 mb-6">
+            {/* 왼쪽 60%: 카페24 연결 */}
+            <section className="min-w-0 bg-[#F6F7FF] p-5 sm:p-6 rounded-lg shadow-sm border border-[#E3E5FF]">
+              <h2 className="text-[15px] font-bold text-gray-900 mb-1">카페24 연결</h2>
+              <p className="text-[13px] text-gray-500 mb-4 leading-relaxed">
+                리뷰를 등록하려면 먼저 카페24 쇼핑몰과 연결해야 합니다. 연결 정보는 서버에 암호화해서 보관합니다.
+              </p>
+
+              {cafe24Notice && (
+                <div className="mb-4 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
+                  <p className="text-[13px] font-bold text-emerald-700 leading-relaxed">{cafe24Notice}</p>
+                </div>
+              )}
+
+              {cafe24Error && (
+                <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+                  <p className="text-[13px] font-bold text-red-600 leading-relaxed">{cafe24Error}</p>
+                </div>
+              )}
+
+              {/* 화면을 이미 보고 있는 상태에서 상태 갱신만 실패한 경우 */}
+              {statusError && (
+                <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                  <p className="text-[13px] font-bold text-amber-700 leading-relaxed flex-1">{statusError}</p>
+                  <button
+                    type="button"
+                    onClick={() => void loadCafe24Status()}
+                    className="shrink-0 px-4 py-2 !bg-white hover:!bg-gray-100 border-2 border-gray-400 !text-gray-800 font-bold text-[13px] rounded-md transition-colors shadow-sm"
+                  >
+                    다시 시도
+                  </button>
+                </div>
+              )}
+
+              {isStatusLoading ? (
+                <p className="text-[13px] font-bold text-gray-400">연결 상태를 확인하는 중...</p>
+              ) : cafe24Status?.connected ? (
+                <>
+                  {/*
+                    상태 카드 2열 2행.
+                    카드 안에서는 제목(회색)과 값을 한 줄에 놓고, 긴 날짜가 줄바꿈되지
+                    않도록 whitespace-nowrap을 주고 폭이 부족하면 값만 잘라 냅니다.
+                  */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-3">
+                      <p className="shrink-0 text-[12px] font-bold text-gray-500 whitespace-nowrap">쇼핑몰 ID</p>
+                      <p className="min-w-0 text-[13px] font-bold text-gray-800 whitespace-nowrap truncate">
+                        {cafe24Status.mallId}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-3">
+                      <p className="shrink-0 text-[12px] font-bold text-gray-500 whitespace-nowrap">연결 상태</p>
+                      <p className="min-w-0 text-[13px] font-bold text-emerald-600 whitespace-nowrap truncate">
+                        연결됨 (상점 {cafe24Status.shopNo ?? 1}번)
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-3">
+                      <p className="shrink-0 text-[12px] font-bold text-gray-500 whitespace-nowrap">
+                        접속 권한 만료 예정
+                      </p>
+                      <p className="min-w-0 text-[13px] font-bold text-gray-800 whitespace-nowrap truncate">
+                        {formatDateTime(cafe24Status.accessTokenExpiresAt)}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-3">
+                      <p className="shrink-0 text-[12px] font-bold text-gray-500 whitespace-nowrap">
+                        재연결 없이 사용 가능
+                      </p>
+                      <p className="min-w-0 text-[13px] font-bold text-gray-800 whitespace-nowrap truncate">
+                        {formatDateTime(cafe24Status.refreshTokenExpiresAt)}까지
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 상태 카드 바로 아래 버튼 영역. 두 버튼의 높이·좌우 여백을 같게 맞춥니다. */}
+                  <div className="mt-5 flex items-center justify-center gap-3">
+                    {(cafe24Status.scopes?.length ?? 0) > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setIsScopeModalOpen(true)}
+                        className="px-5 h-[46px] !bg-white hover:!bg-gray-100 border-2 border-gray-400 !text-gray-800 font-bold text-sm rounded-md transition-colors shadow-sm"
+                      >
+                        허용된 권한 보기
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={handleDisconnect}
+                      disabled={isDisconnecting}
+                      className="px-5 h-[46px] !bg-red-100 hover:!bg-red-200 border-2 border-red-200 !text-red-700 font-bold text-sm rounded-md transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                      {isDisconnecting && (
+                        <span className="w-4 h-4 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+                      )}
+                      {isDisconnecting ? '해제하는 중...' : '연결 해제'}
+                    </button>
+                  </div>
+
+                  <p className="mt-2 text-[12px] text-gray-400 text-center leading-relaxed">
+                    연결을 해제하면 카페24에 저장된 접근 권한도 함께 폐기됩니다.
+                  </p>
+                </>
+              ) : (
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={handleConnect}
+                    className="w-full sm:w-auto px-6 h-[46px] bg-[#5244e8] hover:bg-blue-700 !text-white font-bold text-sm rounded-md transition-colors shadow-sm"
+                  >
+                    카페24 연결하기
+                  </button>
+                  <p className="text-[12px] text-gray-400 leading-relaxed">
+                    카페24 로그인 화면으로 이동한 뒤, 앱 권한에 동의하면 연결이 끝납니다.
+                  </p>
+                </div>
+              )}
+            </section>
+
+            {/*
+              오른쪽 40%: 네이버 스마트스토어 주소.
+              확정 URL은 이 페이지에서 들고 있다가 3단계의 상품번호 링크에 넘깁니다.
+              mallId가 바뀌면 저장 값을 새로 읽어야 하므로 key로 다시 마운트합니다.
+            */}
+            <SmartstoreAddress
+              key={cafe24Status?.mallId ?? ''}
+              mallId={cafe24Status?.mallId ?? ''}
+              onConfirmedChange={setSmartstoreUrl}
+            />
+          </div>
+
+          {/* 진행 단계 — 가로 4칸, 같은 너비·높이. 판정 로직은 기존과 같습니다. */}
+          <ol className="grid grid-cols-4 gap-3 mb-8">
             {STEPS.map((step) => {
-              const isActive = step.ready && step.no === currentStep;
-              const isDone = step.ready && step.no < currentStep;
+              const isActive = step.no === currentStep;
+              const isDone = step.no < currentStep;
 
               return (
                 <li
                   key={step.no}
-                  className={`rounded-lg border px-3 py-3 ${
-                    !step.ready
-                      ? 'bg-gray-50 border-gray-200'
-                      : isActive
-                        ? 'bg-[#5244e8]/5 border-[#5244e8]'
-                        : 'bg-white border-gray-200'
+                  className={`flex items-center gap-3 h-[64px] px-4 rounded-lg border ${
+                    isActive ? 'bg-[#5244e8]/5 border-[#5244e8]' : 'bg-white border-gray-200'
                   }`}
                 >
-                  <div className="flex items-center gap-2">
+                  <span
+                    className={`w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-[12px] font-bold ${
+                      isDone
+                        ? 'bg-emerald-500 !text-white'
+                        : isActive
+                          ? 'bg-[#5244e8] !text-white'
+                          : 'bg-gray-200 text-gray-500'
+                    }`}
+                  >
+                    {isDone ? '✓' : step.no}
+                  </span>
+
+                  <span
+                    className={`flex-1 min-w-0 text-[13px] font-bold truncate ${
+                      isActive ? 'text-[#5244e8]' : 'text-gray-600'
+                    }`}
+                  >
+                    {step.no}단계. {step.title}
+                  </span>
+
+                  {/*
+                    4단계는 중복 검사 → 판정 → 등록으로 이어지므로 지금 어디까지 왔는지를 배지로 알려 줍니다.
+                    문구와 색은 4단계 컴포넌트가 올려 준 상태 하나로만 정해집니다.
+                  */}
+                  {step.no === 4 && (
                     <span
-                      className={`w-6 h-6 shrink-0 rounded-full flex items-center justify-center text-[12px] font-bold ${
-                        !step.ready
-                          ? 'bg-gray-200 text-gray-400'
-                          : isDone
-                            ? 'bg-emerald-500 !text-white'
-                            : isActive
-                              ? 'bg-[#5244e8] !text-white'
-                              : 'bg-gray-200 text-gray-500'
-                      }`}
+                      className={`shrink-0 px-2 py-0.5 rounded-full text-[11px] font-bold ${STEP4_PHASE_BADGES[step4Phase].toneClass}`}
                     >
-                      {isDone ? '✓' : step.no}
-                    </span>
-                    <span
-                      className={`text-[13px] font-bold truncate ${
-                        !step.ready ? 'text-gray-400' : isActive ? 'text-[#5244e8]' : 'text-gray-600'
-                      }`}
-                    >
-                      {step.title}
-                    </span>
-                  </div>
-                  {!step.ready && (
-                    <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-[11px] font-bold bg-gray-200 text-gray-500">
-                      준비 중
+                      {STEP4_PHASE_BADGES[step4Phase].label}
                     </span>
                   )}
                 </li>
@@ -439,124 +812,21 @@ export default function ReviewMigrationPage() {
             })}
           </ol>
 
-          {/* 카페24 연결 */}
-          <section className="bg-white p-5 sm:p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
-            <h2 className="text-[15px] font-bold text-gray-900 mb-1">카페24 연결</h2>
-            <p className="text-[13px] text-gray-500 mb-4 leading-relaxed">
-              리뷰를 등록하려면 먼저 카페24 쇼핑몰과 연결해야 합니다. 연결 정보는 서버에 암호화해서 보관합니다.
-            </p>
-
-            {cafe24Notice && (
-              <div className="mb-4 bg-emerald-50 border border-emerald-200 rounded-lg px-4 py-3">
-                <p className="text-[13px] font-bold text-emerald-700 leading-relaxed">{cafe24Notice}</p>
-              </div>
-            )}
-
-            {cafe24Error && (
-              <div className="mb-4 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
-                <p className="text-[13px] font-bold text-red-600 leading-relaxed">{cafe24Error}</p>
-              </div>
-            )}
-
-            {/* 화면을 이미 보고 있는 상태에서 상태 갱신만 실패한 경우 */}
-            {statusError && (
-              <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-3 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
-                <p className="text-[13px] font-bold text-amber-700 leading-relaxed flex-1">{statusError}</p>
-                <button
-                  type="button"
-                  onClick={() => void loadCafe24Status()}
-                  className="shrink-0 px-4 py-2 !bg-white hover:!bg-gray-100 border-2 border-gray-400 !text-gray-800 font-bold text-[13px] rounded-md transition-colors shadow-sm"
-                >
-                  다시 시도
-                </button>
-              </div>
-            )}
-
-            {isStatusLoading ? (
-              <p className="text-[13px] font-bold text-gray-400">연결 상태를 확인하는 중...</p>
-            ) : cafe24Status?.connected ? (
-              <>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <p className="text-[12px] font-bold text-gray-500 mb-1">쇼핑몰 ID</p>
-                    <p className="text-[14px] font-bold text-gray-800 break-all">{cafe24Status.mallId}</p>
-                  </div>
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <p className="text-[12px] font-bold text-gray-500 mb-1">연결 상태</p>
-                    <p className="text-[14px] font-bold text-emerald-600">
-                      연결됨 (상점 {cafe24Status.shopNo ?? 1}번)
-                    </p>
-                  </div>
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <p className="text-[12px] font-bold text-gray-500 mb-1">접속 권한 만료 예정</p>
-                    <p className="text-[14px] font-bold text-gray-800">
-                      {formatDateTime(cafe24Status.accessTokenExpiresAt)}
-                    </p>
-                  </div>
-                  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                    <p className="text-[12px] font-bold text-gray-500 mb-1">재연결 없이 사용 가능</p>
-                    <p className="text-[14px] font-bold text-gray-800">
-                      {formatDateTime(cafe24Status.refreshTokenExpiresAt)}까지
-                    </p>
-                  </div>
-                </div>
-
-                {(cafe24Status.scopes?.length ?? 0) > 0 && (
-                  <details className="mt-3 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
-                    <summary className="text-[13px] font-bold text-gray-600 cursor-pointer">
-                      허용된 권한 보기
-                    </summary>
-                    <ul className="mt-2 flex flex-wrap gap-1.5">
-                      {cafe24Status.scopes?.map((scope) => (
-                        <li
-                          key={scope}
-                          className="px-2 py-0.5 bg-white border border-gray-200 rounded text-[12px] text-gray-600 break-all"
-                        >
-                          {scope}
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
-                )}
-
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-4">
-                  <button
-                    type="button"
-                    onClick={handleDisconnect}
-                    disabled={isDisconnecting}
-                    className="w-full sm:w-auto px-5 h-[46px] !bg-white hover:!bg-gray-100 border-2 border-gray-400 !text-gray-800 font-bold text-sm rounded-md transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                  >
-                    {isDisconnecting && (
-                      <span className="w-4 h-4 border-2 border-gray-500 border-t-transparent rounded-full animate-spin" />
-                    )}
-                    {isDisconnecting ? '해제하는 중...' : '연결 해제'}
-                  </button>
-                  <p className="text-[12px] text-gray-400 leading-relaxed">
-                    연결을 해제하면 카페24에 저장된 접근 권한도 함께 폐기됩니다.
-                  </p>
-                </div>
-              </>
-            ) : (
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <button
-                  type="button"
-                  onClick={handleConnect}
-                  className="w-full sm:w-auto px-6 h-[46px] bg-[#5244e8] hover:bg-blue-700 !text-white font-bold text-sm rounded-md transition-colors shadow-sm"
-                >
-                  카페24 연결하기
-                </button>
-                <p className="text-[12px] text-gray-400 leading-relaxed">
-                  카페24 로그인 화면으로 이동한 뒤, 앱 권한에 동의하면 연결이 끝납니다.
-                </p>
-              </div>
-            )}
-          </section>
-
           {/* 1단계: 엑셀 선택 */}
           <section className="bg-white p-5 sm:p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
             <h2 className="text-[15px] font-bold text-gray-900 mb-1">1단계. 엑셀 선택</h2>
-            <p className="text-[13px] text-gray-500 mb-4 leading-relaxed">
-              .xlsx 파일만 올릴 수 있고, 최대 10MB까지 가능합니다. 파일의 <b>첫 번째 시트</b>만 사용합니다.
+            <p className="text-[13px] text-[#4F46E5] mb-1 leading-relaxed">
+              <span className="font-semibold">다운로드 경로:</span> 스마트스토어센터 → 문의/리뷰 관리 →
+              리뷰관리 → 검색 → 리뷰목록 우측 [엑셀 다운] 클릭
+            </p>
+            <p className="text-[13px] text-gray-500 mb-1 leading-relaxed">
+              .xlsx 파일당 최대 {MAX_REVIEW_ROWS.toLocaleString()}건까지 처리합니다. 기간을 나누어 업로드할 수
+              있으며, 리뷰글번호를 기준으로 파일 내부 및 기존 등록 리뷰의 중복 여부를 확인합니다. 파일의 첫 번째
+              시트만 사용합니다.
+            </p>
+            <p className="text-[12px] text-gray-400 mb-4 leading-relaxed">
+              이번 단계에서는 같은 파일 안의 중복 리뷰글번호를 확인합니다. 기존 카페24 리뷰와의 중복 확인은 등록
+              단계에서 진행됩니다. 파일 크기는 최대 10MB까지 올릴 수 있습니다.
             </p>
 
             <div
@@ -595,33 +865,42 @@ export default function ReviewMigrationPage() {
               )}
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-4">
-              <button
-                type="button"
-                onClick={handleAnalyze}
-                disabled={!file || isUploading}
-                className="w-full sm:w-auto px-6 h-[46px] bg-[#5244e8] hover:bg-blue-700 !text-white font-bold text-sm rounded-md transition-colors shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-              >
-                {isUploading && (
-                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                )}
-                {isUploading ? '검사 중...' : '엑셀 검사하기'}
-              </button>
-
-              {(file || result) && !isUploading && (
+            {/*
+              버튼 두 개는 가운데 정렬하고 안내 문구는 그 아래 줄에 따로 둡니다.
+              검사에 성공하면(result가 생기면) 같은 파일을 다시 검사할 이유가 없으므로
+              문구를 '검사 완료'로 바꾸고 버튼을 잠급니다.
+              새 파일을 고르거나 '다시 선택'을 누르면 resetResult()가 result를 비워
+              자동으로 '엑셀 검사하기'로 돌아옵니다.
+            */}
+            <div className="mt-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-center gap-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    if (fileInputRef.current) fileInputRef.current.value = '';
-                    selectFile(null);
-                  }}
-                  className="w-full sm:w-auto px-5 h-[46px] !bg-white hover:!bg-gray-100 border-2 border-gray-400 !text-gray-800 font-bold text-sm rounded-md transition-colors shadow-sm"
+                  onClick={handleAnalyze}
+                  disabled={!file || isUploading || result !== null}
+                  className="w-full sm:w-auto px-6 h-[46px] bg-[#5244e8] hover:bg-blue-700 !text-white font-bold text-sm rounded-md transition-colors shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  다시 선택
+                  {isUploading && (
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  )}
+                  {isUploading ? '검사 중...' : result ? '검사 완료' : '엑셀 검사하기'}
                 </button>
-              )}
 
-              <p className="text-[12px] text-gray-400 leading-relaxed">
+                {(file || result) && !isUploading && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                      selectFile(null);
+                    }}
+                    className="w-full sm:w-auto px-5 h-[46px] !bg-white hover:!bg-gray-100 border-2 border-gray-400 !text-gray-800 font-bold text-sm rounded-md transition-colors shadow-sm"
+                  >
+                    다시 선택
+                  </button>
+                )}
+              </div>
+
+              <p className="mt-3 text-[12px] text-gray-400 leading-relaxed text-center">
                 업로드한 파일은 검사할 때만 잠시 사용하고 저장하지 않습니다.
               </p>
             </div>
@@ -681,19 +960,25 @@ export default function ReviewMigrationPage() {
                 <SummaryCard
                   label="누락·잘못된 데이터"
                   value={result.summary.invalidCount}
-                  hint={`리뷰글번호 중복 ${result.summary.duplicateCount.toLocaleString()}건`}
+                  hint={`파일 안 리뷰글번호 중복 ${result.summary.duplicateCount.toLocaleString()}건`}
                   tone="warn"
                 />
               </div>
 
-              {result.truncated && (
-                <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
-                  <p className="text-[13px] font-bold text-amber-700 leading-relaxed">
-                    요약은 전체 {result.totalRowCount.toLocaleString()}건을 기준으로 계산했지만, 아래 표에는
-                    앞에서부터 {result.rows.length.toLocaleString()}건만 표시됩니다.
-                  </p>
-                </div>
-              )}
+              {/*
+                중복 안내는 지금 실제로 하는 검사만 이야기합니다.
+                기존 카페24 리뷰와의 비교는 아직 연결되지 않았습니다.
+              */}
+              <div className="mb-4 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+                <p className="text-[13px] font-bold text-gray-600 leading-relaxed">
+                  같은 파일 안의 중복 리뷰글번호를 확인합니다. 기존 카페24 리뷰와의 중복 확인은 등록 단계에서
+                  진행됩니다.
+                </p>
+                <p className="text-[12px] text-gray-400 mt-1 leading-relaxed">
+                  전체 {result.totalRowCount.toLocaleString()}건을 모두 검사하고 아래 표에 그대로 표시합니다.
+                  (한 파일당 최대 {result.maxRowCount.toLocaleString()}건)
+                </p>
+              </div>
 
               {/* 표 도구 */}
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
@@ -856,21 +1141,85 @@ export default function ReviewMigrationPage() {
             </section>
           )}
 
-          {/* 3·4단계 안내 */}
-          <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {STEPS.filter((step) => !step.ready).map((step) => (
-              <div key={step.no} className="bg-gray-50 border border-dashed border-gray-300 rounded-lg p-5">
-                <p className="text-[13px] font-bold text-gray-500 mb-1">
-                  {step.no}단계. {step.title}
-                </p>
-                <p className="text-[12px] text-gray-400 leading-relaxed">
-                  {step.no === 3
-                    ? '네이버 상품번호와 카페24 상품을 연결하는 기능입니다. 다음 단계에서 만듭니다.'
-                    : '검사한 리뷰를 카페24에 등록하는 기능입니다. 다음 단계에서 만듭니다.'}
-                </p>
+          {/* 3단계: 상품 매칭 */}
+          {result && (
+            <Step3ProductMatch
+              groups={naverProductGroups}
+              mallId={cafe24Status?.mallId ?? ''}
+              smartstoreUrl={smartstoreUrl}
+              onSummaryChange={handleMatchSummaryChange}
+              onMatchesChange={handleMatchEntriesChange}
+            />
+          )}
+
+          {/* 4단계: 등록 전 중복 검사 (실제 카페24 등록은 아직 없습니다) */}
+          <Step4DuplicateCheck
+            targetReviews={duplicateCheckInput.targets}
+            registerTargets={duplicateCheckInput.registerTargets}
+            skippedReviewCount={duplicateCheckInput.skippedReviewCount}
+            unresolvedReviewCount={duplicateCheckInput.unresolvedReviewCount}
+            excludedReviewCount={duplicateCheckInput.excludedReviewCount}
+            blockReasons={duplicateCheckBlockReasons}
+            cafe24Connected={Boolean(cafe24Status?.connected)}
+            cafe24Scopes={cafe24Status?.scopes ?? []}
+            onPhaseChange={setStep4Phase}
+          />
+
+          {/*
+            허용 권한 모달.
+            어두운 배경을 누르면 닫히고, 모달 안쪽 클릭은 전파를 멈춰 닫히지 않습니다.
+            scope 값은 status API가 내려준 것을 그대로 보여 줍니다.
+          */}
+          {isScopeModalOpen && (
+            <div
+              className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+              onClick={() => setIsScopeModalOpen(false)}
+            >
+              <div className="absolute inset-0 bg-black/50" />
+
+              <div
+                className="relative z-10 w-full max-w-lg max-h-[80vh] flex flex-col overflow-hidden bg-white rounded-lg border border-gray-200 shadow-2xl"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center justify-between gap-4 px-5 py-4 bg-gray-50 border-b border-gray-200 shrink-0">
+                  <h3 className="text-[15px] font-bold text-gray-900">카페24 허용 권한</h3>
+                  <button
+                    type="button"
+                    onClick={() => setIsScopeModalOpen(false)}
+                    aria-label="닫기"
+                    className="shrink-0 p-1 rounded-full !bg-transparent hover:!bg-gray-200 !text-gray-400 hover:!text-gray-800 transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="px-5 py-4 overflow-y-auto">
+                  <ul className="flex flex-wrap gap-1.5">
+                    {cafe24Status?.scopes?.map((scope) => (
+                      <li
+                        key={scope}
+                        className="px-2 py-0.5 bg-white border border-gray-200 rounded text-[12px] text-gray-600 break-all"
+                      >
+                        {scope}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex justify-center px-5 py-4 bg-gray-50 border-t border-gray-200 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsScopeModalOpen(false)}
+                    className="px-5 h-[42px] !bg-white hover:!bg-gray-100 border-2 border-gray-400 !text-gray-800 font-bold text-sm rounded-md transition-colors shadow-sm"
+                  >
+                    닫기
+                  </button>
+                </div>
               </div>
-            ))}
-          </section>
+            </div>
+          )}
         </div>
       </main>
     </div>

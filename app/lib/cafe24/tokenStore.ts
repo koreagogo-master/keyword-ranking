@@ -75,6 +75,13 @@ export interface Cafe24TokenRow {
   access_token_tag: string;
   access_token_expires_at: string;
   refresh_token_expires_at: string;
+  refresh_token_ct: string;
+  refresh_token_iv: string;
+  refresh_token_tag: string;
+  connected_by: string | null;
+  created_at: string | null;
+  /** 낙관적 동시성 제어의 비교 기준값 */
+  updated_at: string | null;
 }
 
 /** 화면에 보여 줘도 되는 컬럼만 모은 목록 (암호문·IV·tag 제외) */
@@ -84,7 +91,25 @@ export type Cafe24ConnectionStatusRow = Pick<
 >;
 
 const STATUS_COLUMNS = 'mall_id, shop_no, scopes, access_token_expires_at, refresh_token_expires_at';
-const FULL_COLUMNS = `id, ${STATUS_COLUMNS}, key_version, access_token_ct, access_token_iv, access_token_tag`;
+
+/**
+ * 서버 내부 전용 컬럼 목록.
+ * 암호문·IV·tag가 포함되므로 이 값으로 읽은 행은 절대 응답에 그대로 싣지 않습니다.
+ */
+const FULL_COLUMNS = [
+  'id',
+  STATUS_COLUMNS,
+  'key_version',
+  'access_token_ct',
+  'access_token_iv',
+  'access_token_tag',
+  'refresh_token_ct',
+  'refresh_token_iv',
+  'refresh_token_tag',
+  'connected_by',
+  'created_at',
+  'updated_at',
+].join(', ');
 
 export type StoreResult<T> = { ok: true; data: T } | { ok: false; reason: 'no_admin_client' | 'db_error' };
 
@@ -187,6 +212,70 @@ export async function saveTokens(input: SaveTokensInput): Promise<StoreResult<nu
   if (error) return { ok: false, reason: 'db_error' };
 
   return { ok: true, data: null };
+}
+
+export interface UpdateRefreshedTokensInput {
+  rowId: string;
+  mallId: string;
+  shopNo: number;
+  accessToken: string;
+  refreshToken: string;
+  scopes: string[];
+  encryptionKey: Buffer;
+  /** 토큰 응답을 받은 시각 */
+  issuedAt: Date;
+  /** 갱신 직전에 읽은 updated_at. 이 값이 그대로일 때만 덮어씁니다. */
+  expectedUpdatedAt: string | null;
+}
+
+/**
+ * 갱신된 토큰을 기존 행에 덮어씁니다.
+ *
+ * - access·refresh 암호문/IV/tag와 두 만료 시각을 단일 update로 함께 씁니다.
+ * - expectedUpdatedAt이 맞을 때만 반영되는 낙관적 동시성 제어를 사용합니다.
+ *   다른 요청이 먼저 갱신했다면 'stale'을 돌려주고, 호출부가 DB를 다시 읽게 합니다.
+ * - connected_by·created_at은 건드리지 않아 최초 연결 정보가 유지됩니다.
+ */
+export async function updateRefreshedTokens(
+  input: UpdateRefreshedTokensInput
+): Promise<StoreResult<'updated' | 'stale'>> {
+  const supabase = createCafe24SupabaseAdmin();
+  if (!supabase) return { ok: false, reason: 'no_admin_client' };
+
+  const { mallId, shopNo, encryptionKey, issuedAt } = input;
+
+  const access = encryptToken(input.accessToken, encryptionKey, buildAad(mallId, shopNo, 'access'));
+  const refresh = encryptToken(input.refreshToken, encryptionKey, buildAad(mallId, shopNo, 'refresh'));
+
+  let query = supabase
+    .from(TABLE)
+    .update({
+      access_token_ct: access.ct,
+      access_token_iv: access.iv,
+      access_token_tag: access.tag,
+      refresh_token_ct: refresh.ct,
+      refresh_token_iv: refresh.iv,
+      refresh_token_tag: refresh.tag,
+      key_version: CAFE24_KEY_VERSION,
+      scopes: input.scopes,
+      access_token_expires_at: new Date(issuedAt.getTime() + ACCESS_TOKEN_TTL_MS).toISOString(),
+      refresh_token_expires_at: new Date(issuedAt.getTime() + REFRESH_TOKEN_TTL_MS).toISOString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', input.rowId);
+
+  // null 비교는 = 연산자로 맞출 수 없으므로 IS NULL을 써야 합니다.
+  query =
+    input.expectedUpdatedAt === null
+      ? query.is('updated_at', null)
+      : query.eq('updated_at', input.expectedUpdatedAt);
+
+  const { data, error } = await query.select('id');
+
+  if (error) return { ok: false, reason: 'db_error' };
+
+  // 조건에 맞는 행이 없었다면 그 사이에 다른 요청이 갱신한 것입니다.
+  return { ok: true, data: (data?.length ?? 0) > 0 ? 'updated' : 'stale' };
 }
 
 export async function deleteTokenRow(mallId: string, shopNo: number): Promise<StoreResult<null>> {
