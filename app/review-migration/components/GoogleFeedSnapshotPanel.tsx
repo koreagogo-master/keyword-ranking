@@ -188,7 +188,7 @@ export default function GoogleFeedSnapshotPanel() {
             type="button"
             onClick={() => void loadStatus()}
             disabled={isLoading || isRefreshing}
-            className="px-3 py-2 rounded-md text-[13px] font-bold border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+            className="px-3 py-2 rounded-md text-[13px] font-bold border border-gray-300 bg-white !text-slate-700 hover:bg-gray-50 disabled:opacity-50"
           >
             {isLoading ? '확인 중…' : '상태 새로고침'}
           </button>
