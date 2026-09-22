@@ -17,11 +17,14 @@
  * 11. 구매 확인 표시가 근거 있는 리뷰에만 붙는지
  * 12. 이번 단계에서 제외하기로 한 항목(제목·리뷰 이미지)이 들어가지 않는지
  * 13. 필수값이 없는 리뷰가 사유별로 집계되는지
- * 14. 게시판을 끝까지 읽지 못하면 XML을 만들지 않는지 (소스 확인)
- * 15. 기존 카페24 업로드 기능 파일이 그대로인지 (소스 확인)
+ * 14. 공개 피드의 Basic 인증이 올바른 값만 통과시키는지
+ * 15. 공개 피드·관리자 미리보기 라우트의 응답 규칙 (소스 확인)
+ * 16. 게시판을 끝까지 읽지 못하면 XML을 만들지 않는지 (소스 확인)
+ * 17. 기존 카페24 업로드 기능 파일이 그대로인지 (소스 확인)
  *
- * app/lib/google-reviews의 두 모듈은 순수 함수라 로컬 typescript로 임시 폴더에 컴파일해
+ * app/lib/google-reviews의 순수 모듈은 로컬 typescript로 임시 폴더에 컴파일해
  * 그대로 불러올 수 있습니다. 이 스크립트는 네트워크를 한 번도 쓰지 않습니다.
+ * 인증 검증에는 가짜 값만 쓰고, 어떤 인증정보도 화면에 찍지 않습니다.
  */
 
 import assert from 'node:assert/strict';
@@ -154,6 +157,7 @@ try {
       tscBin,
       path.join(feedDir, 'buildFeed.ts'),
       path.join(feedDir, 'productMap.ts'),
+      path.join(feedDir, 'feedAuth.ts'),
       '--outDir',
       outDir,
       '--module',
@@ -525,47 +529,196 @@ try {
     assertWellFormed(empty.xml);
   });
 
-  console.log('\n[14] 부분 수집이면 XML을 만들지 않는지 (소스 확인)');
+  console.log('\n[14] 공개 피드 Basic 인증');
+  const { FEED_AUTH_CHALLENGE, resolveFeedCredentials, verifyFeedBasicAuth } =
+    await load('feedAuth.js');
+
+  /** 검증용 가짜 인증정보입니다. 실제 아이디·비밀번호가 아닙니다. */
+  const FAKE_USERNAME = 'verify-user';
+  const FAKE_PASSWORD = 'verify-pass:with:colons';
+  const FAKE_CREDENTIALS = { username: FAKE_USERNAME, password: FAKE_PASSWORD };
+
+  const basicHeader = (user, pass) =>
+    `Basic ${Buffer.from(`${user}:${pass}`, 'utf8').toString('base64')}`;
+
+  check('환경변수가 없으면 인증정보를 만들지 않습니다', () => {
+    delete process.env.GOOGLE_REVIEW_FEED_USERNAME;
+    delete process.env.GOOGLE_REVIEW_FEED_PASSWORD;
+    assert.equal(resolveFeedCredentials(), null);
+  });
+  check('한쪽만 있으면 인증정보를 만들지 않습니다', () => {
+    process.env.GOOGLE_REVIEW_FEED_USERNAME = FAKE_USERNAME;
+    delete process.env.GOOGLE_REVIEW_FEED_PASSWORD;
+    assert.equal(resolveFeedCredentials(), null);
+
+    delete process.env.GOOGLE_REVIEW_FEED_USERNAME;
+    process.env.GOOGLE_REVIEW_FEED_PASSWORD = FAKE_PASSWORD;
+    assert.equal(resolveFeedCredentials(), null);
+  });
+  check('둘 다 있으면 인증정보를 만듭니다', () => {
+    process.env.GOOGLE_REVIEW_FEED_USERNAME = FAKE_USERNAME;
+    process.env.GOOGLE_REVIEW_FEED_PASSWORD = FAKE_PASSWORD;
+    assert.deepEqual(resolveFeedCredentials(), FAKE_CREDENTIALS);
+
+    delete process.env.GOOGLE_REVIEW_FEED_USERNAME;
+    delete process.env.GOOGLE_REVIEW_FEED_PASSWORD;
+  });
+  check('올바른 인증정보를 통과시킵니다', () => {
+    assert.equal(
+      verifyFeedBasicAuth(basicHeader(FAKE_USERNAME, FAKE_PASSWORD), FAKE_CREDENTIALS),
+      true
+    );
+  });
+  check('비밀번호에 :가 들어가도 끝까지 읽습니다', () => {
+    assert.ok(FAKE_PASSWORD.includes(':'));
+    assert.equal(
+      verifyFeedBasicAuth(basicHeader(FAKE_USERNAME, 'verify-pass'), FAKE_CREDENTIALS),
+      false
+    );
+  });
+  check('아이디나 비밀번호가 틀리면 막습니다', () => {
+    assert.equal(verifyFeedBasicAuth(basicHeader('other-user', FAKE_PASSWORD), FAKE_CREDENTIALS), false);
+    assert.equal(verifyFeedBasicAuth(basicHeader(FAKE_USERNAME, 'other-pass'), FAKE_CREDENTIALS), false);
+    assert.equal(verifyFeedBasicAuth(basicHeader('', ''), FAKE_CREDENTIALS), false);
+  });
+  check('형식이 맞지 않는 헤더는 막습니다', () => {
+    for (const header of [
+      null,
+      undefined,
+      '',
+      'Bearer token',
+      'Basic',
+      'Basic !!!not-base64!!!',
+      Buffer.from(`${FAKE_USERNAME}:${FAKE_PASSWORD}`, 'utf8').toString('base64'),
+      `Basic ${Buffer.from(FAKE_USERNAME, 'utf8').toString('base64')}`,
+    ]) {
+      assert.equal(verifyFeedBasicAuth(header, FAKE_CREDENTIALS), false, `통과하면 안 되는 헤더: ${String(header)}`);
+    }
+  });
+  check('Basic 표기의 대소문자는 가리지 않습니다', () => {
+    const header = basicHeader(FAKE_USERNAME, FAKE_PASSWORD);
+    assert.equal(verifyFeedBasicAuth(header.replace('Basic', 'basic'), FAKE_CREDENTIALS), true);
+  });
+  check('인증 요구 헤더가 Basic 규격입니다', () => {
+    assert.ok(FEED_AUTH_CHALLENGE.startsWith('Basic realm='));
+    assert.ok(FEED_AUTH_CHALLENGE.includes('charset="UTF-8"'));
+  });
+
+  const authSource = readFileSync(path.join(feedDir, 'feedAuth.ts'), 'utf8');
+
+  check('비교에 timingSafeEqual을 씁니다', () => {
+    assert.ok(authSource.includes('timingSafeEqual'));
+    // 아이디가 틀려도 비밀번호 비교를 건너뛰지 않습니다.
+    assert.ok(authSource.indexOf('const usernameMatches') < authSource.indexOf('const passwordMatches'));
+    assert.ok(authSource.includes('return usernameMatches && passwordMatches;'));
+  });
+  check('인증정보 기본값이 코드에 없습니다', () => {
+    assert.ok(!/GOOGLE_REVIEW_FEED_(USERNAME|PASSWORD)[^\n]*\?\?\s*'[^']+'/.test(authSource));
+    assert.ok(authSource.includes("process.env.GOOGLE_REVIEW_FEED_USERNAME"));
+    assert.ok(authSource.includes("process.env.GOOGLE_REVIEW_FEED_PASSWORD"));
+  });
+  check('인증 모듈이 값을 로그에 남기지 않습니다', () => {
+    assert.ok(!authSource.includes('console.'));
+  });
+
+  console.log('\n[15] 라우트 소스 확인 (공개 피드 · 관리자 미리보기)');
   const exportSource = readFileSync(path.join(cafe24Dir, 'reviewExport.ts'), 'utf8');
+  const feedSourceCode = readFileSync(path.join(feedDir, 'feedSource.ts'), 'utf8');
   const previewSource = readFileSync(
     path.join(repoRoot, 'app/api/review-migration/google-reviews/preview/route.ts'),
     'utf8'
   );
+  const publicSource = readFileSync(
+    path.join(repoRoot, 'app/google-product-reviews.xml/route.ts'),
+    'utf8'
+  );
 
+  check('공개 피드는 인증정보가 없으면 503으로 막습니다', () => {
+    assert.ok(publicSource.includes('const credentials = resolveFeedCredentials();'));
+    assert.ok(publicSource.includes("return textResponse('Feed is not configured.', 503);"));
+    // 인증을 통과하기 전에는 리뷰를 읽지 않습니다.
+    assert.ok(publicSource.indexOf('verifyFeedBasicAuth') < publicSource.indexOf('loadGoogleReviewFeed('));
+  });
+  check('공개 피드는 인증 실패 시 401과 WWW-Authenticate를 돌려줍니다', () => {
+    assert.ok(publicSource.includes("'Authentication required.', 401"));
+    assert.ok(publicSource.includes("'WWW-Authenticate': FEED_AUTH_CHALLENGE"));
+  });
+  check('공개 피드는 관리자 세션을 쓰지 않습니다', () => {
+    assert.ok(!publicSource.includes('requireAdmin'));
+    assert.ok(!publicSource.includes('supabase'));
+  });
+  check('공개 피드에는 진단 주석이 들어가지 않습니다', () => {
+    assert.ok(publicSource.includes('summaryComment: false'));
+    assert.ok(!publicSource.includes('summaryComment: true'));
+  });
+  check('관리자 미리보기에는 진단 주석이 남아 있습니다', () => {
+    assert.ok(previewSource.includes('summaryComment: true'));
+    assert.ok(previewSource.includes('const admin = await requireAdmin();'));
+  });
+  check('두 라우트 모두 XML 헤더와 no-store를 씁니다', () => {
+    for (const source of [publicSource, previewSource]) {
+      assert.ok(source.includes("'Content-Type': 'application/xml; charset=utf-8'"));
+    }
+    assert.ok(publicSource.includes("'Cache-Control': 'private, no-store'"));
+    assert.ok(previewSource.includes('CAFE24_NO_STORE_HEADERS'));
+  });
+  check('두 라우트 모두 Node.js runtime과 동적 응답을 명시합니다', () => {
+    for (const source of [publicSource, previewSource]) {
+      assert.ok(source.includes("export const runtime = 'nodejs';"));
+      assert.ok(source.includes("export const dynamic = 'force-dynamic';"));
+    }
+  });
+  check('두 라우트 모두 쓰기 요청이 없습니다', () => {
+    for (const source of [publicSource, previewSource]) {
+      assert.ok(!source.includes('POST'));
+    }
+    assert.ok(!exportSource.includes("method: 'POST'"));
+  });
+  check('로그에 본문·작성자·인증정보를 남기지 않습니다', () => {
+    const sources = [exportSource, feedSourceCode, previewSource, publicSource];
+    for (const source of sources) {
+      for (const line of source.split('\n').filter((l) => l.includes('console.'))) {
+        for (const leaked of [
+          'content',
+          'writer',
+          'naverReviewId',
+          'naverpay_review_id',
+          'credentials',
+          'authorization',
+          'password',
+        ]) {
+          assert.ok(!line.includes(leaked), `로그에 민감한 값이 실릴 수 있습니다: ${line.trim()}`);
+        }
+      }
+    }
+  });
+  check('SKU의 mall_id는 환경변수 고정값만 씁니다', () => {
+    assert.ok(feedSourceCode.includes('const mallId = resolveMallId();'));
+    for (const source of [feedSourceCode, publicSource, previewSource]) {
+      assert.ok(!source.includes('searchParams.get'));
+    }
+  });
+
+  console.log('\n[16] 부분 수집이면 XML을 만들지 않는지 (소스 확인)');
   check('상한에 닿으면 incomplete_scan으로 끊습니다', () => {
     assert.ok(exportSource.includes("kind: 'incomplete_scan'"));
     assert.ok(exportSource.includes('offset >= CAFE24_ARTICLES_MAX_COUNT'));
     // 상한에 닿은 뒤에도 ok: true로 빠져나가는 경로가 없어야 합니다.
     assert.ok(!exportSource.includes('truncated: true'));
   });
-  check('미리보기 라우트가 incomplete_scan을 오류로 돌려줍니다', () => {
-    assert.ok(previewSource.includes("collected.kind === 'incomplete_scan'"));
-    assert.ok(previewSource.includes("'incomplete_scan',"));
-    // 실패를 확인한 다음에만 XML을 만듭니다.
-    assert.ok(previewSource.indexOf('if (!collected.ok)') < previewSource.indexOf('buildGoogleReviewFeed('));
+  check('공통 로더가 실패를 확인한 다음에만 XML을 만듭니다', () => {
+    assert.ok(feedSourceCode.includes("kind: 'incomplete_scan'"));
+    assert.ok(feedSourceCode.indexOf('if (!collected.ok)') < feedSourceCode.indexOf('buildGoogleReviewFeed('));
   });
-  check('미리보기는 관리자만 쓸 수 있고 XML로 응답합니다', () => {
-    assert.ok(previewSource.includes('const admin = await requireAdmin();'));
-    assert.ok(previewSource.includes("'Content-Type': 'application/xml; charset=utf-8'"));
-    assert.ok(previewSource.includes('CAFE24_NO_STORE_HEADERS'));
-  });
-  check('미리보기 라우트에 쓰기 요청이 없습니다', () => {
-    assert.ok(!previewSource.includes('POST'));
-    assert.ok(!exportSource.includes("method: 'POST'"));
-  });
-  check('수집기는 로그에 본문·작성자를 남기지 않습니다', () => {
-    for (const line of exportSource.split('\n').filter((l) => l.includes('console.'))) {
-      for (const leaked of ['content', 'writer', 'naverReviewId', 'naverpay_review_id']) {
-        assert.ok(!line.includes(leaked), `로그에 개인정보가 실릴 수 있습니다: ${line.trim()}`);
-      }
+  check('두 라우트 모두 실패를 확인한 다음에만 XML을 내보냅니다', () => {
+    for (const source of [publicSource, previewSource]) {
+      assert.ok(source.includes('if (!loaded.ok)'));
+      assert.ok(source.indexOf('if (!loaded.ok)') < source.indexOf('loaded.feed.xml'));
+      assert.ok(source.includes("loaded.kind === 'incomplete_scan'") || source.includes("case 'incomplete_scan':"));
     }
   });
-  check('SKU의 mall_id는 환경변수 고정값만 씁니다', () => {
-    assert.ok(previewSource.includes('const mallId = resolveMallId();'));
-    assert.ok(!previewSource.includes('searchParams.get'));
-  });
 
-  console.log('\n[15] 기존 카페24 업로드 기능이 그대로인지 (소스 확인)');
+  console.log('\n[17] 기존 카페24 업로드 기능이 그대로인지 (소스 확인)');
   const protectedFiles = [
     'reviewPayload.ts',
     'registerRequest.ts',
@@ -610,10 +763,10 @@ try {
     assert.ok(!exportSource.includes("from './reviewNormalize'"));
   });
 
-  console.log('\n[16] 네트워크 사용 여부');
+  console.log('\n[18] 네트워크 사용 여부');
   check('컴파일 결과에 네트워크 호출이 없습니다', () => {
     const needles = ['fet' + 'ch(', 'XMLHttp' + 'Request', 'cafe24' + 'api.com'];
-    for (const file of ['buildFeed.js', 'productMap.js']) {
+    for (const file of ['buildFeed.js', 'productMap.js', 'feedAuth.js']) {
       const compiled = readFileSync(path.join(outDir, file), 'utf8');
       for (const needle of needles) {
         assert.ok(!compiled.includes(needle), `${file}에 네트워크 코드가 있습니다: ${needle}`);
