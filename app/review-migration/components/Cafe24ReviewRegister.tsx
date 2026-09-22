@@ -258,6 +258,30 @@ async function sendChunk(chunk: RegisterReviewInput[], batchStart: number): Prom
 const browserFetch: TrialFetch = (input, init) => fetch(input, init);
 
 /**
+ * 모든 묶음을 끝까지 보냈고 결과가 전부 확인된 경우에만 Google 피드 스냅샷 갱신을 요청합니다.
+ *
+ * 등록은 이미 끝났고 성공했으므로, 갱신 실패가 등록 결과 화면에 영향을 주면 안 됩니다.
+ * 그래서 await 하지 않고 오류도 삼킵니다. 갱신에 실패해도 직전 스냅샷이 계속 제공되고,
+ * 매일 23:30 예약 갱신이 다시 시도합니다.
+ *
+ * keepalive를 쓰는 이유는, 등록이 끝난 직후 관리자가 화면을 닫거나 이동해도
+ * 이 요청만은 브라우저가 끝까지 보내 주기 때문입니다.
+ * (스냅샷 생성은 서버에서 20초 정도 걸리지만 응답을 기다리지 않으므로 상관없습니다)
+ */
+function requestFeedSnapshotRefresh(): void {
+  try {
+    void fetch('/api/review-migration/google-reviews/snapshot/refresh', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ trigger: 'after_upload' }),
+      keepalive: true,
+    }).catch(() => {});
+  } catch {
+    // 갱신 요청을 보내지 못해도 등록 결과에는 영향을 주지 않습니다.
+  }
+}
+
+/**
  * 시험 등록을 시작한 순간의 대상 정보.
  *
  * 관리자 판정이 바뀌어 최종 확인 결과가 지워져도 시험 결과는 그대로 남아야 하므로
@@ -350,6 +374,13 @@ export default function Cafe24ReviewRegister({
   const [stoppedByUser, setStoppedByUser] = useState(false);
   /** 결과를 설명할 수 없거나 요청이 실패해 중간에 멈춘 경우 true */
   const [haltedByProblem, setHaltedByProblem] = useState(false);
+  /**
+   * Google 피드 스냅샷 갱신을 요청했는지.
+   *
+   * 응답을 기다리지 않으므로 '완료'가 아니라 '요청됨'입니다.
+   * 실제 갱신 결과는 위쪽 [Google 상품평 피드] 영역에서 확인합니다.
+   */
+  const [feedRefreshRequested, setFeedRefreshRequested] = useState(false);
 
   const [isVerifying, setIsVerifying] = useState(false);
   const [verifyError, setVerifyError] = useState('');
@@ -405,6 +436,7 @@ export default function Cafe24ReviewRegister({
     setNotProcessedCount(0);
     setStoppedByUser(false);
     setHaltedByProblem(false);
+    setFeedRefreshRequested(false);
     setIsVerifying(false);
     setVerifyError('');
     setVerifyResult(null);
@@ -580,6 +612,7 @@ export default function Cafe24ReviewRegister({
     setNotProcessedCount(0);
     setStoppedByUser(false);
     setHaltedByProblem(false);
+    setFeedRefreshRequested(false);
 
     const diagnostics: RegisterBatchDiagnostic[] = [];
 
@@ -618,6 +651,25 @@ export default function Cafe24ReviewRegister({
       if (run.error) {
         setRegisterError(run.error.message);
         setRegisterErrorDetail(run.error.devDetail);
+      }
+
+      /**
+       * 모든 묶음을 끝까지 보냈고, 중단도 없었고, 결과가 불명확한 건도 없고,
+       * 실제로 등록된 리뷰가 있을 때만 Google 피드 스냅샷 갱신을 요청합니다.
+       *
+       * finally가 아니라 이 자리인 이유는, 중단된 실행 뒤에 갱신을 걸면 안 되기 때문입니다.
+       * 게시판 상태가 관리자가 의도한 모습이 아닐 수 있습니다.
+       */
+      const finishedAll =
+        !run.halted &&
+        !run.stoppedByUser &&
+        run.unclear.length === 0 &&
+        run.processed === queue.length &&
+        run.succeeded.length > 0;
+
+      if (finishedAll) {
+        requestFeedSnapshotRefresh();
+        setFeedRefreshRequested(true);
       }
     } finally {
       setIsRegistering(false);
@@ -1113,6 +1165,17 @@ export default function Cafe24ReviewRegister({
               <p>마지막으로 성공한 네이버 리뷰글번호: {successIds[successIds.length - 1]}</p>
             )}
           </div>
+
+          {/*
+            응답을 기다리지 않고 보낸 요청이므로 '완료'가 아니라 '요청됨'입니다.
+            실제 반영 여부는 [Google 상품평 피드] 영역의 생성 시각으로 확인합니다.
+          */}
+          {feedRefreshRequested && (
+            <p className="mt-2 text-[13px] font-bold text-gray-700 leading-relaxed">
+              Google 상품평 피드 갱신 요청됨 — 위 [Google 상품평 피드] 영역에서 [상태 새로고침]을 눌러 생성
+              시각이 바뀌었는지 확인해 주세요. 갱신에는 20초쯤 걸립니다.
+            </p>
+          )}
 
           {completedWithFailures && (
             <p className="mt-2 text-[13px] font-bold text-gray-700 leading-relaxed">

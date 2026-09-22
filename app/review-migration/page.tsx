@@ -16,6 +16,7 @@ import type {
 import Step3ProductMatch, { type ProductMatchSummary } from './components/Step3ProductMatch';
 import Step4DuplicateCheck, { type Step4Phase } from './components/Step4DuplicateCheck';
 import SmartstoreAddress from './components/SmartstoreAddress';
+import GoogleFeedSnapshotPanel from './components/GoogleFeedSnapshotPanel';
 
 const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10MB
 /** 서버(parse-excel)와 같은 값. 안내 문구에만 사용하고 실제 검증은 서버가 합니다. */
@@ -1164,6 +1165,12 @@ export default function ReviewMigrationPage() {
             cafe24Scopes={cafe24Status?.scopes ?? []}
             onPhaseChange={setStep4Phase}
           />
+
+          {/*
+            Google 상품평 피드 스냅샷 상태·수동 갱신.
+            엑셀 업로드 흐름(1~4단계)과는 독립적이라 파일을 올리지 않아도 항상 보입니다.
+          */}
+          <GoogleFeedSnapshotPanel />
 
           {/*
             허용 권한 모달.

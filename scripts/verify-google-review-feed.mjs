@@ -636,8 +636,8 @@ try {
   check('공개 피드는 인증정보가 없으면 503으로 막습니다', () => {
     assert.ok(publicSource.includes('const credentials = resolveFeedCredentials();'));
     assert.ok(publicSource.includes("return textResponse('Feed is not configured.', 503);"));
-    // 인증을 통과하기 전에는 리뷰를 읽지 않습니다.
-    assert.ok(publicSource.indexOf('verifyFeedBasicAuth') < publicSource.indexOf('loadGoogleReviewFeed('));
+    // 인증을 통과하기 전에는 스냅샷을 읽지 않습니다.
+    assert.ok(publicSource.indexOf('verifyFeedBasicAuth') < publicSource.indexOf('readLatestReadyMeta('));
   });
   check('공개 피드는 인증 실패 시 401과 WWW-Authenticate를 돌려줍니다', () => {
     assert.ok(publicSource.includes("'Authentication required.', 401"));
@@ -647,19 +647,43 @@ try {
     assert.ok(!publicSource.includes('requireAdmin'));
     assert.ok(!publicSource.includes('supabase'));
   });
+  /**
+   * 3단계에서 공개 피드가 스냅샷을 돌려주도록 바뀌었습니다.
+   * 진단 주석을 넣지 않는 책임은 스냅샷을 만드는 갱신기(refreshSnapshot.ts)로 옮겨 갔고,
+   * 주석이 섞인 XML은 검증(unexpected_comment)에서 저장 자체가 막힙니다.
+   */
   check('공개 피드에는 진단 주석이 들어가지 않습니다', () => {
-    assert.ok(publicSource.includes('summaryComment: false'));
     assert.ok(!publicSource.includes('summaryComment: true'));
+
+    const refreshSource = readFileSync(
+      path.join(repoRoot, 'app/lib/google-reviews/refreshSnapshot.ts'),
+      'utf8'
+    );
+    assert.ok(refreshSource.includes('summaryComment: false'));
+    assert.ok(!refreshSource.includes('summaryComment: true'));
+
+    const validateSource = readFileSync(
+      path.join(repoRoot, 'app/lib/google-reviews/snapshotValidate.ts'),
+      'utf8'
+    );
+    assert.ok(validateSource.includes("reject('unexpected_comment')"));
   });
   check('관리자 미리보기에는 진단 주석이 남아 있습니다', () => {
     assert.ok(previewSource.includes('summaryComment: true'));
     assert.ok(previewSource.includes('const admin = await requireAdmin();'));
   });
-  check('두 라우트 모두 XML 헤더와 no-store를 씁니다', () => {
+  /**
+   * 3단계에서 공개 피드만 no-store → no-cache로 바뀌었습니다.
+   * ETag 기반 304를 쓰기 위한 것이고, no-cache는 "캐시 금지"가 아니라
+   * "쓰기 전에 반드시 재확인하라"는 뜻이라 오래된 리뷰가 나갈 위험은 없습니다.
+   * 인증 뒤의 응답이므로 private는 그대로 유지해야 합니다.
+   */
+  check('두 라우트 모두 XML 헤더를 쓰고 공개 피드는 재확인을 요구합니다', () => {
     for (const source of [publicSource, previewSource]) {
       assert.ok(source.includes("'Content-Type': 'application/xml; charset=utf-8'"));
     }
-    assert.ok(publicSource.includes("'Cache-Control': 'private, no-store'"));
+    assert.ok(publicSource.includes("'Cache-Control': 'private, no-cache, must-revalidate'"));
+    assert.ok(publicSource.includes("'X-Robots-Tag': 'noindex'"));
     assert.ok(previewSource.includes('CAFE24_NO_STORE_HEADERS'));
   });
   check('두 라우트 모두 Node.js runtime과 동적 응답을 명시합니다', () => {
@@ -710,12 +734,32 @@ try {
     assert.ok(feedSourceCode.includes("kind: 'incomplete_scan'"));
     assert.ok(feedSourceCode.indexOf('if (!collected.ok)') < feedSourceCode.indexOf('buildGoogleReviewFeed('));
   });
-  check('두 라우트 모두 실패를 확인한 다음에만 XML을 내보냅니다', () => {
-    for (const source of [publicSource, previewSource]) {
-      assert.ok(source.includes('if (!loaded.ok)'));
-      assert.ok(source.indexOf('if (!loaded.ok)') < source.indexOf('loaded.feed.xml'));
-      assert.ok(source.includes("loaded.kind === 'incomplete_scan'") || source.includes("case 'incomplete_scan':"));
-    }
+  check('관리자 미리보기는 실패를 확인한 다음에만 XML을 내보냅니다', () => {
+    assert.ok(previewSource.includes('if (!loaded.ok)'));
+    assert.ok(previewSource.indexOf('if (!loaded.ok)') < previewSource.indexOf('loaded.feed.xml'));
+    assert.ok(previewSource.includes("case 'incomplete_scan':"));
+  });
+
+  /**
+   * 공개 피드는 이제 카페24를 직접 부르지 않습니다.
+   * 부분 수집을 막는 책임은 갱신기로 옮겨 갔고, 공개 피드는 검증을 통과해
+   * 저장된 스냅샷만 돌려주므로 일부만 담긴 XML이 나갈 경로 자체가 없습니다.
+   */
+  check('공개 피드는 카페24를 직접 부르지 않고 저장된 스냅샷만 내보냅니다', () => {
+    assert.ok(!publicSource.includes('loadGoogleReviewFeed'));
+    assert.ok(!publicSource.includes('fetchReviewExportRecords'));
+    assert.ok(publicSource.includes('readLatestReadyMeta'));
+
+    // 스냅샷이 없으면 부분 XML 대신 503으로 끊어야 합니다.
+    assert.ok(publicSource.includes("textResponse('Review feed is not ready yet.', 503"));
+
+    const refreshSource = readFileSync(
+      path.join(repoRoot, 'app/lib/google-reviews/refreshSnapshot.ts'),
+      'utf8'
+    );
+    // 갱신기는 수집 실패를 확인한 다음에만 저장합니다.
+    assert.ok(refreshSource.indexOf('if (!loaded.ok)') < refreshSource.indexOf('insertReadySnapshot('));
+    assert.ok(refreshSource.includes("kind: 'collect'"));
   });
 
   console.log('\n[17] 기존 카페24 업로드 기능이 그대로인지 (소스 확인)');

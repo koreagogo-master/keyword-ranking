@@ -11,7 +11,8 @@
     "verify:cafe24-attach-file-urls": "node scripts/verify-cafe24-attach-file-urls.mjs",
     "verify:cafe24-multi-status": "node scripts/verify-cafe24-multi-status.mjs",
     "verify:cafe24-batch-continue": "node scripts/verify-cafe24-batch-continue.mjs",
-    "verify:google-review-feed": "node scripts/verify-google-review-feed.mjs"
+    "verify:google-review-feed": "node scripts/verify-google-review-feed.mjs",
+    "verify:google-review-snapshot": "node scripts/verify-google-review-snapshot.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.91.0",
