@@ -49,6 +49,11 @@ create table if not exists public.google_review_feed_snapshots (
 
 -- 제공 가능한 스냅샷은 XML·해시·리뷰 수가 반드시 모두 있어야 합니다.
 -- 애플리케이션 검증이 뚫려도 빈 스냅샷이 저장되지 않게 하는 마지막 방어선입니다.
+--
+-- byte_size와 review_count는 nullable이라 is not null을 반드시 함께 씁니다.
+-- CHECK는 결과가 NULL이면 통과로 처리하므로, `byte_size > 0`만 쓰면
+-- byte_size가 NULL인 ready 행이 그대로 들어옵니다. 그러면 피드가 크기도 건수도 모르는
+-- 스냅샷을 제공하게 되므로, 비교 연산 앞에 NULL 여부를 명시해 막습니다.
 alter table public.google_review_feed_snapshots
   drop constraint if exists google_review_feed_snapshots_ready_complete;
 
@@ -56,7 +61,14 @@ alter table public.google_review_feed_snapshots
   add constraint google_review_feed_snapshots_ready_complete
   check (
     status <> 'ready'
-    or (xml is not null and sha256 is not null and byte_size > 0 and review_count > 0)
+    or (
+      xml is not null
+      and sha256 is not null
+      and byte_size is not null
+      and byte_size > 0
+      and review_count is not null
+      and review_count > 0
+    )
   );
 
 -- 실패 기록에는 XML을 남기지 않습니다.

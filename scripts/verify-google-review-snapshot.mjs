@@ -16,6 +16,7 @@
  * 10. 예약·수동 진입점의 인증과 force 규칙 (소스 확인)
  * 11. 저장소가 최신 정상 스냅샷을 삭제하지 않는지 (소스 확인)
  * 12. 기존 카페24 업로드 기능과 피드 생성기 파일이 그대로인지 (소스 확인)
+ * 13. 마이그레이션 SQL의 ready 제약조건이 NULL을 통과시키지 않는지 (파일 확인)
  *
  * app/lib/google-reviews의 순수 모듈은 로컬 typescript로 임시 폴더에 컴파일해
  * 그대로 불러올 수 있습니다. 이 스크립트는 네트워크를 한 번도 쓰지 않습니다.
@@ -662,6 +663,80 @@ check('관리자 미리보기는 여전히 실시간 수집을 쓴다', () => {
   );
   assert.ok(preview.includes('loadGoogleReviewFeed'));
   assert.ok(preview.includes('summaryComment: true'));
+});
+
+console.log('\n[13] 마이그레이션 SQL (파일 확인)');
+
+/**
+ * 이 마이그레이션은 Supabase SQL 편집기에 손으로 붙여 넣어 적용합니다.
+ * 실행해 보고 확인할 방법이 없으므로, 제약조건 문구 자체를 여기서 검사합니다.
+ *
+ * SQL의 CHECK는 결과가 false일 때만 막고 NULL이면 통과시킵니다.
+ * 그래서 `byte_size > 0`만 쓰면 byte_size가 NULL인 ready 행이 그대로 들어옵니다.
+ * 비교 연산을 쓰는 컬럼마다 is not null이 함께 있는지 확인하는 것이 이 검사입니다.
+ */
+const migration = readSource(
+  path.join('supabase', 'migrations', '0001_google_review_feed_snapshots.sql')
+);
+
+/** 괄호 짝을 세어 ready_complete 제약조건의 check(...) 본문만 잘라냅니다. */
+function readReadyCompleteCheck() {
+  const constraintAt = migration.indexOf(
+    'add constraint google_review_feed_snapshots_ready_complete'
+  );
+  assert.ok(constraintAt > 0, 'ready_complete 제약조건을 찾지 못했습니다');
+
+  const openAt = migration.indexOf('(', migration.indexOf('check', constraintAt));
+  assert.ok(openAt > constraintAt, 'ready_complete의 check 본문을 찾지 못했습니다');
+
+  let depth = 0;
+  for (let i = openAt; i < migration.length; i += 1) {
+    if (migration[i] === '(') depth += 1;
+    else if (migration[i] === ')') {
+      depth -= 1;
+      if (depth === 0) return migration.slice(openAt, i + 1);
+    }
+  }
+
+  throw new Error('check 본문의 닫는 괄호를 찾지 못했습니다');
+}
+
+const readyCheck = readReadyCompleteCheck();
+
+check('ready 제약조건이 byte_size·review_count의 NULL을 명시적으로 막는다', () => {
+  assert.ok(/byte_size\s+is\s+not\s+null/i.test(readyCheck), 'byte_size is not null이 없습니다');
+  assert.ok(/review_count\s+is\s+not\s+null/i.test(readyCheck), 'review_count is not null이 없습니다');
+  assert.ok(/xml\s+is\s+not\s+null/i.test(readyCheck), 'xml is not null이 없습니다');
+  assert.ok(/sha256\s+is\s+not\s+null/i.test(readyCheck), 'sha256 is not null이 없습니다');
+});
+
+check('ready 제약조건에서 비교 연산을 쓰는 컬럼은 모두 is not null을 함께 쓴다', () => {
+  const compared = new Set();
+  for (const [, column] of readyCheck.matchAll(/\b([a-z_][a-z0-9_]*)\s*(?:>=|<=|<>|>|<)/gi)) {
+    compared.add(column.toLowerCase());
+  }
+
+  // status는 NOT NULL 컬럼이고 분기 조건(status <> 'ready')으로만 쓰입니다.
+  compared.delete('status');
+
+  assert.ok(compared.size > 0, '비교 연산을 하나도 찾지 못했습니다');
+
+  for (const column of compared) {
+    assert.ok(
+      new RegExp(`\\b${column}\\s+is\\s+not\\s+null`, 'i').test(readyCheck),
+      `${column} 에 is not null이 없습니다 (NULL이면 CHECK가 통과해 버립니다)`
+    );
+  }
+});
+
+check('failed 행은 여전히 xml이 NULL이어야 한다', () => {
+  // ready 제약조건을 고친 뒤에도 실패 기록에 XML을 남기지 않는 규칙은 그대로여야 합니다.
+  assert.ok(migration.includes('google_review_feed_snapshots_failed_has_no_xml'));
+  assert.ok(/status\s*<>\s*'failed'\s+or\s+xml\s+is\s+null/i.test(migration));
+});
+
+check('ready 제약조건은 failed 행을 건드리지 않는다', () => {
+  assert.ok(/status\s*<>\s*'ready'\s+or/i.test(readyCheck), 'ready 분기 조건이 없습니다');
 });
 
 rmSync(outDir, { recursive: true, force: true });
