@@ -342,9 +342,31 @@ try {
     assert.ok(first.includes('<sku>cafe24_tmgmall01_1_35</sku>'));
     assert.ok(second.includes('<sku>cafe24_tmgmall01_1_70</sku>'));
   });
-  check('상품 35에만 브랜드·MPN이 붙습니다', () => {
+  check('상품 35의 기존 브랜드·MPN이 유지됩니다', () => {
     assert.ok(first.includes('<brand>코만도빔</brand>'));
     assert.ok(first.includes('<mpn>commandobeam2</mpn>'));
+  });
+  check('리뷰 cafe24-4-536의 상품 69에 브랜드·MPN이 붙습니다', () => {
+    const product69Feed = buildGoogleReviewFeed(
+      [review({ articleNo: 536, productNo: 69 })],
+      { identity: IDENTITY }
+    );
+    const [product69Review] = splitReviews(product69Feed.xml);
+
+    assert.equal(textOf(product69Review, 'review_id'), 'cafe24-4-536');
+    assert.ok(product69Review.includes('<mpn>P00000CR</mpn>'));
+    assert.ok(product69Review.includes('<sku>cafe24_tmgmall01_1_69</sku>'));
+    assert.ok(product69Review.includes('<brand>코만도레이저</brand>'));
+    assert.ok(
+      product69Review.includes(
+        `<review_url type="singleton">${ORIGIN}/article/${BOARD_SEGMENT}/4/536/</review_url>`
+      )
+    );
+    assert.ok(
+      product69Review.includes(
+        `<product_url>${ORIGIN}/product/detail.html?product_no=69</product_url>`
+      )
+    );
   });
   check('확인되지 않은 상품에는 브랜드·MPN을 넣지 않습니다', () => {
     assert.ok(!second.includes('<brand>'));

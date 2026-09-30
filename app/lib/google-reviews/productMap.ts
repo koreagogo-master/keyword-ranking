@@ -49,6 +49,7 @@ export interface GoogleProductIdentity {
  */
 const PRODUCT_IDENTITIES: Readonly<Record<number, GoogleProductIdentity>> = {
   35: { brand: '코만도빔', mpn: 'commandobeam2' },
+  69: { brand: '코만도레이저', mpn: 'P00000CR' },
 };
 
 /** 확인된 브랜드·MPN. 등록되지 않은 상품이면 빈 객체 */
