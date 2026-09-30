@@ -368,6 +368,51 @@ try {
       )
     );
   });
+  check('실제 리뷰에서 확인한 추가 8종에 브랜드·MPN이 붙고 식별자·URL이 유지됩니다', () => {
+    // 공개 리뷰 목록에서 확인한 대표 articleNo/productNo 쌍입니다.
+    // 작성자·본문·작성일·평점은 외부 데이터를 저장하지 않고 review()의 검증용 값을 씁니다.
+    const cases = [
+      { articleNo: 926, productNo: 36, brand: '코만도빔', mpn: 'cafe24_tmgmall01_36' },
+      { articleNo: 9, productNo: 38, brand: '코만도엑스', mpn: 'cafe24_tmgmall01_38' },
+      { articleNo: 27, productNo: 39, brand: '코만도엑스', mpn: 'P00000BN' },
+      { articleNo: 809, productNo: 51, brand: '코만도빔', mpn: 'P00000BZ' },
+      { articleNo: 827, productNo: 64, brand: '코만도레이저', mpn: 'P00000CM' },
+      { articleNo: 889, productNo: 65, brand: '코만도레이저', mpn: 'P00000CN' },
+      { articleNo: 764, productNo: 67, brand: '코만도레이저', mpn: 'P00000CP' },
+      { articleNo: 768, productNo: 68, brand: '코만도레이저', mpn: 'P00000CQ' },
+    ];
+
+    const mappedFeed = buildGoogleReviewFeed(
+      cases.map(({ articleNo, productNo }) => review({ articleNo, productNo })),
+      { identity: IDENTITY }
+    );
+    const mappedBlocks = new Map(
+      splitReviews(mappedFeed.xml).map((block) => [textOf(block, 'review_id'), block])
+    );
+
+    assert.equal(mappedFeed.includedCount, cases.length);
+
+    for (const item of cases) {
+      const reviewId = buildReviewId(IDENTITY.boardNo, item.articleNo);
+      const block = mappedBlocks.get(reviewId);
+
+      assert.ok(block, `${reviewId} 블록을 찾지 못했습니다`);
+      assert.ok(block.includes(`<mpn>${item.mpn}</mpn>`));
+      assert.ok(block.includes(`<sku>${buildSku(IDENTITY, item.productNo)}</sku>`));
+      assert.ok(block.includes(`<brand>${item.brand}</brand>`));
+      assert.ok(
+        block.includes(
+          `<review_url type="singleton">${buildReviewPageUrl(IDENTITY.boardNo, item.articleNo)}</review_url>`
+        )
+      );
+      assert.ok(
+        block.includes(`<product_url>${buildProductPageUrl(item.productNo)}</product_url>`)
+      );
+
+      const ids = /<product_ids>([\s\S]*?)<\/product_ids>/.exec(block)[1];
+      assert.deepEqual(topLevelElementNames(ids), ['mpns', 'skus', 'brands']);
+    }
+  });
   check('확인되지 않은 상품에는 브랜드·MPN을 넣지 않습니다', () => {
     assert.ok(!second.includes('<brand>'));
     assert.ok(!second.includes('<mpn>'));

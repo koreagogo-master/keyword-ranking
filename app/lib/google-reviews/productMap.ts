@@ -49,6 +49,14 @@ export interface GoogleProductIdentity {
  */
 const PRODUCT_IDENTITIES: Readonly<Record<number, GoogleProductIdentity>> = {
   35: { brand: '코만도빔', mpn: 'commandobeam2' },
+  36: { brand: '코만도빔', mpn: 'cafe24_tmgmall01_36' },
+  38: { brand: '코만도엑스', mpn: 'cafe24_tmgmall01_38' },
+  39: { brand: '코만도엑스', mpn: 'P00000BN' },
+  51: { brand: '코만도빔', mpn: 'P00000BZ' },
+  64: { brand: '코만도레이저', mpn: 'P00000CM' },
+  65: { brand: '코만도레이저', mpn: 'P00000CN' },
+  67: { brand: '코만도레이저', mpn: 'P00000CP' },
+  68: { brand: '코만도레이저', mpn: 'P00000CQ' },
   69: { brand: '코만도레이저', mpn: 'P00000CR' },
 };
 
