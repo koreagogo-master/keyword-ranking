@@ -4,8 +4,8 @@
  * 공식 스키마: http://www.google.com/shopping/reviews/schema/product/2.4/product_reviews.xsd
  * 요소 순서는 XSD의 sequence를 그대로 따릅니다.
  *
- *   review_id → reviewer → is_verified_purchase → review_timestamp → content
- *   → review_url → ratings → products → collection_method
+ *   review_id → reviewer → review_timestamp → content → review_url → ratings
+ *   → products → is_verified_purchase → collection_method
  *
  * 네트워크 호출이 없습니다. 값 변환과 XML 조립만 하므로 카페24를 부르지 않고 그대로 검증할 수 있습니다.
  *
@@ -373,14 +373,6 @@ function buildReviewBlock(review: PreparedReview, identity: FeedIdentity): strin
   );
   lines.push(`${indent(3)}</reviewer>`);
 
-  /**
-   * 구매 확인은 근거가 있는 리뷰에만 넣습니다.
-   * 근거는 카페24에 남아 있는 naverpay_review_id 또는 본문의 스마트스토어 출처 문구입니다.
-   */
-  if (review.isVerifiedPurchase) {
-    lines.push(element(3, 'is_verified_purchase', 'true'));
-  }
-
   lines.push(element(3, 'review_timestamp', review.timestamp));
   lines.push(element(3, 'content', review.content));
   lines.push(
@@ -395,7 +387,12 @@ function buildReviewBlock(review: PreparedReview, identity: FeedIdentity): strin
   lines.push(...buildProductBlock(identity, review.productNo));
   lines.push(`${indent(3)}</products>`);
 
+  /**
+   * 구매 확인은 근거가 있는 리뷰에만 넣습니다.
+   * 근거는 카페24에 남아 있는 naverpay_review_id 또는 본문의 스마트스토어 출처 문구입니다.
+   */
   if (review.isVerifiedPurchase) {
+    lines.push(element(3, 'is_verified_purchase', 'true'));
     lines.push(element(3, 'collection_method', 'post_fulfillment'));
   }
 

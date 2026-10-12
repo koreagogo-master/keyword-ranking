@@ -272,12 +272,12 @@ try {
     assert.deepEqual(topLevelElementNames(first), [
       'review_id',
       'reviewer',
-      'is_verified_purchase',
       'review_timestamp',
       'content',
       'review_url',
       'ratings',
       'products',
+      'is_verified_purchase',
       'collection_method',
     ]);
   });
