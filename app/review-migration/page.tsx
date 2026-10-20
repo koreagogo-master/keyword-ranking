@@ -813,6 +813,48 @@ export default function ReviewMigrationPage() {
             })}
           </ol>
 
+          {/* 작업 순서 안내 — 기본은 접힘 상태이며 1단계 바로 위에서 필요할 때만 펼칩니다. */}
+          <details className="group bg-white rounded-lg shadow-sm border border-gray-200 mb-4">
+            <summary className="list-none cursor-pointer select-none px-4 py-4 sm:px-5 flex items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+              <span className="text-[14px] sm:text-[15px] font-bold text-gray-900 leading-relaxed">
+                네이버 후기 이전 및 이미지 최적화 작업 안내
+              </span>
+              <svg
+                className="w-5 h-5 shrink-0 text-gray-400 transition-transform duration-200 group-open:rotate-180"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                aria-hidden="true"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+
+            <ol className="mx-4 sm:mx-5 pb-4 sm:pb-5 pt-4 border-t border-gray-100 space-y-2.5">
+              {[
+                '카페24 게시판 관리에서 잔여 용량 확인',
+                '네이버 스마트스토어 전체 평점 후기 엑셀 다운로드',
+                '로컬 이미지 최적화 프로그램 실행 (긴 변 600px, JPG 품질 85%)',
+                '프로그램 위치: Desktop\\V code\\my_backup\\komando-review-image-optimizer',
+                '최적화 이미지 임시 배포 및 엑셀 이미지 URL 교체 (원본 보존)',
+                '엑셀 업로드 → 상품 매칭 → 중복 검사',
+                '이미지 후기 1건 시험 등록 → 중복 재검사 → 전체 등록',
+                '등록 검증 → Google 상품평점 피드 갱신',
+                '카페24 자체 이미지 저장 확인 → 임시 이미지 삭제 → 최종 노출 확인',
+              ].map((guide, index) => (
+                <li key={guide} className="flex items-start gap-2.5">
+                  <span className="mt-0.5 w-5 h-5 shrink-0 rounded-full bg-[#5244e8]/10 text-[#5244e8] text-[11px] font-bold flex items-center justify-center">
+                    {index + 1}
+                  </span>
+                  <span className="min-w-0 text-[12px] sm:text-[13px] text-gray-600 leading-relaxed break-words">
+                    {guide}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </details>
+
           {/* 1단계: 엑셀 선택 */}
           <section className="bg-white p-5 sm:p-6 rounded-lg shadow-sm border border-gray-200 mb-8">
             <h2 className="text-[15px] font-bold text-gray-900 mb-1">1단계. 엑셀 선택</h2>
